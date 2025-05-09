@@ -1,0 +1,26 @@
+# Bazel convenience symlinks.
+/bazel-*
+
+# Bazel IntelliJ projects.
+/.ijwb/
+/.clwb/
+
+# IntelliJ projects.
+.idea/
+*.iml
+
+# VIM swap files
+*.swp
+# VIM undo files
+*.un~
+
+# Terraform directories
+.terraform/
+
+# Authentication credentials
+/auth.bazelrc
+
+**/node_modules
+
+# Coverage HTML directory
+genhtml/
