@@ -135,6 +135,11 @@ bazel_dep(
     repo_name = "bazel_gazelle",
 )
 bazel_dep(
+    name = "rules_proto",
+    version = "7.1.0",
+)
+
+bazel_dep(
     name = "rules_java",
     version = "8.15.2",
 )
@@ -204,6 +209,12 @@ single_version_override(
 bazel_dep(
     name = "rules_multirun",
     version = "0.12.0",
+)
+
+bazel_dep(
+    name = "protobuf",
+    version = "29.3",
+    repo_name = "com_google_protobuf",
 )
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
