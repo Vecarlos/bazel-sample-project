@@ -1,0 +1,22 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "count_letters_evaluator_test",
+    srcs = ["CountLettersEvaluatorTest.kt"],
+    test_class = "sample.CountLettersEvaluatorTest",
+    deps = [
+        "//src/main/kotlin/sample:count_letters_evaluator",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+kt_jvm_test(
+    name = "sum_evaluator_test",
+    srcs = ["SumEvaluatorTest.kt"],
+    test_class = "sample.SumEvaluatorTest",
+    deps = [
+        "//src/main/kotlin/sample:sum_evaluator",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
