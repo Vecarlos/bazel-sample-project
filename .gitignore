@@ -21,3 +21,6 @@
 /auth.bazelrc
 
 **/node_modules
+
+# Coverage HTML directory
+genhtml/
