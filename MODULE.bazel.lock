@@ -1392,7 +1392,11 @@
     "@@rules_python~//python/extensions:pip.bzl%pip": {
       "general": {
         "bzlTransitiveDigest": "7isZ025eiUd/NnrGCxp8JXtjnxdOZNq/SglLxmU6ECo=",
+<<<<<<< HEAD
         "usagesDigest": "ill1hsdsgEoUJq7Ob5cGNk5OxwoV5Ue66lSx55OMZ3M=",
+=======
+        "usagesDigest": "pevMtqfF4tAJsZSwwxdtJg4cqsmNbq5h6rZxtd596eg=",
+>>>>>>> a8b7d70 (add proto to modules)
         "recordedFileInputs": {
           "@@//tools/pytype/pytype_requirements.txt": "15bcbf20213346540cdccea392bd6d889e6386d1f67f0ee33cd5252361025023",
           "@@rules_python~//tools/publish/requirements_linux.txt": "d576e0d8542df61396a9b38deeaa183c24135ed5e8e73bb9622f298f2671811e",
