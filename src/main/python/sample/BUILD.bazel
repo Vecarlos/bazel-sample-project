@@ -3,11 +3,11 @@ load("@rules_python//python:defs.bzl", "py_library")
 package(default_visibility = ["//visibility:public"])
 
 py_library(
-    name = "count_letters_evaluator_py_lib",
+    name = "count_letters_evaluator_py",
     srcs = ["CountLettersEvaluator.py"],
 )
 
 py_library(
-    name = "sum_evaluator_py_lib",
+    name = "sum_evaluator_py",
     srcs = ["SumEvaluator.py"],
 )
