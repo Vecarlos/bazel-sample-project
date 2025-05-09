@@ -1,0 +1,40 @@
+module(
+    name = "bazel-sample-project",
+    repo_name = "vecarlos",
+)
+
+bazel_dep(
+    name = "rules_kotlin_jvm",
+    version = "0.6.0",
+    repo_name = "wfa_rules_kotlin_jvm",
+)
+
+bazel_dep(
+    name = "common-jvm",
+    version = "0.103.0",
+    repo_name = "wfa_common_jvm",
+)
+
+# --- Bazel Central Registry modules. ---
+
+bazel_dep(
+    name = "rules_java",
+    version = "8.7.1",
+)
+
+bazel_dep(
+    name = "rules_jvm_external",
+    version = "6.6",
+)
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [],
+    boms = [],
+    fail_if_repin_required = True,
+    fetch_sources = True,
+    lock_file = "//:maven_install.json",
+    resolver = "maven",
+    strict_visibility = True,
+)
+use_repo(maven, "maven")
