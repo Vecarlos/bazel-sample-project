@@ -19,3 +19,5 @@
 
 # Authentication credentials
 /auth.bazelrc
+
+**/node_modules
