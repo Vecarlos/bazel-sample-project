@@ -25,7 +25,7 @@ sh_binary(
 py_console_script_binary(
     name = "pytype-console-script",
     binary_rule = py_binary,
-    pkg = "@pytype_libs//pytype",
+    pkg = "@pytype_pip//pytype",
     script = "pytype",
 )
 
