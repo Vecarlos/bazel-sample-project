@@ -1,5 +1,29 @@
 load("@rules_python//python:defs.bzl", "py_library")
 
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "count_letters_evaluator_py",
+    srcs = ["CountLettersEvaluator.py"],
+    imports = ["../"],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "sum_evaluator_py",
+    srcs = ["SumEvaluator.py"],
+    imports = ["../"],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "manage_users_py",
+    srcs = ["ManageUsers.py"],
+    imports = ["../"],
+    deps = [
+        "//src/main/proto/sample:user_profile_py_proto",
+    ],
+)
 
 py_library(
     name = "sample",
@@ -9,3 +33,4 @@ py_library(
     deps = [
     ],
 )
+

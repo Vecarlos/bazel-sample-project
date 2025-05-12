@@ -1,4 +1,5 @@
 load("@rules_python//python:defs.bzl", "py_test")
+load("@pip//:requirements.bzl", "requirement")
 
 py_test(
     name = "count_letters_evaluator_py_test",
@@ -15,5 +16,17 @@ py_test(
     main = "SumEvaluatorTest.py",
     deps = [
         "//src/main/python/sample",
+    ],
+)
+
+
+py_test(
+    name = "manage_users_py_test",
+    srcs = ["ManageUsersTest.py"],
+    main = "ManageUsersTest.py",
+    deps = [
+        "//src/main/python/sample", 
+        "//src/main/proto/sample:user_profile_py_proto",
+        requirement("protobuf"),
     ],
 )
