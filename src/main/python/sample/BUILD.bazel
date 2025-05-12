@@ -1,25 +1,11 @@
 load("@rules_python//python:defs.bzl", "py_library")
 
-package(default_visibility = ["//visibility:public"])
-
-py_library(
-    name = "count_letters_evaluator_py",
-    srcs = ["CountLettersEvaluator.py"],
-    imports = ["../"],
-    visibility = ["//visibility:public"],
-)
-
-py_library(
-    name = "sum_evaluator_py",
-    srcs = ["SumEvaluator.py"],
-)
 
 py_library(
     name = "sample",
+    srcs = glob(["*.py"]),
     imports = ["../"],
     visibility = ["//visibility:public"],
     deps = [
-        ":count_letters_evaluator_py",
-        ":sum_evaluator_py",
     ],
 )
