@@ -1,13 +1,11 @@
 load("@rules_python//python:defs.bzl", "py_test")
 
-package(default_visibility = ["//visibility:public"])
-
 py_test(
     name = "count_letters_evaluator_py_test",
     srcs = ["CountLettersEvaluatorTest.py"],
     main = "CountLettersEvaluatorTest.py",
     deps = [
-        "//src/main/python/sample:count_letters_evaluator_py",
+        "//src/main/python/sample",
     ],
 )
 
@@ -16,6 +14,6 @@ py_test(
     srcs = ["SumEvaluatorTest.py"],
     main = "SumEvaluatorTest.py",
     deps = [
-        "//src/main/python/sample:sum_evaluator_py",
+        "//src/main/python/sample",
     ],
 )

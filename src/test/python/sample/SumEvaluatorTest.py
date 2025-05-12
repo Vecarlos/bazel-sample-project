@@ -1,5 +1,5 @@
 import unittest
-from src.main.python.sample.SumEvaluator import SumEvaluator
+from sample.SumEvaluator import SumEvaluator
 
 
 class TestSumEvaluator(unittest.TestCase):
