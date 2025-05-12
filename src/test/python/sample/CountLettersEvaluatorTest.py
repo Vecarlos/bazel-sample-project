@@ -1,5 +1,5 @@
 import unittest
-from src.main.python.sample.CountLettersEvaluator import CountLettersEvaluator
+from sample.CountLettersEvaluator import CountLettersEvaluator
 
 
 class TestCountLettersEvaluator(unittest.TestCase):

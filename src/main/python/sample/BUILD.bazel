@@ -5,9 +5,21 @@ package(default_visibility = ["//visibility:public"])
 py_library(
     name = "count_letters_evaluator_py",
     srcs = ["CountLettersEvaluator.py"],
+    imports = ["../"],
+    visibility = ["//visibility:public"],
 )
 
 py_library(
     name = "sum_evaluator_py",
     srcs = ["SumEvaluator.py"],
+)
+
+py_library(
+    name = "sample",
+    imports = ["../"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":count_letters_evaluator_py",
+        ":sum_evaluator_py",
+    ],
 )
