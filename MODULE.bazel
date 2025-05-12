@@ -56,6 +56,7 @@ pip.parse(
     python_version = "3.11",
     requirements_lock = "//:requirements.txt",
 )
+use_repo(pip, "pip")
 pip.parse(
     hub_name = "pytype_libs",
     python_version = "3.11",
