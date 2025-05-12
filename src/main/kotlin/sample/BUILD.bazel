@@ -1,4 +1,4 @@
-load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library", "kt_jvm_binary")
 
 package(
     default_visibility = ["//visibility:public"],
@@ -12,4 +12,13 @@ kt_jvm_library(
 kt_jvm_library(
     name = "sum_evaluator",
     srcs = ["SumEvaluator.kt"],
+)
+
+kt_jvm_library(
+    name = "manage_users_kt", 
+    srcs = ["ManageUsers.kt"],
+    deps = [
+        "//src/main/proto/sample:user_profile_kt_proto",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
 )
