@@ -1,0 +1,19 @@
+load("@rules_python//python:defs.bzl", "py_test")
+
+py_test(
+    name = "count_letters_evaluator_py_test",
+    srcs = ["CountLettersEvaluatorTest.py"],
+    main = "CountLettersEvaluatorTest.py",
+    deps = [
+        "//src/main/python/sample",
+    ],
+)
+
+py_test(
+    name = "sum_evaluator_py_test",
+    srcs = ["SumEvaluatorTest.py"],
+    main = "SumEvaluatorTest.py",
+    deps = [
+        "//src/main/python/sample",
+    ],
+)
