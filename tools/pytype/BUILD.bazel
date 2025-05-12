@@ -14,6 +14,7 @@ sh_binary(
         ":pytype-console-script",
         "@ninja_build//:ninja_binary",
         "@rules_python//python/private:current_interpreter_executable",
+         "//src/main/proto/sample:user_profile_py_proto",
     ],
     deps = [
         "@bazel_tools//tools/bash/runfiles",
