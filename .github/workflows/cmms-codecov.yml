@@ -16,6 +16,10 @@ concurrency:
 
 jobs:
   cmms-codecov:
+  runs-on: ubuntu-22.04
+  env:
+    CLUSTER_LOGS_PATH: cluster-logs
+  steps:
     - name: Run tests
       run: bazel coverage --combined_report=lcov //...
 
