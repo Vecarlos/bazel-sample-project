@@ -21,6 +21,9 @@ jobs:
     env:
       CLUSTER_LOGS_PATH: cluster-logs
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
       - name: Run tests
         run: bazel coverage --combined_report=lcov //...
 
