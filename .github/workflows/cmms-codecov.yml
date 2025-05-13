@@ -16,21 +16,22 @@ concurrency:
 
 jobs:
   cmms-codecov:
-  runs-on: ubuntu-22.04
-  env:
-    CLUSTER_LOGS_PATH: cluster-logs
-  steps:
-    - name: Run tests
-      run: bazel coverage --combined_report=lcov //...
+    name: Cmms Codecov
+    runs-on: ubuntu-22.04
+    env:
+      CLUSTER_LOGS_PATH: cluster-logs
+    steps:
+      - name: Run tests
+        run: bazel coverage --combined_report=lcov //...
 
-    - name: Bazel output path
-      run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+      - name: Bazel output path
+        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
-    - name: Move coverage file
-      run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+      - name: Move coverage file
+        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
 
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: bazel-sample-project/src-sample
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: bazel-sample-project/src-sample
