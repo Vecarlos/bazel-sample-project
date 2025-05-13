@@ -6,3 +6,5 @@ common --registry=https://bcr.bazel.build
 # Files to test
 coverage --instrumentation_filter="^//src/main[/:]"
 
+# Use clang as C++ compiler.
+build --repo_env='CC=clang'
