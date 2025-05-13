@@ -1,0 +1,88 @@
+name: Slack post build result
+description: Post build result on slack channel
+
+inputs:
+  channel:
+    description: 'Channel'
+    required: true
+  slack_bot_token:
+    description: 'Slack bot token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get commit's info
+      id: commit_info
+      shell: bash
+      run: |
+        BRANCH_NAME=${GITHUB_REF##*/}
+        echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+        echo "subject=$(git log -n 1 --pretty=format:%s)" >> $GITHUB_OUTPUT
+        echo "author=$(git log -n 1 --pretty=format:%ae)" >> $GITHUB_OUTPUT
+        echo "hash=$(git log -n 1 --pretty=format:%h)" >> $GITHUB_OUTPUT
+        echo "build_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+
+    - name: Get coverage info
+      shell: bash
+      id: coverage_info
+      run: |
+        coverage=$(awk -F: '/^LF:/{total+=$2} /^LH:/{covered+=$2} END { if (total > 0) { printf "%.2f%%\n", (covered/total)*100 } else { print "N/A" } }' lcov.info)
+        echo "coverage=${coverage}" >> $GITHUB_OUTPUT
+
+    - name: Get test info
+      shell: bash
+      id: test_info
+      run: |
+        cat bazel_coverage.log
+        echo "info="$(cat bazel_coverage.log | grep -E "Executed [0-9]+ out of [0-9]+ test") >> $GITHUB_OUTPUT
+
+
+    - name: Make payload
+      id: payload
+      shell: bash
+      run: |
+        cat <<EOF > slack_result_comment.json
+        { "channel":"${{ inputs.channel }}", "text": "Build finished",
+          "blocks": [
+            {
+              "type": "header",
+              "text": {
+                "type": "plain_text",
+                "text": "Build report 🛠️"
+              }
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "plain_text",
+                "text": "${{ steps.commit_info.outputs.branch }} ${{ steps.commit_info.outputs.author }}"
+              }
+            },
+            {              
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Tests:*\n${{ steps.test_info.outputs.info }}"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Coverage:*\n${{ steps.coverage_info.outputs.coverage }}"
+                }
+              ]
+           },
+           {
+             "type": "section",
+             "text": {
+               "type": "mrkdwn",
+               "text": "<${{ steps.commit_info.outputs.build_url }}|Go to build>"
+             }
+           }
+        ]}
+        EOF
+
+    - name: Post to slack
+      shell: bash
+      run: |
+        curl -s -X POST -H "Authorization: Bearer ${{ inputs.slack_bot_token }}" -H "Content-type: application/json" --data @slack_result_comment.json https://slack.com/api/chat.postMessage
