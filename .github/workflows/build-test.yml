@@ -1,0 +1,53 @@
+name: Build, test and coverage
+
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
+      - '**'
+    pull_request:
+  workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build, test and coverage
+    runs-on: ubuntu-22.04
+    env:
+      CLUSTER_LOGS_PATH: cluster-logs
+    steps:
+      - name: Check out revision
+        uses: actions/checkout@v4
+
+      - name: Post slack start message
+        uses: ./.github/actions/slack-post-build-start
+        with:
+          channel: ${{ vars.SLACK_CHANNEL }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Check lockfile
+        run: bazel mod deps
+
+      - name: Build
+        run: bazel build --worker_quit_after_build //...
+
+      - name: Run tests
+        run: bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
+
+
+      - name: Bazel output path
+        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+
+      - name: Move coverage file
+        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+
+      - name: Post slack result message
+        uses: ./.github/actions/slack-post-build-result
+        with:
+          channel: ${{ vars.SLACK_CHANNEL }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
