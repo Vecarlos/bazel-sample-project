@@ -222,6 +222,12 @@ bazel_dep(
     repo_name = "com_google_protobuf",
 )
 
+bazel_dep(
+    name = "googletest",
+    version = "1.15.2",
+    repo_name = "com_google_googletest",
+)
+
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.artifact(
     artifact = "beam-runners-google-cloud-dataflow-java",
