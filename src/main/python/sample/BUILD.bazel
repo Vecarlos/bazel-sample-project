@@ -6,6 +6,5 @@ py_library(
     imports = ["../"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/main/proto/sample:user_profile_py_proto",
     ],
 )
