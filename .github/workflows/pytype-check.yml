@@ -18,8 +18,6 @@ jobs:
   pytype-check:
     name: Pytype check
     runs-on: ubuntu-22.04
-    env:
-      CLUSTER_LOGS_PATH: cluster-logs
     steps:
       - name: Check out revision
         uses: actions/checkout@v4
