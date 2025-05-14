@@ -42,3 +42,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
+
+      - name: Pytype check
+        uses: ./.github/actions/pytype-check
