@@ -24,3 +24,6 @@
 
 # Coverage HTML directory
 genhtml/
+
+# VS code settings
+.vscode/
