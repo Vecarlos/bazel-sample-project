@@ -13,18 +13,6 @@ cc_test(
 )
 
 cc_test(
-    name = "manage_users_test",
-    size = "small",
-    srcs = [
-        "manage_users_test.cc",
-    ],
-    deps = [
-        "//src/main/cc/sample:manage_users",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-cc_test(
     name = "sum_evaluator_test",
     size = "small",
     srcs = [
@@ -33,6 +21,5 @@ cc_test(
     deps = [
         "//src/main/cc/sample:sum_evaluator",
         "@com_google_googletest//:gtest_main",
-        "//src/main/proto/sample:user_profile_cc_proto",
     ],
 )
