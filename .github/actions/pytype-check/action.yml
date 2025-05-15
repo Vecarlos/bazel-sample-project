@@ -9,5 +9,5 @@ runs:
       shell: bash
 
     - name: Summarize Pytype Results
-      run: ./.github/actions/summarize_pytype_results.sh
+      run: ./.github/actions/pytype-check/summarize_pytype_results.sh
       shell: bash
