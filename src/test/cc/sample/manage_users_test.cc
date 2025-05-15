@@ -1,4 +1,4 @@
-#include "src/main/cc/sample/manage_users.h"
+#include "sample/manage_users.h"
 #include "src/main/proto/sample/user_profile.pb.h"
 #include "gtest/gtest.h"
 #include <string>
