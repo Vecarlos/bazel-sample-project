@@ -1,4 +1,4 @@
-#include "src/main/cc/sample/count_letters_evaluator.h"
+#include "sample/count_letters_evaluator.h"
 
 namespace sample
 {
