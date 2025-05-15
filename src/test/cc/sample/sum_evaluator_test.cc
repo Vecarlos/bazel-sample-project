@@ -1,4 +1,4 @@
-#include "src/main/cc/sample/sum_evaluator.h"
+#include "sample/sum_evaluator.h"
 #include "gtest/gtest.h"
 
 namespace sample
