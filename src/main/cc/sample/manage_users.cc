@@ -1,4 +1,4 @@
-#include "src/main/cc/sample/manage_users.h"
+#include "sample/manage_users.h"
 
 namespace sample
 {
