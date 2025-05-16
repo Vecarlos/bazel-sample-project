@@ -21,6 +21,7 @@ cc_test(
     deps = [
         "//src/main/cc/sample:manage_users",
         "@com_google_googletest//:gtest_main",
+        "//src/main/proto/sample:user_profile_cc_proto",
     ],
 )
 
@@ -33,6 +34,5 @@ cc_test(
     deps = [
         "//src/main/cc/sample:sum_evaluator",
         "@com_google_googletest//:gtest_main",
-        "//src/main/proto/sample:user_profile_cc_proto",
     ],
 )
