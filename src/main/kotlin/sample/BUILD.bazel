@@ -15,6 +15,14 @@ kt_jvm_library(
 )
 
 kt_jvm_library(
+    name = "use_cripto_lib",
+    srcs = ["UseCriptoLib.kt"],
+    deps = [
+        "@maven//:com_google_crypto_tink_tink_awskms"
+    ]
+)
+
+kt_jvm_library(
     name = "manage_users_kt", 
     srcs = ["ManageUsers.kt"],
     deps = [

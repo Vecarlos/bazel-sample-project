@@ -1,0 +1,17 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
+py_library(
+    name = "cs_get_artifacts",
+    srcs = ["CsGetArtifacts.py"],
+    imports = ["../"],
+    visibility = ["//visibility:public"],
+    deps = [],
+)
+
+py_binary(
+    name = "cs_artifacts",
+    srcs = ["CsGetArtifacts.py"],
+    data = ["//:maven_install.json"],
+    main = "CsGetArtifacts.py",
+    deps = [":cs_get_artifacts"]
+)

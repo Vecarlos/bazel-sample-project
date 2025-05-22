@@ -1,0 +1,1 @@
+jq -r '.artifacts | to_entries[] | "\(.key):\(.value.version)"' /home/dev/vecarlos/workspace/bazel-sample-project/maven_install.json | xargs cs resolve --tree -r central -r "https://maven.google.com" -r "https://packages.confluent.io/maven/"

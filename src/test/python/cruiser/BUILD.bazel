@@ -1,0 +1,10 @@
+load("@rules_python//python:defs.bzl", "py_test")
+
+py_test(
+    name = "cs_get_artifacts_test",
+    srcs = ["CsGetArtifactsTest.py"],
+    main = "CsGetArtifactsTest.py",
+    deps = [
+        "//src/main/python/cruiser:cs_get_artifacts"
+    ],
+)

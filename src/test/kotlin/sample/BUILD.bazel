@@ -11,6 +11,7 @@ kt_jvm_test(
     ],
 )
 
+
 kt_jvm_test(
     name = "sum_evaluator_test",
     srcs = ["SumEvaluatorTest.kt"],
@@ -32,5 +33,19 @@ kt_jvm_test(
         "@maven//:com_google_protobuf_protobuf_java",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+
+kt_jvm_test(
+    name = "use_cripto_lib_test",
+    srcs = ["UseCriptoLibTest.kt"],
+    test_class = "sample.UseCriptoLibTest",
+    deps = [
+        "//src/main/kotlin/sample:use_cripto_lib",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+        "@maven//:com_google_crypto_tink_tink_awskms",
+        "@maven//:org_mockito_mockito_core",
     ],
 )

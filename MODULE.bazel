@@ -55,7 +55,9 @@ bazel_dep(
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
-    artifacts = [],
+    artifacts = [
+        'com.google.crypto.tink:tink-awskms:1.9.1'
+    ],
     boms = [],
     fail_if_repin_required = True,
     fetch_sources = True,
