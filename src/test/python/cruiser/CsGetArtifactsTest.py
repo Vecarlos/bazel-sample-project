@@ -66,11 +66,11 @@ class TestCsGetArtifacts(unittest.TestCase):
         cs_get_artifacts.run_cruiser_command()
         mock_subprocess_run.assert_called_once_with('command', shell=True)
 
-    def test_init(self):
-        with patch.object(cs_get_artifacts, "main", MagicMock()) as mock_main:
-            with patch.object(cs_get_artifacts, "__name__", "__main__"):
-                cs_get_artifacts.main()
-        mock_main.assert_called_once()
+    @patch("cruiser.CsGetArtifacts.run_cruiser_command")
+    def test_init(self, mock_run_cruiser_command):
+        with patch.object(cs_get_artifacts, "__name__", "__main__"):
+            cs_get_artifacts.main()
+        mock_run_cruiser_command.assert_called_once()
 
 
 if __name__ == '__main__':
