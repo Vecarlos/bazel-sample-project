@@ -51,7 +51,8 @@ TREE_DISPLAY = '\n\t--tree'
 MAVEN_REPOSITORIES = '\\\n\t-r central \\\n\t-r "https://maven.google.com" \\\n\t-r "https://packages.confluent.io/maven/"'
 PATH_MAVEN_INSTALL = './maven_install.json'
 CRUISER_COMMAND_PATH = './crousier_comand.sh'
- 
+
+
 def get_artifact(row):
     row_splitted = row.split(':')
     artifact = ':'.join(row_splitted[:-1])
@@ -65,7 +66,8 @@ def get_json_artifacts(json_path):
 
 
 def get_total_artifacts(path_maven_install):
-    artifacts_without_version = [get_artifact(artifact_with_version) for artifact_with_version in ARTIFACTS_WITH_VERSION]
+    artifacts_without_version = [get_artifact(
+        artifact_with_version) for artifact_with_version in ARTIFACTS_WITH_VERSION]
     total_artifacts = [*ARTIFACTS_WITH_VERSION]
     artifacts_name, artifacts_data = get_json_artifacts(path_maven_install)
     for artifact_name in artifacts_name:
@@ -88,7 +90,9 @@ def run_cruiser_command():
     subprocess.run(command, shell=True)
 
 
-if __name__ == "__main__":
-    run_cruiser_command()
+def main():
+    if __name__ == "__main__":
+        run_cruiser_command()
 
 
+main()

@@ -1,6 +1,6 @@
 import unittest
 import cruiser.CsGetArtifacts as cs_get_artifacts
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 import json
 
 
@@ -65,6 +65,12 @@ class TestCsGetArtifacts(unittest.TestCase):
         mock_get_total_artifacts.return_value = []
         cs_get_artifacts.run_cruiser_command()
         mock_subprocess_run.assert_called_once_with('command', shell=True)
+
+    def test_init(self):
+        with patch.object(cs_get_artifacts, "main", MagicMock()) as mock_main:
+            with patch.object(cs_get_artifacts, "__name__", "__main__"):
+                cs_get_artifacts.main()
+        mock_main.assert_called_once()
 
 
 if __name__ == '__main__':
