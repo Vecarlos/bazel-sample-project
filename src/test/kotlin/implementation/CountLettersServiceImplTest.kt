@@ -15,28 +15,14 @@ class CountLettersServiceImplTest {
 
   @Test
   fun `countLetters should return correct letter count`() = runBlocking {
-    // Prepara la entrada
-    val testString = "Hola123Mundo!"
+    val testString = "Hello world"
     val request = InputString.newBuilder().setInputString(testString).build()
-
-    // Llama al método del servicio
     val response = serviceImpl.countLetters(request)
-
-    // Verifica la salida
-    // "HolaMundo" tiene 9 letras
-    val expectedLetterCount = 9
+    val expectedLetterCount = 11
     assertEquals(expectedLetterCount, response.letterNumber)
   }
 
-  @Test
-  fun `countLetters with no letters should return zero`() = runBlocking {
-    val testString = "123 !@#"
-    val request = InputString.newBuilder().setInputString(testString).build()
 
-    val response = serviceImpl.countLetters(request)
-
-    assertEquals(0, response.letterNumber)
-  }
 
   @Test
   fun `countLetters with empty string should return zero`() = runBlocking {

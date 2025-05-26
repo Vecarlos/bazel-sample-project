@@ -1,0 +1,14 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "count_letters_service_impl_test",
+    srcs = ["CountLettersServiceImplTest.kt"],
+    test_class = "implementation.CountLettersServiceImplTest",
+    deps = [
+        "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
+        "//src/main/proto/service:service_count_letters_kt_jvm_grpc",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
