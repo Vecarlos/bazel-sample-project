@@ -1,0 +1,12 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:public"])
+
+kt_jvm_library(
+    name = "common_server",
+    srcs = ["CommonServer.kt"],
+    deps = [
+        "@maven//:io_grpc_grpc_netty_shaded",
+        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm", # o la versión no -jvm si es apropiado
+    ],
+)
