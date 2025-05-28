@@ -1,5 +1,5 @@
 import unittest
-from sample.ManageUsers import create_new_user
+from sample.manage_users import create_new_user
 from src.main.proto.sample import user_profile_pb2
 
 class TestManageUsers(unittest.TestCase):

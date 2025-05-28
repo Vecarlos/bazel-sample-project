@@ -1,0 +1,14 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@pip//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "client_count_letters_bin",
+    srcs = ["client_count_letters.py"],
+    main = "client_count_letters.py", 
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/main/proto/service:service_count_letters_py_proto",
+        requirement("grpcio"),     
+        requirement("protobuf"),
+    ],
+)

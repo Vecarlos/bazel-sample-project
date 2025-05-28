@@ -1,5 +1,6 @@
 load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library", "kt_jvm_grpc_library")
+load("@rules_python//python:proto.bzl", "py_proto_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -18,4 +19,9 @@ kt_jvm_grpc_library(
     name = "service_count_letters_kt_jvm_grpc",
     srcs = [":service_count_letters_proto"],
     deps = [":service_count_letters_kt_jvm_proto"],
+)
+
+py_proto_library(
+    name = "service_count_letters_py_proto",
+    deps = [":service_count_letters_proto"],
 )
