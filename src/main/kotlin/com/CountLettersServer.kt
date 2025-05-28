@@ -41,7 +41,7 @@ abstract class AbstractCountLettersLauncher : Runnable {
 
 @CommandLine.Command(
     name = "CountLettersServerApp",
-    description = ["Servidor para el servicio CountLetters usando mi GrpcServer."],
+    description = ["CountLetters server using GRPCserver"],
     mixinStandardHelpOptions = true,
     showDefaultValues = true
 )
