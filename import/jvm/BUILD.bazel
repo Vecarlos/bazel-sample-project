@@ -1,0 +1,14 @@
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "grpc_netty_shaded_wrapper",
+    actual = "@maven//:io_grpc_grpc_netty_shaded",
+    visibility = ["//visibility:public"],
+)
+
+# Haz lo mismo para otras dependencias de @maven si tienen problemas de visibilidad
+# kt_jvm_library(
+#     name = "kotlinx_coroutines_core_jvm_wrapper",
+#     visibility = ["//visibility:public"],
+#     exports = ["@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm"],
+# )

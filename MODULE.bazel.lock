@@ -1589,7 +1589,7 @@
           "@@//tools/pytype/pytype_requirements.txt": "15bcbf20213346540cdccea392bd6d889e6386d1f67f0ee33cd5252361025023",
           "@@rules_python~//tools/publish/requirements_linux.txt": "d576e0d8542df61396a9b38deeaa183c24135ed5e8e73bb9622f298f2671811e",
           "@@rules_fuzzing~//fuzzing/requirements.txt": "ab04664be026b632a0d2a2446c4f65982b7654f5b6851d2f9d399a19b7242a5b",
-          "@@//requirements.txt": "ff1f21d14ab49c5e659cb03f12e3acfff07af445605af28a1c020c9d13672e3c",
+          "@@//requirements.txt": "11f940c862346b559beaf27a1916b46e96a529ca4c137094dee9b0c00834721d",
           "@@rules_python~//tools/publish/requirements_windows.txt": "d18538a3982beab378fd5687f4db33162ee1ece69801f9a451661b1b64286b76",
           "@@protobuf~//python/requirements.txt": "983be60d3cec4b319dcab6d48aeb3f5b2f7c3350f26b3a9e97486c37967c73c5",
           "@@rules_python~//tools/publish/requirements_darwin.txt": "095d4a4f3d639dce831cd493367631cd51b53665292ab20194bac2c0c6458fa8"
@@ -1600,6 +1600,26 @@
           "RULES_PYTHON_REPO_DEBUG_VERBOSITY": null
         },
         "generatedRepoSpecs": {
+          "pip_311_grpcio": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "grpcio\nsetuptools"
+            }
+          },
+          "pip_311_grpcio_tools": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "grpcio-tools"
+            }
+          },
           "pip_311_protobuf": {
             "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
             "ruleClassName": "whl_library",
@@ -4388,9 +4408,13 @@
               "repo_name": "pip",
               "extra_hub_aliases": {},
               "whl_map": {
+                "grpcio": "{\"pip_311_grpcio\":[{\"version\":\"3.11\"}]}",
+                "grpcio_tools": "{\"pip_311_grpcio_tools\":[{\"version\":\"3.11\"}]}",
                 "protobuf": "{\"pip_311_protobuf\":[{\"version\":\"3.11\"}]}"
               },
               "packages": [
+                "grpcio",
+                "grpcio_tools",
                 "protobuf"
               ],
               "groups": {}
