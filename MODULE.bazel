@@ -53,9 +53,38 @@ bazel_dep(
     repo_name = "com_google_googletest",
 )
 
+bazel_dep(
+    name = "googleapis",
+    version = "0.0.0-20250120-318818b.bzlmod.2",
+    repo_name = "com_google_googleapis",
+)
+
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+
+maven.artifact(
+    testonly = True,
+    artifact = "mockito-core",
+    group = "org.mockito",
+    version = "5.12.0",
+)
+
+maven.artifact(
+    testonly = True,
+    artifact = "mockito-inline",
+    group = "org.mockito",
+    version = "5.2.0",
+)
+
+maven.artifact(
+    testonly = True,
+    artifact = "mockito-kotlin",
+    group = "org.mockito.kotlin",
+    version = "5.4.0",
+)
 maven.install(
-    artifacts = [],
+    artifacts = [
+        "info.picocli:picocli:4.7.6",
+    ],
     boms = [],
     fail_if_repin_required = True,
     fetch_sources = True,
@@ -99,4 +128,11 @@ filegroup(
     sha256 = "b901ba96e486dce377f9a070ed4ef3f79deb45f4ffe2938f8e7ddc69cfb3df77",
     url = "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip",
     strip_prefix = "",
+)
+
+http_archive(
+    name = "io_grpc_grpc_proto",
+    sha256 = "464e97a24d7d784d9c94c25fa537ba24127af5aae3edd381007b5b98705a0518",
+    strip_prefix = "grpc-proto-08911e9d585cbda3a55eb1dcc4b99c89aebccff8",
+    urls = ["https://github.com/grpc/grpc-proto/archive/08911e9d585cbda3a55eb1dcc4b99c89aebccff8.zip"],
 )

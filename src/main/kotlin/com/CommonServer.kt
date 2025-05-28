@@ -1,4 +1,5 @@
 package com.CommonServer
+// reference https://github.com/world-federation-of-advertisers/common-jvm/blob/main/src/main/kotlin/org/wfanet/measurement/common/grpc/CommonServer.kt
 
 import io.grpc.BindableService 
 import io.grpc.Server
@@ -31,7 +32,7 @@ class GrpcServer private constructor(private val servidorGrpc: Server) {
     }
 
     companion object {
-        fun crear(
+        fun create(
             config: ServerConfiguration,
             servicio: BindableService
         ): GrpcServer {
