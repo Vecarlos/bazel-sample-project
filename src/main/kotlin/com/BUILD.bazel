@@ -1,4 +1,4 @@
-load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_binary", "kt_jvm_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -8,9 +8,14 @@ kt_jvm_library(
     deps = [
         "//import/kotlin/grpc:service_config_kt_jvm_proto",
         "@wfa_rules_kotlin_jvm//imports/io/gprc/kotlin:stub",
+        "@maven//:io_grpc_grpc_api",        # Para BindableService, Server, ServerBuilder
+        "@maven//:io_grpc_grpc_core",       # Clases base de gRPC
+        "//import/jvm:grpc_netty_shaded_wrapper",
+       
+        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm", # Para corutinas
+
     ],
 )
-
 
 kt_jvm_library(
     name = "flags_kt",
@@ -20,7 +25,6 @@ kt_jvm_library(
     ],
 )
 
-
 kt_jvm_library(
     name = "count_letters_server_kt",
     srcs = ["CountLettersServer.kt"],
@@ -29,5 +33,17 @@ kt_jvm_library(
         "//src/main/kotlin/com:common_server_kt",
         "//src/main/kotlin/com:flags_kt",
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
+    ],
+)
+
+kt_jvm_binary(
+    name = "count_letters_server_bin",
+    srcs = ["CountLettersServer.kt"],
+    main_class = "com.CountLettersServer.CountLettersServerKt",
+    deps = [
+        ":common_server_kt",
+        ":flags_kt",
+        "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
+        "//src/main/proto/service:service_count_letters_kt_jvm_grpc",
     ],
 )
