@@ -1,0 +1,109 @@
+TN:
+SF:src/main/kotlin/client/CountLettersClient.kt
+FN:7,client/CountLettersClient::<init> (Ljava/lang/String;I)V
+FN:8,client/CountLettersClient::run (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+FNDA:1,client/CountLettersClient::<init> (Ljava/lang/String;I)V
+FNDA:1,client/CountLettersClient::run (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+FNF:2
+FNH:2
+DA:7,1
+DA:8,1
+DA:9,1
+DA:10,1
+DA:11,1
+DA:13,1
+DA:15,1
+DA:16,1
+DA:18,1
+DA:20,1
+DA:21,1
+LF:11
+LH:11
+end_of_record
+TN:
+SF:src/main/kotlin/client/CountLettersClientApp.kt
+FN:8,client/CountLettersClientApp::<init> ()V
+FN:15,client/CountLettersClientApp::getFlags ()Lclient/Flags/CountLettersClientFlags;
+FN:20,client/CountLettersClientApp::run ()V
+FN:22,client/CountLettersClientApp$run$1::invokeSuspend (Ljava/lang/Object;)Ljava/lang/Object;
+FN:28,client/CountLettersClientAppKt::runClientApp ([Ljava/lang/String;)I
+FN:32,client/CountLettersClientAppKt::main ([Ljava/lang/String;)V
+FNDA:0,client/CountLettersClientAppKt::main ([Ljava/lang/String;)V
+FNDA:1,client/CountLettersClientApp::<init> ()V
+FNDA:1,client/CountLettersClientAppKt::runClientApp ([Ljava/lang/String;)I
+FNDA:1,client/CountLettersClientApp::getFlags ()Lclient/Flags/CountLettersClientFlags;
+FNDA:1,client/CountLettersClientApp$run$1::invokeSuspend (Ljava/lang/Object;)Ljava/lang/Object;
+FNDA:1,client/CountLettersClientApp::run ()V
+FNF:6
+FNH:5
+DA:8,1
+DA:15,1
+DA:17,0
+DA:20,1
+DA:21,1
+DA:22,1
+DA:23,1
+DA:24,1
+DA:28,1
+DA:32,0
+DA:33,0
+LF:11
+LH:8
+end_of_record
+TN:
+SF:src/main/kotlin/implementation/CountLettersServiceImpl.kt
+FN:7,implementation/CountLettersServiceImpl::<init> ()V
+FN:9,implementation/CountLettersServiceImpl::countLetters (Lservice/proto/InputString;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+FNDA:1,implementation/CountLettersServiceImpl::<init> ()V
+FNDA:1,implementation/CountLettersServiceImpl::countLetters (Lservice/proto/InputString;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+FNF:2
+FNH:2
+DA:7,1
+DA:9,1
+DA:10,1
+DA:11,1
+LF:4
+LH:4
+end_of_record
+TN:
+SF:src/main/kotlin/sample/CountLettersEvaluator.kt
+FN:4,sample/CountLettersEvaluator::<init> ()V
+FN:6,sample/CountLettersEvaluator::evaluate (Ljava/lang/String;)I
+FNDA:1,sample/CountLettersEvaluator::<init> ()V
+FNDA:1,sample/CountLettersEvaluator::evaluate (Ljava/lang/String;)I
+FNF:2
+FNH:2
+DA:4,1
+DA:6,1
+LF:2
+LH:2
+end_of_record
+TN:
+SF:src/main/kotlin/sample/ManageUsers.kt
+FN:13,sample/ManageUsersKt::createKotlinUser (Ljava/lang/String;Ljava/lang/String;IZLjava/util/List;)Lsample/proto/UserProfile;
+FNDA:1,sample/ManageUsersKt::createKotlinUser (Ljava/lang/String;Ljava/lang/String;IZLjava/util/List;)Lsample/proto/UserProfile;
+FNF:1
+FNH:1
+DA:13,1
+DA:14,1
+DA:15,1
+DA:16,1
+DA:17,1
+DA:18,1
+DA:19,1
+LF:7
+LH:7
+end_of_record
+TN:
+SF:src/main/kotlin/sample/SumEvaluator.kt
+FN:4,sample/SumEvaluator::<init> ()V
+FN:6,sample/SumEvaluator::evaluate (II)I
+FNDA:1,sample/SumEvaluator::evaluate (II)I
+FNDA:1,sample/SumEvaluator::<init> ()V
+FNF:2
+FNH:2
+DA:4,1
+DA:6,1
+LF:2
+LH:2
+end_of_record
