@@ -1,0 +1,49 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_binary", "kt_jvm_library")
+package(default_visibility = ["//visibility:public"])
+
+kt_jvm_library(
+    name = "count_letters_client_kt_lib",
+    srcs = [
+        "CountLettersClient.kt",
+    ],
+    deps = [
+        "//src/main/proto/service:service_count_letters_kt_jvm_grpc", 
+        "@wfa_rules_kotlin_jvm//imports/io/gprc/kotlin:stub",           
+    ],
+)
+
+kt_jvm_library(
+    name = "count_letters_client_app_kt_lib",
+    srcs = [
+        "CountLettersClientApp.kt",
+    ],
+    deps = [          
+        ":count_letters_client_kt_lib",
+        ":flags_kt_lib",
+        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core",
+        "//import/java/picocli",
+    ],
+)
+
+kt_jvm_library(
+    name = "flags_kt_lib",
+    srcs = [
+        "Flags.kt",
+    ],
+    deps = [
+        "//import/java/picocli",
+    ],
+)
+
+
+kt_jvm_binary(
+    name = "count_letters_client_bin",
+    srcs = ["CountLettersClientApp.kt"],
+    main_class = "client.CountLettersClientAppKt",
+    deps = [
+        ":count_letters_client_kt_lib",
+        ":flags_kt_lib",
+        ":count_letters_client_app_kt_lib",
+        "//import/jvm:grpc_netty_shaded_wrapper",
+    ],
+)

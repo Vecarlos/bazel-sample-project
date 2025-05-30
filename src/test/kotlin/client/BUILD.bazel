@@ -1,0 +1,50 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "count_letters_client_app_test",
+    srcs = ["CountLettersClientAppTest.kt"],
+    test_class = "client.CountLettersClientAppTest",
+    deps = [
+        "//src/main/kotlin/client:count_letters_client_app_kt_lib",
+        "//src/main/kotlin/client:flags_kt_lib",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+        "@maven//:org_mockito_mockito_core",
+        "@maven//:org_mockito_mockito_inline", 
+        "@maven//:org_mockito_kotlin_mockito_kotlin", 
+    ],
+)
+
+
+kt_jvm_test(
+    name = "count_letters_client_test",
+    srcs = ["CountLettersClientTest.kt"],
+    test_class = "client.CountLettersClientTest",
+    deps = [
+        "//src/main/kotlin/client:count_letters_client_kt_lib",
+        "//src/main/proto/service:service_count_letters_kt_jvm_grpc", 
+        "@wfa_rules_kotlin_jvm//imports/io/gprc/kotlin:stub",     
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+        "@maven//:org_mockito_mockito_core",
+        "@maven//:org_mockito_mockito_inline", 
+        "@maven//:org_mockito_kotlin_mockito_kotlin", 
+        "//import/java/picocli",
+    ],
+)
+
+
+kt_jvm_test(
+    name = "flags_test",
+    srcs = ["FlagsTest.kt"],
+    test_class = "client.FlagsTest",
+    deps = [
+        "//src/main/kotlin/client:flags_kt_lib",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+        "@maven//:org_mockito_mockito_core",
+        "@maven//:org_mockito_mockito_inline", 
+        "@maven//:org_mockito_kotlin_mockito_kotlin", 
+        "//import/java/picocli",
+    ],
+)
