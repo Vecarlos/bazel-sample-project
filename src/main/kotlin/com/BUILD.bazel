@@ -8,11 +8,11 @@ kt_jvm_library(
     deps = [
         "//import/kotlin/grpc:service_config_kt_jvm_proto",
         "@wfa_rules_kotlin_jvm//imports/io/gprc/kotlin:stub",
-        "@maven//:io_grpc_grpc_api",        # Para BindableService, Server, ServerBuilder
-        "@maven//:io_grpc_grpc_core",       # Clases base de gRPC
+        "@maven//:io_grpc_grpc_api",      
+        "@maven//:io_grpc_grpc_core",      
         "//import/jvm:grpc_netty_shaded_wrapper",
        
-        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm", # Para corutinas
+        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm",
 
     ],
 )
