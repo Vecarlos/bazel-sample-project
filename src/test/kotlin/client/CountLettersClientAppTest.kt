@@ -66,4 +66,30 @@ class CountLettersClientAppTest {
         mockConstruction.close()
 
     }
+
+ @Test
+fun `runClientApp returns 0 for successful execution`() = runBlocking {
+    val testText = "hello"
+    val testHost = "localhost"
+    val testPort = 50051
+
+    val mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
+        assertEquals(testHost, context.arguments()[0])
+        assertEquals(testPort, context.arguments()[1])
+    }
+
+    val exitCode = runClientApp("--text", testText)
+    assertEquals(0, exitCode)
+
+    val constructedClients = mockConstruction.constructed()
+    assertEquals(1, constructedClients.size)
+    val mockedClient = constructedClients[0]
+
+    runBlocking {
+        verify(mockedClient).run(testText)
+    }
+
+    mockConstruction.close()
+}
+
 }
