@@ -20,8 +20,3 @@ kt_jvm_grpc_library(
     srcs = [":service_count_letters_proto"],
     deps = [":service_count_letters_kt_jvm_proto"],
 )
-
-py_proto_library(
-    name = "service_count_letters_py_proto",
-    deps = [":service_count_letters_proto"],
-)
