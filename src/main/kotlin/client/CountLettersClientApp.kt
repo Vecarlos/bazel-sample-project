@@ -24,7 +24,9 @@ class CountLettersClientApp : Runnable {
     }
 }
 
+fun runClientApp(vararg args: String): Int {
+    return CommandLine(CountLettersClientApp()).execute(*args)
+}
 fun main(args: Array<String>) {
-    val exitCode = CommandLine(CountLettersClientApp()).execute(*args)
-    exitProcess(exitCode)
+    System.exit(runClientApp(*args))
 }
