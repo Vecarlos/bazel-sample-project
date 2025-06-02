@@ -1,0 +1,7 @@
+# reference https://github.com/world-federation-of-advertisers/common-jvm/blob/main/imports/java/io/grpc/netty/BUILD.bazel
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "netty",
+    actual = "@maven//:io_grpc_grpc_netty",
+)

@@ -9,6 +9,7 @@ kt_jvm_library(
     deps = [
         "//src/main/proto/service:service_count_letters_kt_jvm_grpc", 
         "@wfa_rules_kotlin_jvm//imports/io/gprc/kotlin:stub",           
+         "//import/java/netty",
     ],
 )
 
@@ -19,21 +20,11 @@ kt_jvm_library(
     ],
     deps = [          
         ":count_letters_client_kt_lib",
-        ":flags_kt_lib",
         "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core",
-        "//import/java/picocli",
     ],
 )
 
-kt_jvm_library(
-    name = "flags_kt_lib",
-    srcs = [
-        "Flags.kt",
-    ],
-    deps = [
-        "//import/java/picocli",
-    ],
-)
+
 
 
 kt_jvm_binary(
@@ -42,8 +33,6 @@ kt_jvm_binary(
     main_class = "client.CountLettersClientAppKt",
     deps = [
         ":count_letters_client_kt_lib",
-        ":flags_kt_lib",
         ":count_letters_client_app_kt_lib",
-        "//import/jvm:grpc_netty_shaded_wrapper",
     ],
 )

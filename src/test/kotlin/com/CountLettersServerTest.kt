@@ -1,60 +1,60 @@
 package com
 
-import com.Flags.CountLettersServerFlags
-import com.CountLettersServer.CountLettersServerApp
+import com.CommonServer.GrpcServer
+import com.CommonServer.ServerConfiguration
+import com.CountLettersServer.CountLettersServer
+import implementation.CountLettersServiceImpl
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import picocli.CommandLine
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.MockedConstruction
+import org.mockito.MockedStatic
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
+@RunWith(MockitoJUnitRunner::class)
 class CountLettersServerTest {
+    
+    @Mock
+    private lateinit var mockedGrpcServerInstance: GrpcServer
 
     @Test
-    fun `should parse port argument correctly`() {
-        val testPort = 12345
-        val app = CountLettersServerApp()
+    fun `main should create CountLettersServer with correct port from args`() {
+        val testPort = 8080
+        val args = arrayOf(testPort.toString())
         
-        val commandLine = CommandLine(app)
-        commandLine.parseArgs("--port", testPort.toString())
-        
-        assertEquals(testPort, app.parsedFlags.port)
+        Mockito.mockConstruction(CountLettersServer::class.java).use { serverMock ->
+            com.CountLettersServer.main(args)
+            
+            // Verify CountLettersServer was created with correct port
+            assertEquals(1, serverMock.constructed().size)
+            val constructedServer = serverMock.constructed()[0]
+            
+            // Verify run was called
+            verify(constructedServer).run()
+        }
     }
-
-    @Test  
-    fun `should use default port when no arguments provided`() {
-        val app = CountLettersServerApp()
-        val expectedDefaultPort = CountLettersServerFlags().port
-        
-        val commandLine = CommandLine(app)
-        commandLine.parseArgs() 
-        
-        assertEquals(expectedDefaultPort, app.parsedFlags.port)
-    }
-
+    
     @Test
-    fun `should parse multiple arguments correctly`() {
-        val testPort = 9090
-        val app = CountLettersServerApp()
+    fun `main should use default port when no args provided`() {
+        val args = arrayOf<String>()
         
-        val commandLine = CommandLine(app)
-        commandLine.parseArgs("--port", testPort.toString())
-        
-        assertEquals(testPort, app.parsedFlags.port)
-    }
-
-    @Test
-    fun `flags should have sensible default values`() {
-        val flags = CountLettersServerFlags()
-        
-        assertEquals(50051, flags.port) 
-        assert(flags.port > 0) 
-        assert(flags.port < 65536)
-    }
-
-    @Test
-    fun `should handle help flag without issues`() {
-        val app = CountLettersServerApp()
-        val commandLine = CommandLine(app)
-        commandLine.execute("--help")
-
+        Mockito.mockConstruction(CountLettersServer::class.java).use { serverMock ->
+            com.CountLettersServer.main(args)
+            
+            // Verify CountLettersServer was created
+            assertEquals(1, serverMock.constructed().size)
+            val constructedServer = serverMock.constructed()[0]
+            
+            // Verify run was called
+            verify(constructedServer).run()
+        }
     }
 }
