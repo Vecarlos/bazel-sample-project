@@ -17,21 +17,12 @@ kt_jvm_library(
     ],
 )
 
-kt_jvm_library(
-    name = "flags_kt",
-    srcs = ["Flags.kt"],
-    deps = [
-        "//import/java/picocli",
-    ],
-)
 
 kt_jvm_library(
     name = "count_letters_server_kt",
     srcs = ["CountLettersServer.kt"],
     deps = [
-        "//import/java/picocli",
         "//src/main/kotlin/com:common_server_kt",
-        "//src/main/kotlin/com:flags_kt",
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
     ],
 )
@@ -42,7 +33,6 @@ kt_jvm_binary(
     main_class = "com.CountLettersServer.CountLettersServerKt",
     deps = [
         ":common_server_kt",
-        ":flags_kt",
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
         "//src/main/proto/service:service_count_letters_kt_jvm_grpc",
     ],
