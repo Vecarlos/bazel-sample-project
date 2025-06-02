@@ -10,7 +10,10 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import kotlin.test.assertFailsWith // Para assertFailsWith
+import kotlin.test.assertFailsWith
+import java.io.PrintStream
+import kotlin.test.assertTrue
+import java.io.ByteArrayOutputStream
 
 @RunWith(MockitoJUnitRunner::class)
 class CountLettersClientAppTest {
@@ -99,6 +102,31 @@ class CountLettersClientAppTest {
             }
         } finally {
             mockConstruction?.close()
+        }
+    }
+
+    @Test
+    fun `main with invalid port argument should print error and not create client`() {
+        val originalSystemOut = System.out
+        val outputStreamCaptor = ByteArrayOutputStream()
+        System.setOut(PrintStream(outputStreamCaptor)) 
+
+        var mockConstruction: MockedConstruction<CountLettersClient>? = null
+        try {
+            mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
+
+            }
+
+            main(arrayOf("somehost", "not-a-number", "sometext"))
+
+            val consoleOutput = outputStreamCaptor.toString().trim()
+            assertTrue(consoleOutput.contains("ERROR: Port must be a valid number"))
+
+            assertEquals(0, mockConstruction.constructed().size)
+
+        } finally {
+            mockConstruction?.close()
+            System.setOut(originalSystemOut) // Restaura System.out
         }
     }
 }
