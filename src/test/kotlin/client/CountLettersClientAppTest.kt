@@ -7,89 +7,98 @@ import org.junit.runner.RunWith
 import org.mockito.MockedConstruction
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
-import picocli.CommandLine
-import client.Flags.CountLettersClientFlags
+import org.mockito.kotlin.whenever
+import kotlin.test.assertFailsWith // Para assertFailsWith
 
 @RunWith(MockitoJUnitRunner::class)
 class CountLettersClientAppTest {
 
     @Test
-    fun `run should instantiate Client with command line flags and call its run method`() = runBlocking {
-        val testHost = "my-custom-host"
+    fun `main with 3 valid arguments should create client and run`() {
+        val testHost = "testhost.com"
         val testPort = 12345
-        val testText = "test input string"
+        val testText = "three_arguments_test"
 
-        val app = CountLettersClientApp()
-
-        val mockConstruction: MockedConstruction<CountLettersClient> =
-            Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
+        var mockConstruction: MockedConstruction<CountLettersClient>? = null
+        try {
+            mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
                 assertEquals(testHost, context.arguments()[0])
                 assertEquals(testPort, context.arguments()[1])
+                runBlocking {
+                    whenever(mock.run(any())).thenReturn(Unit)
+                }
             }
 
-        CommandLine(app).execute(
-            "--host", testHost,
-            "--port", testPort.toString(),
-            "--text", testText
-        )
+            main(arrayOf(testHost, testPort.toString(), testText))
 
-        val constructedClients = mockConstruction.constructed()
-        assertEquals(1, constructedClients.size)
-        val mockedClient = constructedClients[0]
-
-        verify(mockedClient).run(testText)
-
-        mockConstruction.close()
+            val constructedClients = mockConstruction.constructed()
+            assertEquals(1, constructedClients.size)
+            val mockedClient = constructedClients[0]
+            runBlocking {
+                verify(mockedClient).run(testText)
+            }
+        } finally {
+            mockConstruction?.close()
+        }
     }
 
     @Test
-    fun `run should use default host and port if not provided`() = runBlocking {
-        val defaultFlags = CountLettersClientFlags()
-        val testText = "text with default host port"
-        val app = CountLettersClientApp()
+    fun `main with 1 argument should use default host-port and run`() {
+        val testText = "one_argument_test"
 
-        val mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
-            assertEquals(defaultFlags.host, context.arguments()[0])
-            assertEquals(defaultFlags.port, context.arguments()[1])
+        var mockConstruction: MockedConstruction<CountLettersClient>? = null
+        try {
+            mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
+                assertEquals("localhost", context.arguments()[0])
+                assertEquals(50051, context.arguments()[1])
+                runBlocking {
+                    whenever(mock.run(any())).thenReturn(Unit)
+                }
+            }
+
+            main(arrayOf(testText))
+
+            val constructedClients = mockConstruction.constructed()
+            assertEquals(1, constructedClients.size)
+            val mockedClient = constructedClients[0]
+            runBlocking {
+                verify(mockedClient).run(testText)
+            }
+        } finally {
+            mockConstruction?.close()
         }
-
-
-        CommandLine(app).execute("--text", testText)
-
-        val constructedClients = mockConstruction.constructed()
-        assertEquals(1, constructedClients.size)
-        val mockedClient = constructedClients[0]
-
-        verify(mockedClient).run(testText)
-
-        mockConstruction.close()
-
     }
 
- @Test
-fun `runClientApp returns 0 for successful execution`() = runBlocking {
-    val testText = "hello"
-    val testHost = "localhost"
-    val testPort = 50051
 
-    val mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
-        assertEquals(testHost, context.arguments()[0])
-        assertEquals(testPort, context.arguments()[1])
+
+
+    @Test
+    fun `main with 2 arguments should use default host-port and arg0 as text`() {
+        val arg0Text = "text_for_arg0"
+        val arg1Ignored = "this_is_ignored"
+
+        var mockConstruction: MockedConstruction<CountLettersClient>? = null
+        try {
+            mockConstruction = Mockito.mockConstruction(CountLettersClient::class.java) { mock, context ->
+                assertEquals("localhost", context.arguments()[0])
+                assertEquals(50051, context.arguments()[1])
+                runBlocking {
+                    whenever(mock.run(any())).thenReturn(Unit)
+                }
+            }
+
+            main(arrayOf(arg0Text, arg1Ignored))
+
+            val constructedClients = mockConstruction.constructed()
+            assertEquals(1, constructedClients.size)
+            val mockedClient = constructedClients[0]
+            runBlocking {
+                verify(mockedClient).run(arg0Text)
+            }
+        } finally {
+            mockConstruction?.close()
+        }
     }
-
-    val exitCode = runClientApp("--text", testText)
-    assertEquals(0, exitCode)
-
-    val constructedClients = mockConstruction.constructed()
-    assertEquals(1, constructedClients.size)
-    val mockedClient = constructedClients[0]
-
-    runBlocking {
-        verify(mockedClient).run(testText)
-    }
-
-    mockConstruction.close()
-}
-
 }

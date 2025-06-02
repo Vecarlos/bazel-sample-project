@@ -1,7 +1,0 @@
-# reference https://github.com/world-federation-of-advertisers/common-jvm/blob/main/imports/java/picocli/BUILD.bazel
-package(default_visibility = ["//visibility:public"])
-
-alias(
-    name = "picocli",
-    actual = "@maven//:info_picocli_picocli",
-)
