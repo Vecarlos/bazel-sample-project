@@ -1,12 +1,12 @@
 package client
 
 import io.grpc.ManagedChannel
-import io.grpc.ManagedChannelBuilder
+import io.grpc.netty.NettyChannelBuilder
 import io.grpc.Metadata
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertTrue // IMPORTACIÓN AÑADIDA
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,7 +17,6 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import service.proto.CountLettersServiceGrpcKt
@@ -31,7 +30,7 @@ class CountLettersClientTest {
     private lateinit var mockChannel: ManagedChannel
 
     @Mock
-    private lateinit var mockChannelBuilderInstance: ManagedChannelBuilder<*>
+    private lateinit var mockChannelBuilderInstance: NettyChannelBuilder
 
     @Mock
     private lateinit var mockProtoResponse: LetterNumber
@@ -40,22 +39,22 @@ class CountLettersClientTest {
     private val testPort = 12345
     private lateinit var client: CountLettersClient
 
-    private var staticManagedChannelBuilderMockContext: MockedStatic<ManagedChannelBuilder<*>>? = null
-    private var stubConstructorMockContext: MockedConstruction<CountLettersServiceGrpcKt.CountLettersServiceCoroutineStub>? = null
+    private var staticNettyChannelBuilderMock: MockedStatic<NettyChannelBuilder>? = null
+    private var stubConstructorMock: MockedConstruction<CountLettersServiceGrpcKt.CountLettersServiceCoroutineStub>? = null
 
     @Before
     fun setUp() {
         client = CountLettersClient(testHost, testPort)
 
-        staticManagedChannelBuilderMockContext = Mockito.mockStatic(ManagedChannelBuilder::class.java)
-        staticManagedChannelBuilderMockContext?.`when`<ManagedChannelBuilder<*>> {
-            ManagedChannelBuilder.forAddress(testHost, testPort)
+        staticNettyChannelBuilderMock = Mockito.mockStatic(NettyChannelBuilder::class.java)
+        staticNettyChannelBuilderMock?.`when`<NettyChannelBuilder> {
+            NettyChannelBuilder.forTarget("$testHost:$testPort")
         }?.thenReturn(mockChannelBuilderInstance)
 
         whenever(mockChannelBuilderInstance.usePlaintext()).thenReturn(mockChannelBuilderInstance)
         whenever(mockChannelBuilderInstance.build()).thenReturn(mockChannel)
 
-        stubConstructorMockContext = Mockito.mockConstruction(
+        stubConstructorMock = Mockito.mockConstruction(
             CountLettersServiceGrpcKt.CountLettersServiceCoroutineStub::class.java
         ) { mock, context ->
             assertEquals(mockChannel, context.arguments()[0])
@@ -68,23 +67,23 @@ class CountLettersClientTest {
 
     @After
     fun tearDown() {
-        staticManagedChannelBuilderMockContext?.close()
-        stubConstructorMockContext?.close()
+        staticNettyChannelBuilderMock?.close()
+        stubConstructorMock?.close()
     }
 
     @Test
     fun `run should correctly call grpc service and shutdown channel`() {
-        runBlocking {
+        runBlocking { 
             val testInput = "hello world"
             client.run(testInput)
 
-            staticManagedChannelBuilderMockContext!!.verify {
-                ManagedChannelBuilder.forAddress(testHost, testPort)
+            staticNettyChannelBuilderMock!!.verify { 
+                NettyChannelBuilder.forTarget("$testHost:$testPort")
             }
             verify(mockChannelBuilderInstance).usePlaintext()
             verify(mockChannelBuilderInstance).build()
 
-            val constructedStubs = stubConstructorMockContext!!.constructed()
+            val constructedStubs = stubConstructorMock!!.constructed()
             assertTrue(constructedStubs.isNotEmpty())
             val usedStub = constructedStubs[0]
 

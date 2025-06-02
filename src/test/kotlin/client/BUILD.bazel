@@ -6,7 +6,6 @@ kt_jvm_test(
     test_class = "client.CountLettersClientAppTest",
     deps = [
         "//src/main/kotlin/client:count_letters_client_app_kt_lib",
-        "//src/main/kotlin/client:flags_kt_lib",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
         "@maven//:org_mockito_mockito_core",
@@ -29,22 +28,6 @@ kt_jvm_test(
         "@maven//:org_mockito_mockito_core",
         "@maven//:org_mockito_mockito_inline", 
         "@maven//:org_mockito_kotlin_mockito_kotlin", 
-        "//import/java/picocli",
     ],
 )
 
-
-kt_jvm_test(
-    name = "flags_test",
-    srcs = ["FlagsTest.kt"],
-    test_class = "client.FlagsTest",
-    deps = [
-        "//src/main/kotlin/client:flags_kt_lib",
-        "@wfa_common_jvm//imports/java/org/junit",
-        "@wfa_common_jvm//imports/kotlin/kotlin/test",
-        "@maven//:org_mockito_mockito_core",
-        "@maven//:org_mockito_mockito_inline", 
-        "@maven//:org_mockito_kotlin_mockito_kotlin", 
-        "//import/java/picocli",
-    ],
-)
