@@ -1,7 +1,8 @@
 package client
-//reference https://github.com/world-federation-of-advertisers/cross-media-measurement/blob/main/src/main/kotlin/org/wfanet/panelmatch/client/launcher/GrpcApiClient.kt
-//reference https://github.com/world-federation-of-advertisers/common-jvm/blob/main/src/main/kotlin/org/wfanet/measurement/common/grpc/Channel.kt
-import io.grpc.ManagedChannel 
+// references
+// https://github.com/world-federation-of-advertisers/cross-media-measurement/blob/main/src/main/kotlin/org/wfanet/panelmatch/client/launcher/GrpcApiClient.kt
+// https://github.com/world-federation-of-advertisers/common-jvm/blob/main/src/main/kotlin/org/wfanet/measurement/common/grpc/Channel.kt
+import io.grpc.ManagedChannel
 import io.grpc.netty.NettyChannelBuilder
 import service.proto.CountLettersServiceGrpcKt
 import service.proto.InputString
