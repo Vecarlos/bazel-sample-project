@@ -5,8 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import sample.proto.UserProfile 
-import sample.createKotlinUser
+import sample.proto.UserProfile
 
 @RunWith(JUnit4::class)
 class ManageUsersTest {
@@ -23,9 +22,11 @@ class ManageUsersTest {
         assertEquals(userId, profile.userId)
         assertEquals(displayName, profile.displayName)
         assertEquals(age, profile.age)
-        assertEquals( isActive, profile.isActive)
+        assertEquals(isActive, profile.isActive)
         assertEquals(interests.size, profile.interestsList.size)
-        assertTrue(profile.interestsList.containsAll(interests) && interests.containsAll(profile.interestsList))
+        assertTrue(
+                profile.interestsList.containsAll(interests) &&
+                        interests.containsAll(profile.interestsList)
+        )
     }
-
 }
