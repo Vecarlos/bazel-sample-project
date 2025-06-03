@@ -1,12 +1,11 @@
 package implementation // O el paquete donde quieras poner tu test
 
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.Assert.assertEquals
 import service.proto.InputString
-import service.proto.LetterNumber 
 
 @RunWith(JUnit4::class)
 class CountLettersServiceImplTest {
@@ -21,8 +20,6 @@ class CountLettersServiceImplTest {
     val expectedLetterCount = 11
     assertEquals(expectedLetterCount, response.letterNumber)
   }
-
-
 
   @Test
   fun `countLetters with empty string should return zero`() = runBlocking {

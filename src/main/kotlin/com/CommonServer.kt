@@ -1,7 +1,8 @@
 package com.CommonServer
-// reference https://github.com/world-federation-of-advertisers/common-jvm/blob/main/src/main/kotlin/org/wfanet/measurement/common/grpc/CommonServer.kt
+// reference
+// https://github.com/world-federation-of-advertisers/common-jvm/blob/main/src/main/kotlin/org/wfanet/measurement/common/grpc/CommonServer.kt
 
-import io.grpc.BindableService 
+import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.ServerBuilder
 import kotlinx.coroutines.Dispatchers
@@ -15,10 +16,13 @@ class GrpcServer private constructor(private val serverGrpc: Server) {
         serverGrpc.start()
         println("Server started in port ${serverGrpc.port}")
 
-        Runtime.getRuntime().addShutdownHook(Thread {
-            System.err.println("*** GrpcServer: shutting down...")
-            this.shutdown()
-        })
+        Runtime.getRuntime()
+                .addShutdownHook(
+                        Thread {
+                            System.err.println("*** GrpcServer: shutting down...")
+                            this.shutdown()
+                        }
+                )
     }
 
     fun shutdown() {
@@ -26,16 +30,11 @@ class GrpcServer private constructor(private val serverGrpc: Server) {
     }
 
     suspend fun waitUntilShutdown() {
-        runInterruptible(Dispatchers.IO) { 
-            serverGrpc.awaitTermination()
-        }
+        runInterruptible(Dispatchers.IO) { serverGrpc.awaitTermination() }
     }
 
     companion object {
-        fun create(
-            config: ServerConfiguration,
-            servicio: BindableService
-        ): GrpcServer {
+        fun create(config: ServerConfiguration, servicio: BindableService): GrpcServer {
 
             val builder = ServerBuilder.forPort(config.port)
             builder.addService(servicio)
