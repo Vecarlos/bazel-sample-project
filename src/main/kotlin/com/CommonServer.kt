@@ -9,11 +9,11 @@ import kotlinx.coroutines.runInterruptible
 
 data class ServerConfiguration(val port: Int)
 
-class GrpcServer private constructor(private val servidorGrpc: Server) {
+class GrpcServer private constructor(private val serverGrpc: Server) {
 
     fun start() {
-        servidorGrpc.start()
-        println("Server started in port ${servidorGrpc.port}")
+        serverGrpc.start()
+        println("Server started in port ${serverGrpc.port}")
 
         Runtime.getRuntime().addShutdownHook(Thread {
             System.err.println("*** GrpcServer: shutting down...")
@@ -22,12 +22,12 @@ class GrpcServer private constructor(private val servidorGrpc: Server) {
     }
 
     fun shutdown() {
-        servidorGrpc.shutdown()
+        serverGrpc.shutdown()
     }
 
     suspend fun waitUntilShutdown() {
         runInterruptible(Dispatchers.IO) { 
-            servidorGrpc.awaitTermination()
+            serverGrpc.awaitTermination()
         }
     }
 
