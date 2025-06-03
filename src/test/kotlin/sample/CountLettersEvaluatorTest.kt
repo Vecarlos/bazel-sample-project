@@ -1,9 +1,9 @@
 package sample
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.Assert.assertEquals
 
 @RunWith(JUnit4::class)
 class CountLettersEvaluatorTest {
@@ -21,5 +21,4 @@ class CountLettersEvaluatorTest {
     val result = evaluator.evaluate("")
     assertEquals(0, result)
   }
-
 }
