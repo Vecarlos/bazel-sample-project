@@ -1,9 +1,9 @@
 package sample
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.Assert.assertEquals
 
 @RunWith(JUnit4::class)
 class SumEvaluatorTest {
@@ -15,5 +15,4 @@ class SumEvaluatorTest {
     val result = evaluator.evaluate(1, 2)
     assertEquals(3, result)
   }
-
 }

@@ -2,7 +2,6 @@ package com
 
 import com.CommonServer.GrpcServer
 import com.CommonServer.ServerConfiguration
-
 import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.ServerBuilder
@@ -22,14 +21,11 @@ import org.mockito.kotlin.whenever
 @RunWith(MockitoJUnitRunner::class)
 class CommonServerTest {
 
-    @Mock
-    private lateinit var mockInternalGrpcServer: Server
+    @Mock private lateinit var mockInternalGrpcServer: Server
 
-    @Mock
-    private lateinit var mockServerBuilderInstance: ServerBuilder<*>
+    @Mock private lateinit var mockServerBuilderInstance: ServerBuilder<*>
 
-    @Mock
-    private lateinit var mockBindableService: BindableService
+    @Mock private lateinit var mockBindableService: BindableService
 
     private val fakePort = 8080
     private val portServerConfiguration = ServerConfiguration(fakePort)
@@ -41,10 +37,15 @@ class CommonServerTest {
         mockEstaticoServerBuilder?.close()
         mockEstaticoServerBuilder = Mockito.mockStatic(ServerBuilder::class.java)
 
-        mockEstaticoServerBuilder?.`when`<ServerBuilder<*>> { ServerBuilder.forPort(any()) }?.thenReturn(mockServerBuilderInstance)
-        mockEstaticoServerBuilder?.`when`<ServerBuilder<*>> { ServerBuilder.forPort(fakePort) }?.thenReturn(mockServerBuilderInstance)
+        mockEstaticoServerBuilder
+                ?.`when`<ServerBuilder<*>> { ServerBuilder.forPort(any()) }
+                ?.thenReturn(mockServerBuilderInstance)
+        mockEstaticoServerBuilder
+                ?.`when`<ServerBuilder<*>> { ServerBuilder.forPort(fakePort) }
+                ?.thenReturn(mockServerBuilderInstance)
 
-        whenever(mockServerBuilderInstance.addService(any<BindableService>())).thenReturn(mockServerBuilderInstance)
+        whenever(mockServerBuilderInstance.addService(any<BindableService>()))
+                .thenReturn(mockServerBuilderInstance)
         whenever(mockServerBuilderInstance.build()).thenReturn(mockInternalGrpcServer)
     }
 
