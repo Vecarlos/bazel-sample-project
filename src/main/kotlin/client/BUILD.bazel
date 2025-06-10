@@ -1,4 +1,6 @@
-load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_binary", "kt_jvm_library")
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/docker:macros.bzl", "java_image")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -25,12 +27,18 @@ kt_jvm_library(
     ],
 )
 
-kt_jvm_binary(
+java_binary(
     name = "count_letters_client_bin",
-    srcs = ["CountLettersClientApp.kt"],
     main_class = "client.CountLettersClientAppKt",
-    deps = [
+    runtime_deps = [
         ":count_letters_client_app_kt_lib",
         ":count_letters_client_kt_lib",
     ],
+)
+
+java_image(
+    name = "count_letters_client_docker_image",
+    binary = ":count_letters_client_bin",
+    main_class = "client.CountLettersClientAppK",
+    visibility = ["//visibility:public"],
 )
