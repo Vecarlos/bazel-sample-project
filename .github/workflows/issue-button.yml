@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       issue_title:
-        description: 'Issue title'
+        description: "Issue title"
         required: true
-        default: 'Nuevo Issue desde cURL'
+        default: ""
 
 jobs:
   crear-issue:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
