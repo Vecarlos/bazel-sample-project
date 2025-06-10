@@ -1,0 +1,22 @@
+name: Create and issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_title:
+        description: 'Issue title'
+        required: true
+        default: ''
+
+jobs:
+  crear-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue
+        uses: actions/create-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: ${{ github.event.inputs.issue_title }}
+          body: |
+            This issue was created
+            **Title:** ${{ github.event.inputs.issue_title }}
