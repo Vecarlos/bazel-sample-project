@@ -10,6 +10,12 @@ bazel_dep(
 )
 
 bazel_dep(
+    name = "rules_cue",
+    version = "0.4.0",
+    repo_name = "wfa_rules_cue",
+)
+
+bazel_dep(
     name = "common-jvm",
     version = "0.103.0",
     repo_name = "wfa_common_jvm",
@@ -83,10 +89,9 @@ maven.artifact(
 )
 maven.install(
     artifacts = [
-        "io.grpc:grpc-netty-shaded:1.62.2", 
-        "io.grpc:grpc-okhttp:1.62.2",  
+        "io.grpc:grpc-netty-shaded:1.62.2",
+        "io.grpc:grpc-okhttp:1.62.2",
         "io.grpc:grpc-kotlin-stub:1.4.1",
-
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
     ],
     boms = [],
