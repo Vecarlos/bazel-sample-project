@@ -1,5 +1,4 @@
-name: Create an Issue with cURL
-
+name: Create an Issue
 on:
   workflow_dispatch:
     inputs:
@@ -7,6 +6,10 @@ on:
         description: "Issue title"
         required: true
         default: ""
+      body_content:
+        description: "body content"
+        required: false
+        default: "Issue"
 
 jobs:
   crear-issue:
@@ -26,6 +29,6 @@ jobs:
           --header "Content-Type: application/json" \
           --data '{
             "title": "${{ github.event.inputs.issue_title }}",
-            "body": "Este issue fue creado directamente con una llamada a la API."
+            "body": "${{ github.event.inputs.body_content }}",
             }' \
           --fail
