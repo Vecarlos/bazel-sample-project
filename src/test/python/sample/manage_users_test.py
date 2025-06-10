@@ -1,6 +1,7 @@
 import unittest
-from sample.ManageUsers import create_new_user
+from sample.manage_users import create_new_user
 from src.main.proto.sample import user_profile_pb2
+
 
 class TestManageUsers(unittest.TestCase):
 
@@ -19,6 +20,7 @@ class TestManageUsers(unittest.TestCase):
         self.assertEqual(profile.age, age)
         self.assertEqual(profile.is_active, is_active)
         self.assertListEqual(list(profile.interests), interests)
+
 
 if __name__ == '__main__':
     unittest.main()
