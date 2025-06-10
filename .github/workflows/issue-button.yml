@@ -12,6 +12,8 @@ jobs:
   crear-issue:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Create Issue
         uses: actions/create-issue@v2
         with:
