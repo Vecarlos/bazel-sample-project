@@ -1,3 +1,16 @@
+name: Create an Issue
+on:
+  workflow_dispatch:
+    inputs:
+      issue_title:
+        description: "Issue title"
+        required: true
+        default: ""
+      body_content:
+        description: "body content"
+        required: false
+        default: "Issue"
+
 jobs:
   crear-issue:
     runs-on: ubuntu-latest
@@ -9,7 +22,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create issue using curl
-        # 👇 Pasamos los inputs como variables de entorno al script
         env:
           ISSUE_TITLE: ${{ github.event.inputs.issue_title }}
           ISSUE_BODY: ${{ github.event.inputs.body_content }}
