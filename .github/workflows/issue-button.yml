@@ -14,8 +14,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Create Issue
-        uses: actions/create-issue@v2
+      - name: Create issue using curl
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --data '{
+            "title": "Creado con cURL: ${{ github.event.inputs.issue_title }}",
+            "body": "Este issue fue creado directamente con una llamada a la API."
+            }' \
+          --fail
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: ${{ github.event.inputs.issue_title }}
