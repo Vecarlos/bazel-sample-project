@@ -1,0 +1,60 @@
+name: Create Issue with Code Scanning Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_title:
+        description: "Título para el reporte de issues de seguridad"
+        required: true
+        default: "Reporte de Alertas de Seguridad - A la fecha"
+
+jobs:
+  create-security-report-issue:
+    runs-on: ubuntu-latest
+    # --- PASO 1: Añadir permisos para leer las alertas de seguridad ---
+    permissions:
+      issues: write
+      contents: read
+      security-events: read # <-- Permiso MUY importante
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- PASO 2: Obtener y formatear las alertas de Code Scanning ---
+      - name: Get Code Scanning Alerts
+        id: get_alerts # Le damos un ID a este paso para usar su salida después
+        run: |
+          # Llamamos a la API para obtener las alertas abiertas
+          # y las formateamos como una lista Markdown con la herramienta 'jq'
+          ALERTS_BODY=$(curl -s -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open \
+            | jq -r '.[] | "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"' \
+            || echo "No se encontraron alertas de seguridad abiertas. ¡Buen trabajo!")
+
+          # Guardamos la lista formateada en una variable de salida del paso
+          echo "alerts_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$ALERTS_BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # --- PASO 3: Crear el issue con el cuerpo generado automáticamente ---
+      - name: Create issue with formatted report
+        env:
+          ISSUE_TITLE: ${{ github.event.inputs.issue_title }}
+          # Usamos la salida del paso anterior como cuerpo del issue
+          ISSUE_BODY: ${{ steps.get_alerts.outputs.alerts_body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Construimos el payload del issue
+          json_payload=$(printf '{"title": "%s", "body": "%s"}' "$ISSUE_TITLE" "$ISSUE_BODY")
+          
+          # Creamos el issue
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header "Authorization: Bearer $GITHUB_TOKEN" \
+          --header "Content-Type: application/json" \
+          --data "$json_payload" \
+          --fail
