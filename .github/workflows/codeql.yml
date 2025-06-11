@@ -16,6 +16,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -45,6 +46,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         trap-caching: true
+        queries: +security-extended
 
     - name: Build with Bazel
       if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
@@ -55,4 +57,3 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
-
