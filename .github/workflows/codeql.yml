@@ -12,11 +12,10 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
-    permissions:
+        permissions:
       actions: read
       contents: read
       security-events: write
-
     strategy:
       fail-fast: false
       matrix:
@@ -26,19 +25,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Cache Bazel
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/bazel
+        key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-bazel-
+
+    - name: Setup Java JDK
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        setup-java-jdk: true
+        trap-caching: true
 
     - name: Build with Bazel
       if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
       run: |
-        # Este comando compila TODOS los targets en tu repositorio
         bazel build //...
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+
