@@ -1,11 +1,8 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 package(default_visibility = ["//visibility:public"])
 
-_INCLUDE_PREFIX = "/src/main/cc"
-
-cc_library(
-    name = "buffer_copy_without _checking _size_of_input_cc",
+cc_binary(
+    name = "buffer_copy_without _checking _size_of_input_app",
     srcs = ["buffer_copy_without _checking _size_of_input.cc"],
-    strip_include_prefix = _INCLUDE_PREFIX,
 )
