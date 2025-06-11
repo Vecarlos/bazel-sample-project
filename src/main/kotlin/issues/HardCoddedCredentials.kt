@@ -17,7 +17,6 @@ fun main() {
     val connector = DatabaseConnector()
     val connection = connector.connectToDatabase()
     if (connection != null) {
-        println("¡Conexión exitosa!")
         connection.close()
     }
 }
