@@ -1,4 +1,4 @@
-name: "CodeQL Analysis"
+name: "CodeQL Analysis (Minimal)"
 
 on:
   push:
@@ -26,14 +26,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Cache Bazel
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/bazel
-        key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-bazel-
-
     - name: Setup Java JDK
       if: matrix.language == 'java-kotlin'
       uses: actions/setup-java@v4
@@ -45,13 +37,11 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        trap-caching: true
-        queries: +security-extended
 
     - name: Build with Bazel
       if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
       run: |
-         bazel build --spawn_strategy=local //src/...
+        bazel build --spawn_strategy=local //...
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
