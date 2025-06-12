@@ -1,4 +1,4 @@
-package issue
+package issues
 
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory

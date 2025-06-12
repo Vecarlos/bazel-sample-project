@@ -5,11 +5,11 @@ package(default_visibility = ["//visibility:public"])
 kt_jvm_binary(
     name = "cwe_643_app",
     srcs = ["cwe_643.kt"],
-    main_class = "issue.Cwe_643Kt",
+    main_class = "issues.Cwe_643Kt",
 )
 
 kt_jvm_binary(
     name = "cwe_020_app",
     srcs = ["cwe_020.kt"],
-    main_class = "issue.Cwe_020Kt",
+    main_class = "issues.Cwe_020Kt",
 )
