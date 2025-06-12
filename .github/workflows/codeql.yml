@@ -51,7 +51,7 @@ jobs:
     - name: Build with Bazel
       if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
       run: |
-        bazel build //...
+         bazel build --spawn_strategy=local //src/...
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
