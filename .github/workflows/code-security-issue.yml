@@ -37,11 +37,11 @@ jobs:
                 "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"
               ' \
             || echo "No open vulnerabilities found for this CWE.")
-          
+
           if [ -z "$ALERTS_BODY" ]; then
             ALERTS_BODY="No open vulnerabilities found for this CWE."
           fi
-          
+
           echo "alerts_body<<EOF" >> $GITHUB_OUTPUT
           echo "$ALERTS_BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
