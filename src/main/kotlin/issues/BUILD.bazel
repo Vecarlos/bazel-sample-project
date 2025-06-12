@@ -3,7 +3,7 @@ load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_binary")
 package(default_visibility = ["//visibility:public"])
 
 kt_jvm_binary(
-    name = "hard_coded_credentials_app",
-    srcs = ["HardCoddedCredentials.kt"],
-    main_class = "com.example.HardCoddedCredentialsKt",
+    name = "cwe_643_app",
+    srcs = ["cwe_643.kt"],
+    main_class = "issue.SimpleXPathInjection",
 )
