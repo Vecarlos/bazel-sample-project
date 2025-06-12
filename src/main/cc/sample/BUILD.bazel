@@ -18,12 +18,12 @@ cc_library(
     strip_include_prefix = _INCLUDE_PREFIX,
 )
 
-cc_library(
-    name = "manage_users",
-    srcs = ["manage_users.cc"],
-    hdrs = ["manage_users.h"],
-    strip_include_prefix = _INCLUDE_PREFIX,
-    deps = [
-        "//src/main/proto/sample:user_profile_cc_proto",
-    ],
-)
+# cc_library(
+#     name = "manage_users",
+#     srcs = ["manage_users.cc"],
+#     hdrs = ["manage_users.h"],
+#     strip_include_prefix = _INCLUDE_PREFIX,
+#     deps = [
+#         "//src/main/proto/sample:user_profile_cc_proto",
+#     ],
+# )
