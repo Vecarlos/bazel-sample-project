@@ -8,8 +8,8 @@ kt_jvm_binary(
     main_class = "issues.Cwe_643Kt",
 )
 
-kt_jvm_binary(
-    name = "cwe_020_app",
-    srcs = ["cwe_020.kt"],
-    main_class = "issues.Cwe_020Kt",
-)
+# kt_jvm_binary(
+#     name = "cwe_020_app",
+#     srcs = ["cwe_020.kt"],
+#     main_class = "issues.Cwe_020Kt",
+# )
