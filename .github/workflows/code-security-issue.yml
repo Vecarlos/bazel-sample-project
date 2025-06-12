@@ -20,36 +20,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: "DEBUG: Show API vulneravilities"
-        run: |
-          echo "--- Content ---"
-          curl -s -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open
-          echo "--- End JSON ---"
-
-      - name: Get Code Scanning Alerts
+      - name: Get and Filter Code Scanning Alerts
         id: get_alerts
         env:
-          CWE_FILTER: ${{ github.event.inputs.issue_title }}
+          CWE_TO_FILTER: ${{ github.event.inputs.cwe_filter }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ALERTS_BODY=$(curl -s -L \
             -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open \
-            | jq -r --arg filter "$CWE_FILTER" '.[] | select(.rule.tags | any(contains($filter))) | "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"' \
-            || echo "No vulnerabilities found for this filter")
-
+            | jq -r --arg cwe_string "$CWE_TO_FILTER" '
+                .[] |
+                select(any(.rule.tags[]; contains($cwe_string))) |
+                "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"
+              ' \
+            || echo "No open vulnerabilities found for this CWE.")
+          
+          if [ -z "$ALERTS_BODY" ]; then
+            ALERTS_BODY="No open vulnerabilities found for this CWE."
+          fi
+          
           echo "alerts_body<<EOF" >> $GITHUB_OUTPUT
           echo "$ALERTS_BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create issue with formatted report
         env:
-          ISSUE_TITLE: ${{ github.event.inputs.issue_title }}
+          ISSUE_TITLE: "Security Report for: ${{ github.event.inputs.cwe_filter }}"
           ISSUE_BODY: ${{ steps.get_alerts.outputs.alerts_body }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
