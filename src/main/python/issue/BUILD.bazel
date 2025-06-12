@@ -1,11 +1,11 @@
 load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
-    name = "cwe_798_py",
-    srcs = ['cwe_798.py'],
+    name = "cwe_327_py",
+    srcs = ['cwe_327.py'],
 )
 
 py_library(
-    name = "cwe_798_2_py",
-    srcs = ['cwe_798_2.py'],
+    name = "cwe_327_2_py",
+    srcs = ['cwe_327_2.py'],
 )
