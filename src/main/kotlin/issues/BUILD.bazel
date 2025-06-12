@@ -7,3 +7,9 @@ kt_jvm_binary(
     srcs = ["cwe_643.kt"],
     main_class = "issue.Cwe_643Kt",
 )
+
+kt_jvm_binary(
+    name = "cwe_020_app",
+    srcs = ["cwe_020.kt"],
+    main_class = "issue.Cwe_020Kt",
+)
