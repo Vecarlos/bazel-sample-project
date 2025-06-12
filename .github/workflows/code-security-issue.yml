@@ -42,7 +42,7 @@ jobs:
             ISSUE_BODY="No open vulnerabilities found for $CWE_INPUT."
           else
             ISSUE_TITLE=$(echo "$FILTERED_ALERTS" | jq -r '.[0].rule.description')
-            LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- \(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)"')
+            LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- [\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)](\(.html_url))"')
             ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$CWE_INPUT" "$LOCATION_LIST")
           fi
 
