@@ -4,3 +4,8 @@ py_library(
     name = "cwe_798_py",
     srcs = ['cwe_798.py'],
 )
+
+py_library(
+    name = "cwe_798_2_py",
+    srcs = ['cwe_798_2.py'],
+)
