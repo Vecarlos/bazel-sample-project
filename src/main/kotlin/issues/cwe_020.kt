@@ -1,4 +1,4 @@
-package issue
+package issues
 
 // Simula una función que obtiene un patrón de una fuente externa.
 fun getPatternFromUnsafeSource(): String {
