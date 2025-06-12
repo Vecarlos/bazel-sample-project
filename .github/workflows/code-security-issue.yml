@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       issue_title:
-        description: "CWE Issue"
+        description: "Issue code"
         required: true
         default: "cwe-"
 
@@ -20,35 +20,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get and Filter Code Scanning Alerts
+      - name: Get Code Scanning Alerts
         id: get_alerts
         env:
-          CWE_TO_FILTER: ${{ github.event.inputs.cwe_filter }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CWE_INPUT: ${{ github.event.inputs.issue_title }}
         run: |
+          CWE_TAG_TO_FIND="external/cwe/$CWE_INPUT"
           ALERTS_BODY=$(curl -s -L \
             -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open \
-            | jq -r --arg cwe_string "$CWE_TO_FILTER" '
-                .[] |
-                select(any(.rule.tags[]; contains($cwe_string))) |
-                "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"
-              ' \
-            || echo "No open vulnerabilities found for this CWE.")
-
-          if [ -z "$ALERTS_BODY" ]; then
-            ALERTS_BODY="No open vulnerabilities found for this CWE."
-          fi
-
+            | jq -r --arg cwe_tag "$CWE_TAG_TO_FIND" \
+              '.[] | select(.rule.tags | contains([$cwe_tag])) | "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"' \
+            || echo "Vulnerabilities not found")
+          
           echo "alerts_body<<EOF" >> $GITHUB_OUTPUT
           echo "$ALERTS_BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create issue with formatted report
         env:
-          ISSUE_TITLE: "Security Report for: ${{ github.event.inputs.cwe_filter }}"
+          ISSUE_TITLE: ${{ github.event.inputs.issue_title }}
           ISSUE_BODY: ${{ steps.get_alerts.outputs.alerts_body }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
