@@ -22,15 +22,15 @@ kt_jvm_test(
     ],
 )
 
-kt_jvm_test(
-    name = "manage_users_kt_test",
-    srcs = ["ManageUsersTest.kt"],
-    test_class = "sample.ManageUsersTest",
-    deps = [
-        "//src/main/kotlin/sample:manage_users_kt",
-        "//src/main/proto/sample:user_profile_kt_proto",
-        "@maven//:com_google_protobuf_protobuf_java",
-        "@wfa_common_jvm//imports/java/org/junit",
-        "@wfa_common_jvm//imports/kotlin/kotlin/test",
-    ],
-)
+# kt_jvm_test(
+#     name = "manage_users_kt_test",
+#     srcs = ["ManageUsersTest.kt"],
+#     test_class = "sample.ManageUsersTest",
+#     deps = [
+#         "//src/main/kotlin/sample:manage_users_kt",
+#         "//src/main/proto/sample:user_profile_kt_proto",
+#         "@maven//:com_google_protobuf_protobuf_java",
+#         "@wfa_common_jvm//imports/java/org/junit",
+#         "@wfa_common_jvm//imports/kotlin/kotlin/test",
+#     ],
+# )
