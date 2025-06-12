@@ -4,65 +4,60 @@ on:
   workflow_dispatch:
     inputs:
       issue_title:
-        description: "Título para el reporte de issues de seguridad"
+        description: "CWE Issue"
         required: true
-        default: "Reporte de Alertas de Seguridad"
+        default: "cwe-"
 
 jobs:
   create-security-report-issue:
     runs-on: ubuntu-latest
     permissions:
-      issues: write          # Para poder crear issues
-      contents: read         # Para hacer checkout del código
-      security-events: read  # Para leer las alertas de Code Scanning
+      issues: write
+      contents: read
+      security-events: read
 
     steps:
-      # 1. Clona el repositorio
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. (Opcional) Imprime la respuesta cruda de la API para que la veas en los logs
-      - name: "DEBUG: Mostrar la respuesta de la API"
+      - name: "DEBUG: Show API vulneravilities"
         run: |
-          echo "--- Contenido JSON de la API de Alertas ---"
+          echo "--- Content ---"
           curl -s -L \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open
-          echo "--- Fin del contenido JSON ---"
+          echo "--- End JSON ---"
 
-      # 3. Obtiene las alertas y las formatea como una lista Markdown
       - name: Get Code Scanning Alerts
         id: get_alerts
+        env:
+          CWE_FILTER: ${{ github.event.inputs.issue_title }}
         run: |
           ALERTS_BODY=$(curl -s -L \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open \
-            | jq -r '.[] | "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"' \
-            || echo "No se encontraron vulnerabilidades de código abiertas.")
-          
-          # Guarda la lista formateada en una variable de salida del paso
+            | jq -r --arg filter "$CWE_FILTER" '.[] | select(.rule.tags | any(contains($filter))) | "- **[\(.rule.severity)]** \(.rule.name): [Ver detalle](\(.html_url))"' \
+            || echo "No vulnerabilities found for this filter")
+
           echo "alerts_body<<EOF" >> $GITHUB_OUTPUT
           echo "$ALERTS_BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      # 4. Crea el issue usando un JSON construido de forma segura con JQ
       - name: Create issue with formatted report
         env:
           ISSUE_TITLE: ${{ github.event.inputs.issue_title }}
           ISSUE_BODY: ${{ steps.get_alerts.outputs.alerts_body }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Usamos JQ para construir un JSON válido, escapando saltos de línea y comillas
           json_payload=$(jq -n \
             --arg title "$ISSUE_TITLE" \
             --arg body "$ISSUE_BODY" \
             '{title: $title, body: $body}')
-          
-          # Hacemos la llamada a la API usando el JSON perfectamente formado
+
           curl --request POST \
             --url https://api.github.com/repos/${{ github.repository }}/issues \
             --header "Authorization: Bearer $GITHUB_TOKEN" \
