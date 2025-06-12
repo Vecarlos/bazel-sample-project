@@ -3,6 +3,6 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 package(default_visibility = ["//visibility:public"])
 
 cc_binary(
-    name = "buffer_copy_without _checking _size_of_input_app",
-    srcs = ["buffer_copy_without _checking _size_of_input.cc"],
+    name = "cwe_1078_app",
+    srcs = ["cwe_1078.cc"],
 )
