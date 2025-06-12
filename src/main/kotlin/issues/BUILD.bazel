@@ -5,5 +5,5 @@ package(default_visibility = ["//visibility:public"])
 kt_jvm_binary(
     name = "cwe_643_app",
     srcs = ["cwe_643.kt"],
-    main_class = "issue.SimpleXPathInjection",
+    main_class = "issue.Cwe_643Kt",
 )
