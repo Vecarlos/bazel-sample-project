@@ -19,3 +19,9 @@ py_library(
     name = "cve-2025-46656",
     srcs = ["cve-2025-46656.py"],
 )
+
+py_library(
+    name = "cve-2025-32434",
+    srcs = ["cve-2025-32434.py"],
+)
+
