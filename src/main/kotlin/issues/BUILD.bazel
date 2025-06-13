@@ -19,3 +19,12 @@ kt_jvm_binary(
     srcs = ["cwe_312.kt"],
     main_class = "issues.Cwe_312Kt",
 )
+
+kt_jvm_binary(
+    name = "cve-2025-24970_app",
+    srcs = ["cve-2025-24970.kt"],
+    main_class = "issues.cve-2025-24970Kt",
+    deps = [
+        "@maven//:io_netty_netty_handler",
+    ],
+)
