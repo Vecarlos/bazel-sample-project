@@ -3,3 +3,4 @@ grpcio
 setuptools
 grpcio-tools
 markdownify==0.14.0
+torch==2.5.1
