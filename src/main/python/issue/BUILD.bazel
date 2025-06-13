@@ -2,10 +2,15 @@ load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
     name = "cwe_327_py",
-    srcs = ['cwe_327.py'],
+    srcs = ["cwe_327.py"],
 )
 
 py_library(
     name = "cwe_327_2_py",
-    srcs = ['cwe_327_2.py'],
+    srcs = ["cwe_327_2.py"],
+)
+
+py_library(
+    name = "cve-2025-48889",
+    srcs = ["cve-2025-48889.py"],
 )
