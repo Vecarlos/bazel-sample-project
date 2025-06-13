@@ -22,7 +22,10 @@ bazel_dep(
 )
 
 # --- Bazel Central Registry modules. ---
-
+bazel_dep(
+    name = "bazel_skylib",
+    version = "1.7.1",
+)
 bazel_dep(
     name = "rules_proto",
     version = "7.1.0",
@@ -32,7 +35,10 @@ bazel_dep(
     name = "rules_cc",
     version = "0.1.1",
 )
-
+bazel_dep(
+    name = "rules_pkg",
+    version = "1.0.1",
+)
 bazel_dep(
     name = "rules_java",
     version = "8.7.1",
