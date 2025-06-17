@@ -22,56 +22,11 @@ jobs:
 
       - name: Get and Process Alerts
         id: get_alerts
-        env:
-          ALERT_INPUT: ${{ github.event.inputs.issue_title }}
-        run: |
-          LOWERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:upper:]' '[:lower:]')
-          UPPERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:lower:]' '[:upper:]')
-
-          if [[ "$LOWERCASE_INPUT" == cwe-* ]]; then
-            CWE_TAG_TO_FIND="external/cwe/$LOWERCASE_INPUT"
-
-            API_RESPONSE=$(curl -s -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open)
-            echo "$LOWERCASE_INPUT"
-            echo "$API_RESPONSE"
-
-            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | contains([$cwe_tag]))]')
-
-            DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].rule.description')
-            ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
-            CWE_NUMBER=$(echo "$LOWERCASE_INPUT" | cut -d'-' -f2)
-            ALERT_LINK="[$ALERT_INPUT](https://cwe.mitre.org/data/definitions/${CWE_NUMBER}.html)"
-            LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- [\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)](\(.html_url))"')
-            ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$ALERT_LINK" "$LOCATION_LIST")
-
-          elif [[ "$LOWERCASE_INPUT" == cve-* ]]; then
-            API_RESPONSE=$(curl -s -L \ 
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.MY_PAT }}" \ 
-              -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/dependabot/alerts?state=open)
-
-            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cve_id "$LOWERCASE_INPUT" '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
-
-            DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].security_advisory.summary')
-            ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
-            CVE_LINK="[$UPPERCASE_INPUT](https://nvd.nist.gov/vuln/detail/$UPPERCASE_INPUT)"
-            LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- <\(.html_url)>"')
-            ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$CVE_LINK" "$LOCATION_LIST")
-            
-          else
-            ISSUE_TITLE="Invalid Input Format"
-            ISSUE_BODY="Input must start with 'cwe-' or 'cve-'. You provided: $ALERT_INPUT"
-          fi
-
-          echo "issue_title<<EOF" >> $GITHUB_OUTPUT
-          echo "$ISSUE_TITLE" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "issue_body<<EOF" >> $GITHUB_OUTPUT
-          echo "$ISSUE_BODY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/process-alerts
+        with:
+          alert_input: ${{ github.event.inputs.issue_title }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          my_pat: ${{ secrets.MY_PAT }}
 
       - name: Create issue with formatted report
         env:
