@@ -74,9 +74,9 @@ jobs:
                 const cweId = cweTag.split('/').pop().toUpperCase();
                 const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
                 if (await issueExists(potentialTitle)) {
-                  core.info(`✅ [Followed] - ${cweId}: ${alert.rule.description}`);
+                  core.info(`✅ [Followed] - ${cweId}: ${alert.rule.description} - [case link](${alert.html_url})`);
                 } else {
-                  core.info(`ℹ️ [Not Followed] - ${cweId}: ${alert.rule.description}`);
+                  core.info(`ℹ️ [Not Followed] - ${cweId}: ${alert.rule.description} - [case link](${alert.html_url})`);
                 }
               }
             }
@@ -92,10 +92,13 @@ jobs:
               const cveId = alert.security_advisory.cve_id;
               const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
               if (await issueExists(potentialTitle)) {
-                core.info(`✅ [Followed] - ${cveId}: ${alert.security_advisory.summary}`);
+                core.info(`✅ [Followed] - ${cveId}: ${alert.security_advisory.summary} - [case link](${alert.html_url})`);
               } else {
-                core.info(`ℹ️ [Not Followed] - ${cveId}: ${alert.security_advisory.summary}`);
+                core.info(`ℹ️ [Not Followed] - ${cveId}: ${alert.security_advisory.summary} - [case link](${alert.html_url})`);
               }
             }
 
             core.endGroup();
+
+
+core.info(`- ✅ [SEGUIDA] [${cweId}: ${alert.rule.description}](${alert.html_url})`);
