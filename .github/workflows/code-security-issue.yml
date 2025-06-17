@@ -56,8 +56,11 @@ jobs:
             // Función para buscar si existe un issue con un título específico
             async function issueExists(title) {
               const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`;
-              // --- CORRECCIÓN: Revertimos al método original que funciona ---
-              const result = await github.rest.search.issuesAndPullRequests({ q: query });
+              // --- CORRECCIÓN: Se añade el parámetro 'advanced_search: true' ---
+              const result = await github.rest.search.issuesAndPullRequests({ 
+                q: query,
+                advanced_search: true
+              });
               return result.data.total_count > 0;
             }
 
