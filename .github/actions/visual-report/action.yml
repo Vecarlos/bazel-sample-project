@@ -1,9 +1,9 @@
-name: 'Generate Security Status Report'
-description: 'Generates a visual report in the logs about the status of all open security alerts.'
+name: "Generate Security Status Report"
+description: "Generates a visual report in the logs about the status of all open security alerts."
 
 inputs:
   my_pat:
-    description: 'A PAT with security_events and search read permissions.'
+    description: "A PAT with security_events and search read permissions."
     required: true
 
 runs:
@@ -44,3 +44,21 @@ runs:
               }
             }
           }
+          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            per_page: 100
+          });
+
+          for (const alert of dependabotAlerts.data) {
+            const cveId = alert.security_advisory.cve_id;
+            const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
+            if (await issueExists(potentialTitle)) {
+              core.info(`✅ [Followed] - ${cveId}: ${alert.security_advisory.summary} - ${alert.html_url}`);
+            } else {
+              core.info(`ℹ️ [Not Followed] - ${cveId}: ${alert.security_advisory.summary} - ${alert.html_url}`);
+            }
+          }
+
+          core.endGroup();
