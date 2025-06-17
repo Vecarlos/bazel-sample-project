@@ -1,0 +1,47 @@
+name: 'Generate Security Status Report'
+description: 'Generates a visual report in the logs about the status of all open security alerts.'
+
+inputs:
+  my_pat:
+    description: 'A PAT with security_events and search read permissions.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate Visual Status Report
+      uses: actions/github-script@v7
+      shell: bash
+      with:
+        github-token: ${{ inputs.my_pat }}
+        script: |
+          async function issueExists(title) {
+            const query = `repo:${process.env.GITHUB_REPOSITORY} is:issue is:open in:title "${title}"`;
+            const result = await github.rest.search.issuesAndPullRequests({ 
+              q: query,
+              advanced_search: true
+            });
+            return result.data.total_count > 0;
+          }
+
+          core.startGroup('--- Status Report: ---');
+
+          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            per_page: 100
+          });
+
+          for (const alert of codeScanningAlerts.data) {
+            const cweTag = alert.rule.tags.find(tag => tag.startsWith('external/cwe/cwe-'));
+            if (cweTag) {
+              const cweId = cweTag.split('/').pop().toUpperCase();
+              const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
+              if (await issueExists(potentialTitle)) {
+                core.info(`✅ [Followed] - ${cweId}: ${alert.rule.description} - ${alert.html_url}`);
+              } else {
+                core.info(`ℹ️ [Not Followed] - ${cweId}: ${alert.rule.description} - ${alert.html_url}`);
+              }
+            }
+          }
