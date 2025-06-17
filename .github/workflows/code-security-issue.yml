@@ -47,7 +47,7 @@ jobs:
             DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].security_advisory.summary')
             ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
             CVE_LINK="[$UPPERCASE_CVE](https://nvd.nist.gov/vuln/detail/$UPPERCASE_CVE)"
-            LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- **[\(.security_advisory.severity)]** Package: `\(.dependency.package.name)` at `\(.dependency.manifest_path)` - [Ver alerta](\(.html_url))"')
+            LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- [.html_url](\(.html_url))"')
             ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$CVE_LINK" "$LOCATION_LIST")
             
           else
