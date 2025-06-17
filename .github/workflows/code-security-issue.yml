@@ -36,8 +36,7 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open)
 
-            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cwe_tag "$CWE_TAG_TO_FIND" \ 
-              '.[] | select(.rule.tags | contains([$cwe_tag])) | "- [\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)](\(.html_url))"')
+            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cwe_tag "$CWE_TAG_TO_FIND" '.[] | select(.rule.tags | contains([$cwe_tag])) | "- [\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)](\(.html_url))"')
             
             DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].rule.description')
             ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
@@ -52,8 +51,7 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.MY_PAT }}" \ 
               -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/dependabot/alerts?state=open)
 
-            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cve_id "$LOWERCASE_INPUT" \ 
-              '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
+            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cve_id "$LOWERCASE_INPUT" '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
 
             DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].security_advisory.summary')
             ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
