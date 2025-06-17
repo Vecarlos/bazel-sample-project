@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       issue_title:
-        description: "Alert code (ej. cwe-78 o cve-2025-48889)"
+        description: "Alert code"
         required: true
         default: ""
 
@@ -14,7 +14,7 @@ jobs:
     permissions:
       issues: write
       contents: read
-      security-events: read # Este permiso cubre ambas APIs
+      security-events: read
 
     steps:
       - name: Checkout repository
@@ -25,39 +25,47 @@ jobs:
         env:
           ALERT_INPUT: ${{ github.event.inputs.issue_title }}
         run: |
-          # --- LÓGICA PARA DETECTAR EL TIPO DE INPUT ---
-          if [[ "$ALERT_INPUT" == cwe-* ]]; then
-            # --- CASO 1: ES UN CWE (Usa la API de Code Scanning) ---
+          # Convierte el input a minúsculas para la lógica condicional y el filtrado
+          LOWERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:upper:]' '[:lower:]')
+
+          if [[ "$LOWERCASE_INPUT" == cwe-* ]]; then
+            # --- CASO 1: ES UN CWE ---
             echo "Input is a CWE. Fetching Code Scanning alerts..."
-            CWE_TAG_TO_FIND="external/cwe/$ALERT_INPUT"
+            CWE_TAG_TO_FIND="external/$LOWERCASE_INPUT"
             API_RESPONSE=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open)
-            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | contains([$cwe_tag]))]')
-            
+            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | map(ascii_downcase) | contains([$cwe_tag]))]')
+
             if [ "$(echo "$FILTERED_ALERTS" | jq 'length')" -eq 0 ]; then
               ISSUE_TITLE="No Code Scanning alerts found for $ALERT_INPUT"
               ISSUE_BODY="No open vulnerabilities found for $ALERT_INPUT."
             else
               DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].rule.description')
               ISSUE_TITLE="$ALERT_INPUT - $DESCRIPTION"
-              CWE_NUMBER=$(echo "$ALERT_INPUT" | cut -d'-' -f2)
+              CWE_NUMBER=$(echo "$LOWERCASE_INPUT" | cut -d'-' -f2)
               ALERT_LINK="[$ALERT_INPUT](https://cwe.mitre.org/data/definitions/${CWE_NUMBER}.html)"
               LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- [\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)](\(.html_url))"')
               ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$ALERT_LINK" "$LOCATION_LIST")
             fi
 
-          elif [[ "$ALERT_INPUT" == cve-* ]]; then
-            # --- CASO 2: ES UN CVE (Usa la API de Dependabot) ---
+          elif [[ "$LOWERCASE_INPUT" == cve-* ]]; then
+            # --- CASO 2: ES UN CVE ---
             echo "Input is a CVE. Fetching Dependabot alerts..."
             API_RESPONSE=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/dependabot/alerts?state=open)
-            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cve_id "$ALERT_INPUT" '[.[] | select(.security_advisory.cve_id == $cve_id)]')
+            
+            echo "--- DEBUG: Raw JSON response from Dependabot API ---"
+            echo "$API_RESPONSE"
+            echo "--- End of raw JSON ---"
+
+            FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cve_id "$LOWERCASE_INPUT" '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
 
             if [ "$(echo "$FILTERED_ALERTS" | jq 'length')" -eq 0 ]; then
               ISSUE_TITLE="No Dependabot alerts found for $ALERT_INPUT"
               ISSUE_BODY="No open dependency vulnerabilities found for $ALERT_INPUT."
             else
+              UPPERCASE_CVE=$(echo "$LOWERCASE_INPUT" | tr '[:lower:]' '[:upper:]')
               DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].security_advisory.summary')
-              ISSUE_TITLE="$ALERT_INPUT - $DESCRIPTION"
-              CVE_LINK="[$ALERT_INPUT](https://nvd.nist.gov/vuln/detail/$ALERT_INPUT)"
+              ISSUE_TITLE="$UPPERCASE_CVE - $DESCRIPTION"
+              CVE_LINK="[$UPPERCASE_CVE](https://nvd.nist.gov/vuln/detail/$UPPERCASE_CVE)"
               LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- **[\(.security_advisory.severity)]** Package: `\(.dependency.package.name)` at `\(.dependency.manifest_path)` - [Ver alerta](\(.html_url))"')
               ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$CVE_LINK" "$LOCATION_LIST")
             fi
@@ -67,7 +75,6 @@ jobs:
             ISSUE_BODY="Input must start with 'cwe-' or 'cve-'. You provided: $ALERT_INPUT"
           fi
 
-          # --- Guarda los resultados para el siguiente paso ---
           echo "issue_title<<EOF" >> $GITHUB_OUTPUT
           echo "$ISSUE_TITLE" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
