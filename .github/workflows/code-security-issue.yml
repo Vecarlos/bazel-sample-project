@@ -99,6 +99,3 @@ jobs:
             }
 
             core.endGroup();
-
-
-core.info(`- ✅ [SEGUIDA] [${cweId}: ${alert.rule.description}](${alert.html_url})`);
