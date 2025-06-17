@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       issue_title:
-        description: "Alert code"
+        description: "Alert code (ej. cwe-78 o CVE-2025-12345)"
         required: true
         default: ""
 
@@ -25,16 +25,14 @@ jobs:
         env:
           ALERT_INPUT: ${{ github.event.inputs.issue_title }}
         run: |
-          # Convierte el input a minúsculas para la lógica condicional y el filtrado
           LOWERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:upper:]' '[:lower:]')
 
           if [[ "$LOWERCASE_INPUT" == cwe-* ]]; then
-            # --- CASO 1: ES UN CWE ---
             echo "Input is a CWE. Fetching Code Scanning alerts..."
             CWE_TAG_TO_FIND="external/$LOWERCASE_INPUT"
             API_RESPONSE=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?state=open)
             FILTERED_ALERTS=$(echo "$API_RESPONSE" | jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | map(ascii_downcase) | contains([$cwe_tag]))]')
-
+            
             if [ "$(echo "$FILTERED_ALERTS" | jq 'length')" -eq 0 ]; then
               ISSUE_TITLE="No Code Scanning alerts found for $ALERT_INPUT"
               ISSUE_BODY="No open vulnerabilities found for $ALERT_INPUT."
@@ -48,9 +46,9 @@ jobs:
             fi
 
           elif [[ "$LOWERCASE_INPUT" == cve-* ]]; then
-            # --- CASO 2: ES UN CVE ---
             echo "Input is a CVE. Fetching Dependabot alerts..."
-            API_RESPONSE=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/dependabot/alerts?state=open)
+            # --- CAMBIO AQUÍ: Se usa el PAT en lugar del GITHUB_TOKEN ---
+            API_RESPONSE=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.MY_PAT }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${{ github.repository }}/dependabot/alerts?state=open)
             
             echo "--- DEBUG: Raw JSON response from Dependabot API ---"
             echo "$API_RESPONSE"
