@@ -45,18 +45,14 @@ jobs:
             --data "$json_payload" \
             --fail
 
-      # --- PASO NUEVO: Generar el reporte visual en el log ---
       - name: Generate Visual Status Report
-        # Este paso siempre se ejecuta para darte el estado actual
         if: always()
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.MY_PAT }} # Usamos el PAT para tener acceso a ambas APIs
+          github-token: ${{ secrets.MY_PAT }}
           script: |
-            // Función para buscar si existe un issue con un título específico
             async function issueExists(title) {
               const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`;
-              // --- CORRECCIÓN: Se añade el parámetro 'advanced_search: true' ---
               const result = await github.rest.search.issuesAndPullRequests({ 
                 q: query,
                 advanced_search: true
@@ -64,8 +60,7 @@ jobs:
               return result.data.total_count > 0;
             }
 
-            // --- Reporte de Alertas de Code Scanning (CWEs) ---
-            core.startGroup('--- Status Report: Code Scanning Alerts (CWEs) ---');
+            core.startGroup('--- Status Report: ---');
             const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -73,26 +68,19 @@ jobs:
               per_page: 100
             });
 
-            if (codeScanningAlerts.data.length === 0) {
-              core.info('✅ No open Code Scanning alerts.');
-            } else {
-              for (const alert of codeScanningAlerts.data) {
-                const cweTag = alert.rule.tags.find(tag => tag.startsWith('external/cwe/cwe-'));
-                if (cweTag) {
-                  const cweId = cweTag.split('/').pop().toUpperCase();
-                  const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-                  if (await issueExists(potentialTitle)) {
-                    core.info(`✅ [SEGUIDA] - ${cweId}: ${alert.rule.description}`);
-                  } else {
-                    core.info(`ℹ️ [SIN SEGUIMIENTO] - ${cweId}: ${alert.rule.description}`);
-                  }
+            for (const alert of codeScanningAlerts.data) {
+              const cweTag = alert.rule.tags.find(tag => tag.startsWith('external/cwe/cwe-'));
+              if (cweTag) {
+                const cweId = cweTag.split('/').pop().toUpperCase();
+                const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
+                if (await issueExists(potentialTitle)) {
+                  core.info(`✅ [Followed] - ${cweId}: ${alert.rule.description}`);
+                } else {
+                  core.info(`ℹ️ [Not Followed] - ${cweId}: ${alert.rule.description}`);
                 }
               }
             }
-            core.endGroup();
 
-            // --- Reporte de Alertas de Dependabot (CVEs) ---
-            core.startGroup('--- Status Report: Dependabot Alerts (CVEs) ---');
             const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -100,17 +88,14 @@ jobs:
               per_page: 100
             });
 
-            if (dependabotAlerts.data.length === 0) {
-              core.info('✅ No open Dependabot alerts.');
-            } else {
-              for (const alert of dependabotAlerts.data) {
-                const cveId = alert.security_advisory.cve_id;
-                const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
-                if (await issueExists(potentialTitle)) {
-                  core.info(`✅ [SEGUIDA] - ${cveId}: ${alert.security_advisory.summary}`);
-                } else {
-                  core.info(`ℹ️ [SIN SEGUIMIENTO] - ${cveId}: ${alert.security_advisory.summary}`);
-                }
+            for (const alert of dependabotAlerts.data) {
+              const cveId = alert.security_advisory.cve_id;
+              const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
+              if (await issueExists(potentialTitle)) {
+                core.info(`✅ [Followed] - ${cveId}: ${alert.security_advisory.summary}`);
+              } else {
+                core.info(`ℹ️ [Not Followed] - ${cveId}: ${alert.security_advisory.summary}`);
               }
             }
+
             core.endGroup();
