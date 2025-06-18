@@ -27,6 +27,14 @@ runs:
           }
           
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
+          const createIssueForm = `
+            <div class="issue-creator">
+              <h4>Create New Issue</h4>
+              <p>Alert Issue</p>
+              <input type="text" id="alertCodeInput" placeholder="">
+              <button onclick="runWorkflow()">Go to workflow</button>
+            </div>
+          `;
           const createIssueScript = `
             <script>
               function runWorkflow() {
@@ -127,12 +135,7 @@ runs:
           </head>
           <body>
               <h1>Security Status Dashboard</h1>
-              <div class="issue-creator">
-                <h4>Create New Issue</h4>
-                <p>Alert Issue</p>
-                <input type="text" id="alertCodeInput" placeholder="">
-                <button onclick="runWorkflow()">Go to workflow</button>
-              </div>
+              ${createIssueForm}
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
               ${codeQlHtml}
               ${dependabotHtml}
