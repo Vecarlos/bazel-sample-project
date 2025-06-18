@@ -5,9 +5,3 @@ myServerService: #Service & {
     _port:        5001 
     _selectorApp: "count-letters-server"
 }
-
-listObject: {
-    apiVersion: "v1"
-    kind:       "List"
-    items: [ myServerService ]
-}
