@@ -29,8 +29,25 @@ runs:
             return null;
           }
 
-          const createIssueWorkflowUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/workflows/code-security-issue.yml`;
-          const createIssueButton = `<p><a href="${createIssueWorkflowUrl}" style="display: inline-block; padding: 10px 15px; font-size: 16px; color: white; background-color: #238636; text-decoration: none; border-radius: 6px; margin-bottom: 20px;">Create New Issue Report</a></p>`;
+          const createIssueForm = `
+              <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                <h3>Create New Tracking Issue</h3>
+                <p>Enter a CWE or CVE code (e.g., cwe-78 or CVE-2025-12345) and click the button to create a new tracking issue.</p>
+                <input type="text" id="alertCodeInput" placeholder="cwe-..." style="padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 300px;">
+                <button onclick="runWorkflow()" style="padding: 8px 15px; font-size: 14px; color: white; background-color: #238636; border: none; border-radius: 6px; cursor: pointer;">Prepare Issue</button>
+              </div>
+              <script>
+                function runWorkflow() {
+                  const alertCode = document.getElementById('alertCodeInput').value;
+                  if (!alertCode) {
+                    alert('Please enter a CWE or CVE code.');
+                    return;
+                  }
+                  const workflowUrl = \`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/workflows/code-security-issue.yml?ref=main&inputs[issue_title]=\${encodeURIComponent(alertCode)}\`;
+                  window.open(workflowUrl, '_blank');
+                }
+              <\/script>
+            `;
 
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
           const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
@@ -91,7 +108,7 @@ runs:
           </head>
           <body>
               <h1>Security Status Dashboard</h1>
-              ${createIssueButton}
+              ${createIssueForm}
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
               ${codeQlHtml}
               ${dependabotHtml}
