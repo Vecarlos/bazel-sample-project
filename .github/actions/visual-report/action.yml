@@ -29,6 +29,9 @@ runs:
             return null;
           }
 
+          const createIssueWorkflowUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/workflows/code-security-issue.yml`;
+          const createIssueButton = `<p><a href="${createIssueWorkflowUrl}" style="display: inline-block; padding: 10px 15px; font-size: 16px; color: white; background-color: #238636; text-decoration: none; border-radius: 6px; margin-bottom: 20px;">Create New Issue Report</a></p>`;
+
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
           const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
           if (codeScanningAlerts.data.length === 0) {
