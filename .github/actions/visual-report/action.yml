@@ -29,8 +29,6 @@ runs:
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
           const createIssueButton = `
             <div class="issue-creator">
-              <h4>Create New Issue</h4>
-              <p>Click to go to the workflow</p>
               <a href="https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml" class="button">Go to Workflow</a>
             </div>
           `;
