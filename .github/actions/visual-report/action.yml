@@ -89,11 +89,8 @@ runs:
                   a:hover { text-decoration: underline; }
                   .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
                   .issue-creator {
-                    border: 1px solid #ddd;
                     padding: 15px;
-                    border-radius: 6px;
                     margin-bottom: 20px;
-                    background-color: #f6f8fa;
                   }
                   .button {
                     display: inline-block;
