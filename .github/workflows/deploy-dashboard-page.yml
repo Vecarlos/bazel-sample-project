@@ -1,0 +1,112 @@
+name: Deploy Security Dashboard to Pages
+
+# Se ejecuta todos los días a las 8 AM
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  # También lo puedes ejecutar manualmente si quieres
+  workflow_dispatch:
+
+# Permisos especiales para que el workflow pueda escribir en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  security-events: read
+  search: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # --- Paso 1: Generar el contenido HTML del reporte ---
+      - name: Generate HTML Report
+        id: report_generator
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.MY_PAT }} # El PAT es necesario para leer todas las alertas
+          script: |
+            // Función para buscar si existe un issue de seguimiento
+            async function issueExists(title) {
+              const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`;
+              const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
+              return result.data.total_count > 0;
+            }
+            
+            // --- Genera la sección de CodeQL (CWEs) ---
+            let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
+            const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ ...context.repo, state: 'open', per_page: 100 });
+            if (codeScanningAlerts.data.length === 0) {
+              codeQlHtml += "<li>✅ No open Code Scanning alerts.</li>";
+            } else {
+              for (const alert of codeScanningAlerts.data) {
+                const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
+                if (cweTag) {
+                  const cweId = cweTag.split('/').pop().toUpperCase();
+                  const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
+                  const status = await issueExists(potentialTitle) ? "✅ Tracked" : "ℹ️ Not Tracked";
+                  codeQlHtml += `<li><b>${status}</b> - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
+                }
+              }
+            }
+            codeQlHtml += "</ul>";
+
+            // --- Genera la sección de Dependabot (CVEs) ---
+            let dependabotHtml = "<h2>Dependabot Alerts (CVEs)</h2><ul>";
+            const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ ...context.repo, state: 'open', per_page: 100 });
+            if (dependabotAlerts.data.length === 0) {
+              dependabotHtml += "<li>✅ No open Dependabot alerts.</li>";
+            } else {
+              for (const alert of dependabotAlerts.data) {
+                const cveId = alert.security_advisory.cve_id;
+                const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
+                const status = await issueExists(potentialTitle) ? "✅ Tracked" : "ℹ️ Not Tracked";
+                dependabotHtml += `<li><b>${status}</b> - <a href="${alert.html_url}">${cveId}: ${alert.security_advisory.summary}</a></li>`;
+              }
+            }
+            dependabotHtml += "</ul>";
+
+            // --- Ensambla el HTML final ---
+            const finalHtml = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Security Dashboard</title>
+                <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
+                    h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                    ul { list-style-type: none; padding-left: 0; }
+                    li { margin-bottom: 10px; }
+                    b { font-weight: bold; }
+                    a { text-decoration: none; color: #0969da; }
+                    a:hover { text-decoration: underline; }
+                    .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
+                </style>
+            </head>
+            <body>
+                <h1>Security Status Dashboard</h1>
+                <p class="footer">Last updated: ${new Date().toUTCString()}</p>
+                ${codeQlHtml}
+                ${dependabotHtml}
+            </body>
+            </html>`;
+            
+            // Devuelve el HTML como una salida del paso
+            return finalHtml;
+
+      # --- Paso 2: Crear el archivo index.html ---
+      - name: Create index.html
+        run: echo '${{ steps.report_generator.outputs.result }}' > index.html
+        
+      # --- Paso 3: Subir el artefacto para GitHub Pages ---
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # Sube el contenido del directorio actual (donde está index.html)
+
+      # --- Paso 4: Desplegar el sitio en GitHub Pages ---
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
