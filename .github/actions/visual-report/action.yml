@@ -1,9 +1,9 @@
-name: 'Generate Security Dashboard HTML'
-description: 'Generates an HTML string with a report of all open security alerts.'
+name: "Generate Security Dashboard HTML"
+description: "Generates an HTML string with a report of all open security alerts."
 
 inputs:
   my_pat:
-    description: 'A PAT with security_events and search read permissions.'
+    description: "A PAT with security_events and search read permissions."
     required: true
 
 outputs:
@@ -29,13 +29,7 @@ runs:
             return null;
           }
 
-          const createIssueForm = `
-              <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                <h3>Create New Tracking Issue</h3>
-                <p>Enter a CWE or CVE code (e.g., cwe-78 or CVE-2025-12345) and click the button to create a new tracking issue.</p>
-                <input type="text" id="alertCodeInput" placeholder="cwe-..." style="padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 300px;">
-                <button onclick="runWorkflow()" style="padding: 8px 15px; font-size: 14px; color: white; background-color: #238636; border: none; border-radius: 6px; cursor: pointer;">Prepare Issue</button>
-              </div>
+          const createIssueScript = `
               <script>
                 function runWorkflow() {
                   const alertCode = document.getElementById('alertCodeInput').value;
@@ -96,23 +90,79 @@ runs:
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Security Dashboard</title>
               <style>
-                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
-                  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-                  ul { list-style-type: none; padding-left: 0; }
-                  li { margin-bottom: 10px; }
-                  b { font-weight: bold; }
-                  a { text-decoration: none; color: #0969da; }
-                  a:hover { text-decoration: underline; }
-                  .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
+                  body { 
+                    font-family: BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; 
+                    line-height: 1.6; 
+                    padding: 20px; 
+                  }
+                  h1, h2 { 
+                    border-bottom: 1px solid #ccc; 
+                    padding-bottom: 10px; 
+                  }
+                  ul { 
+                    list-style-type: none; 
+                    padding-left: 0; 
+                  }
+                  li { 
+                    margin-bottom: 10px; 
+                  }
+                  b { 
+                    font-weight: bold; 
+                  }
+                  a { 
+                    text-decoration: none; 
+                    color: #0969da; 
+                  }
+                  a:hover { 
+                    text-decoration: underline; 
+                  }
+                  .footer { 
+                    margin-top: 30px; 
+                    font-size: 0.8em; 
+                    color: #666; 
+                  }                  
+                  .issue-creator {
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    border-radius: 6px;
+                    margin-bottom: 20px;
+                    background-color: #f6f8fa;
+                  }
+                  .issue-creator input[type="text"] {
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                    border-radius: 6px;
+                    width: 300px;
+                  }
+                  .issue-creator button {
+                    padding: 8px 15px;
+                    font-size: 14px;
+                    color: white;
+                    background-color: #238636;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-left: 5px;
+                  }
+                  .issue-creator button:hover {
+                    background-color: #2ea043;
+                  }
+
               </style>
           </head>
           <body>
               <h1>Security Status Dashboard</h1>
-              ${createIssueForm}
+              <div class="issue-creator">
+                <h3>Create New Tracking Issue</h3>
+                <p>Alert Issue</p>
+                <input type="text" id="alertCodeInput" placeholder="">
+                <button onclick="runWorkflow()">Go to workflow</button>
+              </div>
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
               ${codeQlHtml}
               ${dependabotHtml}
+              ${createIssueScript}
           </body>
           </html>`;
-          
+
           core.setOutput('report_html', finalHtml);
