@@ -1,21 +1,26 @@
 name: 'Generate Security Dashboard HTML'
-description: 'Generates an index.html file with a report of all open security alerts.'
+description: 'Generates an HTML string with a report of all open security alerts.'
 
 inputs:
   my_pat:
     description: 'A PAT with security_events and search read permissions.'
     required: true
 
+outputs:
+  html_report:
+    description: "The generated HTML content for the dashboard."
+    value: ${{ steps.generate_report.outputs.report_html }}
+
 runs:
   using: "composite"
   steps:
-    - name: Generate and Write HTML Report
+    - name: Generate HTML Content
+      id: generate_report
       uses: actions/github-script@v7
+      shell: bash
       with:
         github-token: ${{ inputs.my_pat }}
         script: |
-          const fs = require('fs');
-
           async function findTrackingIssueUrl(title) {
             const query = `repo:${process.env.GITHUB_REPOSITORY} is:issue is:open in:title "${title}"`;
             const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
@@ -36,7 +41,6 @@ runs:
                 const cweId = cweTag.split('/').pop().toUpperCase();
                 const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
                 const issueUrl = await findTrackingIssueUrl(potentialTitle);
-                
                 let statusHtml = '<b>ℹ️ Not Tracked</b>';
                 if (issueUrl) {
                   statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
@@ -56,7 +60,6 @@ runs:
               const cveId = alert.security_advisory.cve_id;
               const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
               const issueUrl = await findTrackingIssueUrl(potentialTitle);
-
               let statusHtml = '<b>ℹ️ Not Tracked</b>';
               if (issueUrl) {
                 statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
@@ -92,5 +95,4 @@ runs:
           </body>
           </html>`;
           
-          fs.writeFileSync('alerts_tracking.html', finalHtml);
-          core.info("index.html file generated successfully.");
+          core.setOutput('report_html', finalHtml);
