@@ -18,228 +18,108 @@ runs:
         github-token: ${{ inputs.my_pat }}
         script: |
           async function findTrackingIssueUrl(title) {
-            try {
-              const query = `repo:${process.env.GITHUB_REPOSITORY} is:issue is:open in:title "${title}"`;
-              console.log(`Searching for: ${query}`);
-              const result = await github.rest.search.issuesAndPullRequests({ q: query });
-              if (result.data.total_count > 0) {
-                return result.data.items[0].html_url;
-              }
-            } catch (error) {
-              console.error(`Error searching for issue: ${error.message}`);
+            const query = `repo:${process.env.GITHUB_REPOSITORY} is:issue is:open in:title "${title}"`;
+            const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
+            if (result.data.total_count > 0) {
+              return result.data.items[0].html_url;
             }
             return null;
           }
           
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
-          console.log(`Processing repository: ${repoFullName}`);
+          const createIssueButton = `
+            <div class="issue-creator">
+              <h4>Create New Issue</h4>
+              <p>Click to go to the workflow</p>
+              <a href="https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml" class="button">Go to Workflow</a>
+            </div>
+          `;
 
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
-          try {
-            const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ 
-              owner: context.repo.owner, 
-              repo: context.repo.repo, 
-              state: 'open', 
-              per_page: 100 
-            });
-            
-            console.log(`Found ${codeScanningAlerts.data.length} code scanning alerts`);
-            
-            if (codeScanningAlerts.data.length === 0) {
-              codeQlHtml += "<li>✅ No open Code Scanning alerts.</li>";
-            } else {
-              for (const alert of codeScanningAlerts.data) {
-                const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
-                if (cweTag) {
-                  const cweId = cweTag.split('/').pop().toUpperCase();
-                  const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-                  const issueUrl = await findTrackingIssueUrl(potentialTitle);
-                  let statusHtml = '<b>ℹ️ Not Tracked</b>';
-                  if (issueUrl) {
-                    statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
-                  }
-                  codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
-                } else {
-                  // Handle alerts without CWE tags
-                  const potentialTitle = `Fix code scanning alert - ${alert.rule.description}`;
-                  const issueUrl = await findTrackingIssueUrl(potentialTitle);
-                  let statusHtml = '<b>ℹ️ Not Tracked</b>';
-                  if (issueUrl) {
-                    statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
-                  }
-                  codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${alert.rule.description}</a></li>`;
-                }
-              }
-            }
-          } catch (error) {
-            console.error(`Error fetching code scanning alerts: ${error.message}`);
-            codeQlHtml += `<li>❌ Error fetching Code Scanning alerts: ${error.message}</li>`;
-          }
-          codeQlHtml += "</ul>";
-
-          let dependabotHtml = "<h2>Dependabot Alerts (CVEs)</h2><ul>";
-          try {
-            const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ 
-              owner: context.repo.owner, 
-              repo: context.repo.repo, 
-              state: 'open', 
-              per_page: 100 
-            });
-            
-            console.log(`Found ${dependabotAlerts.data.length} dependabot alerts`);
-            
-            if (dependabotAlerts.data.length === 0) {
-              dependabotHtml += "<li>✅ No open Dependabot alerts.</li>";
-            } else {
-              for (const alert of dependabotAlerts.data) {
-                const cveId = alert.security_advisory.cve_id || 'NO-CVE';
-                const summary = alert.security_advisory.summary || 'No summary available';
-                const potentialTitle = `Fix dependabot alert - ${cveId} - ${summary}`;
+          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          if (codeScanningAlerts.data.length === 0) {
+            codeQlHtml += "<li>✅ No open Code Scanning alerts.</li>";
+          } else {
+            for (const alert of codeScanningAlerts.data) {
+              const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
+              if (cweTag) {
+                const cweId = cweTag.split('/').pop().toUpperCase();
+                const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
                 const issueUrl = await findTrackingIssueUrl(potentialTitle);
                 let statusHtml = '<b>ℹ️ Not Tracked</b>';
                 if (issueUrl) {
                   statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
                 }
-                dependabotHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cveId}: ${summary}</a></li>`;
+                codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
               }
             }
-          } catch (error) {
-            console.error(`Error fetching dependabot alerts: ${error.message}`);
-            dependabotHtml += `<li>❌ Error fetching Dependabot alerts: ${error.message}</li>`;
+          }
+          codeQlHtml += "</ul>";
+
+          let dependabotHtml = "<h2>Dependabot Alerts (CVEs)</h2><ul>";
+          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          if (dependabotAlerts.data.length === 0) {
+            dependabotHtml += "<li>✅ No open Dependabot alerts.</li>";
+          } else {
+            for (const alert of dependabotAlerts.data) {
+              const cveId = alert.security_advisory.cve_id;
+              const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
+              const issueUrl = await findTrackingIssueUrl(potentialTitle);
+              let statusHtml = '<b>ℹ️ Not Tracked</b>';
+              if (issueUrl) {
+                statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
+              }
+              dependabotHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cveId}: ${alert.security_advisory.summary}</a></li>`;
+            }
           }
           dependabotHtml += "</ul>";
 
-          // Build the script with proper variable interpolation
-          const workflowScript = `
-            <script>
-              function runWorkflow() {
-                const alertCode = document.getElementById('alertCodeInput').value;
-                if (!alertCode) {
-                  alert('Please enter a CWE or CVE code.');
-                  return;
-                }
-                const baseUrl = 'https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml?ref=main&inputs[issue_title]=';
-                const workflowUrl = baseUrl + encodeURIComponent(alertCode);
-                window.open(workflowUrl, '_blank');
-              }
-            </script>
-          `;
-
-          const finalHtml = `<!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Security Dashboard - ${repoFullName}</title>
-                <style>
-                    body { 
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; 
-                        line-height: 1.6; 
-                        padding: 20px; 
-                        max-width: 1200px; 
-                        margin: 0 auto; 
-                    }
-                    h1, h2, h3, h4 { 
-                        border-bottom: 1px solid #d1d9e0; 
-                        padding-bottom: 10px; 
-                        color: #24292f; 
-                    }
-                    h1 { color: #0969da; }
-                    ul { list-style-type: none; padding-left: 0; }
-                    li { 
-                        margin-bottom: 10px; 
-                        padding: 8px; 
-                        border-left: 3px solid #f6f8fa; 
-                        background-color: #f6f8fa; 
-                        border-radius: 0 6px 6px 0; 
-                    }
-                    b { font-weight: bold; }
-                    a { text-decoration: none; color: #0969da; }
-                    a:hover { text-decoration: underline; }
-                    .footer { 
-                        margin-top: 30px; 
-                        font-size: 0.9em; 
-                        color: #656d76; 
-                        text-align: center; 
-                        border-top: 1px solid #d1d9e0; 
-                        padding-top: 15px; 
-                    }
-                    .issue-creator {
-                        border: 1px solid #d1d9e0;
-                        padding: 15px;
-                        border-radius: 6px;
-                        margin-bottom: 20px;
-                        background-color: #f6f8fa;
-                    }
-                    .issue-creator input[type="text"] {
-                        padding: 8px 12px;
-                        border: 1px solid #d1d9e0;
-                        border-radius: 6px;
-                        width: 300px;
-                        font-size: 14px;
-                    }
-                    .issue-creator button {
-                        padding: 8px 15px;
-                        font-size: 14px;
-                        color: white;
-                        background-color: #238636;
-                        border: none;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        margin-left: 10px;
-                        font-weight: 500;
-                    }
-                    .issue-creator button:hover {
-                        background-color: #2ea043;
-                    }
-                    .status-summary {
-                        display: flex;
-                        gap: 20px;
-                        margin-bottom: 30px;
-                    }
-                    .status-card {
-                        flex: 1;
-                        padding: 15px;
-                        border-radius: 6px;
-                        text-align: center;
-                    }
-                    .status-card.good {
-                        background-color: #dcfce7;
-                        border: 1px solid #22c55e;
-                    }
-                    .status-card.warning {
-                        background-color: #fef3c7;
-                        border: 1px solid #f59e0b;
-                    }
-                    .status-card.danger {
-                        background-color: #fecaca;
-                        border: 1px solid #ef4444;
-                    }
-                </style>
-                ${workflowScript}
-            </head>
-            <body>
-                <h1>🛡️ Security Status Dashboard</h1>
-                <p><strong>Repository:</strong> ${repoFullName}</p>
-                
-                <div class="issue-creator">
-                    <h4>🎯 Create New Security Issue</h4>
-                    <p>Enter a CWE or CVE code to create a tracking issue:</p>
-                    <input type="text" id="alertCodeInput" placeholder="e.g., CWE-79 or CVE-2023-1234">
-                    <button onclick="runWorkflow()">Go to Workflow</button>
-                </div>
-                
-                ${codeQlHtml}
-                ${dependabotHtml}
-                
-                <div class="footer">
-                    <p>📅 Last updated: ${new Date().toUTCString()}</p>
-                    <p>Generated by GitHub Actions Security Dashboard</p>
-                </div>
-            </body>
-            </html>`;
-          
-          console.log('Generated HTML report successfully');
-          console.log(`HTML length: ${finalHtml.length} characters`);
+          const finalHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Security Dashboard</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
+                  h1, h2, h3, h4 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                  ul { list-style-type: none; padding-left: 0; }
+                  li { margin-bottom: 10px; }
+                  b { font-weight: bold; }
+                  a { text-decoration: none; color: #0969da; }
+                  a:hover { text-decoration: underline; }
+                  .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
+                  .issue-creator {
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    border-radius: 6px;
+                    margin-bottom: 20px;
+                    background-color: #f6f8fa;
+                  }
+                  .button {
+                    display: inline-block;
+                    padding: 8px 15px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: white;
+                    background-color: #238636;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                  }
+                  .button:hover {
+                    background-color: #2ea043;
+                  }
+              </style>
+          </head>
+          <body>
+              <h1>Security Status Dashboard</h1>
+              ${createIssueButton}
+              <p class="footer">Last updated: ${new Date().toUTCString()}</p>
+              ${codeQlHtml}
+              ${dependabotHtml}
+          </body>
+          </html>`;
           
           core.setOutput('report_html', finalHtml);
