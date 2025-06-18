@@ -91,6 +91,7 @@ runs:
           </head>
           <body>
               <h1>Security Status Dashboard</h1>
+              ${createIssueButton}
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
               ${codeQlHtml}
               ${dependabotHtml}
