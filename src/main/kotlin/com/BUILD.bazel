@@ -28,9 +28,10 @@ kt_jvm_library(
 
 java_binary(
     name = "count_letters_server_bin",
-    main_class = "com.CountLettersServer.CountLettersServerKt",
+    main_class = "com.CountLettersServerKt",
     runtime_deps = [
         ":common_server_kt",
+        ":count_letters_server_kt",
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
         "//src/main/proto/service:service_count_letters_kt_jvm_grpc",
     ],
@@ -39,6 +40,6 @@ java_binary(
 java_image(
     name = "count_letters_server_docker_image",
     binary = ":count_letters_server_bin",
-    main_class = "com.CountLettersServer.CountLettersServerKt",
+    main_class = "com.CountLettersServerKt",
     visibility = ["//visibility:public"],
 )

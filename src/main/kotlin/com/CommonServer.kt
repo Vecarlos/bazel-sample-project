@@ -1,4 +1,4 @@
-package com.CommonServer
+package com
 // reference
 // https://github.com/world-federation-of-advertisers/common-jvm/blob/main/src/main/kotlin/org/wfanet/measurement/common/grpc/CommonServer.kt
 

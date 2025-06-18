@@ -1,8 +1,8 @@
-package com.CountLettersServer
+package com
 // reference
 // https://github.com/world-federation-of-advertisers/cross-media-measurement/blob/3779f3f887278e2d46c72f348dc55fe931e71ca4/src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/server/ComputationControlServer.kt
-import com.CommonServer.GrpcServer
-import com.CommonServer.ServerConfiguration
+import com.GrpcServer
+import com.ServerConfiguration
 import implementation.CountLettersServiceImpl
 import kotlinx.coroutines.runBlocking
 
