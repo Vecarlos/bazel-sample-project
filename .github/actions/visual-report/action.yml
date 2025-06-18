@@ -1,64 +1,97 @@
-name: "Generate Security Status Report"
-description: "Generates a visual report in the logs about the status of all open security alerts."
+name: 'Generate Security Dashboard HTML'
+description: 'Generates an index.html file with a report of all open security alerts.'
 
 inputs:
   my_pat:
-    description: "A PAT with security_events and search read permissions."
+    description: 'A PAT with security_events and search read permissions.'
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Generate Visual Status Report
+    - name: Generate and Write HTML Report
       uses: actions/github-script@v7
+      shell: bash
       with:
         github-token: ${{ inputs.my_pat }}
         script: |
-          async function issueExists(title) {
+          const fs = require('fs');
+
+          async function findTrackingIssueUrl(title) {
             const query = `repo:${process.env.GITHUB_REPOSITORY} is:issue is:open in:title "${title}"`;
-            const result = await github.rest.search.issuesAndPullRequests({ 
-              q: query,
-              advanced_search: true
-            });
-            return result.data.total_count > 0;
+            const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
+            if (result.data.total_count > 0) {
+              return result.data.items[0].html_url;
+            }
+            return null;
           }
 
-          core.startGroup('--- Status Report: ---');
-
-          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'open',
-            per_page: 100
-          });
-
-          for (const alert of codeScanningAlerts.data) {
-            const cweTag = alert.rule.tags.find(tag => tag.startsWith('external/cwe/cwe-'));
-            if (cweTag) {
-              const cweId = cweTag.split('/').pop().toUpperCase();
-              const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-              if (await issueExists(potentialTitle)) {
-                core.info(`✅ [Followed] - ${cweId}: ${alert.rule.description} - ${alert.html_url}`);
-              } else {
-                core.info(`ℹ️ [Not Followed] - ${cweId}: ${alert.rule.description} - ${alert.html_url}`);
+          let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
+          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          if (codeScanningAlerts.data.length === 0) {
+            codeQlHtml += "<li>✅ No open Code Scanning alerts.</li>";
+          } else {
+            for (const alert of codeScanningAlerts.data) {
+              const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
+              if (cweTag) {
+                const cweId = cweTag.split('/').pop().toUpperCase();
+                const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
+                const issueUrl = await findTrackingIssueUrl(potentialTitle);
+                
+                let statusHtml = '<b>ℹ️ Not Tracked</b>';
+                if (issueUrl) {
+                  statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
+                }
+                codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
               }
             }
           }
-          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'open',
-            per_page: 100
-          });
+          codeQlHtml += "</ul>";
 
-          for (const alert of dependabotAlerts.data) {
-            const cveId = alert.security_advisory.cve_id;
-            const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
-            if (await issueExists(potentialTitle)) {
-              core.info(`✅ [Followed] - ${cveId}: ${alert.security_advisory.summary} - ${alert.html_url}`);
-            } else {
-              core.info(`ℹ️ [Not Followed] - ${cveId}: ${alert.security_advisory.summary} - ${alert.html_url}`);
+          let dependabotHtml = "<h2>Dependabot Alerts (CVEs)</h2><ul>";
+          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          if (dependabotAlerts.data.length === 0) {
+            dependabotHtml += "<li>✅ No open Dependabot alerts.</li>";
+          } else {
+            for (const alert of dependabotAlerts.data) {
+              const cveId = alert.security_advisory.cve_id;
+              const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
+              const issueUrl = await findTrackingIssueUrl(potentialTitle);
+
+              let statusHtml = '<b>ℹ️ Not Tracked</b>';
+              if (issueUrl) {
+                statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
+              }
+              dependabotHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cveId}: ${alert.security_advisory.summary}</a></li>`;
             }
           }
+          dependabotHtml += "</ul>";
 
-          core.endGroup();
+          const finalHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Security Dashboard</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
+                  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                  ul { list-style-type: none; padding-left: 0; }
+                  li { margin-bottom: 10px; }
+                  b { font-weight: bold; }
+                  a { text-decoration: none; color: #0969da; }
+                  a:hover { text-decoration: underline; }
+                  .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
+              </style>
+          </head>
+          <body>
+              <h1>Security Status Dashboard</h1>
+              <p class="footer">Last updated: ${new Date().toUTCString()}</p>
+              ${codeQlHtml}
+              ${dependabotHtml}
+          </body>
+          </html>`;
+          
+          fs.writeFileSync('index.html', finalHtml);
+          core.info("index.html file generated successfully.");
