@@ -139,6 +139,7 @@ runs:
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
               ${codeQlHtml}
               ${dependabotHtml}
+              ${createIssueScript}
           </body>
           </html>`;
           
