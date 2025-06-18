@@ -29,19 +29,21 @@ runs:
             return null;
           }
 
+          const repoFullName = process.env.GITHUB_REPOSITORY;
           const createIssueScript = `
-              <script>
-                function runWorkflow() {
-                  const alertCode = document.getElementById('alertCodeInput').value;
-                  if (!alertCode) {
-                    alert('Please enter a CWE or CVE code.');
-                    return;
-                  }
-                  const workflowUrl = \`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/workflows/code-security-issue.yml?ref=main&inputs[issue_title]=\${encodeURIComponent(alertCode)}\`;
-                  window.open(workflowUrl, '_blank');
+            <script>
+              function runWorkflow() {
+                const alertCode = document.getElementById('alertCodeInput').value;
+                if (!alertCode) {
+                  alert('Please enter a CWE or CVE code.');
+                  return;
                 }
-              <\/script>
-            `;
+                const baseUrl = 'https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml?ref=main&inputs[issue_title]=';
+                const workflowUrl = baseUrl + encodeURIComponent(alertCode);
+                window.open(workflowUrl, '_blank');
+              }
+            <\/script>
+          `;
 
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
           const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
@@ -153,7 +155,7 @@ runs:
           <body>
               <h1>Security Status Dashboard</h1>
               <div class="issue-creator">
-                <h3>Create New Tracking Issue</h3>
+                <h4>Create New Issue</h4>
                 <p>Alert Issue</p>
                 <input type="text" id="alertCodeInput" placeholder="">
                 <button onclick="runWorkflow()">Go to workflow</button>
