@@ -45,17 +45,3 @@ kustomization_dir(
     ],
     generate_kustomization = True,
 )
-
-# cue_library(
-#     name = "count_letters_deployment",
-#     srcs = ["count_letters_deployment.cue"],
-#     deps = [
-#         ":base",
-#     ],
-# )
-
-# cue_dump(
-#     name = "count_letters_yaml",
-#     srcs = ["count_letters_deployment.cue"],
-#     deps = [":base"],
-# )
