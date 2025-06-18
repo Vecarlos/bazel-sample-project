@@ -1,38 +1,47 @@
 load("@wfa_rules_cue//cue:defs.bzl", "cue_library")
 load("//build/k8s:defs.bzl", "kustomization_dir")
-load(":macros.bzl", "cue_dump")
+load("//src/main/k8s:macros.bzl", "cue_dump")
 
-package(default_visibility = ["//src/main/k8s:__subpackages__"])
+package(default_visibility = ["//visibility:public"])
 
 cue_library(
     name = "base",
     srcs = ["base.cue"],
 )
 
-cue_dump(
-    name = "server_yaml",
-    srcs = ["server.cue"],
+cue_library(
+    name = "server_cue",
+    srcs = [
+        "server.cue",
+        "service.cue",
+        "server_main.cue",
+    ],
     deps = [":base"],
 )
 
-cue_dump(
-    name = "service_yaml",
-    srcs = ["service.cue"],
-    deps = [":base"],
-)
-
-cue_dump(
-    name = "client_yaml",
+cue_library(
+    name = "client_cue",
     srcs = ["client.cue"],
     deps = [":base"],
+)
+
+cue_dump(
+    name = "server",
+    tags = ["manual"],
+    deps = [":server_cue"],
+)
+
+cue_dump(
+    name = "client",
+    tags = ["manual"],
+    deps = [":client_cue"],
 )
 
 kustomization_dir(
     name = "cmms",
     srcs = [
-        ":client_yaml",
-        ":server_yaml",
-        ":service_yaml",
+        ":client",
+        ":server",
     ],
     generate_kustomization = True,
 )

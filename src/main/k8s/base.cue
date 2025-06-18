@@ -13,7 +13,7 @@ package main
 	image:  string
 	ports?: [...{containerPort: int}]
 	args?:             [...string]
-	imagePullPolicy: "IfNotPresent" | *"Always"
+	imagePullPolicy: *"IfNotPresent" | "Always" 
 }
 
 #Deployment: {
