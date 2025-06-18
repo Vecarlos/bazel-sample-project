@@ -27,20 +27,6 @@ runs:
           }
           
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
-          const createIssueScript = `
-            <script>
-              function runWorkflow() {
-                const alertCode = document.getElementById('alertCodeInput').value;
-                if (!alertCode) {
-                  alert('Please enter a CWE or CVE code.');
-                  return;
-                }
-                const baseUrl = 'https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml?ref=main&inputs[issue_title]=';
-                const workflowUrl = baseUrl + encodeURIComponent(alertCode);
-                window.open(workflowUrl, '_blank');
-              }
-            </script>
-          `;
 
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
           const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
@@ -124,6 +110,18 @@ runs:
                     background-color: #2ea043;
                   }
               </style>
+              <script>
+                function runWorkflow() {
+                  const alertCode = document.getElementById('alertCodeInput').value;
+                  if (!alertCode) {
+                    alert('Please enter a CWE or CVE code.');
+                    return;
+                  }
+                  const baseUrl = 'https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml?ref=main&inputs[issue_title]=';
+                  const workflowUrl = baseUrl + encodeURIComponent(alertCode);
+                  window.open(workflowUrl, '_blank');
+                }
+              </script>
           </head>
           <body>
               <h1>Security Status Dashboard</h1>
@@ -136,7 +134,6 @@ runs:
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
               ${codeQlHtml}
               ${dependabotHtml}
-              ${createIssueScript}
           </body>
           </html>`;
           
