@@ -10,13 +10,12 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    # --- CORRECCIÓN AQUÍ: Los permisos se definen a nivel de 'job' ---
+    # --- CORRECCIÓN AQUÍ: Se ha eliminado la clave 'search: read' que no es válida ---
     permissions:
       contents: read
       pages: write
       id-token: write
       security-events: read
-      search: read
 
     steps:
       # --- Paso 1: Generar el contenido HTML del reporte ---
