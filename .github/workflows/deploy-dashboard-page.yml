@@ -1,16 +1,13 @@
 name: Deploy Security Dashboard to Pages
 
-# Se ejecuta todos los días a las 8 AM
 on:
   schedule:
-    - cron: '0 8 * * *'
-  # También lo puedes ejecutar manualmente si quieres
+    - cron: "0 8 * * *"
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    # --- CORRECCIÓN AQUÍ: Se ha eliminado la clave 'search: read' que no es válida ---
     permissions:
       contents: read
       pages: write
@@ -18,25 +15,21 @@ jobs:
       security-events: read
 
     steps:
-      # --- Paso 1: Generar el contenido HTML del reporte ---
       - name: Generate HTML Report
         id: report_generator
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.MY_PAT }} # El PAT es necesario para leer todas las alertas
+          github-token: ${{ secrets.MY_PAT }}
           script: |
-            // --- NUEVA FUNCIÓN MEJORADA ---
-            // Busca un issue y, si existe, devuelve su URL. Si no, devuelve null.
             async function findTrackingIssueUrl(title) {
               const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`;
               const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
               if (result.data.total_count > 0) {
-                return result.data.items[0].html_url; // Devuelve la URL del primer issue encontrado
+                return result.data.items[0].html_url;
               }
               return null;
             }
-            
-            // --- Genera la sección de CodeQL (CWEs) ---
+
             let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
             const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ ...context.repo, state: 'open', per_page: 100 });
             if (codeScanningAlerts.data.length === 0) {
@@ -49,7 +42,6 @@ jobs:
                   const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
                   const issueUrl = await findTrackingIssueUrl(potentialTitle);
                   
-                  // --- LÓGICA MEJORADA PARA EL ENLACE ---
                   let statusHtml = '<b>ℹ️ Not Tracked</b>';
                   if (issueUrl) {
                     statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
@@ -60,7 +52,6 @@ jobs:
             }
             codeQlHtml += "</ul>";
 
-            // --- Genera la sección de Dependabot (CVEs) ---
             let dependabotHtml = "<h2>Dependabot Alerts (CVEs)</h2><ul>";
             const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ ...context.repo, state: 'open', per_page: 100 });
             if (dependabotAlerts.data.length === 0) {
@@ -71,7 +62,6 @@ jobs:
                 const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
                 const issueUrl = await findTrackingIssueUrl(potentialTitle);
 
-                // --- LÓGICA MEJORADA PARA EL ENLACE ---
                 let statusHtml = '<b>ℹ️ Not Tracked</b>';
                 if (issueUrl) {
                   statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
@@ -81,7 +71,6 @@ jobs:
             }
             dependabotHtml += "</ul>";
 
-            // --- Ensambla el HTML final ---
             const finalHtml = `
             <!DOCTYPE html>
             <html lang="en">
@@ -108,20 +97,18 @@ jobs:
             </body>
             </html>`;
             
-            // Devuelve el HTML como una salida del paso
             return finalHtml;
 
-      # --- Paso 2: Crear el archivo index.html ---
       - name: Create index.html
-        run: echo '${{ steps.report_generator.outputs.result }}' > index.html
+        env:
+          HTML_CONTENT: ${{ steps.report_generator.outputs.result }}
+        run: echo "$HTML_CONTENT" > index.html
         
-      # --- Paso 3: Subir el artefacto para GitHub Pages ---
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Sube el contenido del directorio actual (donde está index.html)
+          path: "."
 
-      # --- Paso 4: Desplegar el sitio en GitHub Pages ---
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
