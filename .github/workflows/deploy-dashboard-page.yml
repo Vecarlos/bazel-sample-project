@@ -7,17 +7,17 @@ on:
   # También lo puedes ejecutar manualmente si quieres
   workflow_dispatch:
 
-# Permisos especiales para que el workflow pueda escribir en GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-  security-events: read
-  search: read
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # --- CORRECCIÓN AQUÍ: Los permisos se definen a nivel de 'job' ---
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      security-events: read
+      search: read
+
     steps:
       # --- Paso 1: Generar el contenido HTML del reporte ---
       - name: Generate HTML Report
@@ -26,11 +26,15 @@ jobs:
         with:
           github-token: ${{ secrets.MY_PAT }} # El PAT es necesario para leer todas las alertas
           script: |
-            // Función para buscar si existe un issue de seguimiento
-            async function issueExists(title) {
+            // --- NUEVA FUNCIÓN MEJORADA ---
+            // Busca un issue y, si existe, devuelve su URL. Si no, devuelve null.
+            async function findTrackingIssueUrl(title) {
               const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`;
               const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
-              return result.data.total_count > 0;
+              if (result.data.total_count > 0) {
+                return result.data.items[0].html_url; // Devuelve la URL del primer issue encontrado
+              }
+              return null;
             }
             
             // --- Genera la sección de CodeQL (CWEs) ---
@@ -44,8 +48,14 @@ jobs:
                 if (cweTag) {
                   const cweId = cweTag.split('/').pop().toUpperCase();
                   const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-                  const status = await issueExists(potentialTitle) ? "✅ Tracked" : "ℹ️ Not Tracked";
-                  codeQlHtml += `<li><b>${status}</b> - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
+                  const issueUrl = await findTrackingIssueUrl(potentialTitle);
+                  
+                  // --- LÓGICA MEJORADA PARA EL ENLACE ---
+                  let statusHtml = '<b>ℹ️ Not Tracked</b>';
+                  if (issueUrl) {
+                    statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
+                  }
+                  codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
                 }
               }
             }
@@ -60,8 +70,14 @@ jobs:
               for (const alert of dependabotAlerts.data) {
                 const cveId = alert.security_advisory.cve_id;
                 const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
-                const status = await issueExists(potentialTitle) ? "✅ Tracked" : "ℹ️ Not Tracked";
-                dependabotHtml += `<li><b>${status}</b> - <a href="${alert.html_url}">${cveId}: ${alert.security_advisory.summary}</a></li>`;
+                const issueUrl = await findTrackingIssueUrl(potentialTitle);
+
+                // --- LÓGICA MEJORADA PARA EL ENLACE ---
+                let statusHtml = '<b>ℹ️ Not Tracked</b>';
+                if (issueUrl) {
+                  statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
+                }
+                dependabotHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cveId}: ${alert.security_advisory.summary}</a></li>`;
               }
             }
             dependabotHtml += "</ul>";
