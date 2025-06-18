@@ -1,16 +1,13 @@
-name: "Generate Security Dashboard HTML"
-description: "Generates an HTML string with a report of all open security alerts."
-
+name: 'Generate Security Dashboard HTML'
+description: 'Generates an index.html file with a report of all open security alerts.'
 inputs:
   my_pat:
-    description: "A PAT with security_events and search read permissions."
+    description: 'A PAT with security_events and search read permissions.'
     required: true
-
 outputs:
   html_report:
     description: "The generated HTML content for the dashboard."
     value: ${{ steps.generate_report.outputs.report_html }}
-
 runs:
   using: "composite"
   steps:
@@ -28,8 +25,8 @@ runs:
             }
             return null;
           }
-
-          const repoFullName = process.env.GITHUB_REPOSITORY;
+          
+          const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
           const createIssueScript = `
             <script>
               function runWorkflow() {
@@ -42,7 +39,7 @@ runs:
                 const workflowUrl = baseUrl + encodeURIComponent(alertCode);
                 window.open(workflowUrl, '_blank');
               }
-            <\/script>
+            </script>
           `;
 
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
@@ -92,37 +89,14 @@ runs:
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Security Dashboard</title>
               <style>
-                  body { 
-                    font-family: BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; 
-                    line-height: 1.6; 
-                    padding: 20px; 
-                  }
-                  h1, h2 { 
-                    border-bottom: 1px solid #ccc; 
-                    padding-bottom: 10px; 
-                  }
-                  ul { 
-                    list-style-type: none; 
-                    padding-left: 0; 
-                  }
-                  li { 
-                    margin-bottom: 10px; 
-                  }
-                  b { 
-                    font-weight: bold; 
-                  }
-                  a { 
-                    text-decoration: none; 
-                    color: #0969da; 
-                  }
-                  a:hover { 
-                    text-decoration: underline; 
-                  }
-                  .footer { 
-                    margin-top: 30px; 
-                    font-size: 0.8em; 
-                    color: #666; 
-                  }                  
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
+                  h1, h2, h3, h4 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                  ul { list-style-type: none; padding-left: 0; }
+                  li { margin-bottom: 10px; }
+                  b { font-weight: bold; }
+                  a { text-decoration: none; color: #0969da; }
+                  a:hover { text-decoration: underline; }
+                  .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
                   .issue-creator {
                     border: 1px solid #ddd;
                     padding: 15px;
@@ -149,7 +123,6 @@ runs:
                   .issue-creator button:hover {
                     background-color: #2ea043;
                   }
-
               </style>
           </head>
           <body>
@@ -166,5 +139,5 @@ runs:
               ${createIssueScript}
           </body>
           </html>`;
-
+          
           core.setOutput('report_html', finalHtml);
