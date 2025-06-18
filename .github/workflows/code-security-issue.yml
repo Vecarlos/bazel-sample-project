@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      pages: write
       contents: read
       security-events: read
 
