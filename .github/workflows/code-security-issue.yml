@@ -53,6 +53,11 @@ jobs:
         with:
           my_pat: ${{ secrets.MY_PAT }}
 
+      - name: Write Dashboard to file
+        run: |
+          mkdir -p ./_site
+          echo '${{ steps.get_report.outputs.html_report }}' > ./_site/alerts_tracking.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
