@@ -27,9 +27,6 @@ runs:
           }
           
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
-          const createIssueForm = `
-
-          `;
           const createIssueScript = `
             <script>
               function runWorkflow() {
@@ -42,7 +39,7 @@ runs:
                 const workflowUrl = baseUrl + encodeURIComponent(alertCode);
                 window.open(workflowUrl, '_blank');
               }
-            </script>
+            <\/script>
           `;
 
           let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
