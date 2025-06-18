@@ -15,12 +15,14 @@ jobs:
       security-events: read
 
     steps:
-      - name: Generate HTML Report
-        id: report_generator
+      # --- PASO ÚNICO: Generar y Escribir el Reporte HTML ---
+      - name: Generate and Write HTML Report
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.MY_PAT }}
           script: |
+            const fs = require('fs');
+
             async function findTrackingIssueUrl(title) {
               const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`;
               const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
@@ -97,13 +99,12 @@ jobs:
             </body>
             </html>`;
             
-            return finalHtml;
-
-      - name: Create index.html
-        env:
-          HTML_CONTENT: ${{ steps.report_generator.outputs.result }}
-        run: echo "$HTML_CONTENT" > index.html
+            // Escribimos el archivo HTML directamente
+            fs.writeFileSync('index.html', finalHtml);
+            core.info("index.html file generated successfully.");
         
+      # --- Se eliminó el paso "Create index.html" ---
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
