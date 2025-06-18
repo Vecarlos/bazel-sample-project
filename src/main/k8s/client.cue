@@ -2,7 +2,7 @@ package main
 
 myClientJob: #Job & {
     _name:  "count-letters-client-job"
-    _image: "localhost:5001/count-letters-client:v4"
+    _image: "localhost:5001/count-letters-client:v5"
     _container: {
         args: [
             "count-letters-service", 

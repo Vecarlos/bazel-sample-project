@@ -9,7 +9,7 @@ package(default_visibility = ["//visibility:public"])
         image = image_spec.image,
         registry = "localhost:5001",
         repository = image_spec.repository,
-        tag = "v4",
+        tag = "v5",
         tags = [
             "manual",
             "no-remote",
