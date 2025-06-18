@@ -15,6 +15,7 @@ jobs:
       issues: write
       pages: write
       contents: read
+      id-token: write 
       security-events: read
 
     steps:
