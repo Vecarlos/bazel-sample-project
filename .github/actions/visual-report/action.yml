@@ -92,5 +92,5 @@ runs:
           </body>
           </html>`;
           
-          fs.writeFileSync('index.html', finalHtml);
+          fs.writeFileSync('alerts_tracking.html', finalHtml);
           core.info("index.html file generated successfully.");
