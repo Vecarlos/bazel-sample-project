@@ -23,48 +23,74 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - id: process_alerts
-      shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.gh_token }}
-        ALERT_INPUT: ${{ inputs.alert_input }}
-        MY_PAT: ${{ inputs.my_pat }}
-      run: |
-        LOWERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:upper:]' '[:lower:]')
-        UPPERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:lower:]' '[:upper:]')
-
-        if [[ "$LOWERCASE_INPUT" == cwe-* ]]; then
-          CWE_TAG_TO_FIND="external/cwe/$LOWERCASE_INPUT"
-
-          FILTERED_ALERTS=$(gh api "repos/${{ github.repository }}/code-scanning/alerts?state=open&per_page=1" --paginate \
-          | jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | map(ascii_downcase) | contains([$cwe_tag]))]')
+    - id: process
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.my_pat }}
+        script: |
+          const alertInput = '${{ inputs.alert_input }}';
+          const lowercaseInput = alertInput.toLowerCase();
+          const uppercaseInput = alertInput.toUpperCase();
           
-          DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].rule.description')
-          ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
-          CWE_NUMBER=$(echo "$LOWERCASE_INPUT" | cut -d'-' -f2)
-          ALERT_LINK="[$UPPERCASE_INPUT](https://cwe.mitre.org/data/definitions/${CWE_NUMBER}.html)"
-          LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- [\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line)](\(.html_url))"')
-          ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$ALERT_LINK" "$LOCATION_LIST")
+          if (lowercaseInput.startsWith('cwe-')) {
+            const cweTagToFind = `external/${lowercaseInput}`;
+            
+            const allAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
 
-        elif [[ "$LOWERCASE_INPUT" == cve-* ]]; then
-          FILTERED_ALERTS=$(GH_TOKEN="$MY_PAT" gh api "repos/${{ github.repository }}/dependabot/alerts?state=open&per_page=1" --paginate \
-          | jq --arg cve_id "$LOWERCASE_INPUT" '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
+            const filteredAlerts = allAlerts.filter(alert => 
+              alert.rule.tags && alert.rule.tags.some(tag => tag.toLowerCase() === cweTagToFind)
+            );
 
-          DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].security_advisory.summary')
-          ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
-          CVE_LINK="[$UPPERCASE_INPUT](https://nvd.nist.gov/vuln/detail/$UPPERCASE_INPUT)"
-          LOCATION_LIST=$(echo "$FILTERED_ALERTS" | jq -r '.[] | "- <\(.html_url)>"')
-          ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$CVE_LINK" "$LOCATION_LIST")
+            if (filteredAlerts.length > 0) {
+              const description = filteredAlerts[0].rule.description;
+              const issueTitle = `Fix code scanning alert - ${uppercaseInput} - ${description}`;
+              const cweNumber = lowercaseInput.split('-')[1];
+              const alertLink = `[${uppercaseInput}](https://cwe.mitre.org/data/definitions/${cweNumber}.html)`;
+              const locationList = filteredAlerts.map(alert => 
+                `- [${alert.most_recent_instance.location.path}:${alert.most_recent_instance.location.start_line}](${alert.html_url})`
+              ).join('\n');
+              const issueBody = `${alertLink}\n\nTracking issue for:\n\n${locationList}`;
+              core.setOutput('issue_title', issueTitle);
+              core.setOutput('issue_body', issueBody);
+            } else {
+              core.setOutput('issue_title', `No alerts found for ${uppercaseInput}`);
+              core.setOutput('issue_body', `No open vulnerabilities found for ${uppercaseInput}.`);
+            }
+            
+          } else if (lowercaseInput.startsWith('cve-')) {
+          
+            const allAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
 
-        else
-          ISSUE_TITLE="Invalid Input Format"
-          ISSUE_BODY="Input must start with 'cwe-' or 'cve-'. You provided: $ALERT_INPUT"
-        fi
+            const filteredAlerts = allAlerts.filter(alert => 
+              alert.security_advisory.cve_id && alert.security_advisory.cve_id.toLowerCase() === lowercaseInput
+            );
+            
+            if (filteredAlerts.length > 0) {
+              const description = filteredAlerts[0].security_advisory.summary;
+              const issueTitle = `Fix dependabot alert - ${uppercaseInput} - ${description}`;
+              const alertLink = `[${uppercaseInput}](https://nvd.nist.gov/vuln/detail/${uppercaseInput})`;
+              const locationList = filteredAlerts.map(alert => 
+                `- [${alert.dependency.package.name} at ${alert.dependency.manifest_path}](${alert.html_url})`
+              ).join('\n');
+              const issueBody = `${alertLink}\n\nTracking issue for:\n\n${locationList}`;
+              core.setOutput('issue_title', issueTitle);
+              core.setOutput('issue_body', issueBody);
+            } else {
+              core.setOutput('issue_title', `No alerts found for ${uppercaseInput}`);
+              core.setOutput('issue_body', `No open vulnerabilities found for ${uppercaseInput}.`);
+            }
 
-        echo "issue_title<<EOF" >> $GITHUB_OUTPUT
-        echo "$ISSUE_TITLE" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-
-        echo "issue_body<<EOF" >> $GITHUB_OUTPUT
-        echo "$ISSUE_BODY" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+          } else {
+            core.setOutput('issue_title', 'Invalid Input');
+            core.setOutput('issue_body', 'Input must be CWE or CVE.');
+          }
