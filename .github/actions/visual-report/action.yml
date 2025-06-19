@@ -61,7 +61,7 @@ runs:
           } else {
             for (const alert of dependabotAlerts.data) {
               const cveId = alert.security_advisory.cve_id;
-              const potentialTitle = `Fix code scanning alert - ${cveId} - ${alert.security_advisory.summary}`;
+              const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
               const issueUrl = await findTrackingIssueUrl(potentialTitle);
               let statusHtml = '<b>ℹ️ Not Tracked</b>';
               if (issueUrl) {
