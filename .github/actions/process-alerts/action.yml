@@ -1,24 +1,24 @@
-name: "Process Security Alerts"
-description: "Fetches and processes security alerts (CWE or CVE) and prepares an issue title and body."
+name: 'Process Security Alerts'
+description: 'Fetches and processes security alerts (CWE or CVE) and prepares an issue title and body.'
 
 inputs:
   alert_input:
-    description: "The alert code to process"
+    description: 'The alert code to process'
     required: true
-  gh_token:
-    description: "The GH_TOKEN for API calls."
+  github_token:
+    description: 'The GITHUB_TOKEN for API calls.'
     required: true
   my_pat:
-    description: "A personal access token (PAT) for the Dependabot API."
+    description: 'A personal access token (PAT) for the Dependabot API.'
     required: true
 
 outputs:
   issue_title:
-    description: "The generated title for the issue."
-    value: ${{ steps.process_alerts.outputs.issue_title }}
+    description: 'The generated title for the issue.'
+    value: ${{ steps.process.outputs.issue_title }}
   issue_body:
-    description: "The generated body for the issue."
-    value: ${{ steps.process_alerts.outputs.issue_body }}
+    description: 'The generated body for the issue.'
+    value: ${{ steps.process.outputs.issue_body }}
 
 runs:
   using: "composite"
@@ -38,6 +38,7 @@ runs:
           if (lowercaseInput.startsWith('cwe-')) {
             const cweTagToFind = `external/${lowercaseInput}`;
             
+            console.log(`Searching for Code Scanning alerts with tag: ${cweTagToFind}`);
             const allAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -48,6 +49,7 @@ runs:
             const filteredAlerts = allAlerts.filter(alert => 
               alert.rule.tags && alert.rule.tags.some(tag => tag.toLowerCase() === cweTagToFind)
             );
+            console.log(`Found ${filteredAlerts.length} matching CWE alerts.`);
 
             if (filteredAlerts.length > 0) {
               const description = filteredAlerts[0].rule.description;
@@ -64,6 +66,7 @@ runs:
             }
             
           } else if (lowercaseInput.startsWith('cve-')) {
+            console.log(`Searching for Dependabot alerts with CVE: ${lowercaseInput}`);
             const allAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -74,6 +77,7 @@ runs:
             const filteredAlerts = allAlerts.filter(alert => 
               alert.security_advisory.cve_id && alert.security_advisory.cve_id.toLowerCase() === lowercaseInput
             );
+            console.log(`Found ${filteredAlerts.length} matching CVE alerts.`);
             
             if (filteredAlerts.length > 0) {
               const description = filteredAlerts[0].security_advisory.summary;
@@ -92,6 +96,9 @@ runs:
             issueTitle = 'Invalid Input';
             issueBody = 'Input must be CWE or CVE.';
           }
+
+          console.log(`Final Issue Title: "${issueTitle}"`);
+          console.log(`Final Issue Body: "${issueBody}"`);
 
           core.setOutput('issue_title', issueTitle);
           core.setOutput('issue_body', issueBody);
