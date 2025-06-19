@@ -5,9 +5,6 @@ inputs:
   alert_input:
     description: 'The alert code to process'
     required: true
-  github_token:
-    description: 'The GITHUB_TOKEN for API calls.'
-    required: true
   my_pat:
     description: 'A personal access token (PAT) for the Dependabot API.'
     required: true
