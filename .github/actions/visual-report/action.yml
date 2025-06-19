@@ -45,10 +45,24 @@ runs:
                 const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
                 const issueUrl = await findTrackingIssueUrl(potentialTitle);
                 let statusHtml = '<b>ℹ️ Not Tracked</b>';
+                let actionButton = '';
+                
                 if (issueUrl) {
                   statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
+                } else {
+                  const workflowUrl = `https://github.com/${repoFullName}/actions/workflows/code-security-issue.yml`;
+                    const workflowParams = new URLSearchParams({
+                      'ref': 'main', // o tu branch principal
+                      'inputs.alert_type': 'cwe',
+                      'inputs.alert_id': cweId,
+                      'inputs.description': alert.rule.description,
+                      'inputs.alert_url': alert.html_url,
+                      'inputs.severity': alert.rule.security_severity_level || 'unknown'
+                    });
+                    
+                    actionButton = `<a href="${workflowUrl}?${workflowParams.toString()}" class="create-issue-btn" target="_blank">Create Issue</a>`;
                 }
-                codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
+                codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a> ${actionButton}</li>`;
               }
             }
           }
