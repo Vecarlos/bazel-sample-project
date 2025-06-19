@@ -32,6 +32,9 @@ runs:
           const lowercaseInput = alertInput.toLowerCase();
           const uppercaseInput = alertInput.toUpperCase();
           
+          let issueTitle = '';
+          let issueBody = '';
+
           if (lowercaseInput.startsWith('cwe-')) {
             const cweTagToFind = `external/${lowercaseInput}`;
             
@@ -48,22 +51,19 @@ runs:
 
             if (filteredAlerts.length > 0) {
               const description = filteredAlerts[0].rule.description;
-              const issueTitle = `Fix code scanning alert - ${uppercaseInput} - ${description}`;
+              issueTitle = `Fix code scanning alert - ${uppercaseInput} - ${description}`;
               const cweNumber = lowercaseInput.split('-')[1];
               const alertLink = `[${uppercaseInput}](https://cwe.mitre.org/data/definitions/${cweNumber}.html)`;
               const locationList = filteredAlerts.map(alert => 
                 `- [${alert.most_recent_instance.location.path}:${alert.most_recent_instance.location.start_line}](${alert.html_url})`
               ).join('\n');
-              const issueBody = `${alertLink}\n\nTracking issue for:\n\n${locationList}`;
-              core.setOutput('issue_title', issueTitle);
-              core.setOutput('issue_body', issueBody);
+              issueBody = `${alertLink}\n\nTracking issue for:\n\n${locationList}`;
             } else {
-              core.setOutput('issue_title', `No alerts found for ${uppercaseInput}`);
-              core.setOutput('issue_body', `No open vulnerabilities found for ${uppercaseInput}.`);
+              issueTitle = `No alerts found for ${uppercaseInput}`;
+              issueBody = `No open vulnerabilities found for ${uppercaseInput}.`;
             }
             
           } else if (lowercaseInput.startsWith('cve-')) {
-          
             const allAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -77,20 +77,21 @@ runs:
             
             if (filteredAlerts.length > 0) {
               const description = filteredAlerts[0].security_advisory.summary;
-              const issueTitle = `Fix dependabot alert - ${uppercaseInput} - ${description}`;
+              issueTitle = `Fix dependabot alert - ${uppercaseInput} - ${description}`;
               const alertLink = `[${uppercaseInput}](https://nvd.nist.gov/vuln/detail/${uppercaseInput})`;
               const locationList = filteredAlerts.map(alert => 
                 `- [${alert.dependency.package.name} at ${alert.dependency.manifest_path}](${alert.html_url})`
               ).join('\n');
-              const issueBody = `${alertLink}\n\nTracking issue for:\n\n${locationList}`;
-              core.setOutput('issue_title', issueTitle);
-              core.setOutput('issue_body', issueBody);
+              issueBody = `${alertLink}\n\nTracking issue for:\n\n${locationList}`;
             } else {
-              core.setOutput('issue_title', `No alerts found for ${uppercaseInput}`);
-              core.setOutput('issue_body', `No open vulnerabilities found for ${uppercaseInput}.`);
+              issueTitle = `No alerts found for ${uppercaseInput}`;
+              issueBody = `No open vulnerabilities found for ${uppercaseInput}.`;
             }
 
           } else {
-            core.setOutput('issue_title', 'Invalid Input');
-            core.setOutput('issue_body', 'Input must be CWE or CVE.');
+            issueTitle = 'Invalid Input';
+            issueBody = 'Input must be CWE or CVE.';
           }
+
+          core.setOutput('issue_title', issueTitle);
+          core.setOutput('issue_body', issueBody);
