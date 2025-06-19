@@ -6,7 +6,7 @@ inputs:
     description: "The alert code to process"
     required: true
   gh_token:
-    description: "The GITHUB_TOKEN for API calls."
+    description: "The GH_TOKEN for API calls."
     required: true
   my_pat:
     description: "A personal access token (PAT) for the Dependabot API."
@@ -26,7 +26,7 @@ runs:
     - id: process_alerts
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.github_token }}
+        GH_TOKEN: ${{ inputs.gh_token }}
         ALERT_INPUT: ${{ inputs.alert_input }}
         MY_PAT: ${{ inputs.my_pat }}
       run: |
