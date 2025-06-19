@@ -5,7 +5,7 @@ inputs:
   alert_input:
     description: "The alert code to process"
     required: true
-  github_token:
+  gh_token:
     description: "The GITHUB_TOKEN for API calls."
     required: true
   my_pat:
@@ -25,11 +25,11 @@ runs:
   steps:
     - id: process_alerts
       shell: bash
-      run: |
-        ALERT_INPUT="${{ inputs.alert_input }}"
+      env:
         GH_TOKEN: ${{ inputs.github_token }}
-        MY_PAT="${{ inputs.my_pat }}"
-
+        ALERT_INPUT: ${{ inputs.alert_input }}
+        MY_PAT: ${{ inputs.my_pat }}
+      run: |
         LOWERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:upper:]' '[:lower:]')
         UPPERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:lower:]' '[:upper:]')
 
