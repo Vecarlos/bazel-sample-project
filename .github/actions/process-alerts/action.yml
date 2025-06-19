@@ -1,23 +1,23 @@
-name: 'Process Security Alerts'
-description: 'Fetches and processes security alerts (CWE or CVE) and prepares an issue title and body.'
+name: "Process Security Alerts"
+description: "Fetches and processes security alerts (CWE or CVE) and prepares an issue title and body."
 
 inputs:
   alert_input:
-    description: 'The alert code to process'
+    description: "The alert code to process"
     required: true
   github_token:
-    description: 'The GITHUB_TOKEN for API calls.'
+    description: "The GITHUB_TOKEN for API calls."
     required: true
   my_pat:
-    description: 'A personal access token (PAT) for the Dependabot API.'
+    description: "A personal access token (PAT) for the Dependabot API."
     required: true
 
 outputs:
   issue_title:
-    description: 'The generated title for the issue.'
+    description: "The generated title for the issue."
     value: ${{ steps.process_alerts.outputs.issue_title }}
   issue_body:
-    description: 'The generated body for the issue.'
+    description: "The generated body for the issue."
     value: ${{ steps.process_alerts.outputs.issue_body }}
 
 runs:
@@ -36,8 +36,7 @@ runs:
         if [[ "$LOWERCASE_INPUT" == cwe-* ]]; then
           CWE_TAG_TO_FIND="external/cwe/$LOWERCASE_INPUT"
 
-          FILTERED_ALERTS=$(gh api "repos/${{ github.repository }}/code-scanning/alerts?state=open" \
-            --jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | map(ascii_downcase) | contains([$cwe_tag]))]')
+          FILTERED_ALERTS=$(gh api "repos/${{ github.repository }}/code-scanning/alerts?state=open&per_page=1" --paginate --jq --arg cwe_tag "$CWE_TAG_TO_FIND" '[.[] | select(.rule.tags | map(ascii_downcase) | contains([$cwe_tag]))]')
           
           DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].rule.description')
           ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
@@ -47,8 +46,7 @@ runs:
           ISSUE_BODY=$(printf "%s\n\nTracking issue for:\n\n%s" "$ALERT_LINK" "$LOCATION_LIST")
 
         elif [[ "$LOWERCASE_INPUT" == cve-* ]]; then
-          FILTERED_ALERTS=$(GH_TOKEN="$MY_PAT" gh api "repos/${{ github.repository }}/dependabot/alerts?state=open" \
-            --jq --arg cve_id "$LOWERCASE_INPUT" '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
+          FILTERED_ALERTS=$(GH_TOKEN="$MY_PAT" gh api "repos/${{ github.repository }}/dependabot/alerts?state=open&per_page=1" --paginate --jq --arg cve_id "$LOWERCASE_INPUT" '[.[] | select((.security_advisory.cve_id | ascii_downcase) == $cve_id)]')
 
           DESCRIPTION=$(echo "$FILTERED_ALERTS" | jq -r '.[0].security_advisory.summary')
           ISSUE_TITLE="Fix code scanning alert - $UPPERCASE_INPUT - $DESCRIPTION"
