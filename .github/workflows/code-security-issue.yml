@@ -27,7 +27,6 @@ jobs:
         uses: ./.github/actions/process-alerts
         with:
           alert_input: ${{ github.event.inputs.issue_title }}
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
           my_pat: ${{ secrets.MY_PAT }}
 
       - name: Create issue with formatted report
