@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: |
         ALERT_INPUT="${{ inputs.alert_input }}"
-        GITHUB_TOKEN="${{ inputs.github_token }}"
+        GH_TOKEN: ${{ inputs.github_token }}
         MY_PAT="${{ inputs.my_pat }}"
 
         LOWERCASE_INPUT=$(echo "$ALERT_INPUT" | tr '[:upper:]' '[:lower:]')
