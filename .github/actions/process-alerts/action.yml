@@ -36,7 +36,7 @@ runs:
           let issueBody = '';
 
           if (lowercaseInput.startsWith('cwe-')) {
-            const cweTagToFind = `external/${lowercaseInput}`;
+            const cweTagToFind = `external/cwe/${lowercaseInput}`;
             
             console.log(`Searching for Code Scanning alerts with tag: ${cweTagToFind}`);
             const allAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, {
