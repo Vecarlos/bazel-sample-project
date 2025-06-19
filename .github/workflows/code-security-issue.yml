@@ -38,7 +38,7 @@ jobs:
           gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY"
 
       - name: Wait for issue to be indexed
-        run: sleep 15
+        run: sleep 10
 
       - name: Generate Visual Status Report
         id: get_report
