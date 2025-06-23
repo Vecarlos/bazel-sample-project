@@ -146,14 +146,14 @@ runs:
                   for (const alert of paginatedItems) {
                     let statusHtml = '<b>ℹ️ Not Tracked</b>';
                     if (alert.tracked) {
-                      statusHtml = `<b>✅ <a href="${alert.issue_url}">Tracked</a></b>`;
+                      statusHtml = '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>';
                     }
                     const li = document.createElement('li');
-                    li.innerHTML = \`\${statusHtml} - <a href="\${alert.html_url}">\${alert.id}: \${alert.description}</a>\`;
+                    li.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
                     list.appendChild(li);
                   }
                   
-                  pageInfo.textContent = \`Page \${currentPage} of \${totalPages}\`;
+                  pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
                   document.getElementById(listElementId.replace('-list', '-prev')).disabled = currentPage === 1;
                   document.getElementById(listElementId.replace('-list', '-next')).disabled = currentPage === totalPages;
                 }
