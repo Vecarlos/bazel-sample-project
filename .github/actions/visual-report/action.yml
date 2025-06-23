@@ -33,40 +33,59 @@ runs:
             </div>
           `;
 
+          // --- 1. PROCESAR ALERTAS DE CODEQL (CWEs) CON PAGINACIÓN Y MANEJO DE ERRORES ---
           let cweData = [];
-          const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 1 }));
-          for (const alert of codeScanningAlerts.data) {
-            const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
-            if (cweTag) {
-              const cweId = cweTag.split('/').pop().toUpperCase();
-              const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
+          try {
+            // github.paginate se encarga de hacer todas las llamadas necesarias para obtener TODAS las alertas.
+            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { 
+              owner: context.repo.owner, 
+              repo: context.repo.repo, 
+              state: 'open', 
+              per_page: 100 
+            });
+            for (const alert of codeScanningAlerts) {
+              const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
+              if (cweTag) {
+                const cweId = cweTag.split('/').pop().toUpperCase();
+                const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
+                const issueUrl = await findTrackingIssueUrl(potentialTitle);
+                cweData.push({
+                  id: cweId, description: alert.rule.description, html_url: alert.html_url,
+                  tracked: !!issueUrl, issue_url: issueUrl
+                });
+              }
+            }
+            cweData.sort((a, b) => a.id.localeCompare(b.id)); 
+          } catch (error) {
+            core.error(`Error fetching Code Scanning alerts: ${error.message}`);
+            cweData = [{ id: 'ERROR', description: `Failed to fetch alerts: ${error.message}` }];
+          }
+          
+          // --- 2. PROCESAR ALERTAS DE DEPENDABOT (CVEs) CON PAGINACIÓN Y MANEJO DE ERRORES ---
+          let cveData = [];
+          try {
+            const dependabotAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, { 
+              owner: context.repo.owner, 
+              repo: context.repo.repo, 
+              state: 'open', 
+              per_page: 100 
+            });
+            for (const alert of dependabotAlerts) {
+              const cveId = alert.security_advisory.cve_id;
+              const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
               const issueUrl = await findTrackingIssueUrl(potentialTitle);
-              cweData.push({
-                id: cweId,
-                description: alert.rule.description,
-                html_url: alert.html_url,
-                tracked: !!issueUrl,
-                issue_url: issueUrl
+              cveData.push({
+                id: cveId, description: alert.security_advisory.summary, html_url: alert.html_url,
+                tracked: !!issueUrl, issue_url: issueUrl
               });
             }
+            cveData.sort((a, b) => a.id.localeCompare(b.id));
+          } catch (error) {
+            core.error(`Error fetching Dependabot alerts: ${error.message}`);
+            cveData = [{ id: 'ERROR', description: `Failed to fetch alerts: ${error.message}` }];
           }
-          cweData.sort((a, b) => a.id.localeCompare(b.id)); 
-          let cveData = [];
-          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 1 });
-          for (const alert of dependabotAlerts.data) {
-            const cveId = alert.security_advisory.cve_id;
-            const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
-            const issueUrl = await findTrackingIssueUrl(potentialTitle);
-            cveData.push({
-              id: cveId,
-              description: alert.security_advisory.summary,
-              html_url: alert.html_url,
-              tracked: !!issueUrl,
-              issue_url: issueUrl
-            });
-          }
-          cveData.sort((a, b) => a.id.localeCompare(b.id));
 
+          // --- 3. SECCIÓN DE RENDERIZADO EN EL CLIENTE (SIN CAMBIOS) ---
           const finalHtml = `
           <!DOCTYPE html>
           <html lang="en">
