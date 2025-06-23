@@ -33,7 +33,6 @@ runs:
             </div>
           `;
 
-          // --- 1. PROCESAR ALERTAS DE CODEQL (CWEs) ---
           let cweData = [];
           const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
           for (const alert of codeScanningAlerts.data) {
@@ -51,9 +50,7 @@ runs:
               });
             }
           }
-          cweData.sort((a, b) => a.id.localeCompare(b.id)); // Ordenar alfabéticamente
-
-          // --- 2. PROCESAR ALERTAS DE DEPENDABOT (CVEs) ---
+          cweData.sort((a, b) => a.id.localeCompare(b.id)); 
           let cveData = [];
           const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
           for (const alert of dependabotAlerts.data) {
@@ -68,9 +65,8 @@ runs:
               issue_url: issueUrl
             });
           }
-          cveData.sort((a, b) => a.id.localeCompare(b.id)); // Ordenar alfabéticamente
+          cveData.sort((a, b) => a.id.localeCompare(b.id));
 
-          // --- 3. ENSAMBLAR EL HTML FINAL CON LOS DATOS Y EL SCRIPT DE PAGINACIÓN ---
           const finalHtml = `
           <!DOCTYPE html>
           <html lang="en">
@@ -117,7 +113,6 @@ runs:
               </div>
 
               <script>
-                // Inyectamos los datos de las alertas en el script
                 const cweAlerts = ${JSON.stringify(cweData)};
                 const cveAlerts = ${JSON.stringify(cveData)};
                 const ITEMS_PER_PAGE = 3;
@@ -176,7 +171,6 @@ runs:
                   }
                 }
 
-                // Render inicial
                 document.addEventListener('DOMContentLoaded', () => {
                   renderPage(cweAlerts, 'cwe-list', 'cwe-page-info', 1);
                   renderPage(cveAlerts, 'cve-list', 'cve-page-info', 1);
