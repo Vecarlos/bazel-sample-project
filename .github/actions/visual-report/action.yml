@@ -34,7 +34,7 @@ runs:
           `;
 
           let cweData = [];
-          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 1 });
           for (const alert of codeScanningAlerts.data) {
             const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
             if (cweTag) {
@@ -52,7 +52,7 @@ runs:
           }
           cweData.sort((a, b) => a.id.localeCompare(b.id)); 
           let cveData = [];
-          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 1 });
           for (const alert of dependabotAlerts.data) {
             const cveId = alert.security_advisory.cve_id;
             const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
