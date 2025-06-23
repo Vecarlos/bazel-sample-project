@@ -33,45 +33,44 @@ runs:
             </div>
           `;
 
-          let codeQlHtml = "<h2>Code Scanning Alerts (CWEs)</h2><ul>";
+          // --- 1. PROCESAR ALERTAS DE CODEQL (CWEs) ---
+          let cweData = [];
           const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
-          if (codeScanningAlerts.data.length === 0) {
-            codeQlHtml += "<li>✅ No open Code Scanning alerts.</li>";
-          } else {
-            for (const alert of codeScanningAlerts.data) {
-              const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
-              if (cweTag) {
-                const cweId = cweTag.split('/').pop().toUpperCase();
-                const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-                const issueUrl = await findTrackingIssueUrl(potentialTitle);
-                let statusHtml = '<b>ℹ️ Not Tracked</b>';
-                if (issueUrl) {
-                  statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
-                }
-                codeQlHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cweId}: ${alert.rule.description}</a></li>`;
-              }
-            }
-          }
-          codeQlHtml += "</ul>";
-
-          let dependabotHtml = "<h2>Dependabot Alerts (CVEs)</h2><ul>";
-          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
-          if (dependabotAlerts.data.length === 0) {
-            dependabotHtml += "<li>✅ No open Dependabot alerts.</li>";
-          } else {
-            for (const alert of dependabotAlerts.data) {
-              const cveId = alert.security_advisory.cve_id;
-              const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
+          for (const alert of codeScanningAlerts.data) {
+            const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
+            if (cweTag) {
+              const cweId = cweTag.split('/').pop().toUpperCase();
+              const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
               const issueUrl = await findTrackingIssueUrl(potentialTitle);
-              let statusHtml = '<b>ℹ️ Not Tracked</b>';
-              if (issueUrl) {
-                statusHtml = `<b>✅ <a href="${issueUrl}">Tracked</a></b>`;
-              }
-              dependabotHtml += `<li>${statusHtml} - <a href="${alert.html_url}">${cveId}: ${alert.security_advisory.summary}</a></li>`;
+              cweData.push({
+                id: cweId,
+                description: alert.rule.description,
+                html_url: alert.html_url,
+                tracked: !!issueUrl,
+                issue_url: issueUrl
+              });
             }
           }
-          dependabotHtml += "</ul>";
+          cweData.sort((a, b) => a.id.localeCompare(b.id)); // Ordenar alfabéticamente
 
+          // --- 2. PROCESAR ALERTAS DE DEPENDABOT (CVEs) ---
+          let cveData = [];
+          const dependabotAlerts = await github.rest.dependabot.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+          for (const alert of dependabotAlerts.data) {
+            const cveId = alert.security_advisory.cve_id;
+            const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
+            const issueUrl = await findTrackingIssueUrl(potentialTitle);
+            cveData.push({
+              id: cveId,
+              description: alert.security_advisory.summary,
+              html_url: alert.html_url,
+              tracked: !!issueUrl,
+              issue_url: issueUrl
+            });
+          }
+          cveData.sort((a, b) => a.id.localeCompare(b.id)); // Ordenar alfabéticamente
+
+          // --- 3. ENSAMBLAR EL HTML FINAL CON LOS DATOS Y EL SCRIPT DE PAGINACIÓN ---
           const finalHtml = `
           <!DOCTYPE html>
           <html lang="en">
@@ -81,39 +80,108 @@ runs:
               <title>Security Dashboard</title>
               <style>
                   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
-                  h1, h2, h3, h4 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-                  ul { list-style-type: none; padding-left: 0; }
+                  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                  ul { list-style-type: none; padding-left: 0; min-height: 120px; }
                   li { margin-bottom: 10px; }
                   b { font-weight: bold; }
                   a { text-decoration: none; color: #0969da; }
                   a:hover { text-decoration: underline; }
                   .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
-                  .issue-creator {
-                    padding: 15px;
-                    margin-bottom: 20px;
-                  }
-                  .button {
-                    display: inline-block;
-                    padding: 8px 15px;
-                    font-size: 14px;
-                    font-weight: 500;
-                    color: white;
-                    background-color: #238636;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  }
-                  .button:hover {
-                    background-color: #2ea043;
-                  }
+                  .issue-creator { padding: 15px; margin-bottom: 20px; }
+                  .button { display: inline-block; padding: 8px 15px; font-size: 14px; font-weight: 500; color: white; background-color: #238636; border: none; border-radius: 6px; cursor: pointer; }
+                  .button:hover { background-color: #2ea043; }
+                  .pagination { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 15px; }
+                  .pagination button { background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 6px; cursor: pointer; padding: 5px 10px; }
+                  .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
               </style>
           </head>
           <body>
               <h1>Security Status Dashboard</h1>
               ${createIssueButton}
               <p class="footer">Last updated: ${new Date().toUTCString()}</p>
-              ${codeQlHtml}
-              ${dependabotHtml}
+              
+              <h2>Code Scanning Alerts (CWEs)</h2>
+              <ul id="cwe-list"></ul>
+              <div class="pagination">
+                <button id="cwe-prev" onclick="changeCwePage(-1)">&lt;</button>
+                <span id="cwe-page-info"></span>
+                <button id="cwe-next" onclick="changeCwePage(1)">&gt;</button>
+              </div>
+
+              <h2>Dependabot Alerts (CVEs)</h2>
+              <ul id="cve-list"></ul>
+              <div class="pagination">
+                <button id="cve-prev" onclick="changeCvePage(-1)">&lt;</button>
+                <span id="cve-page-info"></span>
+                <button id="cve-next" onclick="changeCvePage(1)">&gt;</button>
+              </div>
+
+              <script>
+                // Inyectamos los datos de las alertas en el script
+                const cweAlerts = ${JSON.stringify(cweData)};
+                const cveAlerts = ${JSON.stringify(cveData)};
+                const ITEMS_PER_PAGE = 3;
+
+                let currentCwePage = 1;
+                let currentCvePage = 1;
+
+                function renderPage(alertData, listElementId, pageInfoElementId, currentPage) {
+                  const list = document.getElementById(listElementId);
+                  const pageInfo = document.getElementById(pageInfoElementId);
+                  list.innerHTML = '';
+                  
+                  if (alertData.length === 0) {
+                    list.innerHTML = "<li>✅ No open alerts.</li>";
+                    pageInfo.textContent = "Page 1 of 1";
+                    document.getElementById(listElementId.replace('-list', '-prev')).disabled = true;
+                    document.getElementById(listElementId.replace('-list', '-next')).disabled = true;
+                    return;
+                  }
+
+                  const totalPages = Math.ceil(alertData.length / ITEMS_PER_PAGE);
+                  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+                  const end = start + ITEMS_PER_PAGE;
+                  const paginatedItems = alertData.slice(start, end);
+
+                  for (const alert of paginatedItems) {
+                    let statusHtml = '<b>ℹ️ Not Tracked</b>';
+                    if (alert.tracked) {
+                      statusHtml = `<b>✅ <a href="${alert.issue_url}">Tracked</a></b>`;
+                    }
+                    const li = document.createElement('li');
+                    li.innerHTML = \`\${statusHtml} - <a href="\${alert.html_url}">\${alert.id}: \${alert.description}</a>\`;
+                    list.appendChild(li);
+                  }
+                  
+                  pageInfo.textContent = \`Page \${currentPage} of \${totalPages}\`;
+                  document.getElementById(listElementId.replace('-list', '-prev')).disabled = currentPage === 1;
+                  document.getElementById(listElementId.replace('-list', '-next')).disabled = currentPage === totalPages;
+                }
+
+                function changeCwePage(direction) {
+                  const totalPages = Math.ceil(cweAlerts.length / ITEMS_PER_PAGE);
+                  const newPage = currentCwePage + direction;
+                  if (newPage >= 1 && newPage <= totalPages) {
+                    currentCwePage = newPage;
+                    renderPage(cweAlerts, 'cwe-list', 'cwe-page-info', currentCwePage);
+                  }
+                }
+
+                function changeCvePage(direction) {
+                  const totalPages = Math.ceil(cveAlerts.length / ITEMS_PER_PAGE);
+                  const newPage = currentCvePage + direction;
+                  if (newPage >= 1 && newPage <= totalPages) {
+                    currentCvePage = newPage;
+                    renderPage(cveAlerts, 'cve-list', 'cve-page-info', currentCvePage);
+                  }
+                }
+
+                // Render inicial
+                document.addEventListener('DOMContentLoaded', () => {
+                  renderPage(cweAlerts, 'cwe-list', 'cwe-page-info', 1);
+                  renderPage(cveAlerts, 'cve-list', 'cve-page-info', 1);
+                });
+              </script>
           </body>
           </html>`;
           
