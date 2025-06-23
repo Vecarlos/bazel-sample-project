@@ -33,14 +33,14 @@ runs:
             </div>
           `;
 
+          // --- 1. PROCESAR ALERTAS DE CODEQL (CWEs) CON PAGINACIÓN Y MANEJO DE ERRORES ---
           let cweData = [];
           try {
-            // github.paginate se encarga de hacer todas las llamadas necesarias para obtener TODAS las alertas.
             const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { 
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               state: 'open', 
-              per_page: 1 
+              per_page: 100 
             });
             for (const alert of codeScanningAlerts) {
               const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
@@ -60,13 +60,14 @@ runs:
             cweData = [{ id: 'ERROR', description: `Failed to fetch alerts: ${error.message}` }];
           }
           
+          // --- 2. PROCESAR ALERTAS DE DEPENDABOT (CVEs) CON PAGINACIÓN Y MANEJO DE ERRORES ---
           let cveData = [];
           try {
             const dependabotAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, { 
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               state: 'open', 
-              per_page: 1 
+              per_page: 100 
             });
             for (const alert of dependabotAlerts) {
               const cveId = alert.security_advisory.cve_id;
@@ -83,7 +84,7 @@ runs:
             cveData = [{ id: 'ERROR', description: `Failed to fetch alerts: ${error.message}` }];
           }
 
-          // --- 3. SECCIÓN DE RENDERIZADO EN EL CLIENTE (SIN CAMBIOS) ---
+          // --- 3. SECCIÓN DE RENDERIZADO EN EL CLIENTE (CON BOTÓN DE COPIAR) ---
           const finalHtml = `
           <!DOCTYPE html>
           <html lang="en">
@@ -95,7 +96,7 @@ runs:
                   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
                   h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
                   ul { list-style-type: none; padding-left: 0; min-height: 120px; }
-                  li { margin-bottom: 10px; }
+                  li { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
                   b { font-weight: bold; }
                   a { text-decoration: none; color: #0969da; }
                   a:hover { text-decoration: underline; }
@@ -106,6 +107,7 @@ runs:
                   .pagination { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 15px; }
                   .pagination button { background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 6px; cursor: pointer; padding: 5px 10px; }
                   .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+                  .copy-btn { padding: 4px 8px; font-size: 12px; margin-left: 15px; background-color: #f6f8fa; color: #24292f; border: 1px solid #d1d9e0; cursor: pointer; border-radius: 6px; }
               </style>
           </head>
           <body>
@@ -137,6 +139,21 @@ runs:
                 let currentCwePage = 1;
                 let currentCvePage = 1;
 
+                function copyToClipboard(text, buttonElement) {
+                  const textArea = document.createElement("textarea");
+                  textArea.value = text;
+                  document.body.appendChild(textArea);
+                  textArea.select();
+                  try {
+                    document.execCommand('copy');
+                    buttonElement.textContent = 'Copied!';
+                    setTimeout(() => { buttonElement.textContent = 'Copy CLI'; }, 2000);
+                  } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                  }
+                  document.body.removeChild(textArea);
+                }
+
                 function renderPage(alertData, listElementId, pageInfoElementId, currentPage) {
                   const list = document.getElementById(listElementId);
                   const pageInfo = document.getElementById(pageInfoElementId);
@@ -160,8 +177,10 @@ runs:
                     if (alert.tracked) {
                       statusHtml = '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>';
                     }
+                    const commandToCopy = 'gh workflow run code-security-issue.yml -f issue_title="' + alert.id + '"';
                     const li = document.createElement('li');
-                    li.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
+                    li.innerHTML = '<div>' + statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a></div>' +
+                                   '<button class="copy-btn" onclick="copyToClipboard(\`' + commandToCopy + '\`, this)">Copy CLI</button>';
                     list.appendChild(li);
                   }
                   
