@@ -34,7 +34,7 @@ runs:
           `;
 
           let cweData = [];
-          const codeScanningAlerts = await github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 1 });
+          const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 1 }));
           for (const alert of codeScanningAlerts.data) {
             const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
             if (cweTag) {
