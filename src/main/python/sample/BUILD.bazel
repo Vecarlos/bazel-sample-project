@@ -1,11 +1,11 @@
-# load("@rules_python//python:defs.bzl", "py_library")
+load("@rules_python//python:defs.bzl", "py_library")
 
-# py_library(
-#     name = "sample",
-#     srcs = glob(["*.py"]),
-#     imports = ["../"],
-#     visibility = ["//visibility:public"],
-#     deps = [
-#         "//src/main/proto/sample:user_profile_py_proto",
-#     ],
-# )
+py_library(
+    name = "sample",
+    srcs = glob(["*.py"]),
+    imports = ["../"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/main/proto/sample:user_profile_py_proto",
+    ],
+)
