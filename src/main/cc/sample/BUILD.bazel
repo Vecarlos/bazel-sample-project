@@ -1,29 +1,29 @@
-# load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
-# package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
 
-# _INCLUDE_PREFIX = "/src/main/cc"
+_INCLUDE_PREFIX = "/src/main/cc"
 
-# cc_library(
-#     name = "count_letters_evaluator",
-#     srcs = ["count_letters_evaluator.cc"],
-#     hdrs = ["count_letters_evaluator.h"],
-#     strip_include_prefix = _INCLUDE_PREFIX,
-# )
+cc_library(
+    name = "count_letters_evaluator",
+    srcs = ["count_letters_evaluator.cc"],
+    hdrs = ["count_letters_evaluator.h"],
+    strip_include_prefix = _INCLUDE_PREFIX,
+)
 
-# cc_library(
-#     name = "sum_evaluator",
-#     srcs = ["sum_evaluator.cc"],
-#     hdrs = ["sum_evaluator.h"],
-#     strip_include_prefix = _INCLUDE_PREFIX,
-# )
+cc_library(
+    name = "sum_evaluator",
+    srcs = ["sum_evaluator.cc"],
+    hdrs = ["sum_evaluator.h"],
+    strip_include_prefix = _INCLUDE_PREFIX,
+)
 
-# cc_library(
-#     name = "manage_users",
-#     srcs = ["manage_users.cc"],
-#     hdrs = ["manage_users.h"],
-#     strip_include_prefix = _INCLUDE_PREFIX,
-#     deps = [
-#         "//src/main/proto/sample:user_profile_cc_proto",
-#     ],
-# )
+cc_library(
+    name = "manage_users",
+    srcs = ["manage_users.cc"],
+    hdrs = ["manage_users.h"],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "//src/main/proto/sample:user_profile_cc_proto",
+    ],
+)
