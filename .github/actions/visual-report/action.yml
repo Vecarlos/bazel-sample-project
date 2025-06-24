@@ -171,7 +171,7 @@ runs:
                   const paginatedItems = alertData.slice(start, end);
 
                   for (const alert of paginatedItems) {
-                    let statusHtml = alert.tracked? '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b> : <b>ℹ️ Not Tracked</b>'
+                    let statusHtml = alert.tracked ? '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>' : '<b>ℹ️ Not Tracked</b>';
                     const commandToCopy = 'gh workflow run code-security-issue.yml -f issue_title="' + alert.id + '"';
                     
                     const li = document.createElement('li');
