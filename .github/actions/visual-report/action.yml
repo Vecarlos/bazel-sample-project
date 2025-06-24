@@ -172,24 +172,23 @@ runs:
 
                   for (const alert of paginatedItems) {
                     let statusHtml = '<b>ℹ️ Not Tracked</b>';
-                    if (alert.tracked) {
-                      statusHtml = '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>';
-                    }
                     const commandToCopy = 'gh workflow run code-security-issue.yml -f issue_title="' + alert.id + '"';
                     
-                    // --- CORRECCIÓN AQUÍ: Construcción del elemento de lista usando DOM ---
                     const li = document.createElement('li');
                     
                     const contentDiv = document.createElement('div');
                     contentDiv.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
                     
-                    const copyButton = document.createElement('button');
-                    copyButton.className = 'copy-btn';
-                    copyButton.textContent = 'Copy CLI';
-                    copyButton.onclick = () => copyToClipboard(commandToCopy, copyButton);
+                    if (alert.tracked) {
+                      statusHtml = '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>';
+                      const copyButton = document.createElement('button');
+                      copyButton.className = 'copy-btn';
+                      copyButton.textContent = 'Copy CLI';
+                      copyButton.onclick = () => copyToClipboard(commandToCopy, copyButton);
+                      li.appendChild(copyButton);
+                    }
 
                     li.appendChild(contentDiv);
-                    li.appendChild(copyButton);
                     list.appendChild(li);
                   }
                   
