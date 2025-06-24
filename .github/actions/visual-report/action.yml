@@ -39,7 +39,7 @@ runs:
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               state: 'open', 
-              per_page: 100 
+              per_page: 1 
             });
             for (const alert of codeScanningAlerts) {
               const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
@@ -65,7 +65,7 @@ runs:
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               state: 'open', 
-              per_page: 100 
+              per_page: 1 
             });
             for (const alert of dependabotAlerts) {
               const cveId = alert.security_advisory.cve_id;
