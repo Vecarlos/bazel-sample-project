@@ -33,7 +33,6 @@ runs:
             </div>
           `;
 
-          // --- 1. PROCESAR ALERTAS DE CODEQL (CWEs) CON PAGINACIÓN Y MANEJO DE ERRORES ---
           let cweData = [];
           try {
             const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { 
@@ -60,7 +59,6 @@ runs:
             cweData = [{ id: 'ERROR', description: `Failed to fetch alerts: ${error.message}` }];
           }
           
-          // --- 2. PROCESAR ALERTAS DE DEPENDABOT (CVEs) CON PAGINACIÓN Y MANEJO DE ERRORES ---
           let cveData = [];
           try {
             const dependabotAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, { 
@@ -84,7 +82,6 @@ runs:
             cveData = [{ id: 'ERROR', description: `Failed to fetch alerts: ${error.message}` }];
           }
 
-          // --- 3. SECCIÓN DE RENDERIZADO EN EL CLIENTE (CON BOTÓN DE COPIAR) ---
           const finalHtml = `
           <!DOCTYPE html>
           <html lang="en">
@@ -96,7 +93,8 @@ runs:
                   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
                   h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
                   ul { list-style-type: none; padding-left: 0; min-height: 120px; }
-                  li { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+                  li { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 8px; border-left: 3px solid #f0f6fc; }
+                  li:hover { background-color: #f6f8fa; }
                   b { font-weight: bold; }
                   a { text-decoration: none; color: #0969da; }
                   a:hover { text-decoration: underline; }
@@ -178,9 +176,20 @@ runs:
                       statusHtml = '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>';
                     }
                     const commandToCopy = 'gh workflow run code-security-issue.yml -f issue_title="' + alert.id + '"';
+                    
+                    // --- CORRECCIÓN AQUÍ: Construcción del elemento de lista usando DOM ---
                     const li = document.createElement('li');
-                    li.innerHTML = '<div>' + statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a></div>' +
-                                   '<button class="copy-btn" onclick="copyToClipboard(\`' + commandToCopy + '\`, this)">Copy CLI</button>';
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
+                    
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-btn';
+                    copyButton.textContent = 'Copy CLI';
+                    copyButton.onclick = () => copyToClipboard(commandToCopy, copyButton);
+
+                    li.appendChild(contentDiv);
+                    li.appendChild(copyButton);
                     list.appendChild(li);
                   }
                   
