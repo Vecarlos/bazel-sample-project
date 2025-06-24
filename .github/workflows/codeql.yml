@@ -26,6 +26,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Cache Bazel
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/bazel
+        key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-bazel-
+
     - name: Setup Java JDK
       if: matrix.language == 'java-kotlin'
       uses: actions/setup-java@v4
@@ -43,7 +51,11 @@ jobs:
     - name: Build with Bazel
       if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
       run: |
-              bazel build --spawn_strategy=local -- //src/... -//src/main/proto/...
+        if [ "${{ matrix.language }}" == "java-kotlin" ]; then
+          bazel build --spawn_strategy=local -- //src/main/kotlin/... -//src/main/proto/...
+        elif [ "${{ matrix.language }}" == "cpp" ]; then
+          bazel build --spawn_strategy=local -- //src/main/cc/... -//src/main/proto/...
+        fi
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
