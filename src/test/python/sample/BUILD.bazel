@@ -1,31 +1,31 @@
-# load("@pip//:requirements.bzl", "requirement")
-# load("@rules_python//python:defs.bzl", "py_test")
+load("@pip//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_test")
 
-# py_test(
-#     name = "count_letters_evaluator_py_test",
-#     srcs = ["count_letters_evaluator_test.py"],
-#     main = "count_letters_evaluator_test.py",
-#     deps = [
-#         "//src/main/python/sample",
-#     ],
-# )
+py_test(
+    name = "count_letters_evaluator_py_test",
+    srcs = ["count_letters_evaluator_test.py"],
+    main = "count_letters_evaluator_test.py",
+    deps = [
+        "//src/main/python/sample",
+    ],
+)
 
-# py_test(
-#     name = "sum_evaluator_py_test",
-#     srcs = ["sum_evaluator_test.py"],
-#     main = "sum_evaluator_test.py",
-#     deps = [
-#         "//src/main/python/sample",
-#     ],
-# )
+py_test(
+    name = "sum_evaluator_py_test",
+    srcs = ["sum_evaluator_test.py"],
+    main = "sum_evaluator_test.py",
+    deps = [
+        "//src/main/python/sample",
+    ],
+)
 
-# py_test(
-#     name = "manage_users_py_test",
-#     srcs = ["manage_users_test.py"],
-#     main = "manage_users_test.py",
-#     deps = [
-#         "//src/main/proto/sample:user_profile_py_proto",
-#         "//src/main/python/sample",
-#         requirement("protobuf"),
-#     ],
-# )
+py_test(
+    name = "manage_users_py_test",
+    srcs = ["manage_users_test.py"],
+    main = "manage_users_test.py",
+    deps = [
+        "//src/main/proto/sample:user_profile_py_proto",
+        "//src/main/python/sample",
+        requirement("protobuf"),
+    ],
+)
