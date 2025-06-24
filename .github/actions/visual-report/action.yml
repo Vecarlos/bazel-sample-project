@@ -180,7 +180,7 @@ runs:
                     contentDiv.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
                     li.appendChild(contentDiv);
                     
-                    if (alert.tracked) {
+                    if (!alert.tracked) {
                     const copyButton = document.createElement('button');
                     copyButton.className = 'copy-btn';
                     copyButton.textContent = 'Copy CLI';
