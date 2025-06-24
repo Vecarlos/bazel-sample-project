@@ -14,11 +14,11 @@ kt_jvm_library(
     srcs = ["SumEvaluator.kt"],
 )
 
-# kt_jvm_library(
-#     name = "manage_users_kt", 
-#     srcs = ["ManageUsers.kt"],
-#     deps = [
-#         "//src/main/proto/sample:user_profile_kt_proto",
-#         "@maven//:com_google_protobuf_protobuf_java",
-#     ],
-# )
+kt_jvm_library(
+    name = "manage_users_kt", 
+    srcs = ["ManageUsers.kt"],
+    deps = [
+        "//src/main/proto/sample:user_profile_kt_proto",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
