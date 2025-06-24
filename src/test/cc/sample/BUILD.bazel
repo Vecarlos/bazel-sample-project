@@ -1,38 +1,38 @@
-# load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_test")
 
-# cc_test(
-#     name = "count_letters_evaluator_test",
-#     size = "small",
-#     srcs = [
-#         "count_letters_evaluator_test.cc",
-#     ],
-#     deps = [
-#         "//src/main/cc/sample:count_letters_evaluator",
-#         "@com_google_googletest//:gtest_main",
-#     ],
-# )
+cc_test(
+    name = "count_letters_evaluator_test",
+    size = "small",
+    srcs = [
+        "count_letters_evaluator_test.cc",
+    ],
+    deps = [
+        "//src/main/cc/sample:count_letters_evaluator",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
 
-# cc_test(
-#     name = "manage_users_test",
-#     size = "small",
-#     srcs = [
-#         "manage_users_test.cc",
-#     ],
-#     deps = [
-#         "//src/main/cc/sample:manage_users",
-#         "@com_google_googletest//:gtest_main",
-#         "//src/main/proto/sample:user_profile_cc_proto",
-#     ],
-# )
+cc_test(
+    name = "manage_users_test",
+    size = "small",
+    srcs = [
+        "manage_users_test.cc",
+    ],
+    deps = [
+        "//src/main/cc/sample:manage_users",
+        "@com_google_googletest//:gtest_main",
+        "//src/main/proto/sample:user_profile_cc_proto",
+    ],
+)
 
-# cc_test(
-#     name = "sum_evaluator_test",
-#     size = "small",
-#     srcs = [
-#         "sum_evaluator_test.cc",
-#     ],
-#     deps = [
-#         "//src/main/cc/sample:sum_evaluator",
-#         "@com_google_googletest//:gtest_main",
-#     ],
-# )
+cc_test(
+    name = "sum_evaluator_test",
+    size = "small",
+    srcs = [
+        "sum_evaluator_test.cc",
+    ],
+    deps = [
+        "//src/main/cc/sample:sum_evaluator",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
