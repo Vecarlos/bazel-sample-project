@@ -17,6 +17,7 @@ runs:
       with:
         github-token: ${{ inputs.my_pat }}
         script: |
+          const branchRef = process.env.GITHUB_REF;
           async function getOpenTrackingIssues() {
             const trackingIssues = new Map();
             const allIssues = await github.paginate(github.rest.issues.listForRepo, {
@@ -45,13 +46,12 @@ runs:
 
           let cweData = [];
           try {
-            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
+            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100, ref: branchRef});
             for (const alert of codeScanningAlerts) {
               const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
               if (cweTag) {
                 const cweId = cweTag.split('/').pop().toUpperCase();
                 const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-                // Búsqueda local, sin llamada a la API
                 const issueUrl = openTrackingIssues.get(potentialTitle);
                 cweData.push({
                   id: cweId, description: alert.rule.description, html_url: alert.html_url,
@@ -71,7 +71,6 @@ runs:
             for (const alert of dependabotAlerts) {
               const cveId = alert.security_advisory.cve_id;
               const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
-              // Búsqueda local, sin llamada a la API
               const issueUrl = openTrackingIssues.get(potentialTitle);
               cveData.push({
                 id: cveId, description: alert.security_advisory.summary, html_url: alert.html_url,
