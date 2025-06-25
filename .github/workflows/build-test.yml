@@ -33,6 +33,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bazel-disk-
 
+      - name: Create disk cache directory
+        run: mkdir -p ~/.bazel-cache/disk
+
       - name: Check lockfile
         run: bazel mod deps
       - name: Check lockfile
