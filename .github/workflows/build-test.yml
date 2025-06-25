@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - main
-      - 'releases/**'
-      - '**'
+      - "releases/**"
+      - "**"
     pull_request:
   workflow_dispatch:
-
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,14 +23,26 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
+      - name: Cache Bazel
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.bazel-cache/disk
+          key: ${{ runner.os }}-bazel-disk-${{ hashFiles('**/MODULE.bazel.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-disk-
+
+      - name: Check lockfile
+        run: bazel mod deps
       - name: Check lockfile
         run: bazel mod deps
 
       - name: Build
-        run: bazel build --worker_quit_after_build //...
+        run: bazel build --disk_cache=~/.bazel-cache/disk --worker_quit_after_build //...
 
       - name: Run tests
-        run: bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
+        run: bazel coverage --disk_cache=~/.bazel-cache/disk --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
