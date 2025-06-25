@@ -28,23 +28,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.HOME }}/.cache/bazel
-            ${{ env.HOME }}/.bazel-cache/disk
+            ~/.cache/bazel
+            ${{ github.workspace }}/.bazel-cache/disk
           key: ${{ runner.os }}-bazel-disk-${{ hashFiles('**/MODULE.bazel.lock') }}
           restore-keys: |
             ${{ runner.os }}-bazel-disk-
 
       - name: Create disk cache directory
-        run: mkdir -p ${{ env.HOME }}/.bazel-cache/disk
+        run: mkdir -p ${{ github.workspace }}/.bazel-cache/disk
 
       - name: Check lockfile
         run: bazel mod deps
 
       - name: Build
-        run: bazel build --disk_cache=${{ env.HOME }}/.bazel-cache/disk --worker_quit_after_build //...
+        run: bazel build --disk_cache=${{ github.workspace }}/.bazel-cache/disk --worker_quit_after_build //...
 
       - name: Run tests
-        run: bazel coverage --disk_cache=${{ env.HOME }}/.bazel-cache/disk --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
+        run: bazel coverage --disk_cache=${{ github.workspace }}/.bazel-cache/disk --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
