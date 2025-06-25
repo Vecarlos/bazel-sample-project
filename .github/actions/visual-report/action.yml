@@ -17,13 +17,21 @@ runs:
       with:
         github-token: ${{ inputs.my_pat }}
         script: |
-          async function findTrackingIssueUrl(title) {
-            const query = `repo:${process.env.GITHUB_REPOSITORY} is:issue is:open in:title "${title}"`;
-            const result = await github.rest.search.issuesAndPullRequests({ q: query, advanced_search: true });
-            if (result.data.total_count > 0) {
-              return result.data.items[0].html_url;
+          async function getOpenTrackingIssues() {
+            const trackingIssues = new Map();
+            const allIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            for (const issue of allIssues) {
+              if (issue.title.startsWith('Fix code scanning alert') || issue.title.startsWith('Fix dependabot alert')) {
+                trackingIssues.set(issue.title, issue.html_url);
+              }
             }
-            return null;
+            return trackingIssues;
           }
           
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
@@ -33,20 +41,18 @@ runs:
             </div>
           `;
 
+          const openTrackingIssues = await getOpenTrackingIssues();
+
           let cweData = [];
           try {
-            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { 
-              owner: context.repo.owner, 
-              repo: context.repo.repo, 
-              state: 'open', 
-              per_page: 100 
-            });
+            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
             for (const alert of codeScanningAlerts) {
               const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
               if (cweTag) {
                 const cweId = cweTag.split('/').pop().toUpperCase();
                 const potentialTitle = `Fix code scanning alert - ${cweId} - ${alert.rule.description}`;
-                const issueUrl = await findTrackingIssueUrl(potentialTitle);
+                // Búsqueda local, sin llamada a la API
+                const issueUrl = openTrackingIssues.get(potentialTitle);
                 cweData.push({
                   id: cweId, description: alert.rule.description, html_url: alert.html_url,
                   tracked: !!issueUrl, issue_url: issueUrl
@@ -61,16 +67,12 @@ runs:
           
           let cveData = [];
           try {
-            const dependabotAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, { 
-              owner: context.repo.owner, 
-              repo: context.repo.repo, 
-              state: 'open', 
-              per_page: 100 
-            });
+            const dependabotAlerts = await github.paginate(github.rest.dependabot.listAlertsForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 });
             for (const alert of dependabotAlerts) {
               const cveId = alert.security_advisory.cve_id;
               const potentialTitle = `Fix dependabot alert - ${cveId} - ${alert.security_advisory.summary}`;
-              const issueUrl = await findTrackingIssueUrl(potentialTitle);
+              // Búsqueda local, sin llamada a la API
+              const issueUrl = openTrackingIssues.get(potentialTitle);
               cveData.push({
                 id: cveId, description: alert.security_advisory.summary, html_url: alert.html_url,
                 tracked: !!issueUrl, issue_url: issueUrl
@@ -93,8 +95,7 @@ runs:
                   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; }
                   h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
                   ul { list-style-type: none; padding-left: 0; min-height: 120px; }
-                  li { margin-bottom: 10px; display: flex; align-items: center; justify-content: flex-start; padding: 8px; border-left: 3px solid #f0f6fc; }
-                  li:hover { background-color: #f6f8fa; }
+                  li { margin-bottom: 10px; }
                   b { font-weight: bold; }
                   a { text-decoration: none; color: #0969da; }
                   a:hover { text-decoration: underline; }
@@ -105,7 +106,6 @@ runs:
                   .pagination { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 15px; }
                   .pagination button { background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 6px; cursor: pointer; padding: 5px 10px; }
                   .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
-                  .copy-btn { padding: 4px 8px; font-size: 12px; margin-left: 15px; background-color: #f6f8fa; color: #24292f; border: 1px solid #d1d9e0; cursor: pointer; border-radius: 6px; }
               </style>
           </head>
           <body>
@@ -137,21 +137,6 @@ runs:
                 let currentCwePage = 1;
                 let currentCvePage = 1;
 
-                function copyToClipboard(text, buttonElement) {
-                  const textArea = document.createElement("textarea");
-                  textArea.value = text;
-                  document.body.appendChild(textArea);
-                  textArea.select();
-                  try {
-                    document.execCommand('copy');
-                    buttonElement.textContent = 'Copied!';
-                    setTimeout(() => { buttonElement.textContent = 'Copy CLI'; }, 2000);
-                  } catch (err) {
-                    console.error('Fallback: Oops, unable to copy', err);
-                  }
-                  document.body.removeChild(textArea);
-                }
-
                 function renderPage(alertData, listElementId, pageInfoElementId, currentPage) {
                   const list = document.getElementById(listElementId);
                   const pageInfo = document.getElementById(pageInfoElementId);
@@ -171,23 +156,12 @@ runs:
                   const paginatedItems = alertData.slice(start, end);
 
                   for (const alert of paginatedItems) {
-                    let statusHtml = alert.tracked ? '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>' : '<b>ℹ️ Not Tracked</b>';
-                    const commandToCopy = 'gh workflow run code-security-issue.yml -f issue_title="' + alert.id + '"';
-                    
-                    const li = document.createElement('li');
-                    
-                    const contentDiv = document.createElement('div');
-                    contentDiv.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
-                    li.appendChild(contentDiv);
-                    
-                    if (!alert.tracked) {
-                    const copyButton = document.createElement('button');
-                    copyButton.className = 'copy-btn';
-                    copyButton.textContent = 'Copy CLI';
-                    copyButton.onclick = () => copyToClipboard(commandToCopy, copyButton);
-                    li.appendChild(copyButton);
+                    let statusHtml = '<b>ℹ️ Not Tracked</b>';
+                    if (alert.tracked) {
+                      statusHtml = '<b>✅ <a href="' + alert.issue_url + '">Tracked</a></b>';
                     }
-
+                    const li = document.createElement('li');
+                    li.innerHTML = statusHtml + ' - <a href="' + alert.html_url + '">' + alert.id + ': ' + alert.description + '</a>';
                     list.appendChild(li);
                   }
                   
