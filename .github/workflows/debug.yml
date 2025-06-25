@@ -1,0 +1,22 @@
+name: Debugging Tools
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-rate-limit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check API Rate Limit for GITHUB_TOKEN
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "--- API Limit Status for GITHUB_TOKEN ---"
+          gh api rate_limit
+
+      - name: Check API Rate Limit for PAT
+        env:
+          GH_TOKEN: ${{ secrets.MY_PAT }}
+        run: |
+          echo "--- API Limit Status for Personal Access Token (PAT) ---"
+          gh api rate_limit
