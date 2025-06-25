@@ -17,7 +17,6 @@ runs:
       with:
         github-token: ${{ inputs.my_pat }}
         script: |
-          const branchRef = process.env.GITHUB_REF;
           async function getOpenTrackingIssues() {
             const trackingIssues = new Map();
             const allIssues = await github.paginate(github.rest.issues.listForRepo, {
@@ -46,7 +45,7 @@ runs:
 
           let cweData = [];
           try {
-            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100, ref: branchRef});
+            const codeScanningAlerts = await github.paginate(github.rest.codeScanning.listAlertsForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100});
             for (const alert of codeScanningAlerts) {
               const cweTag = alert.rule.tags.find(t => t.startsWith('external/cwe/cwe-'));
               if (cweTag) {
