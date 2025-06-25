@@ -6,7 +6,7 @@ import io.grpc.netty.NettyChannelBuilder
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue // IMPORTACIÓN AÑADIDA
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

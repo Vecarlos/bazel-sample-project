@@ -1,4 +1,4 @@
-package implementation // O el paquete donde quieras poner tu test
+package implementation
 
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

@@ -1,7 +1,7 @@
 package com
 
-import com.CommonServer.GrpcServer
-import com.CountLettersServer.CountLettersServer
+import com.GrpcServer
+import com.CountLettersServer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,13 +21,11 @@ class CountLettersServerTest {
         val args = arrayOf(testPort.toString())
 
         Mockito.mockConstruction(CountLettersServer::class.java).use { serverMock ->
-            com.CountLettersServer.main(args)
+            main(args)
 
-            // Verify CountLettersServer was created with correct port
             assertEquals(1, serverMock.constructed().size)
             val constructedServer = serverMock.constructed()[0]
 
-            // Verify run was called
             verify(constructedServer).run()
         }
     }
@@ -37,13 +35,11 @@ class CountLettersServerTest {
         val args = arrayOf<String>()
 
         Mockito.mockConstruction(CountLettersServer::class.java).use { serverMock ->
-            com.CountLettersServer.main(args)
+            main(args)
 
-            // Verify CountLettersServer was created
             assertEquals(1, serverMock.constructed().size)
             val constructedServer = serverMock.constructed()[0]
 
-            // Verify run was called
             verify(constructedServer).run()
         }
     }
