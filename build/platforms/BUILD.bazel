@@ -4,6 +4,11 @@ package(
 
 constraint_setting(name = "glibc_version")
 
+constraint_value(
+    name = "glibc_2_36",
+    constraint_setting = ":glibc_version",
+)
+
 platform(
     name = "debian_bookworm_rbe",
     constraint_values = [
