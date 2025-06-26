@@ -30,3 +30,5 @@ build:ci --build_metadata=VISIBILITY=PUBLIC
 build:ci --config=remote-cache
 build:ci --config=results
 build:ci --config=remote
+
+import %workspace%/results.bazelrc
