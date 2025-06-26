@@ -40,10 +40,10 @@ jobs:
           common --config=ci
           build --remote_upload_local_results
           EOF
-          
+
       - name: Run CodeQL Analysis on BuildBuddy
         run: |
           bazel test //tools/codeql:codeql_analysis_test \
             --config=ci \
-            --config=rbe \
+            --config=remote \
             --test_env=LANGUAGE=${{ matrix.language }}
