@@ -9,10 +9,22 @@ coverage --instrumentation_filter="^//src/main[/:]"
 # Use clang as C++ compiler.
 build --repo_env='CC=clang'
 
+# Configuration for remote cache.
+build --noremote_upload_local_results  # Do not upload by default
+build --remote_download_outputs=minimal
+build --remote_timeout=3600
+build:remote-cache --remote_cache=grpcs://brs.buildbuddy.io
+build:remote-cache --experimental_remote_cache_compression
+build:remote-cache --experimental_remote_cache_compression_threshold=100
+# These next three flags are due to a workaround for missing digests described here
+# https://www.buildbuddy.io/docs/troubleshooting-rbe/#cachenotfoundexception-missing-digest
+build:remote-cache --experimental_remote_cache_eviction_retries=5
+build:remote-cache --experimental_remote_cache_lease_extension=true
+build:remote-cache --experimental_remote_cache_ttl=3h
+
 # Use BuildBuddy
-build --bes_results_url=https://app.buildbuddy.io/invocation/
-build --bes_backend=grpcs://remote.buildbuddy.io
-build --remote_header=x-buildbuddy-api-key=Hc3jMaD3qcklbGORaPkf
+build --bes_results_url=https://brs.buildbuddy.io/invocation/
+build --bes_backend=grpcs://brs.buildbuddy.io
 
 # Configuration for continuous integration (CI).
 common:ci --lockfile_mode=error
