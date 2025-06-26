@@ -3,8 +3,6 @@
 build:remote --remote_executor=grpcs://halo-cmm.buildbuddy.io
 build:remote --define=EXECUTOR=remote
 
-# Include container toolchain/platform configuration.
-build:remote --config=container
 
 # Depending on how many machines are in the remote execution instance, setting
 # this higher can make builds faster by allowing more jobs to run in parallel.
