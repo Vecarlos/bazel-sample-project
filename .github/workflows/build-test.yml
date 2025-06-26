@@ -23,9 +23,6 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
-      - name: Install Clang
-        run: sudo apt-get update && sudo apt-get install -y clang-14
-
       - name: Write auth.bazelrc
         env:
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}

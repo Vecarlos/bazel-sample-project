@@ -1,0 +1,31 @@
+package(default_visibility = ["//visibility:public"])
+
+
+toolchain(
+    name = "cc-toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        "@bazel_tools//tools/cpp:clang",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = "//third_party/rbe_configs/cc:cc-compiler-k8",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+platform(
+    name = "platform",
+    parents = ["@local_config_platform//:host"],
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        "@bazel_tools//tools/cpp:clang",
+    ],
+    exec_properties = {
+        "container-image": "docker://ghcr.io/world-federation-of-advertisers/bazel@sha256:f2d8cc7b7994731ef432f4404e71ed26c1c6c015005fe8c9d5f0191aed13040a",
+        "OSFamily": "Linux",
+    },
+)

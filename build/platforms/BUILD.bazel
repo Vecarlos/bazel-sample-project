@@ -1,0 +1,15 @@
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+constraint_setting(name = "glibc_version")
+
+platform(
+    name = "debian_bookworm_rbe",
+    constraint_values = [
+        ":glibc_2_36",
+    ],
+    parents = [
+        "//third_party/rbe_configs/config:platform",
+    ],
+)
