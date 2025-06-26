@@ -31,6 +31,7 @@ build:ci --config=remote-cache
 build:ci --config=results
 build:ci --config=remote
 
+import %workspace%/container.bazelrc
 import %workspace%/results.bazelrc
 import %workspace%/remote.bazelrc
 try-import %workspace%/auth.bazelrc
