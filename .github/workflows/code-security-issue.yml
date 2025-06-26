@@ -1,0 +1,63 @@
+name: Create Issue with Security Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_title:
+        description: "Alert code"
+        required: true
+        default: ""
+
+jobs:
+  create-security-report-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pages: write
+      contents: read
+      id-token: write 
+      security-events: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get and Process Alerts
+        id: get_alerts
+        uses: ./.github/actions/process-alerts
+        with:
+          alert_input: ${{ github.event.inputs.issue_title }}
+          my_pat: ${{ secrets.MY_PAT }}
+
+      - name: Create issue with formatted report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ steps.get_alerts.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.get_alerts.outputs.issue_body }}
+        run: |
+          gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY"
+
+      - name: Wait for issue to be indexed
+        run: sleep 20
+
+      - name: Generate Visual Status Report
+        id: get_report
+        uses: ./.github/actions/visual-report
+        with:
+          my_pat: ${{ secrets.MY_PAT }}
+
+      - name: Write Dashboard to file
+        env:
+          HTML_CONTENT: ${{ steps.get_report.outputs.html_report }}
+        run: |
+          mkdir -p ./_site
+          echo "$HTML_CONTENT" > ./_site/alerts_tracking.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./_site"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
