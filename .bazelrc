@@ -32,3 +32,4 @@ build:ci --config=results
 build:ci --config=remote
 
 import %workspace%/results.bazelrc
+import %workspace%/remote.bazelrc
