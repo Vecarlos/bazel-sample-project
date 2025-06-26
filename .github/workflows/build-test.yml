@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - main
-      - 'releases/**'
-      - '**'
+      - "releases/**"
+      - "**"
     pull_request:
   workflow_dispatch:
-
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,6 +23,26 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
+      - uses: ./.github/actions/free-disk-space
+
+      - name: Write auth.bazelrc
+        env:
+          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+        run: |
+          cat << EOF > auth.bazelrc
+          build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
+          EOF
+
+      - name: Write ~/.bazelrc
+        run: |
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          EOF
+
+      - name: Set TCP keepalive
+        run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
+
       - name: Check lockfile
         run: bazel mod deps
 
@@ -31,7 +50,7 @@ jobs:
         run: bazel build --worker_quit_after_build //...
 
       - name: Run tests
-        run: bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
+        run: bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
