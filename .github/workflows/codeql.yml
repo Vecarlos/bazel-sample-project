@@ -1,0 +1,53 @@
+name: "CodeQL Analysis"
+
+on:
+  pull_request:
+    branches: [ '**' ]
+  schedule:
+    - cron: '30 2 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python', 'java-kotlin', 'cpp' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java JDK
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        trap-caching: true
+        queries: +security-extended
+
+    - name: Build with Bazel
+      if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
+      run: |
+        if [ "${{ matrix.language }}" == "java-kotlin" ]; then
+          bazel build --spawn_strategy=local -- //src/main/kotlin/... -//src/main/proto/...
+        elif [ "${{ matrix.language }}" == "cpp" ]; then
+          bazel build --spawn_strategy=local -- //src/main/cc/... -//src/main/proto/...
+        fi
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
