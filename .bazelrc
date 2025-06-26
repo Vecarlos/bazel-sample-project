@@ -8,3 +8,17 @@ coverage --instrumentation_filter="^//src/main[/:]"
 
 # Use clang as C++ compiler.
 build --repo_env='CC=clang'
+
+# Use BuildBuddy
+build --bes_results_url=https://app.buildbuddy.io/invocation/
+build --bes_backend=grpcs://remote.buildbuddy.io
+build --remote_header=x-buildbuddy-api-key=Hc3jMaD3qcklbGORaPkf
+
+# Configuration for continuous integration (CI).
+common:ci --lockfile_mode=error
+build:ci --compilation_mode=opt
+build:ci --build_metadata=ROLE=CI
+build:ci --build_metadata=VISIBILITY=PUBLIC
+build:ci --config=remote-cache
+build:ci --config=results
+build:ci --config=remote
