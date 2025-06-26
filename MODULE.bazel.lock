@@ -232,6 +232,8 @@
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.8/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.9/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cue/0.4.0/MODULE.bazel": "bb8f958f35c70b2eb031df0b3143bccdf4acaa4d9d50028d6a00be0f3646870a",
+    "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cue/0.4.0/source.json": "652017131db9769f6ec6e48e5e14550193fe9e21acaae0ffa01c0c233a382510",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_foreign_cc/0.9.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_fuzzing/0.5.2/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_java/4.0.0/MODULE.bazel": "not found",
@@ -972,6 +974,36 @@
             "bzlFile": "@@platforms//host:extension.bzl",
             "ruleClassName": "host_platform_repo",
             "attributes": {}
+          }
+        },
+        "recordedRepoMappingEntries": []
+      }
+    },
+    "@@rules_cue~//cue/internal:non_module_deps.bzl%non_module_deps": {
+      "general": {
+        "bzlTransitiveDigest": "CEn9DkALIg1PIIcEKD+ZHvlU/Nsvwz5+wzyCQbtVSPY=",
+        "usagesDigest": "onqp7ZK/c9wL0omP0xMEkBEhHWFaHgPQ7G0Jei4EqP0=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "cue_binaries_linux_amd64": {
+            "bzlFile": "@@rules_cue~//cue/internal:cue_binaries.bzl",
+            "ruleClassName": "cue_binaries",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "0.5.0",
+              "sha256": "38c9a2f484076aeafd9f522efdee40538c31337539bd8c80a29f5c4077314e53"
+            }
+          },
+          "cue_binaries_darwin_amd64": {
+            "bzlFile": "@@rules_cue~//cue/internal:cue_binaries.bzl",
+            "ruleClassName": "cue_binaries",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "0.5.0",
+              "sha256": "00fc991977232240893ae36dc852366af859214d6e1b2b9e03e93b8f9f0991a7"
+            }
           }
         },
         "recordedRepoMappingEntries": []
