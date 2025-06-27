@@ -9,7 +9,6 @@ echo "--- Creating CodeQL database for ${LANGUAGE} by tracing the Bazel build --
   --language="${LANGUAGE}" \
   --command="bazel build \
     --config=ci \
-    --fetch=false \
     --spawn_strategy=local \
     //..." \
   codeql-db
