@@ -17,6 +17,8 @@ filegroup(
             "**/BUILD.bazel", 
             "**/BUILD",      
             "third_party/**",
+            "build/**",
+            "import/**",
         ],
     ),
     visibility = ["//visibility:public"],
