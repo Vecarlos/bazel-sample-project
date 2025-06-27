@@ -8,6 +8,7 @@ sh_test(
         "@codeql_cli//:codeql_binary",
         "//:MODULE.bazel",
         "//:MODULE.bazel.lock",
+        "//:.bazelrc",
     ],
     # Hacemos que este test sea grande para darle más tiempo de ejecución.
     size = "large",
