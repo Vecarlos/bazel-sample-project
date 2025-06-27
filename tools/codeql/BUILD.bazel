@@ -4,8 +4,10 @@ sh_test(
     # Pasamos el lenguaje como un argumento al script.
     # Damos acceso a todo el código fuente al script.
     data = [
-        "//:all_source_files", # Necesitarás un filegroup en tu BUILD raíz
+        "//:all_source_files", 
         "@codeql_cli//:codeql_binary",
+        "//:MODULE.bazel",
+        "//:MODULE.bazel.lock",
     ],
     # Hacemos que este test sea grande para darle más tiempo de ejecución.
     size = "large",
