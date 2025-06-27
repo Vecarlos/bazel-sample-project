@@ -12,7 +12,7 @@ exports_files([
 filegroup(
     name = "all_source_files",
     srcs = glob(
-        ["**"], 
+        ["**/*"], 
         exclude = [
             "bazel-*/**",
             ".git/**",
