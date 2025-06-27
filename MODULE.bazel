@@ -160,8 +160,6 @@ java_toolchains(
     version = "21",
 )
 
-use_repo(java_toolchains, "remote_jdk_21")
-
 # http_archive(
 #     name = "codeql_cli",
 #     build_file_content = """
