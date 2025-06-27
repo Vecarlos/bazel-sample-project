@@ -12,7 +12,11 @@ exports_files([
 filegroup(
     name = "all_source_files",
     srcs = glob(
-        ["src/**"],
+        [
+            "src/**",        
+            "**/BUILD.bazel", 
+            "**/BUILD",      
+        ],
     ),
     visibility = ["//visibility:public"],
 )
