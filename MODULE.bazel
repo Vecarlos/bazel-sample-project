@@ -160,7 +160,7 @@ http_archive(
     build_file_content = """
 filegroup(
     name = "codeql_binary",
-    srcs = ["codeql/codeql"],
+    srcs = ["codeql"], 
     visibility = ["//visibility:public"],
 )
 """,
