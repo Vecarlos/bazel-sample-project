@@ -18,7 +18,7 @@ filegroup(
             ".git/**",
         ],
     ) + [
-        "build/platforms/BUILD.bazel",
+        "//build/platforms/BUILD.bazel",
     ],
     visibility = ["//visibility:public"],
 )
