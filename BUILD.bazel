@@ -2,6 +2,9 @@ exports_files([
     "MODULE.bazel",
     "MODULE.bazel.lock",
     ".bazelrc",
+    "container.bazelrc",
+    "remote.bazelrc",
+    "results.bazelrc",
 ])
 
 filegroup(
