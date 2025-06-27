@@ -1,15 +1,15 @@
 sh_test(
     name = "codeql_analysis_test",
+    size = "large",
     srcs = ["run_analysis.sh"],
-    # Pasamos el lenguaje como un argumento al script.
-    # Damos acceso a todo el código fuente al script.
     data = [
-        "//:all_source_files", 
-        "@codeql_cli//:codeql_binary",
+        "//:.bazelrc",
         "//:MODULE.bazel",
         "//:MODULE.bazel.lock",
-        "//:.bazelrc",
+        "//:all_source_files",
+        "//:container.bazelrc",
+        "//:remote.bazelrc",
+        "//:results.bazelrc",
+        "@codeql_cli//:codeql_binary",
     ],
-    # Hacemos que este test sea grande para darle más tiempo de ejecución.
-    size = "large",
 )
