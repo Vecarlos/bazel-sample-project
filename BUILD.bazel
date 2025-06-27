@@ -1,7 +1,12 @@
+exports_files([
+    "MODULE.bazel",
+    "MODULE.bazel.lock",
+])
+
 filegroup(
     name = "all_source_files",
     srcs = glob(
-        ["src/**"],  # Agarra todos los archivos en todas las subcarpetas de 'src'
+        ["src/**"],
     ),
     visibility = ["//visibility:public"],
 )
