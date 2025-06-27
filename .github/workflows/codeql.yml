@@ -42,6 +42,18 @@ jobs:
           build --remote_upload_local_results
           EOF
 
+      - name: DEBUG - List Workspace Files
+        run: |
+          echo "--- Listing files in the workspace root (ls -l) ---"
+          ls -l
+          echo
+          echo "--- Listing contents of build/ recursively (ls -lR build) ---"
+          # Este comando fallará si la carpeta 'build' no existe, lo cual ya es una pista.
+          ls -lR build || echo "Directorio 'build' no encontrado."
+          echo
+          echo "--- Listing contents of third_party/ recursively (ls -lR third_party) ---"
+          ls -lR third_party || echo "Directorio 'third_party' no encontrado."
+
       - name: Run CodeQL Analysis on BuildBuddy
         run: |
           bazel test //tools/codeql:codeql_analysis_test \
