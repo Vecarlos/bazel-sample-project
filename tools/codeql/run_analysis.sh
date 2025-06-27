@@ -1,15 +1,18 @@
 #!/bin/bash
-set -e # Falla si cualquier comando falla
+set -e
 
-# El lenguaje (cpp, java-kotlin) se pasará como un argumento.
+LANGUAGE="$LANGUAGE"
+
+# La dependencia @codeql_cli se encuentra en la carpeta external/.
+# Esta es la ruta correcta y robusta dentro del entorno del test.
+CODEQL_EXEC="external/codeql_cli/codeql"
 
 echo "--- Initializing CodeQL for ${LANGUAGE} ---"
-# NOTA: Los paths a CodeQL pueden variar dependiendo de tu contenedor RBE.
-# Este es un ejemplo.
-/path/to/codeql/codeql database create --language="${LANGUAGE}" codeql-db
+"${CODEQL_EXEC}" database create --language="${LANGUAGE}" codeql-db
 
 echo "--- Building code for CodeQL analysis ---"
-# Forzamos la ejecución local DENTRO del worker de RBE para que CodeQL vea la compilación.
+# OJO: Asumimos que 'bazel' está disponible en el contenedor de RBE.
+# Las imágenes de RBE de BuildBuddy suelen tenerlo.
 bazel build --spawn_strategy=local -- //...
 
 echo "--- Analyzing with CodeQL ---"
