@@ -99,7 +99,6 @@ maven.install(
         "io.grpc:grpc-okhttp:1.62.2",
         "io.grpc:grpc-kotlin-stub:1.4.1",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
-        
         "io.netty:netty-handler:4.1.91.Final",
     ],
     boms = [],
@@ -152,12 +151,6 @@ http_archive(
     sha256 = "464e97a24d7d784d9c94c25fa537ba24127af5aae3edd381007b5b98705a0518",
     strip_prefix = "grpc-proto-08911e9d585cbda3a55eb1dcc4b99c89aebccff8",
     urls = ["https://github.com/grpc/grpc-proto/archive/08911e9d585cbda3a55eb1dcc4b99c89aebccff8.zip"],
-)
-
-java_toolchains = use_repo_rule("@rules_java//java:repositories.bzl", "java_toolchains")
-java_toolchains(
-    name = "remote_jdk_21",
-    version = "21",
 )
 
 # http_archive(
