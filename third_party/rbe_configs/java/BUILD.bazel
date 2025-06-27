@@ -3,7 +3,7 @@ package(default_visibility = ["//visibility:public"])
 load("@rules_java//java:defs.bzl", "java_toolchain")
 
 java_toolchain(
-    name = "remote_jdk_17_toolchain",
-    java_runtime = "@bazel_tools//tools/jdk:remote_jdk17",
-    source_version = "17",
+    name = "remote_jdk_11_toolchain",
+    java_runtime = "@bazel_tools//tools/jdk:remote_jdk11", 
+    source_version = "11",
 )
