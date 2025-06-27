@@ -2,7 +2,7 @@
 
 build:remote --remote_executor=grpcs://brs.buildbuddy.io
 
-build:remote --extra_toolchains=//third_party/rbe_configs/java:remote_jdk_11_toolchain
+build:remote --extra_toolchains=//third_party/rbe_configs/config:java_toolchain_for_rbe
 build:remote --java_language_version=11
 build:remote --tool_java_language_version=11
 

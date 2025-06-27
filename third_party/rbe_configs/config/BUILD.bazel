@@ -39,7 +39,20 @@ toolchain(
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
     ],
-    # Esta etiqueta apunta a la definición del JDK para RBE
     toolchain = "@remote_jdk_17//:remote_jdk",
     toolchain_type = "@bazel_tools//tools/jdk:toolchain_type",
+)
+
+toolchain(
+    name = "java_toolchain_for_rbe",
+    toolchain = "//third_party/rbe_configs/java:rbe_jdk_11",
+    toolchain_type = "@bazel_tools//tools/jdk:toolchain_type",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
 )
