@@ -46,7 +46,15 @@ jobs:
         run: bazel build --worker_quit_after_build //...
 
       - name: Run tests
-        run: bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
+        run: bazel coverage \
+          --test_output=all \
+          --instrumentation_filter="-.*jacoco_exclusion" \
+          --combined_report=lcov \
+          --strategy=TestRunner=local \
+          --spawn_strategy=local \
+          --noremote_accept_cached \
+          --noremote_upload_local_results \
+          //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
