@@ -13,4 +13,4 @@ echo "--- Building code for CodeQL analysis ---"
 bazel build --spawn_strategy=local -- //...
 
 echo "--- Analyzing with CodeQL ---"
-/path/to/codeql/codeql database analyze --format=sarif-latest --output=results.sarif codeql-db
+"${CODEQL_EXEC}" database analyze --format=sarif-latest --output=results.sarif codeql-db
