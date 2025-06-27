@@ -17,8 +17,6 @@ filegroup(
             "bazel-*/**",
             ".git/**",
         ],
-    ) + [
-        "//build/platforms/BUILD.bazel",
-    ],
+    ) + ["//build/platforms:platforms_build_file"],
     visibility = ["//visibility:public"],
 )
