@@ -2,18 +2,17 @@
 set -e
 
 LANGUAGE="$LANGUAGE"
-
-# La dependencia @codeql_cli se encuentra en la carpeta external/.
-# Esta es la ruta correcta y robusta dentro del entorno del test.
 CODEQL_EXEC="./external/_main~_repo_rules~codeql_cli/codeql"
 
-echo "--- Initializing CodeQL for ${LANGUAGE} ---"
-"${CODEQL_EXEC}" database create --language="${LANGUAGE}" codeql-db
+"${CODEQL_EXEC}" database create \
+  --language="${LANGUAGE}" \
+  --command="bazel build --spawn_strategy=local //..." \
+  codeql-db
 
-echo "--- Building code for CodeQL analysis ---"
-# OJO: Asumimos que 'bazel' está disponible en el contenedor de RBE.
-# Las imágenes de RBE de BuildBuddy suelen tenerlo.
-bazel build --spawn_strategy=local -- //...
+# El paso "echo '--- Building code...' " y "bazel build..." que tenías antes
+# ya no son necesarios, porque ahora CodeQL ejecuta el build por nosotros.
 
-echo "--- Analyzing with CodeQL ---"
+echo "--- Analyzing database ---"
 "${CODEQL_EXEC}" database analyze --format=sarif-latest --output=results.sarif codeql-db
+
+echo "--- CodeQL analysis finished successfully! ---"
