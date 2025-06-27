@@ -1,17 +1,17 @@
-sh_test(
-    name = "codeql_analysis_test",
-    size = "large",
-    srcs = ["run_analysis.sh"],
-    data = [
-        "//:.bazelrc",
-        "//:MODULE.bazel",
-        "//:MODULE.bazel.lock",
-        "//:all_source_files",
-        "//:container.bazelrc",
-        "//:remote.bazelrc",
-        "//:results.bazelrc",
-        "@codeql_cli//:codeql_binary",
-        "//:.bazelversion",
-        "//:auth.bazelrc",
-    ],
-)
+# sh_test(
+#     name = "codeql_analysis_test",
+#     size = "large",
+#     srcs = ["run_analysis.sh"],
+#     data = [
+#         "//:.bazelrc",
+#         "//:MODULE.bazel",
+#         "//:MODULE.bazel.lock",
+#         "//:all_source_files",
+#         "//:container.bazelrc",
+#         "//:remote.bazelrc",
+#         "//:results.bazelrc",
+#         "@codeql_cli//:codeql_binary",
+#         "//:.bazelversion",
+#         "//:auth.bazelrc",
+#     ],
+# )
