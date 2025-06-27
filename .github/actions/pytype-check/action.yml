@@ -9,6 +9,7 @@ runs:
         bazel sync
         bazel mod deps
         bazel build @pip//...
+      shell: bash
 
     - name: Run Pytype and save output
       run: bazel run //tools/pytype:run-checks 2>&1 | tee pytype_output.txt || true
