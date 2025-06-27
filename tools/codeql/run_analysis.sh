@@ -2,7 +2,6 @@
 set -e # Falla si cualquier comando falla
 
 # El lenguaje (cpp, java-kotlin) se pasará como un argumento.
-LANGUAGE="$1"
 
 echo "--- Initializing CodeQL for ${LANGUAGE} ---"
 # NOTA: Los paths a CodeQL pueden variar dependiendo de tu contenedor RBE.
