@@ -1,22 +1,22 @@
-exports_files([
-    "MODULE.bazel",
-    "MODULE.bazel.lock",
-    ".bazelrc",
-    "container.bazelrc",
-    "remote.bazelrc",
-    "results.bazelrc",
-    ".bazelversion",
-    "auth.bazelrc",
-])
+# exports_files([
+#     "MODULE.bazel",
+#     "MODULE.bazel.lock",
+#     ".bazelrc",
+#     "container.bazelrc",
+#     "remote.bazelrc",
+#     "results.bazelrc",
+#     ".bazelversion",
+#     "auth.bazelrc",
+# ])
 
-filegroup(
-    name = "all_source_files",
-    srcs = glob(
-        ["**/*"],
-        exclude = [
-            "bazel-*/**",
-            ".git/**",
-        ],
-    ),
-    visibility = ["//visibility:public"],
-)
+# filegroup(
+#     name = "all_source_files",
+#     srcs = glob(
+#         ["**/*"],
+#         exclude = [
+#             "bazel-*/**",
+#             ".git/**",
+#         ],
+#     ),
+#     visibility = ["//visibility:public"],
+# )

@@ -155,16 +155,16 @@ http_archive(
 )
 
 
-http_archive(
-    name = "codeql_cli",
-    build_file_content = """
-filegroup(
-    name = "codeql_binary",
-    srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
-)
-""",
-    sha256 = "d3748d15014fa5c40dcd93201cf9b41ac52d621ffb256a0ee92fb1b6339f8305",
-    strip_prefix = "codeql",
-    urls = ["https://github.com/github/codeql-cli-binaries/releases/download/v2.18.0/codeql-linux64.zip"],
-)
+# http_archive(
+#     name = "codeql_cli",
+#     build_file_content = """
+# filegroup(
+#     name = "codeql_binary",
+#     srcs = glob(["**"]),
+#     visibility = ["//visibility:public"],
+# )
+# """,
+#     sha256 = "d3748d15014fa5c40dcd93201cf9b41ac52d621ffb256a0ee92fb1b6339f8305",
+#     strip_prefix = "codeql",
+#     urls = ["https://github.com/github/codeql-cli-binaries/releases/download/v2.18.0/codeql-linux64.zip"],
+# )
