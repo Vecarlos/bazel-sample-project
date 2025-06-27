@@ -12,13 +12,10 @@ exports_files([
 filegroup(
     name = "all_source_files",
     srcs = glob(
-        [
-            "src/**",        
-            "**/BUILD.bazel", 
-            "**/BUILD",      
-            "third_party/**",
-            "build/**",
-            "import/**",
+        ["**"], 
+        exclude = [
+            "bazel-*/**",
+            ".git/**",
         ],
     ),
     visibility = ["//visibility:public"],
