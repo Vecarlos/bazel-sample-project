@@ -18,9 +18,15 @@ py_library(
 py_library(
     name = "cve-2025-46656",
     srcs = ["cve-2025-46656.py"],
+    deps = [
+        "@pip//markdownify",
+    ],
 )
 
 py_library(
     name = "cve-2025-32434",
     srcs = ["cve-2025-32434.py"],
+    deps = [
+        "@pip//torch",
+    ]
 )
