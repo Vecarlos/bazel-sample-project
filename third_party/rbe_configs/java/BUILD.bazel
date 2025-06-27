@@ -1,9 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-load("@rules_java//java:defs.bzl", "java_toolchain")
-
-java_toolchain(
-    name = "rbe_jdk_11",
-    java_runtime = "@bazel_tools//tools/jdk:remote_jdk11",
-    source_version = "11",
-)
