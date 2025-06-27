@@ -154,6 +154,13 @@ http_archive(
     urls = ["https://github.com/grpc/grpc-proto/archive/08911e9d585cbda3a55eb1dcc4b99c89aebccff8.zip"],
 )
 
+java_toolchains = use_repo_rule("@rules_java//java:repositories.bzl", "java_toolchains")
+java_toolchains(
+    name = "remote_jdk_21",
+    version = "21",
+)
+
+use_repo(java_toolchains, "remote_jdk_21")
 
 # http_archive(
 #     name = "codeql_cli",

@@ -1,6 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-
 toolchain(
     name = "cc-toolchain",
     exec_compatible_with = [
@@ -18,7 +17,6 @@ toolchain(
 
 platform(
     name = "platform",
-    parents = ["@local_config_platform//:host"],
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
@@ -28,4 +26,20 @@ platform(
         "container-image": "docker://ghcr.io/world-federation-of-advertisers/bazel@sha256:f2d8cc7b7994731ef432f4404e71ed26c1c6c015005fe8c9d5f0191aed13040a",
         "OSFamily": "Linux",
     },
+    parents = ["@local_config_platform//:host"],
+)
+
+toolchain(
+    name = "java-toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    # Esta etiqueta apunta a la definición del JDK para RBE
+    toolchain = "@remote_jdk_17//:remote_jdk",
+    toolchain_type = "@bazel_tools//tools/jdk:toolchain_type",
 )
