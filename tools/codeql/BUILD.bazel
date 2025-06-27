@@ -12,5 +12,6 @@ sh_test(
         "//:results.bazelrc",
         "@codeql_cli//:codeql_binary",
         "//:.bazelversion",
+        "//:auth.bazelrc",
     ],
 )
