@@ -4,6 +4,12 @@ description: Check python types
 runs:
   using: "composite"
   steps:
+    - name: Pre-fetch Python deps
+      run: |
+        bazel sync
+        bazel mod deps
+        bazel build @pip//...
+
     - name: Run Pytype and save output
       run: bazel run //tools/pytype:run-checks 2>&1 | tee pytype_output.txt || true
       shell: bash
