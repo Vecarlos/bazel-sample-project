@@ -6,6 +6,7 @@ exports_files([
     "remote.bazelrc",
     "results.bazelrc",
     ".bazelversion",
+    "auth.bazelrc",
 ])
 
 filegroup(
