@@ -5,6 +5,7 @@ sh_test(
     # Damos acceso a todo el código fuente al script.
     data = [
         "//:all_source_files", # Necesitarás un filegroup en tu BUILD raíz
+        "@codeql_cli//:codeql_binary",
     ],
     # Hacemos que este test sea grande para darle más tiempo de ejecución.
     size = "large",
