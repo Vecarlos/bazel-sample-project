@@ -32,6 +32,7 @@ jobs:
         run: |
           cat << EOF > auth.bazelrc
           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
+          build --bes_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
           EOF
 
       - name: Write ~/.bazelrc
