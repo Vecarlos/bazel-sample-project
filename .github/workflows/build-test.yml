@@ -76,5 +76,5 @@ jobs:
           echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
           # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
           # para anular RBE y forzar que se ejecute en el runner de GitHub.
-          bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/... --//src/test/cc/... 
+          bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/... -//src/test/cc/... 
 
