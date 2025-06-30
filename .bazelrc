@@ -31,9 +31,7 @@ build:ci --config=remote-cache
 build:ci --config=results
 build:ci --config=remote
 
-build:local_cpp --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=0
-# CORRECCIÓN: Apuntamos explícitamente al toolchain auto-detectado localmente.
-build:local_cpp --crosstool_top=@local_config_cc//:toolchain
+build:ci --strategy=CoverageOutputGenerator=local
 
 import %workspace%/container.bazelrc
 import %workspace%/results.bazelrc
