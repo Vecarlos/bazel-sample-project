@@ -1,46 +1,70 @@
+# buildbuddy.yaml
+# Este archivo debe estar ubicado en la raíz de tu repositorio de GitHub [4].
+
+# La clave de nivel superior 'actions' define una lista de acciones del flujo de trabajo [2].
 actions:
+  # Define una acción única para tu proceso de CI, que aparecerá como un chequeo en GitHub [3].
+  - name: "CI Build & Test Project"
+    # La sección 'triggers' especifica los eventos de Git que iniciarán esta acción [5].
+    triggers:
+      pull_request:
+        # Se ejecuta cuando se actualiza una rama de 'pull request' (PR).
+        # El comodín "*" indica que se aplicará a PRs dirigidas a cualquier rama base [7].
+        branches:
+          - "*"
+    # La sección 'steps' contiene una lista de comandos bash que se ejecutarán secuencialmente [3].
+    # Si un comando en 'steps' falla, los comandos subsiguientes no se ejecutarán,
+    # y la acción se reportará como fallida [3].
+    steps:
+      - run: |
+          # Paso: Escribir auth.bazelrc
+          cat << EOF > auth.bazelrc
+          build --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
+          EOF
 
-  - name: "Escribir auth.bazelrc"
-    run: |
-      cat << EOF > auth.bazelrc
-      build --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
-      EOF
+      - run: |
+          # Paso: Escribir ~/.bazelrc
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          EOF
 
-  - name: "Escribir ~/.bazelrc"
-    run: |
-      cat << EOF > ~/.bazelrc
-      common --config=ci
-      build --remote_upload_local_results
-      EOF
+      - run: |
+          # Paso: Configurar TCP keepalive
+          sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
-  - name: "Configurar TCP keepalive"
-    run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
+      - run: |
+          # Paso: Verificar lockfile de módulos Bazel
+          bazel mod deps
 
-  - name: "Verificar lockfile de módulos Bazel"
-    run: bazel mod deps
+      - run: |
+          # Paso: Construir el proyecto
+          bazel build --worker_quit_after_build //...
 
-  - name: "Construir el proyecto"
-    run: bazel build --worker_quit_after_build //...
+      - run: |
+          # Paso: Pytype check
+          bazel run //tools/pytype:run-checks
 
-  - name: "Pytype check"
-    run: bazel run //tools/pytype:run-checks
+      - run: |
+          # Paso: Prueba A: Test con RBE, SIN coverage
+          echo "Ejecutando un test normal con Ejecución Remota..."
+          bazel test //src/test/... --config=ci --test_output=streamed
 
-  - name: "Prueba A: Test con RBE, SIN coverage"
-    run: |
-      echo "Ejecutando un test normal con Ejecución Remota..."
-      bazel test //src/test/... --config=ci --test_output=streamed
+      - run: |
+          # Paso: Ejecutar tests con cobertura
+          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
 
-  - name: "Ejecutar tests con cobertura"
-    run: |
-      bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
+      - run: |
+          # Paso: Obtener ruta de salida de Bazel
+          # Se asume que $BUILD_ENV es una variable de entorno especial de BuildBuddy Workflows
+          # que permite pasar datos entre pasos en el mismo flujo.
+          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $BUILD_ENV
 
-  - name: "Obtener ruta de salida de Bazel"
+      - run: |
+          # Paso: Mover archivo de cobertura
+          mv $(bazel info output_path)/_coverage/_coverage_report.dat lcov.info
 
-    run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $BUILD_ENV
-
-  - name: "Mover archivo de cobertura"
-    run: mv $(bazel info output_path)/_coverage/_coverage_report.dat lcov.info
-
-  - name: "Subir reportes de cobertura a Codecov"
-    run: |
-      codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.infoS
+      - run: |
+          # Paso: Subir reportes de cobertura a Codecov
+          # Los secretos se acceden a través de variables de entorno, como ${{ secrets.YOUR_SECRET_NAME }} [8].
+          codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file l
