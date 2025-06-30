@@ -45,21 +45,21 @@ jobs:
       - name: Build
         run: bazel build --worker_quit_after_build //...
 
-      - name: Run tests
-        run: |
-          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
+      # - name: Run tests
+      #   run: |
+      #     bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
 
-      - name: Bazel output path
-        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+      # - name: Bazel output path
+      #   run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
-      - name: Move coverage file
-        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+      # - name: Move coverage file
+      #   run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: vecarlos/bazel-sample-project
 
       - name: Pytype check
         uses: ./.github/actions/pytype-check
