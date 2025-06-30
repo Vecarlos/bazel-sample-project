@@ -1,5 +1,4 @@
 actions:
-  # Los pasos aquí se ejecutarán secuencialmente.
 
   # Paso 1: Checkout del repositorio
   # En BuildBuddy Workflows, el repositorio se clona automáticamente.
