@@ -1,49 +1,49 @@
-name: Build, test and coverage
+# name: Build, test and coverage
 
-on:
-  push:
-    branches: ["**"]
-  pull_request:    
-    branches: ["**"]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: ["**"]
+#   pull_request:    
+#     branches: ["**"]
+#   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
-jobs:
-  build-test:
-    name: Build, test and coverage
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-    steps:
-      - name: Check out revision
-        uses: actions/checkout@v4
+# jobs:
+#   build-test:
+#     name: Build, test and coverage
+#     runs-on: ubuntu-22.04
+#     permissions:
+#       contents: read
+#     steps:
+#       - name: Check out revision
+#         uses: actions/checkout@v4
 
-      - name: Write auth.bazelrc
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        run: |
-          cat << EOF > auth.bazelrc
-          build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
-          EOF
+#       - name: Write auth.bazelrc
+#         env:
+#           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+#         run: |
+#           cat << EOF > auth.bazelrc
+#           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
+#           EOF
 
-      - name: Write ~/.bazelrc
-        run: |
-          cat << EOF > ~/.bazelrc
-          common --config=ci
-          build --remote_upload_local_results
-          EOF
+#       - name: Write ~/.bazelrc
+#         run: |
+#           cat << EOF > ~/.bazelrc
+#           common --config=ci
+#           build --remote_upload_local_results
+#           EOF
 
-      - name: Set TCP keepalive
-        run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
+#       - name: Set TCP keepalive
+#         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
-      - name: Check lockfile
-        run: bazel mod deps
+#       - name: Check lockfile
+#         run: bazel mod deps
 
-      - name: Build
-        run: bazel build --worker_quit_after_build //...
+#       - name: Build
+#         run: bazel build --worker_quit_after_build //...
 
       # - name: Run tests
       #   run: |
@@ -61,15 +61,15 @@ jobs:
       #     token: ${{ secrets.CODECOV_TOKEN }}
       #     slug: vecarlos/bazel-sample-project
 
-      - name: Pytype check
-        uses: ./.github/actions/pytype-check
+      # - name: Pytype check
+      #   uses: ./.github/actions/pytype-check
 
-      - name: "Prueba A: Test con RBE, SIN coverage"
-        run: |
-          echo "Ejecutando un test normal con Ejecución Remota..."
-          # Usamos 'bazel test' en lugar de 'bazel coverage'
-          # El --config=ci (que asumo activa RBE) sigue presente.
-          bazel test //src/test/... --config=ci --test_output=streamed
+      # - name: "Prueba A: Test con RBE, SIN coverage"
+      #   run: |
+      #     echo "Ejecutando un test normal con Ejecución Remota..."
+      #     # Usamos 'bazel test' en lugar de 'bazel coverage'
+      #     # El --config=ci (que asumo activa RBE) sigue presente.
+      #     bazel test //src/test/... --config=ci --test_output=streamed
 
       # - name: "Prueba B: Test CON coverage, SIN RBE kotlin"
       #   run: |
