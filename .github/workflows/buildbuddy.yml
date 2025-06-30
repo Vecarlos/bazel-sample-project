@@ -1,0 +1,87 @@
+actions:
+  # Los pasos aquí se ejecutarán secuencialmente.
+
+  # Paso 1: Checkout del repositorio
+  # En BuildBuddy Workflows, el repositorio se clona automáticamente.
+  # No se necesita una acción explícita como 'actions/checkout'.
+
+  - name: "Escribir auth.bazelrc"
+    # Este paso escribe la clave API de BuildBuddy en el archivo de configuración de Bazel.
+    # Las variables de entorno se pueden pasar de forma similar a GitHub Actions.
+    run: |
+      cat << EOF > auth.bazelrc
+      build --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
+      EOF
+
+  - name: "Escribir ~/.bazelrc"
+    # Configura Bazel para usar el caché remoto y subida de resultados.
+    # BuildBuddy Remote Runners están optimizados para Bazel y tienen conexión rápida [4-6].
+    run: |
+      cat << EOF > ~/.bazelrc
+      common --config=ci
+      build --remote_upload_local_results
+      EOF
+
+  - name: "Configurar TCP keepalive"
+    # Ajuste del sistema operativo para conexiones de red.
+    run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
+
+  - name: "Verificar lockfile de módulos Bazel"
+    # Ejecuta el comando para verificar dependencias.
+    run: bazel mod deps
+
+  - name: "Construir el proyecto"
+    # Compila el código del proyecto.
+    run: bazel build --worker_quit_after_build //...
+
+  - name: "Pytype check"
+    # Ejecuta el chequeo de Pytype usando Bazel.
+    run: bazel run //tools/pytype:run-checks
+
+  - name: "Prueba A: Test con RBE, SIN coverage"
+    # Ejecuta las pruebas de Bazel. BuildBuddy Workflows utiliza ejecución remota (RBE)
+    # y caché remoto para acelerar las builds y tests [3, 5].
+    run: |
+      echo "Ejecutando un test normal con Ejecución Remota..."
+      bazel test //src/test/... --config=ci --test_output=streamed
+
+  # Pasos para la cobertura de código y subida:
+
+  - name: "Ejecutar tests con cobertura"
+    # Este paso ejecuta Bazel para generar el reporte de cobertura.
+    run: |
+      bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
+
+  - name: "Obtener ruta de salida de Bazel"
+    # Extrae la ruta de salida de Bazel. Puedes usar la salida de comandos directamente en los siguientes pasos.
+    run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $BUILD_ENV # $BUILD_ENV es similar a $GITHUB_ENV en BuildBuddy Workflows
+
+  - name: "Mover archivo de cobertura"
+    # Mueve el archivo de cobertura generado por Bazel al nombre esperado por Codecov.
+    run: mv $(bazel info output_path)/_coverage/_coverage_report.dat lcov.info
+
+  - name: "Subir reportes de cobertura a Codecov"
+    # **Importante:** La acción `uses: codecov/codecov-action@v5` es específica de GitHub Actions.
+    # En BuildBuddy Workflows, que están optimizados para comandos Bazel [7], no se usan acciones de GitHub.
+    # Para subir a Codecov, deberías ejecutar directamente el CLI de Codecov si lo tienes configurado,
+    # o cualquier otro script que realice la subida.
+    # El token se pasaría como una variable de entorno.
+    run: |
+      # Asegúrate de que el CLI de Codecov esté disponible en el entorno del runner.
+      # Por ejemplo, si tienes el ejecutable 'codecov' en tu PATH:
+      codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.info
+      # Si necesitas instalarlo, puedes añadir un paso previo para descargar y configurar el CLI.
+    # Nota: Esta forma de llamar a 'codecov' asume que el CLI de Codecov está instalado
+    # y es accesible en el entorno de ejecución del BuildBuddy Workflow. Esta información
+    # sobre la integración específica con Codecov CLI no se encuentra en las fuentes proporcionadas [1-32],
+    # por lo que deberías verificar la documentación de Codecov para sus opciones de CLI.
+
+  # Ejemplo de cómo configurar propiedades de plataforma, como la política de guardado de snapshots remotos [20].
+  # Esto no afecta directamente la funcionalidad de los pasos anteriores, pero es parte de una configuración completa.
+  platform_properties:
+    remote-snapshot-save-policy: first-non-default-ref # La política por defecto [18].
+    # O podrías usar 'always' [17] o 'none-available' [19] según tus necesidades.
+  env:
+    # Si tu workflow es disparado por un webhook de GitHub, GIT_REPO_DEFAULT_BRANCH se setea automáticamente [20].
+    # Para disparos manuales, deberías setearlo.
+    GIT_REPO_DEFAULT_BRANCH: main
