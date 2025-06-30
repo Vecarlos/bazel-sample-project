@@ -31,7 +31,7 @@ build:ci --config=remote-cache
 build:ci --config=results
 build:ci --config=remote
 
-build:ci --strategy=CoverageOutputGenerator=local
+build:ci --strategy=coverage=local
 
 import %workspace%/container.bazelrc
 import %workspace%/results.bazelrc
