@@ -45,6 +45,10 @@ jobs:
       - name: Build
         run: bazel build --worker_quit_after_build //...
 
+      - name: Run COV
+        run: |
+          bazel coverage //src/test/python/...
+
       - name: Run tests
         run: |
           bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
