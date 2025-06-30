@@ -47,7 +47,7 @@ jobs:
 
       - name: Run COV
         run: |
-          bazel coverage //src/test/python/...
+          bazel coverage //src/test/...
 
       - name: Run tests
         run: |
@@ -68,12 +68,12 @@ jobs:
       - name: Pytype check
         uses: ./.github/actions/pytype-check
 
-      - name: "Prueba A: Test con RBE, SIN coverage"
-        run: |
-          echo "Ejecutando un test normal con Ejecución Remota..."
-          # Usamos 'bazel test' en lugar de 'bazel coverage'
-          # El --config=ci (que asumo activa RBE) sigue presente.
-          bazel test //src/test/... --config=ci --test_output=streamed
+      # - name: "Prueba A: Test con RBE, SIN coverage"
+        # run: |
+        #   echo "Ejecutando un test normal con Ejecución Remota..."
+        #   # Usamos 'bazel test' en lugar de 'bazel coverage'
+        #   # El --config=ci (que asumo activa RBE) sigue presente.
+        #   bazel test //src/test/... --config=ci --test_output=streamed
 
       # - name: "Prueba B: Test CON coverage, SIN RBE kotlin"
       #   run: |
