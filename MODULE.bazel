@@ -166,3 +166,5 @@ http_archive(
 #     strip_prefix = "codeql",
 #     urls = ["https://github.com/github/codeql-cli-binaries/releases/download/v2.18.0/codeql-linux64.zip"],
 # )
+
+bazel_dep(name = "proto_bazel_features", version = "0.0.3")
