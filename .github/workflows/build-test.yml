@@ -84,7 +84,7 @@ jobs:
           echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
           # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
           # para anular RBE y forzar que se ejecute en el runner de GitHub.
-          bazel coverage --config=ci --spawn_strategy=local --test_output=errors --features=-absolute_path_in_includes //src/test/cc/...
+          bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/cc/...
 
         
       - name: "Prueba B: Test CON coverage, SIN RBE python"
@@ -92,4 +92,4 @@ jobs:
           echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
           # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
           # para anular RBE y forzar que se ejecute en el runner de GitHub.
-          bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/python/...
+          bazel coverage --config=ci --config=local_cpp \  --spawn_strategy=local --test_output=errors //src/test/python/...
