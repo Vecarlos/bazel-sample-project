@@ -1,57 +1,63 @@
 actions:
-  - name: "Escribir auth.bazelrc"
-    run: |
-      cat << EOF > auth.bazelrc
-      build --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
-      EOF
+  - name: "Test all targets"
+    triggers:
+      pull_request:
+        branches:
+          - "*"
+    steps:
+      - name: "Escribir auth.bazelrc"
+        run: |
+          cat << EOF > auth.bazelrc
+          build --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
+          EOF
 
-  - name: "Escribir ~/.bazelrc"
-    run: |
-      cat << EOF > ~/.bazelrc
-      common --config=ci
-      build --remote_upload_local_results
-      EOF
+      - name: "Escribir ~/.bazelrc"
+        run: |
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          EOF
 
-  - name: "Configurar TCP keepalive"
-    run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
+      - name: "Configurar TCP keepalive"
+        run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
-  - name: "Verificar lockfile de módulos Bazel"
-    run: bazel mod deps
+      - name: "Verificar lockfile de módulos Bazel"
+        run: bazel mod deps
 
-  - name: "Construir el proyecto"
-    run: bazel build --worker_quit_after_build //...
+      - name: "Construir el proyecto"
+        run: bazel build --worker_quit_after_build //...
 
-  - name: "Pytype check"
-    run: bazel run //tools/pytype:run-checks
+      - name: "Pytype check"
+        run: bazel run //tools/pytype:run-checks
 
-  - name: "Prueba A: Test con RBE, SIN coverage"
-    run: |
-      echo "Ejecutando un test normal con Ejecución Remota..."
-      bazel test //src/test/... --config=ci --test_output=streamed
+      - name: "Prueba A: Test con RBE, SIN coverage"
+        run: |
+          echo "Ejecutando un test normal con Ejecución Remota..."
+          bazel test //src/test/... --config=ci --test_output=streamed
 
-  # Pasos para la cobertura de código y subida:
+      # Pasos para la cobertura de código y subida:
 
-  - name: "Ejecutar tests con cobertura"
-    # Este paso ejecuta Bazel para generar el reporte de cobertura.
-    run: |
-      bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
+      - name: "Ejecutar tests con cobertura"
+        # Este paso ejecuta Bazel para generar el reporte de cobertura.
+        run: |
+          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
 
-  - name: "Obtener ruta de salida de Bazel"
-    # Extrae la ruta de salida de Bazel. Puedes usar la salida de comandos directamente en los siguientes pasos.
-    run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $BUILD_ENV # $BUILD_ENV es similar a $GITHUB_ENV en BuildBuddy Workflows
+      - name: "Obtener ruta de salida de Bazel"
+        # Extrae la ruta de salida de Bazel. Puedes usar la salida de comandos directamente en los siguientes pasos.
+        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $BUILD_ENV # $BUILD_ENV es similar a $GITHUB_ENV en BuildBuddy Workflows
 
-  - name: "Mover archivo de cobertura"
-    # Mueve el archivo de cobertura generado por Bazel al nombre esperado por Codecov.
-    run: mv $(bazel info output_path)/_coverage/_coverage_report.dat lcov.info
+      - name: "Mover archivo de cobertura"
+        # Mueve el archivo de cobertura generado por Bazel al nombre esperado por Codecov.
+        run: mv $(bazel info output_path)/_coverage/_coverage_report.dat lcov.info
 
-  - name: "Subir reportes de cobertura a Codecov"
-    # **Importante:** La acción `uses: codecov/codecov-action@v5` es específica de GitHub Actions.
-    # En BuildBuddy Workflows, que están optimizados para comandos Bazel [7], no se usan acciones de GitHub.
-    # Para subir a Codecov, deberías ejecutar directamente el CLI de Codecov si lo tienes configurado,
-    # o cualquier otro script que realice la subida.
-    # El token se pasaría como una variable de entorno.
-    run: |
-      # Asegúrate de que el CLI de Codecov esté disponible en el entorno del runner.
-      # Por ejemplo, si tienes el ejecutable 'codecov' en tu PATH:
-      codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.info
-      # Si necesitas instalarlo, puedes añadir un paso previo para descargar y configurar el CLI.
+      - name: "Subir reportes de cobertura a Codecov"
+        # **Importante:** La acción `uses: codecov/codecov-action@v5` es específica de GitHub Actions.
+        # En BuildBuddy Workflows, que están optimizados para comandos Bazel [7], no se usan acciones de GitHub.
+        # Para subir a Codecov, deberías ejecutar directamente el CLI de Codecov si lo tienes configurado,
+        # o cualquier otro script que realice la subida.
+        # El token se pasaría como una variable de entorno.
+        run: |
+          # Asegúrate de que el CLI de Codecov esté disponible en el entorno del runner.
+          # Por ejemplo, si tienes el ejecutable 'codecov' en tu PATH:
+          codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.info
+          # Si necesitas instalarlo, puedes añadir un paso previo para descargar y configurar el CLI.
