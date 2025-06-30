@@ -1,23 +1,5 @@
-# .github/buildbuddy.yaml (Versión Corregida y Estructurada)
-
-# --- Triggers de Ejecución ---
-# Define cuándo se ejecuta todo el workflow.
-# Esto va al nivel principal del archivo.
-triggers:
-  pull_request:
-    branches:
-      - "*" # Se activa para cualquier Pull Request en cualquier rama
-
-# --- Plataforma de Ejecución ---
-# Define el contenedor donde se ejecutarán las acciones.
-# Es importante usar una imagen que tenga las herramientas necesarias (Bazel, etc.).
-platform:
-  container_image: "gcr.io/flame-public/build-base:latest"
-
-# --- Acciones (Pasos de la Pipeline) ---
-# 'actions' es una lista de pasos. Cada guion (-) es una nueva acción
-# que se ejecuta en orden.
 actions:
+
   - name: "Escribir auth.bazelrc"
     run: |
       cat << EOF > auth.bazelrc
@@ -53,6 +35,7 @@ actions:
       bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
 
   - name: "Obtener ruta de salida de Bazel"
+
     run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $BUILD_ENV
 
   - name: "Mover archivo de cobertura"
@@ -60,7 +43,4 @@ actions:
 
   - name: "Subir reportes de cobertura a Codecov"
     run: |
-      # Asegúrate de que el CLI de Codecov esté disponible en el entorno del runner.
-      # Por ejemplo, si tienes el ejecutable 'codecov' en tu PATH:
-      codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.info
-      # Si necesitas instalarlo, puedes añadir un paso previo para descargar y configurar el CLI.
+      codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.infoS
