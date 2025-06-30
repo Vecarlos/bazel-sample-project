@@ -1,20 +1,11 @@
 actions:
-
-  # Paso 1: Checkout del repositorio
-  # En BuildBuddy Workflows, el repositorio se clona automáticamente.
-  # No se necesita una acción explícita como 'actions/checkout'.
-
   - name: "Escribir auth.bazelrc"
-    # Este paso escribe la clave API de BuildBuddy en el archivo de configuración de Bazel.
-    # Las variables de entorno se pueden pasar de forma similar a GitHub Actions.
     run: |
       cat << EOF > auth.bazelrc
       build --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_API_KEY }}
       EOF
 
   - name: "Escribir ~/.bazelrc"
-    # Configura Bazel para usar el caché remoto y subida de resultados.
-    # BuildBuddy Remote Runners están optimizados para Bazel y tienen conexión rápida [4-6].
     run: |
       cat << EOF > ~/.bazelrc
       common --config=ci
@@ -22,24 +13,18 @@ actions:
       EOF
 
   - name: "Configurar TCP keepalive"
-    # Ajuste del sistema operativo para conexiones de red.
     run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
   - name: "Verificar lockfile de módulos Bazel"
-    # Ejecuta el comando para verificar dependencias.
     run: bazel mod deps
 
   - name: "Construir el proyecto"
-    # Compila el código del proyecto.
     run: bazel build --worker_quit_after_build //...
 
   - name: "Pytype check"
-    # Ejecuta el chequeo de Pytype usando Bazel.
     run: bazel run //tools/pytype:run-checks
 
   - name: "Prueba A: Test con RBE, SIN coverage"
-    # Ejecuta las pruebas de Bazel. BuildBuddy Workflows utiliza ejecución remota (RBE)
-    # y caché remoto para acelerar las builds y tests [3, 5].
     run: |
       echo "Ejecutando un test normal con Ejecución Remota..."
       bazel test //src/test/... --config=ci --test_output=streamed
