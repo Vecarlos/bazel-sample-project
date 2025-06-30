@@ -71,10 +71,25 @@ jobs:
           # El --config=ci (que asumo activa RBE) sigue presente.
           bazel test //src/test/... --config=ci --test_output=streamed
 
-      - name: "Prueba B: Test CON coverage, SIN RBE"
+      - name: "Prueba B: Test CON coverage, SIN RBE kotlin"
         run: |
           echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
           # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
           # para anular RBE y forzar que se ejecute en el runner de GitHub.
           bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/kotlin/...
 
+
+      - name: "Prueba B: Test CON coverage, SIN RBE cc"
+        run: |
+          echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
+          # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
+          # para anular RBE y forzar que se ejecute en el runner de GitHub.
+          bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/cc/...
+
+        
+      - name: "Prueba B: Test CON coverage, SIN RBE python"
+        run: |
+          echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
+          # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
+          # para anular RBE y forzar que se ejecute en el runner de GitHub.
+          bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/python/...
