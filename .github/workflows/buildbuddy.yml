@@ -71,17 +71,3 @@ actions:
       # Por ejemplo, si tienes el ejecutable 'codecov' en tu PATH:
       codecov -t ${{ secrets.CODECOV_TOKEN }} --slug vecarlos/bazel-sample-project --file lcov.info
       # Si necesitas instalarlo, puedes añadir un paso previo para descargar y configurar el CLI.
-    # Nota: Esta forma de llamar a 'codecov' asume que el CLI de Codecov está instalado
-    # y es accesible en el entorno de ejecución del BuildBuddy Workflow. Esta información
-    # sobre la integración específica con Codecov CLI no se encuentra en las fuentes proporcionadas [1-32],
-    # por lo que deberías verificar la documentación de Codecov para sus opciones de CLI.
-
-  # Ejemplo de cómo configurar propiedades de plataforma, como la política de guardado de snapshots remotos [20].
-  # Esto no afecta directamente la funcionalidad de los pasos anteriores, pero es parte de una configuración completa.
-  platform_properties:
-    remote-snapshot-save-policy: first-non-default-ref # La política por defecto [18].
-    # O podrías usar 'always' [17] o 'none-available' [19] según tus necesidades.
-  env:
-    # Si tu workflow es disparado por un webhook de GitHub, GIT_REPO_DEFAULT_BRANCH se setea automáticamente [20].
-    # Para disparos manuales, deberías setearlo.
-    GIT_REPO_DEFAULT_BRANCH: main
