@@ -45,6 +45,9 @@ jobs:
       - name: Build
         run: bazel build --worker_quit_after_build //...
 
+      - name: test
+        run: bazel test --worker_quit_after_build //src/test/...
+
       - name: Run COV
         run: |
           bazel coverage //src/test/...
