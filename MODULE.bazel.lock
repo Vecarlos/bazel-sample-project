@@ -5190,7 +5190,7 @@
     "@@toolchains_buildbuddy~//:extensions.bzl%buildbuddy": {
       "general": {
         "bzlTransitiveDigest": "LhShTQFV7pP8hxLj8W9ehgaZVE7mo/NW6G//0DbavS0=",
-        "usagesDigest": "8anKwxmC7WLnCpG0XEeufGH8p1TQTeiGZXWt2DWQZf4=",
+        "usagesDigest": "Th9q2okQMR5zA9PpsRZ4FhXvoTwBoIU7E06WVJ2EmAs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -5203,9 +5203,9 @@
               "llvm": false,
               "java_version": "",
               "gcc_version": "",
-              "msvc_edition": "Community",
+              "msvc_edition": "Enterprise",
               "msvc_release": "2022",
-              "msvc_version": "14.39.33519",
+              "msvc_version": "14.44.35207",
               "windows_kits_release": "10",
               "windows_kits_version": "10.0.22621.0",
               "extra_cxx_builtin_include_directories": []

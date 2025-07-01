@@ -166,14 +166,37 @@ http_archive(
 #     strip_prefix = "codeql",
 #     urls = ["https://github.com/github/codeql-cli-binaries/releases/download/v2.18.0/codeql-linux64.zip"],
 # )
-bazel_dep(name = "toolchains_buildbuddy")
 
-git_override(
+bazel_dep(name = "toolchains_buildbuddy")
+archive_override(
     module_name = "toolchains_buildbuddy",
-    remote = "https://github.com/buildbuddy-io/buildbuddy-toolchain.git",
-    commit = "badf8034b2952ec613970a27f24fb140be7eaf73",
+    integrity = "sha256-e6gcgLHmJHvxCNNbCSQ4OrX8FbGn8TiS7XSVphM1ZU8=",
+    strip_prefix = "buildbuddy-toolchain-badf8034b2952ec613970a27f24fb140be7eaf73",
+    urls = ["https://github.com/buildbuddy-io/buildbuddy-toolchain/archive/badf8034b2952ec613970a27f24fb140be7eaf73.tar.gz"],
 )
 
 # Configurar la extensión buildbuddy (requerida)
+# buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
+# use_repo(buildbuddy, "buildbuddy_toolchain")
+
 buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
-use_repo(buildbuddy, "buildbuddy_toolchain")
+buildbuddy.msvc_toolchain(
+    # This is the MSVC available on Github Action win22 image
+    # https://github.com/actions/runner-images/blob/win22/20250623.1/images/windows/Windows2022-Readme.md
+    msvc_edition = "Enterprise",
+    msvc_release = "2022",
+    # From 'Microsoft Visual C++ 2022 Minimum Runtime' for x64 architecture
+    # https://github.com/actions/runner-images/blob/win22/20250623.1/images/windows/Windows2022-Readme.md#microsoft-visual-c
+    msvc_version = "14.44.35207",
+    # From 'Installed Windows SDKs'
+    # https://github.com/actions/runner-images/blob/win22/20250623.1/images/windowUs/Windows2022-Readme.md#installed-windows-sdks
+    windows_kits_release = "10",
+    windows_kits_version = "10.0.22621.0",
+)
+
+register_toolchains(
+    # CC toolchains
+    "@toolchains_buildbuddy//toolchains/cc:ubuntu_gcc_x86_64",
+    "@toolchains_buildbuddy//toolchains/cc:ubuntu_gcc_arm64",
+    "@toolchains_buildbuddy//toolchains/cc:windows_msvc_x86_64",
+)
