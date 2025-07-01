@@ -2,7 +2,7 @@
 
 build:remote --remote_executor=grpcs://brs.buildbuddy.io
 build:remote --define=EXECUTOR=remote
-build:remote --config=container
+# build:remote --config=container
 
 build:remote --host_platform=@buildbuddy_toolchain//:platform
 build:remote --platforms=@buildbuddy_toolchain//:platform
