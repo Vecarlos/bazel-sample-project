@@ -11,7 +11,6 @@ kt_jvm_test(
         "@maven//:org_mockito_mockito_inline",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
-        "@bazel_tools//tools/java/runfiles:runfiles",
     ],
 )
 
@@ -28,6 +27,5 @@ kt_jvm_test(
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
         "@wfa_rules_kotlin_jvm//imports/io/gprc/kotlin:stub",
-        "@bazel_tools//tools/java/runfiles:runfiles",
     ],
 )
