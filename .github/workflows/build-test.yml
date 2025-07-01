@@ -3,8 +3,8 @@ name: Build, test and coverage
 on:
   push:
     branches: ["**"]
-  pull_request:    
-    branches: ["**"]
+  # pull_request:    
+  #   branches: ["**"]
   workflow_dispatch:
 
 concurrency:
@@ -54,7 +54,7 @@ jobs:
 
       - name: Run tests
         run: |
-          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
+          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --strategy=CoverageReport=local //src/test/python/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
