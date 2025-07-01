@@ -4,6 +4,9 @@ build:remote --remote_executor=grpcs://brs.buildbuddy.io
 build:remote --define=EXECUTOR=remote
 build:remote --config=container
 
+build:remote --crosstool_top=@buildbuddy_toolchain//:toolchain
+build:remote --extra_toolchains=@buildbuddy_toolchain//:cc_toolchain
+
 # Depending on how many machines are in the remote execution instance, setting
 # this higher can make builds faster by allowing more jobs to run in parallel.
 # Setting it too high can result in jobs that timeout, however, while waiting
