@@ -47,7 +47,7 @@ jobs:
 
       - name: Run tests
         run: |
-          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --strategy=CoverageReport=local //src/test/python/... | tee -a bazel_coverage.log || true
+          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --strategy=CoverageReport=local //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
@@ -63,33 +63,3 @@ jobs:
 
       - name: Pytype check
         uses: ./.github/actions/pytype-check
-
-      # - name: "Prueba A: Test con RBE, SIN coverage"
-        # run: |
-        #   echo "Ejecutando un test normal con Ejecución Remota..."
-        #   # Usamos 'bazel test' en lugar de 'bazel coverage'
-        #   # El --config=ci (que asumo activa RBE) sigue presente.
-        #   bazel test //src/test/... --config=ci --test_output=streamed
-
-      # - name: "Prueba B: Test CON coverage, SIN RBE kotlin"
-      #   run: |
-      #     echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
-      #     # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
-      #     # para anular RBE y forzar que se ejecute en el runner de GitHub.
-      #     bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/kotlin/...
-
-
-      # - name: "Prueba B: Test CON coverage, SIN RBE cc"
-      #   run: |
-      #     echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
-      #     # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
-      #     # para anular RBE y forzar que se ejecute en el runner de GitHub.
-      #     bazel coverage --config=ci --config=local_cpp --spawn_strategy=local --test_output=errors //src/test/cc/...
-
-        
-      # - name: "Prueba B: Test CON coverage, SIN RBE python"
-      #   run: |
-      #     echo "Ejecutando un test con coverage, pero forzando la ejecución local..."
-      #     # Usamos 'bazel coverage' pero añadimos --spawn_strategy=local
-      #     # para anular RBE y forzar que se ejecute en el runner de GitHub.
-      #     bazel coverage --config=ci --spawn_strategy=local --test_output=errors //src/test/python/...
