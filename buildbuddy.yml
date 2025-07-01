@@ -31,5 +31,5 @@ actions:
         branches:
           - "*"
     steps:
-      - run: "bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --experimental_java_coverage --experimental_cc_coverage //src/test/... "
+      - run: "bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... "
  

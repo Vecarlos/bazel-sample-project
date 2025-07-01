@@ -50,11 +50,11 @@ jobs:
 
       - name: Run COV
         run: |
-          bazel coverage --experimental_java_coverage --experimental_cc_coverage //src/test/...
+          bazel coverage //src/test/...
 
       - name: Run tests
         run: |
-          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --experimental_java_coverage --experimental_cc_coverage //src/test/python/... | tee -a bazel_coverage.log || true
+          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/python/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
