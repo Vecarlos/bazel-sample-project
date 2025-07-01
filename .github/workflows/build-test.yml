@@ -50,7 +50,7 @@ jobs:
 
       - name: Run COV
         run: |
-          bazel coverage //src/test/...
+          bazel coverage --strategy=CoverageReport=local //src/test/...
 
       - name: Run tests
         run: |
