@@ -1,62 +1,62 @@
-# name: "CodeQL Analysis"
+name: "CodeQL Analysis"
 
-# on:
-#   push:
-#     branches: ["**"]
-#   pull_request:
-#     branches: ["**"]
-#   schedule:
-#     - cron: "30 2 * * 1"
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  schedule:
+    - cron: "30 2 * * 1"
 
-# jobs:
-#   analyze:
-#     name: Analyze
-#     runs-on: ubuntu-latest
-#     permissions:
-#       actions: read
-#       contents: read
-#       security-events: write
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         language: ["python", "java-kotlin", "cpp"]
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python", "java-kotlin", "cpp"]
 
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-#       - name: Write auth.bazelrc
-#         env:
-#           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-#         run: |
-#           cat << EOF > auth.bazelrc
-#           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
-#           build --bes_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
-#           EOF
+      - name: Write auth.bazelrc
+        env:
+          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+        run: |
+          cat << EOF > auth.bazelrc
+          build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
+          build --bes_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
+          EOF
 
-#       - name: Write ~/.bazelrc
-#         run: |
-#           cat << EOF > ~/.bazelrc
-#           common --config=ci
-#           build --remote_upload_local_results
-#           EOF
+      - name: Write ~/.bazelrc
+        run: |
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          EOF
 
-#       - name: DEBUG - List Workspace Files
-#         run: |
-#           echo "--- Listing files in the workspace root (ls -l) ---"
-#           ls -l
-#           echo
-#           echo "--- Listing contents of build/ recursively (ls -lR build) ---"
-#           # Este comando fallará si la carpeta 'build' no existe, lo cual ya es una pista.
-#           ls -lR build || echo "Directorio 'build' no encontrado."
-#           echo
-#           echo "--- Listing contents of third_party/ recursively (ls -lR third_party) ---"
-#           ls -lR third_party || echo "Directorio 'third_party' no encontrado."
+      - name: DEBUG - List Workspace Files
+        run: |
+          echo "--- Listing files in the workspace root (ls -l) ---"
+          ls -l
+          echo
+          echo "--- Listing contents of build/ recursively (ls -lR build) ---"
+          # Este comando fallará si la carpeta 'build' no existe, lo cual ya es una pista.
+          ls -lR build || echo "Directorio 'build' no encontrado."
+          echo
+          echo "--- Listing contents of third_party/ recursively (ls -lR third_party) ---"
+          ls -lR third_party || echo "Directorio 'third_party' no encontrado."
 
-#       - name: Run CodeQL Analysis on BuildBuddy
-#         run: |
-#           bazel test //tools/codeql:codeql_analysis_test \
-#             --config=ci \
-#             --config=remote \
-#             --test_env=LANGUAGE=${{ matrix.language }}
+      - name: Run CodeQL Analysis on BuildBuddy
+        run: |
+          bazel test //tools/codeql:codeql_analysis_test \
+            --config=ci \
+            --config=remote \
+            --test_env=LANGUAGE=${{ matrix.language }}
