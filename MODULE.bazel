@@ -177,7 +177,6 @@ archive_override(
 
 # Configurar la extensión buildbuddy (requerida)
 # buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
-# use_repo(buildbuddy, "buildbuddy_toolchain")
 
 buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
 buildbuddy.msvc_toolchain(
@@ -200,3 +199,5 @@ register_toolchains(
     "@toolchains_buildbuddy//toolchains/cc:ubuntu_gcc_arm64",
     "@toolchains_buildbuddy//toolchains/cc:windows_msvc_x86_64",
 )
+
+use_repo(buildbuddy, "buildbuddy_toolchain")
