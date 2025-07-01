@@ -166,22 +166,14 @@ http_archive(
 #     strip_prefix = "codeql",
 #     urls = ["https://github.com/github/codeql-cli-binaries/releases/download/v2.18.0/codeql-linux64.zip"],
 # )
+bazel_dep(name = "toolchains_buildbuddy")
 
-bazel_dep(name = "toolchains_llvm", version = "1.4.0")
-
-llvm_toolchain(
-    name = "llvm_toolchain",
-    llvm_versions = {
-        "": "15.0.6",
-    },
+git_override(
+    module_name = "toolchains_buildbuddy",
+    remote = "https://github.com/buildbuddy-io/buildbuddy-toolchain.git",
+    commit = "badf8034b2952ec613970a27f24fb140be7eaf73",
 )
 
-llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
-llvm.toolchain(
-    name = "llvm_toolchain",
-    llvm_version = "20.1.4",
-    extra_llvm_distributions = {
-        "LLVM-20.1.4-Linux-X64.tar.xz": "113b54c397adb2039fa45e38dc8107b9ec5a0baead3a3bac8ccfbb65b2340caa",
-    },
-)
-use_repo(llvm, "llvm_toolchain")
+# Configurar la extensión buildbuddy (requerida)
+buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
+use_repo(buildbuddy, "buildbuddy_toolchain")

@@ -7,7 +7,7 @@ common --registry=https://bcr.bazel.build
 coverage --instrumentation_filter="^//src/main[/:]"
 
 # Use clang as C++ compiler.
-build --repo_env='CC=clang'
+# build --repo_env='CC=clang'
 
 # Configuration for remote cache.
 build --noremote_upload_local_results  # Do not upload by default
