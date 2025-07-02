@@ -586,3 +586,878 @@ WARNING: There was no coverage found.
 
 Executed 14 out of 14 tests: 14 tests pass.
 There were tests whose specified size is too big. Use the --test_verbose_timeout_warnings command line option to see which ones these are.
+==================== Test output for //src/test/cc/sample:sum_evaluator_test:
+Running main() from gmock_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SumEvaluatorTest
+[ RUN      ] SumEvaluatorTest.AddsPositiveNumbers
+[       OK ] SumEvaluatorTest.AddsPositiveNumbers (0 ms)
+[----------] 1 test from SumEvaluatorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+File 'src/main/cc/sample/sum_evaluator.cc'
+Lines executed:100.00% of 2
+No branches
+No calls
+
+Creating 'sum_evaluator.pic.gcov.json.gz'
+Lines executed:100.00% of 2
+File 'src/test/cc/sample/sum_evaluator_test.cc'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/internal/gtest-internal.h'
+Lines executed:88.89% of 18
+Branches executed:40.00% of 40
+Taken at least once:20.00% of 40
+Calls executed:34.48% of 29
+
+File '/usr/include/c++/11/iostream'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/gtest-printers.h'
+Lines executed:0.00% of 27
+Branches executed:0.00% of 6
+Taken at least once:0.00% of 6
+Calls executed:0.00% of 13
+
+File '/usr/include/c++/11/tuple'
+Lines executed:0.00% of 6
+No branches
+Calls executed:0.00% of 3
+
+File 'external/googletest~/googletest/include/gtest/gtest.h'
+Lines executed:38.46% of 13
+Branches executed:33.33% of 6
+Taken at least once:16.67% of 6
+Calls executed:20.00% of 10
+
+File '/usr/include/c++/11/bits/stl_iterator_base_funcs.h'
+Lines executed:100.00% of 5
+No branches
+Calls executed:100.00% of 2
+
+File '/usr/include/c++/11/bits/stl_iterator_base_types.h'
+Lines executed:100.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/ext/type_traits.h'
+Lines executed:100.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/unique_ptr.h'
+Lines executed:0.00% of 9
+No branches
+Calls executed:0.00% of 5
+
+File '/usr/include/c++/11/bits/basic_string.tcc'
+Lines executed:69.23% of 13
+Branches executed:81.82% of 22
+Taken at least once:45.45% of 22
+Calls executed:61.54% of 13
+
+File '/usr/include/c++/11/bits/move.h'
+No executable lines
+No branches
+No calls
+
+File '/usr/include/c++/11/ext/new_allocator.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/basic_string.h'
+Lines executed:100.00% of 5
+Branches executed:100.00% of 6
+Taken at least once:50.00% of 6
+Calls executed:80.00% of 5
+
+File '/usr/include/c++/11/bits/char_traits.h'
+Lines executed:25.00% of 16
+Branches executed:33.33% of 6
+Taken at least once:16.67% of 6
+Calls executed:0.00% of 2
+
+File 'external/googletest~/googletest/include/gtest/gtest-assertion-result.h'
+Lines executed:25.00% of 4
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 4
+
+File 'external/googletest~/googletest/include/gtest/gtest-message.h'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/internal/gtest-port.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+Creating 'sum_evaluator_test.pic.gcov.json.gz'
+Lines executed:39.84% of 123
+Jul 02, 2025 12:16:32 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: No lcov file found.
+Jul 02, 2025 12:16:32 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:16:32 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: Found 2 gcov json files.
+Jul 02, 2025 12:16:32 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/cc/sample/sum_evaluator_test/test/bazel-out/k8-fastbuild/bin/src/test/cc/sample/_objs/sum_evaluator_test/sum_evaluator_test.pic.gcov.json.gz
+Jul 02, 2025 12:16:32 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/cc/sample/sum_evaluator_test/test/bazel-out/k8-fastbuild/bin/src/main/cc/sample/_objs/sum_evaluator/sum_evaluator.pic.gcov.json.gz
+Jul 02, 2025 12:16:32 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/python/sample:sum_evaluator_py_test:
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+GCov does not exist at the given path: ''
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/python/sample/sum_evaluator_py_test/test/pylcov.dat
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/python/sample:count_letters_evaluator_py_test:
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+GCov does not exist at the given path: ''
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/python/sample/count_letters_evaluator_py_test/test/pylcov.dat
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:16:33 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/python/sample:manage_users_py_test:
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+GCov does not exist at the given path: ''
+Jul 02, 2025 12:16:35 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:16:35 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/python/sample/manage_users_py_test/test/pylcov.dat
+Jul 02, 2025 12:16:35 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:16:35 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:16:35 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/cc/sample:count_letters_evaluator_test:
+Running main() from gmock_main.cc
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from CountLettersEvaluatorTest
+[ RUN      ] CountLettersEvaluatorTest.HandlesEmptyString
+[       OK ] CountLettersEvaluatorTest.HandlesEmptyString (0 ms)
+[ RUN      ] CountLettersEvaluatorTest.HandlesNonEmptyString
+[       OK ] CountLettersEvaluatorTest.HandlesNonEmptyString (0 ms)
+[----------] 2 tests from CountLettersEvaluatorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+File 'src/main/cc/sample/count_letters_evaluator.cc'
+Lines executed:100.00% of 2
+No branches
+Calls executed:100.00% of 1
+
+Creating 'count_letters_evaluator.pic.gcov.json.gz'
+Lines executed:100.00% of 2
+File 'src/test/cc/sample/count_letters_evaluator_test.cc'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/internal/gtest-internal.h'
+Lines executed:88.24% of 17
+Branches executed:36.84% of 38
+Taken at least once:18.42% of 38
+Calls executed:30.77% of 26
+
+File '/usr/include/c++/11/iostream'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/gtest-printers.h'
+Lines executed:0.00% of 27
+Branches executed:0.00% of 6
+Taken at least once:0.00% of 6
+Calls executed:0.00% of 13
+
+File '/usr/include/c++/11/tuple'
+Lines executed:0.00% of 6
+No branches
+Calls executed:0.00% of 3
+
+File 'external/googletest~/googletest/include/gtest/gtest.h'
+Lines executed:38.46% of 13
+Branches executed:33.33% of 6
+Taken at least once:16.67% of 6
+Calls executed:20.00% of 10
+
+File '/usr/include/c++/11/bits/stl_iterator_base_funcs.h'
+Lines executed:100.00% of 5
+No branches
+Calls executed:100.00% of 2
+
+File '/usr/include/c++/11/bits/stl_iterator_base_types.h'
+Lines executed:100.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/ext/type_traits.h'
+Lines executed:100.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/unique_ptr.h'
+Lines executed:0.00% of 9
+No branches
+Calls executed:0.00% of 5
+
+File '/usr/include/c++/11/bits/basic_string.tcc'
+Lines executed:69.23% of 13
+Branches executed:81.82% of 22
+Taken at least once:45.45% of 22
+Calls executed:61.54% of 13
+
+File '/usr/include/c++/11/bits/move.h'
+No executable lines
+No branches
+No calls
+
+File '/usr/include/c++/11/ext/new_allocator.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/basic_string.h'
+Lines executed:100.00% of 5
+Branches executed:100.00% of 6
+Taken at least once:50.00% of 6
+Calls executed:80.00% of 5
+
+File '/usr/include/c++/11/bits/char_traits.h'
+Lines executed:25.00% of 16
+Branches executed:33.33% of 6
+Taken at least once:16.67% of 6
+Calls executed:0.00% of 2
+
+File 'external/googletest~/googletest/include/gtest/gtest-assertion-result.h'
+Lines executed:25.00% of 4
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 4
+
+File 'external/googletest~/googletest/include/gtest/gtest-message.h'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/internal/gtest-port.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+Creating 'count_letters_evaluator_test.pic.gcov.json.gz'
+Lines executed:39.34% of 122
+Jul 02, 2025 12:16:35 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: No lcov file found.
+Jul 02, 2025 12:16:36 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:16:36 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: Found 2 gcov json files.
+Jul 02, 2025 12:16:36 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/cc/sample/count_letters_evaluator_test/test/bazel-out/k8-fastbuild/bin/src/test/cc/sample/_objs/count_letters_evaluator_test/count_letters_evaluator_test.pic.gcov.json.gz
+Jul 02, 2025 12:16:36 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/cc/sample/count_letters_evaluator_test/test/bazel-out/k8-fastbuild/bin/src/main/cc/sample/_objs/count_letters_evaluator/count_letters_evaluator.pic.gcov.json.gz
+Jul 02, 2025 12:16:36 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+src/test/kotlin/sample/CountLettersEvaluatorTest.kt:14:7: warning: name contains character(s) that can cause problems on Windows: "
+  fun `when string is "hello", then returns  5`() {
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/test/kotlin/sample/CountLettersEvaluatorTest.kt:14:7: warning: name contains character(s) that can cause problems on Windows: "
+  fun `when string is "hello", then returns  5`() {
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==================== Test output for //src/test/kotlin/sample:sum_evaluator_test:
+JUnit4 Test Runner
+.
+Time: 0.076
+
+OK (1 test)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:17:20 --
+
+Jul 02, 2025 12:17:21 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:17:21 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/sample/sum_evaluator_test/test/jvcov9562808725659844636.dat
+Jul 02, 2025 12:17:21 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:17:21 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:17:21 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/sample:count_letters_evaluator_test:
+JUnit4 Test Runner
+..
+Time: 0.055
+
+OK (2 tests)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:17:23 --
+
+Jul 02, 2025 12:17:24 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:17:24 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/sample/count_letters_evaluator_test/test/jvcov989029559566439074.dat
+Jul 02, 2025 12:17:24 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:17:24 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:17:24 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/com:common_server_test:
+JUnit4 Test Runner
+WARNING: A Java agent has been loaded dynamically (/home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/bin/external/rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy-agent/1.14.15/processed_byte-buddy-agent-1.14.15.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+..Server started in port 0
+..Server started in port 0
+
+Time: 5.873
+
+OK (4 tests)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:17:43 --
+
+*** GrpcServer: shutting down...
+*** GrpcServer: shutting down...
+Jul 02, 2025 12:17:44 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:17:44 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/com/common_server_test/test/jvcov86227764842313451.dat
+Jul 02, 2025 12:17:44 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:17:44 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:17:44 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/sample:manage_users_kt_test:
+JUnit4 Test Runner
+.
+Time: 0.251
+
+OK (1 test)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:17:48 --
+
+Jul 02, 2025 12:17:49 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:17:50 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/sample/manage_users_kt_test/test/jvcov8109144283690804623.dat
+Jul 02, 2025 12:17:50 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:17:50 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:17:50 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/implementation:count_letters_service_impl_test:
+JUnit4 Test Runner
+..
+Time: 0.167
+
+OK (2 tests)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:18:11 --
+
+Jul 02, 2025 12:18:12 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:18:12 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/implementation/count_letters_service_impl_test/test/jvcov3492027199639780732.dat
+Jul 02, 2025 12:18:12 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:18:12 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:18:12 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/client:count_letters_client_test:
+JUnit4 Test Runner
+WARNING: A Java agent has been loaded dynamically (/home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/bin/external/rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy-agent/1.14.15/processed_byte-buddy-agent-1.14.15.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+.The number of letters is: 99
+
+Time: 3.074
+
+OK (1 test)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:18:22 --
+
+Jul 02, 2025 12:18:22 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:18:23 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/client/count_letters_client_test/test/jvcov3318808929983408616.dat
+Jul 02, 2025 12:18:23 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:18:23 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:18:23 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/com:count_letters_server_test:
+JUnit4 Test Runner
+WARNING: A Java agent has been loaded dynamically (/home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/bin/external/rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy-agent/1.14.15/processed_byte-buddy-agent-1.14.15.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+..
+Time: 1.723
+
+OK (2 tests)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:18:23 --
+
+Jul 02, 2025 12:18:24 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:18:24 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/com/count_letters_server_test/test/jvcov12856691364374790270.dat
+Jul 02, 2025 12:18:24 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:18:24 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:18:24 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/cc/sample:manage_users_test:
+Running main() from gmock_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ManageUsersTest
+[ RUN      ] ManageUsersTest.CreateUserProfilePopulatesFieldsCorrectly
+[       OK ] ManageUsersTest.CreateUserProfilePopulatesFieldsCorrectly (0 ms)
+[----------] 1 test from ManageUsersTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+File 'src/main/cc/sample/manage_users.cc'
+Lines executed:87.50% of 8
+Branches executed:100.00% of 8
+Taken at least once:62.50% of 8
+Calls executed:90.00% of 10
+
+File '/usr/include/c++/11/iostream'
+No executable lines
+No branches
+No calls
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/protobuf_lite/google/protobuf/repeated_ptr_field.h'
+Lines executed:77.78% of 9
+Branches executed:100.00% of 2
+Taken at least once:50.00% of 2
+Calls executed:57.14% of 7
+
+File 'external/abseil-cpp~/absl/log/internal/nullguard.h'
+No executable lines
+No branches
+No calls
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/protobuf_lite/google/protobuf/generated_message_util.h'
+Lines executed:100.00% of 6
+No branches
+Calls executed:100.00% of 4
+
+File '/usr/include/c++/11/bits/move.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/stl_iterator.h'
+Lines executed:100.00% of 11
+No branches
+Calls executed:100.00% of 2
+
+File 'external/abseil-cpp~/absl/log/internal/check_op.h'
+Lines executed:0.00% of 8
+Branches executed:0.00% of 10
+Taken at least once:0.00% of 10
+Calls executed:0.00% of 9
+
+File 'bazel-out/k8-fastbuild/bin/src/main/proto/sample/user_profile.pb.h'
+Lines executed:100.00% of 28
+Branches executed:100.00% of 8
+Taken at least once:50.00% of 8
+Calls executed:100.00% of 10
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/port/google/protobuf/port.h'
+Lines executed:100.00% of 2
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/stl_vector.h'
+Lines executed:100.00% of 4
+No branches
+Calls executed:100.00% of 2
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/protobuf_lite/google/protobuf/metadata_lite.h'
+Lines executed:85.71% of 7
+Branches executed:100.00% of 2
+Taken at least once:50.00% of 2
+Calls executed:66.67% of 3
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/protobuf_lite/google/protobuf/message_lite.h'
+Lines executed:100.00% of 1
+No branches
+Calls executed:100.00% of 1
+
+File '/usr/include/c++/11/type_traits'
+Lines executed:100.00% of 1
+No branches
+No calls
+
+Creating 'manage_users.pic.gcov.json.gz'
+Lines executed:83.91% of 87
+File 'src/test/cc/sample/manage_users_test.cc'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/internal/gtest-internal.h'
+Lines executed:88.89% of 18
+Branches executed:40.00% of 40
+Taken at least once:20.00% of 40
+Calls executed:34.48% of 29
+
+File '/usr/include/c++/11/iostream'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/gtest-printers.h'
+Lines executed:0.00% of 6
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 2
+
+File '/usr/include/c++/11/tuple'
+Lines executed:0.00% of 6
+No branches
+Calls executed:0.00% of 3
+
+File '/usr/include/c++/11/bits/stl_construct.h'
+Lines executed:100.00% of 13
+Branches executed:100.00% of 4
+Taken at least once:75.00% of 4
+Calls executed:87.50% of 8
+
+File '/usr/include/c++/11/ext/new_allocator.h'
+Lines executed:75.00% of 12
+Branches executed:50.00% of 4
+Taken at least once:25.00% of 4
+Calls executed:66.67% of 6
+
+File '/usr/include/c++/11/bits/stl_uninitialized.h'
+Lines executed:76.92% of 13
+Branches executed:66.67% of 6
+Taken at least once:50.00% of 6
+Calls executed:50.00% of 8
+
+File '/usr/include/c++/11/bits/alloc_traits.h'
+Lines executed:81.82% of 11
+No branches
+Calls executed:80.00% of 5
+
+File '/usr/include/c++/11/bits/stl_iterator_base_funcs.h'
+No executable lines
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/stl_iterator_base_types.h'
+No executable lines
+No branches
+No calls
+
+File '/usr/include/c++/11/ext/type_traits.h'
+No executable lines
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/stl_vector.h'
+Lines executed:97.96% of 49
+Branches executed:100.00% of 8
+Taken at least once:75.00% of 8
+Calls executed:92.59% of 27
+
+File '/usr/include/c++/11/bits/allocator.h'
+Lines executed:100.00% of 4
+No branches
+Calls executed:100.00% of 3
+
+File '/usr/include/c++/11/bits/move.h'
+Lines executed:100.00% of 4
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/basic_string.tcc'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/gtest.h'
+Lines executed:0.00% of 5
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/basic_string.h'
+Lines executed:60.00% of 15
+Branches executed:83.33% of 12
+Taken at least once:58.33% of 12
+Calls executed:76.92% of 13
+
+File '/usr/include/c++/11/initializer_list'
+Lines executed:100.00% of 3
+No branches
+Calls executed:100.00% of 2
+
+File '/usr/include/c++/11/bits/unique_ptr.h'
+Lines executed:0.00% of 9
+No branches
+Calls executed:0.00% of 5
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/protobuf_lite/google/protobuf/repeated_ptr_field.h'
+Lines executed:100.00% of 23
+Branches executed:54.55% of 22
+Taken at least once:31.82% of 22
+Calls executed:43.59% of 39
+
+File 'external/abseil-cpp~/absl/log/internal/nullguard.h'
+No executable lines
+No branches
+No calls
+
+File 'external/abseil-cpp~/absl/log/internal/check_op.h'
+Lines executed:33.33% of 3
+No branches
+Calls executed:0.00% of 1
+
+File '/usr/include/c++/11/ext/alloc_traits.h'
+Lines executed:0.00% of 2
+No branches
+Calls executed:0.00% of 1
+
+File 'external/abseil-cpp~/absl/log/internal/voidify.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+File '/usr/include/c++/11/string_view'
+Lines executed:100.00% of 4
+No branches
+Calls executed:100.00% of 1
+
+File '/usr/include/c++/11/bits/char_traits.h'
+Lines executed:29.03% of 31
+Branches executed:37.50% of 16
+Taken at least once:18.75% of 16
+Calls executed:0.00% of 4
+
+File 'external/googletest~/googletest/include/gtest/gtest-assertion-result.h'
+Lines executed:25.00% of 4
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 4
+
+File 'external/googletest~/googletest/include/gtest/gtest-message.h'
+No executable lines
+No branches
+No calls
+
+File 'external/googletest~/googletest/include/gtest/internal/gtest-port.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+File 'bazel-out/k8-fastbuild/bin/src/main/proto/sample/user_profile.pb.h'
+Lines executed:100.00% of 29
+No branches
+Calls executed:100.00% of 11
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/port/google/protobuf/port.h'
+Lines executed:100.00% of 1
+No branches
+No calls
+
+File 'bazel-out/k8-fastbuild/bin/external/protobuf~/src/google/protobuf/_virtual_includes/protobuf_lite/google/protobuf/arenastring.h'
+Lines executed:100.00% of 5
+No branches
+Calls executed:100.00% of 2
+
+File 'external/abseil-cpp~/absl/log/internal/log_message.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+File '/usr/include/c++/11/bits/stl_algobase.h'
+Lines executed:75.00% of 4
+Branches executed:100.00% of 2
+Taken at least once:50.00% of 2
+No calls
+
+File '/usr/include/c++/11/new'
+Lines executed:66.67% of 3
+No branches
+No calls
+
+Creating 'manage_users_test.pic.gcov.json.gz'
+Lines executed:72.50% of 280
+Jul 02, 2025 12:18:25 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: No lcov file found.
+Jul 02, 2025 12:18:25 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:18:25 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: Found 2 gcov json files.
+Jul 02, 2025 12:18:25 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/cc/sample/manage_users_test/test/bazel-out/k8-fastbuild/bin/src/main/cc/sample/_objs/manage_users/manage_users.pic.gcov.json.gz
+Jul 02, 2025 12:18:25 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/cc/sample/manage_users_test/test/bazel-out/k8-fastbuild/bin/src/test/cc/sample/_objs/manage_users_test/manage_users_test.pic.gcov.json.gz
+Jul 02, 2025 12:18:26 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+==================== Test output for //src/test/kotlin/client:count_letters_client_app_test:
+JUnit4 Test Runner
+WARNING: A Java agent has been loaded dynamically (/home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/bin/external/rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy-agent/1.14.15/processed_byte-buddy-agent-1.14.15.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+....
+Time: 1.166
+
+OK (4 tests)
+
+
+BazelTestRunner exiting with a return value of 0
+JVM shutdown hooks (if any) will run now.
+The JVM will exit once they complete.
+
+-- JVM shutdown starting at 2025-07-02 12:18:28 --
+
+Jul 02, 2025 12:18:28 PM com.google.devtools.coverageoutputgenerator.Main getTracefiles
+INFO: Found 1 tracefiles.
+Jul 02, 2025 12:18:28 PM com.google.devtools.coverageoutputgenerator.Main parseFilesSequentially
+INFO: Parsing file /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/_coverage/src/test/kotlin/client/count_letters_client_app_test/test/jvcov18350018899141824731.dat
+Jul 02, 2025 12:18:28 PM com.google.devtools.coverageoutputgenerator.Main getGcovInfoFiles
+INFO: No gcov info file found.
+Jul 02, 2025 12:18:28 PM com.google.devtools.coverageoutputgenerator.Main getGcovJsonInfoFiles
+INFO: No gcov json file found.
+Jul 02, 2025 12:18:28 PM com.google.devtools.coverageoutputgenerator.Main getProfdataFileOrNull
+INFO: No .profdata file found.
+================================================================================
+//src/test/cc/sample:count_letters_evaluator_test                        PASSED in 1.6s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/cc/sample/count_letters_evaluator_test/coverage.dat
+//src/test/cc/sample:manage_users_test                                   PASSED in 0.6s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/cc/sample/manage_users_test/coverage.dat
+//src/test/cc/sample:sum_evaluator_test                                  PASSED in 1.4s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/cc/sample/sum_evaluator_test/coverage.dat
+//src/test/kotlin/client:count_letters_client_app_test                   PASSED in 1.9s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/client/count_letters_client_app_test/coverage.dat
+//src/test/kotlin/client:count_letters_client_test                       PASSED in 4.6s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/client/count_letters_client_test/coverage.dat
+//src/test/kotlin/com:common_server_test                                 PASSED in 9.3s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/com/common_server_test/coverage.dat
+//src/test/kotlin/com:count_letters_server_test                          PASSED in 3.2s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/com/count_letters_server_test/coverage.dat
+//src/test/kotlin/implementation:count_letters_service_impl_test         PASSED in 1.6s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/implementation/count_letters_service_impl_test/coverage.dat
+//src/test/kotlin/sample:count_letters_evaluator_test                    PASSED in 2.7s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/sample/count_letters_evaluator_test/coverage.dat
+//src/test/kotlin/sample:manage_users_kt_test                            PASSED in 3.5s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/sample/manage_users_kt_test/coverage.dat
+//src/test/kotlin/sample:sum_evaluator_test                              PASSED in 3.3s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/kotlin/sample/sum_evaluator_test/coverage.dat
+//src/test/python/sample:count_letters_evaluator_py_test                 PASSED in 2.0s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/python/sample/count_letters_evaluator_py_test/coverage.dat
+//src/test/python/sample:manage_users_py_test                            PASSED in 4.1s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/python/sample/manage_users_py_test/coverage.dat
+//src/test/python/sample:sum_evaluator_py_test                           PASSED in 2.1s
+  /home/dev/.cache/bazel/_bazel_dev/08a753c56e53c224cdfb02cc90553c44/execroot/_main/bazel-out/k8-fastbuild/testlogs/src/test/python/sample/sum_evaluator_py_test/coverage.dat
+
+Executed 14 out of 14 tests: 14 tests pass.
+There were tests whose specified size is too big. Use the --test_verbose_timeout_warnings command line option to see which ones these are.

@@ -2,11 +2,14 @@ name: "CodeQL Analysis"
 
 on:
   push:
-    branches: ["**"]
+    branches:
+      - main
+      - "releases/**"
+      - "**"
   pull_request:
-    branches: ["**"]
+    branches: [ '**' ]
   schedule:
-    - cron: "30 2 * * 1"
+    - cron: '30 2 * * 1'
 
 jobs:
   analyze:
@@ -20,43 +23,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["python", "java-kotlin", "cpp"]
+        language: [ 'python', 'java-kotlin', 'cpp' ]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Write auth.bazelrc
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        run: |
-          cat << EOF > auth.bazelrc
-          build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
-          build --bes_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
-          EOF
+    - name: Setup Java JDK
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
 
-      - name: Write ~/.bazelrc
-        run: |
-          cat << EOF > ~/.bazelrc
-          common --config=ci
-          build --remote_upload_local_results
-          EOF
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        trap-caching: true
+        queries: +security-extended
 
-      - name: DEBUG - List Workspace Files
-        run: |
-          echo "--- Listing files in the workspace root (ls -l) ---"
-          ls -l
-          echo
-          echo "--- Listing contents of build/ recursively (ls -lR build) ---"
-          # Este comando fallará si la carpeta 'build' no existe, lo cual ya es una pista.
-          ls -lR build || echo "Directorio 'build' no encontrado."
-          echo
-          echo "--- Listing contents of third_party/ recursively (ls -lR third_party) ---"
-          ls -lR third_party || echo "Directorio 'third_party' no encontrado."
+    - name: Build with Bazel
+      if: matrix.language == 'java-kotlin' || matrix.language == 'cpp'
+      run: |
+        if [ "${{ matrix.language }}" == "java-kotlin" ]; then
+          bazel build --spawn_strategy=local -- //src/main/kotlin/... -//src/main/proto/...
+        elif [ "${{ matrix.language }}" == "cpp" ]; then
+          bazel build --spawn_strategy=local -- //src/main/cc/... -//src/main/proto/...
+        fi
 
-      - name: Run CodeQL Analysis on BuildBuddy
-        run: |
-          bazel test //tools/codeql:codeql_analysis_test \
-            --config=ci \
-            --config=remote \
-            --test_env=LANGUAGE=${{ matrix.language }}
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
