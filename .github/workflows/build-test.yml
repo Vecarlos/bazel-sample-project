@@ -46,6 +46,13 @@ jobs:
       - name: Build
         run: bazel build --worker_quit_after_build //...
 
+      - name: See files
+        run: |
+          echo "=== Listando tests disponibles ==="
+          bazel query 'tests(//src/test/...)' || true
+          echo "=== Tests de C++ específicamente ==="
+          bazel query 'tests(//src/test/cc/...)' || echo "No hay tests de C++"
+
       - name: Run tests
         run: |
           bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
