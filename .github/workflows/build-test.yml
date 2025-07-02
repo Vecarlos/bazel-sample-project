@@ -35,6 +35,7 @@ jobs:
           cat << EOF > ~/.bazelrc
           common --config=ci
           build --remote_upload_local_results
+          build --define basic_reports_enabled=true
           EOF
 
       - name: Set TCP keepalive
