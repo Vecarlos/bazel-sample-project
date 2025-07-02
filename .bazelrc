@@ -18,6 +18,7 @@ common:llvm-cov --experimental_generate_llvm_lcov
 # Files to test
 coverage --instrumentation_filter="^//src/main[/:]"
 coverage --combined_report=lcov
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
 # Use C++17 language features.
 build --cxxopt='-std=c++17'
