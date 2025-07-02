@@ -35,7 +35,7 @@ jobs:
           cat << EOF > ~/.bazelrc
           common --config=ci
           build --remote_upload_local_results
-          build --define basic_reports_enabled=true
+          build --define basic_reports_enabled=true 
           EOF
 
       - name: Set TCP keepalive
@@ -56,7 +56,7 @@ jobs:
 
       - name: Run tests
         run: |
-          bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov //src/test/... | tee -a bazel_coverage.log || true
+          bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
