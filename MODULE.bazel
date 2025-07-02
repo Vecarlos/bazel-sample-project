@@ -166,14 +166,3 @@ http_archive(
 #     strip_prefix = "codeql",
 #     urls = ["https://github.com/github/codeql-cli-binaries/releases/download/v2.18.0/codeql-linux64.zip"],
 # )
-
-bazel_dep(name = "toolchains_buildbuddy")
-archive_override(
-    module_name = "toolchains_buildbuddy",
-    integrity = "sha256-e6gcgLHmJHvxCNNbCSQ4OrX8FbGn8TiS7XSVphM1ZU8=",
-    strip_prefix = "buildbuddy-toolchain-badf8034b2952ec613970a27f24fb140be7eaf73",
-    urls = ["https://github.com/buildbuddy-io/buildbuddy-toolchain/archive/badf8034b2952ec613970a27f24fb140be7eaf73.tar.gz"],
-)
-
-# Configurar la extensión buildbuddy (requerida)
-# buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
