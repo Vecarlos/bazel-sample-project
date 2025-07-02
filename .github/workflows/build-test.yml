@@ -50,6 +50,12 @@ jobs:
         run: |
           bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
 
+      - name: Bazel output path
+        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+
+      - name: Move coverage file
+        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+
       - name: Debug coverage file
         run: |
           echo "=== Información del archivo lcov.info ==="
@@ -62,12 +68,6 @@ jobs:
           grep "^SF:.*\.kt" lcov.info || echo "No se encontraron archivos .kt"
           echo "=== Archivos Python encontrados ==="
           grep "^SF:.*\.py" lcov.info || echo "No se encontraron archivos .py"
-
-      - name: Bazel output path
-        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
-
-      - name: Move coverage file
-        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
