@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
+          bazel coverage --nocache_test_results --test_output=all --combined_report=lcov --spawn_strategy=local --instrumentation_filter=//src/main/python/.*,//src/main/cc/.*,-@.*,//src/main/kotlin/.*,-@.* //src/test/python/... //src/test/cc/... //src/test/kotlin/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
