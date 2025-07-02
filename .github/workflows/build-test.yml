@@ -50,6 +50,19 @@ jobs:
         run: |
           bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
 
+      - name: Debug coverage file
+        run: |
+          echo "=== Información del archivo lcov.info ==="
+          ls -la lcov.info
+          echo "=== Total de archivos en el reporte ==="
+          grep -c "^SF:" lcov.info || echo "0"
+          echo "=== Archivos C++ encontrados ==="
+          grep "^SF:.*\.cc" lcov.info || echo "No se encontraron archivos .cc"
+          echo "=== Archivos Kotlin encontrados ==="
+          grep "^SF:.*\.kt" lcov.info || echo "No se encontraron archivos .kt"
+          echo "=== Archivos Python encontrados ==="
+          grep "^SF:.*\.py" lcov.info || echo "No se encontraron archivos .py"
+
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
