@@ -19,7 +19,7 @@ kt_jvm_library(
 
 kt_jvm_library(
     name = "common_server_kt_lib",
-    srcs = ["CommonServerKt.kt"], 
+    srcs = ["CommonServerKt.kt"],
     deps = [
         "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm",
     ],
@@ -29,8 +29,8 @@ kt_jvm_library(
     name = "count_letters_server_kt",
     srcs = ["CountLettersServer.kt"],
     deps = [
+        ":common_server_kt_lib",
         "//src/main/kotlin/com:common_server_kt",
-        ":common_server_kt_lib", 
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
     ],
 )
@@ -40,7 +40,7 @@ java_binary(
     main_class = "com.CountLettersServerKt",
     runtime_deps = [
         ":common_server_kt",
-        ":common_server_kt_lib", 
+        ":common_server_kt_lib",
         ":count_letters_server_kt",
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
         "//src/main/proto/service:service_count_letters_kt_jvm_grpc",
@@ -53,5 +53,3 @@ java_image(
     main_class = "com.CountLettersServerKt",
     visibility = ["//visibility:public"],
 )
-
-
