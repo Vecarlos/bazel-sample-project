@@ -177,27 +177,3 @@ archive_override(
 
 # Configurar la extensión buildbuddy (requerida)
 # buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
-
-buildbuddy = use_extension("@toolchains_buildbuddy//:extensions.bzl", "buildbuddy")
-buildbuddy.msvc_toolchain(
-    # This is the MSVC available on Github Action win22 image
-    # https://github.com/actions/runner-images/blob/win22/20250623.1/images/windows/Windows2022-Readme.md
-    msvc_edition = "Enterprise",
-    msvc_release = "2022",
-    # From 'Microsoft Visual C++ 2022 Minimum Runtime' for x64 architecture
-    # https://github.com/actions/runner-images/blob/win22/20250623.1/images/windows/Windows2022-Readme.md#microsoft-visual-c
-    msvc_version = "14.44.35207",
-    # From 'Installed Windows SDKs'
-    # https://github.com/actions/runner-images/blob/win22/20250623.1/images/windowUs/Windows2022-Readme.md#installed-windows-sdks
-    windows_kits_release = "10",
-    windows_kits_version = "10.0.22621.0",
-)
-
-register_toolchains(
-    # CC toolchains
-    "@toolchains_buildbuddy//toolchains/cc:ubuntu_gcc_x86_64",
-    "@toolchains_buildbuddy//toolchains/cc:ubuntu_gcc_arm64",
-    "@toolchains_buildbuddy//toolchains/cc:windows_msvc_x86_64",
-)
-
-use_repo(buildbuddy, "buildbuddy_toolchain")
