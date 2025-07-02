@@ -5,13 +5,27 @@ common --registry=https://bcr.bazel.build
 
 # Files to test
 coverage --instrumentation_filter="^//src/main[/:]"
+coverage --instrument_test_targets
+coverage --combined_report=lcov
+coverage --coverage_report_generator=@bazel_tools//tools/test:coverage_report_generator
 
 # Use clang as C++ compiler.
 build --repo_env='CC=clang'
 
+# C++ Coverage flags - corregidos y optimizados
 build:coverage --collect_code_coverage
-build:coverage --copt=-fprofile-arcs --copt=-ftest-coverage
-build:coverage --linkopt=-fprofile-arcs --linkopt=-ftest-coverage
+build:coverage --copt=-g
+build:coverage --copt=-O0
+build:coverage --copt=-fprofile-arcs 
+build:coverage --copt=-ftest-coverage
+build:coverage --linkopt=-fprofile-arcs 
+build:coverage --linkopt=-ftest-coverage
+build:coverage --linkopt=-lgcov
+
+# Flags adicionales para mejorar la generación de coverage
+build:coverage --strategy=CppCompile=standalone
+build:coverage --strategy=CppLink=standalone
+build:coverage --experimental_cc_coverage
 
 # Configuration for remote cache.
 build --noremote_upload_local_results  # Do not upload by default
