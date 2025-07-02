@@ -17,8 +17,8 @@ build --repo_env='CC=clang'
 
 # Files to test
 coverage --instrumentation_filter="^//src/main[/:]"
-coverage --combined_report=lcov
-build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+# coverage --combined_report=lcov
+# build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
 # # Use C++17 language features.
 # build --cxxopt='-std=c++17'
@@ -29,10 +29,10 @@ build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 # # Target Java 11.
 # build --java_language_version=11
 
-# Flags adicionales para mejorar la generación de coverage
-build:coverage --strategy=CppCompile=standalone
-build:coverage --strategy=CppLink=standalone
-build:coverage --experimental_cc_coverage
+# # Flags adicionales para mejorar la generación de coverage
+# build:coverage --strategy=CppCompile=standalone
+# build:coverage --strategy=CppLink=standalone
+# build:coverage --experimental_cc_coverage
 
 # Configuration for remote cache.
 build --noremote_upload_local_results  # Do not upload by default
