@@ -9,6 +9,10 @@ coverage --instrumentation_filter="^//src/main[/:]"
 # Use clang as C++ compiler.
 # build --repo_env='CC=clang'
 
+build:coverage --collect_code_coverage
+build:coverage --copt=-fprofile-arcs --copt=-ftest-coverage
+build:coverage --linkopt=-fprofile-arcs --linkopt=-ftest-coverage
+
 # Configuration for remote cache.
 build --noremote_upload_local_results  # Do not upload by default
 build --remote_download_outputs=minimal
@@ -37,3 +41,5 @@ import %workspace%/container.bazelrc
 import %workspace%/results.bazelrc
 import %workspace%/remote.bazelrc
 try-import %workspace%/auth.bazelrc
+
+
