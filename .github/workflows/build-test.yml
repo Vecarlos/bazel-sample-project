@@ -22,6 +22,9 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+        
       - name: Write auth.bazelrc
         env:
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
