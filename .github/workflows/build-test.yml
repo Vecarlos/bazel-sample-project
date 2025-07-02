@@ -57,13 +57,12 @@ jobs:
         run: |
           bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
 
+      - name: Bazel output path
+        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
       - name: cat coverage
         run: |
           cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-
-      - name: Bazel output path
-        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
       - name: Move coverage file
         run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
