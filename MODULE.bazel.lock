@@ -81,7 +81,6 @@
     "https://bcr.bazel.build/modules/rules_cc/0.0.13/MODULE.bazel": "0e8529ed7b323dad0775ff924d2ae5af7640b23553dfcd4d34344c7e7a867191",
     "https://bcr.bazel.build/modules/rules_cc/0.0.15/MODULE.bazel": "6704c35f7b4a72502ee81f61bf88706b54f06b3cbe5558ac17e2e14666cd5dcc",
     "https://bcr.bazel.build/modules/rules_cc/0.0.16/MODULE.bazel": "7661303b8fc1b4d7f532e54e9d6565771fea666fbdf839e0a86affcd02defe87",
-    "https://bcr.bazel.build/modules/rules_cc/0.0.17/MODULE.bazel": "2ae1d8f4238ec67d7185d8861cb0a2cdf4bc608697c331b95bf990e69b62e64a",
     "https://bcr.bazel.build/modules/rules_cc/0.0.2/MODULE.bazel": "6915987c90970493ab97393024c156ea8fb9f3bea953b2f3ec05c34f19b5695c",
     "https://bcr.bazel.build/modules/rules_cc/0.0.6/MODULE.bazel": "abf360251023dfe3efcef65ab9d56beefa8394d4176dd29529750e1c57eaa33f",
     "https://bcr.bazel.build/modules/rules_cc/0.0.8/MODULE.bazel": "964c85c82cfeb6f3855e6a07054fdb159aced38e99a5eecf7bce9d53990afa3e",
@@ -228,7 +227,6 @@
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.13/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.15/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.16/MODULE.bazel": "not found",
-    "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.17/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.2/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.6/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main/modules/rules_cc/0.0.8/MODULE.bazel": "not found",
@@ -5183,80 +5181,6 @@
             "rules_python~~python~pythons_hub",
             "python_3_9_host",
             "rules_python~~python~python_3_9_host"
-          ]
-        ]
-      }
-    },
-    "@@toolchains_buildbuddy~//:extensions.bzl%buildbuddy": {
-      "general": {
-        "bzlTransitiveDigest": "LhShTQFV7pP8hxLj8W9ehgaZVE7mo/NW6G//0DbavS0=",
-        "usagesDigest": "Th9q2okQMR5zA9PpsRZ4FhXvoTwBoIU7E06WVJ2EmAs=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "buildbuddy_toolchain": {
-            "bzlFile": "@@toolchains_buildbuddy~//:rules.bzl",
-            "ruleClassName": "_buildbuddy_toolchain",
-            "attributes": {
-              "container_image": "",
-              "llvm": false,
-              "java_version": "",
-              "gcc_version": "",
-              "msvc_edition": "Enterprise",
-              "msvc_release": "2022",
-              "msvc_version": "14.44.35207",
-              "windows_kits_release": "10",
-              "windows_kits_version": "10.0.22621.0",
-              "extra_cxx_builtin_include_directories": []
-            }
-          }
-        },
-        "recordedRepoMappingEntries": [
-          [
-            "bazel_features~",
-            "bazel_features_globals",
-            "bazel_features~~version_extension~bazel_features_globals"
-          ],
-          [
-            "bazel_features~",
-            "bazel_features_version",
-            "bazel_features~~version_extension~bazel_features_version"
-          ],
-          [
-            "protobuf~",
-            "proto_bazel_features",
-            "bazel_features~"
-          ],
-          [
-            "protobuf~",
-            "rules_cc",
-            "rules_cc~"
-          ],
-          [
-            "rules_cc~",
-            "bazel_tools",
-            "bazel_tools"
-          ],
-          [
-            "rules_cc~",
-            "com_google_protobuf",
-            "protobuf~"
-          ],
-          [
-            "rules_cc~",
-            "rules_cc",
-            "rules_cc~"
-          ],
-          [
-            "toolchains_buildbuddy~",
-            "bazel_tools",
-            "bazel_tools"
-          ],
-          [
-            "toolchains_buildbuddy~",
-            "rules_cc",
-            "rules_cc~"
           ]
         ]
       }
