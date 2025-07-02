@@ -55,29 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          echo "=== Ejecutando tests de C++ primero ==="
-          bazel test //src/test/cc/... --test_output=all || echo "Error en tests de C++"
-          
-          echo "=== Ejecutando coverage completo ==="
-          bazel coverage \
-            --test_output=all \
-            --instrumentation_filter="-.*jacoco_exclusion,-external/.*" \
-            --combined_report=lcov \
-            --spawn_strategy=local \
-            --collect_code_coverage \
-            --coverage_report_generator=@bazel_tools//tools/test:coverage_report_generator \
-            //src/test/... | tee -a bazel_coverage.log || true
-          
-          echo "=== Ejecutando coverage solo para C++ ==="
-          bazel coverage \
-            --test_output=all \
-            --instrumentation_filter="-.*jacoco_exclusion,-external/.*" \
-            --combined_report=lcov \
-            --spawn_strategy=local \
-            --collect_code_coverage \
-            --coverage_report_generator=@bazel_tools//tools/test:coverage_report_generator \
-            //src/test/cc/... | tee -a bazel_coverage_cc.log || true
-          # bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
+          bazel coverage --nocache_test_results --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
