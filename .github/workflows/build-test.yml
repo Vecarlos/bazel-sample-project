@@ -47,7 +47,7 @@ jobs:
       - name: Build
         run: bazel build --worker_quit_after_build //src/main/kotlin/...
 
-      - name: Build
+      - name: test
         run: bazel test //src/test/kotlin/...
 
       - name: Run tests
