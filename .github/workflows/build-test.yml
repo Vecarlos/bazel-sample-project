@@ -45,7 +45,7 @@ jobs:
         run: bazel mod deps
 
       - name: Build
-        run: bazel build --worker_quit_after_build //...
+        run: bazel build --worker_quit_after_build //src/main/kotlin/...
 
       - name: See files
         run: |
