@@ -1,0 +1,937 @@
+// Copyright 2020 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package org.wfanet.measurement.kingdom.service.api.v2alpha
+
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.extensions.proto.ProtoTruth.assertThat
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet
+import com.google.protobuf.TextFormat
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.kotlin.any
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.wfanet.measurement.api.Version
+import org.wfanet.measurement.api.v2alpha.DataProviderKey
+import org.wfanet.measurement.api.v2alpha.EventGroupMetadataDescriptor
+import org.wfanet.measurement.api.v2alpha.EventGroupMetadataDescriptorKey
+import org.wfanet.measurement.api.v2alpha.ListEventGroupMetadataDescriptorsPageTokenKt
+import org.wfanet.measurement.api.v2alpha.ListEventGroupMetadataDescriptorsRequest
+import org.wfanet.measurement.api.v2alpha.batchGetEventGroupMetadataDescriptorsRequest
+import org.wfanet.measurement.api.v2alpha.batchGetEventGroupMetadataDescriptorsResponse
+import org.wfanet.measurement.api.v2alpha.copy
+import org.wfanet.measurement.api.v2alpha.createEventGroupMetadataDescriptorRequest
+import org.wfanet.measurement.api.v2alpha.eventGroupMetadataDescriptor
+import org.wfanet.measurement.api.v2alpha.getEventGroupMetadataDescriptorRequest
+import org.wfanet.measurement.api.v2alpha.listEventGroupMetadataDescriptorsPageToken
+import org.wfanet.measurement.api.v2alpha.listEventGroupMetadataDescriptorsRequest
+import org.wfanet.measurement.api.v2alpha.listEventGroupMetadataDescriptorsResponse
+import org.wfanet.measurement.api.v2alpha.updateEventGroupMetadataDescriptorRequest
+import org.wfanet.measurement.api.v2alpha.withDataProviderPrincipal
+import org.wfanet.measurement.api.v2alpha.withMeasurementConsumerPrincipal
+import org.wfanet.measurement.common.base64UrlEncode
+import org.wfanet.measurement.common.grpc.errorInfo
+import org.wfanet.measurement.common.grpc.testing.GrpcTestServerRule
+import org.wfanet.measurement.common.grpc.testing.mockService
+import org.wfanet.measurement.common.identity.ExternalId
+import org.wfanet.measurement.common.testing.captureFirst
+import org.wfanet.measurement.common.testing.verifyProtoArgument
+import org.wfanet.measurement.internal.kingdom.EventGroupMetadataDescriptor as InternalEventGroupMetadataDescriptor
+import org.wfanet.measurement.internal.kingdom.EventGroupMetadataDescriptorsGrpcKt.EventGroupMetadataDescriptorsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.EventGroupMetadataDescriptorsGrpcKt.EventGroupMetadataDescriptorsCoroutineStub
+import org.wfanet.measurement.internal.kingdom.StreamEventGroupMetadataDescriptorsRequest
+import org.wfanet.measurement.internal.kingdom.StreamEventGroupMetadataDescriptorsRequestKt
+import org.wfanet.measurement.internal.kingdom.copy
+import org.wfanet.measurement.internal.kingdom.eventGroupMetadataDescriptor as internalEventGroupMetadataDescriptor
+import org.wfanet.measurement.internal.kingdom.eventGroupMetadataDescriptorDetails
+import org.wfanet.measurement.internal.kingdom.eventGroupMetadataDescriptorKey
+import org.wfanet.measurement.internal.kingdom.getEventGroupMetadataDescriptorRequest as internalGetEventGroupMetadataDescriptorRequest
+import org.wfanet.measurement.internal.kingdom.streamEventGroupMetadataDescriptorsRequest
+import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.common.DataProviderNotFoundException
+import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.common.EventGroupMetadataDescriptorNotFoundException
+
+private const val DEFAULT_LIMIT = 50
+
+@RunWith(JUnit4::class)
+class EventGroupMetadataDescriptorsServiceTest {
+
+  private val internalEventGroupMetadataDescriptorsMock:
+    EventGroupMetadataDescriptorsCoroutineImplBase =
+    mockService {
+      onBlocking { getEventGroupMetadataDescriptor(any()) }
+        .thenReturn(INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR)
+      onBlocking { createEventGroupMetadataDescriptor(any()) }
+        .thenReturn(INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR)
+      onBlocking { updateEventGroupMetadataDescriptor(any()) }
+        .thenReturn(INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR)
+      onBlocking { streamEventGroupMetadataDescriptors(any()) }
+        .thenReturn(
+          flowOf(
+            INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR,
+            INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR.copy {
+              externalEventGroupMetadataDescriptorId =
+                EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID_2.value
+            },
+          )
+        )
+    }
+
+  @get:Rule
+  val grpcTestServerRule = GrpcTestServerRule {
+    addService(internalEventGroupMetadataDescriptorsMock)
+  }
+
+  private lateinit var service: EventGroupMetadataDescriptorsService
+
+  @Before
+  fun initService() {
+    service =
+      EventGroupMetadataDescriptorsService(
+        EventGroupMetadataDescriptorsCoroutineStub(grpcTestServerRule.channel)
+      )
+  }
+
+  @Test
+  fun `getEventGroupMetadataDescriptor with data provider returns descriptor`() {
+    val request = getEventGroupMetadataDescriptorRequest {
+      name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME
+    }
+
+    val result =
+      withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+        runBlocking { service.getEventGroupMetadataDescriptor(request) }
+      }
+
+    val expected = EVENT_GROUP_METADATA_DESCRIPTOR
+
+    verifyProtoArgument(
+        internalEventGroupMetadataDescriptorsMock,
+        EventGroupMetadataDescriptorsCoroutineImplBase::getEventGroupMetadataDescriptor,
+      )
+      .isEqualTo(
+        internalGetEventGroupMetadataDescriptorRequest {
+          externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+          externalEventGroupMetadataDescriptorId = EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+        }
+      )
+
+    assertThat(result).isEqualTo(expected)
+  }
+
+  @Test
+  fun `getEventGroupMetadataDescriptor with measurement consumer returns descriptor`() {
+    val request = getEventGroupMetadataDescriptorRequest {
+      name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME
+    }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.getEventGroupMetadataDescriptor(request) }
+      }
+
+    val expected = EVENT_GROUP_METADATA_DESCRIPTOR
+
+    verifyProtoArgument(
+        internalEventGroupMetadataDescriptorsMock,
+        EventGroupMetadataDescriptorsCoroutineImplBase::getEventGroupMetadataDescriptor,
+      )
+      .isEqualTo(
+        internalGetEventGroupMetadataDescriptorRequest {
+          externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+          externalEventGroupMetadataDescriptorId = EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+        }
+      )
+
+    assertThat(result).isEqualTo(expected)
+  }
+
+  @Test
+  fun `getEventGroupMetadataDescriptor throws PERMISSION_DENIED when edp doesn't match`() {
+    val request = getEventGroupMetadataDescriptorRequest {
+      name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME_2) {
+          runBlocking { service.getEventGroupMetadataDescriptor(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.PERMISSION_DENIED)
+  }
+
+  @Test
+  fun `getEventGroupMetadataDescriptor throws INVALID_ARGUMENT when name is missing`() {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking {
+            service.getEventGroupMetadataDescriptor(getEventGroupMetadataDescriptorRequest {})
+          }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `createEventGroupMetadataDescriptor returns descriptor`() {
+    val request = createEventGroupMetadataDescriptorRequest {
+      parent = DATA_PROVIDER_NAME
+      eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+      requestId = "type.googleapis.com/example.MetadataMessage"
+    }
+
+    val result =
+      withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+        runBlocking { service.createEventGroupMetadataDescriptor(request) }
+      }
+
+    val expected = EVENT_GROUP_METADATA_DESCRIPTOR
+
+    verifyProtoArgument(
+        internalEventGroupMetadataDescriptorsMock,
+        EventGroupMetadataDescriptorsCoroutineImplBase::createEventGroupMetadataDescriptor,
+      )
+      .isEqualTo(
+        INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR.copy {
+          clearExternalEventGroupMetadataDescriptorId()
+          idempotencyKey = request.requestId
+        }
+      )
+
+    assertThat(result).isEqualTo(expected)
+  }
+
+  @Test
+  fun `createEventGroupMetadataDescriptor throws PERMISSION_DENIED when edp doesn't match`() {
+    val request = createEventGroupMetadataDescriptorRequest {
+      parent = DATA_PROVIDER_NAME
+      eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME_2) {
+          runBlocking { service.createEventGroupMetadataDescriptor(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.PERMISSION_DENIED)
+  }
+
+  @Test
+  fun `createEventGroupMetadataDescriptor throws INVALID_ARGUMENT when descriptorSet invalid`() {
+    val badFileDescriptorSetText =
+      """
+      file {
+        name: ""
+        package: ""
+        message_type {
+          name: ""
+          field {
+            name: "test"
+            number: 1
+            label: LABEL_OPTIONAL
+            type: TYPE_STRING
+          }
+        }
+      }
+      """
+        .trimIndent()
+
+    val badFileDescriptorSetBuilder = FileDescriptorSet.newBuilder()
+    TextFormat.getParser().merge(badFileDescriptorSetText, badFileDescriptorSetBuilder)
+
+    val request = createEventGroupMetadataDescriptorRequest {
+      parent = DATA_PROVIDER_NAME
+      eventGroupMetadataDescriptor =
+        EVENT_GROUP_METADATA_DESCRIPTOR.copy {
+          clearDescriptorSet()
+          descriptorSet = badFileDescriptorSetBuilder.build()
+        }
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking { service.createEventGroupMetadataDescriptor(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `createEventGroupMetadataDescriptor throws INVALID_ARGUMENT when parent is missing`() {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking {
+            service.createEventGroupMetadataDescriptor(
+              createEventGroupMetadataDescriptorRequest {
+                eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+              }
+            )
+          }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `updateEventGroupMetadataDescriptor returns descriptor`() {
+    val request = updateEventGroupMetadataDescriptorRequest {
+      this.eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+    }
+
+    val result =
+      withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+        runBlocking { service.updateEventGroupMetadataDescriptor(request) }
+      }
+
+    val expected = EVENT_GROUP_METADATA_DESCRIPTOR
+
+    verifyProtoArgument(
+        internalEventGroupMetadataDescriptorsMock,
+        EventGroupMetadataDescriptorsCoroutineImplBase::updateEventGroupMetadataDescriptor,
+      )
+      .isEqualTo(
+        org.wfanet.measurement.internal.kingdom.updateEventGroupMetadataDescriptorRequest {
+          eventGroupMetadataDescriptor = INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR.copy {}
+        }
+      )
+
+    assertThat(result).isEqualTo(expected)
+  }
+
+  @Test
+  fun `updateEventGroupMetadataDescriptor throws INVALID_ARGUMENT when name is missing`() {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        runBlocking {
+          service.updateEventGroupMetadataDescriptor(
+            updateEventGroupMetadataDescriptorRequest {
+              eventGroupMetadataDescriptor =
+                EVENT_GROUP_METADATA_DESCRIPTOR.toBuilder().apply { clearName() }.build()
+            }
+          )
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+    assertThat(exception.status.description)
+      .isEqualTo("EventGroupMetadataDescriptor name is either unspecified or invalid")
+  }
+
+  @Test
+  fun `updateEventGroup throws UNAUTHENTICATED when no principal is found`() {
+    val request = updateEventGroupMetadataDescriptorRequest {
+      this.eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        runBlocking { service.updateEventGroupMetadataDescriptor(request) }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.UNAUTHENTICATED)
+  }
+
+  @Test
+  fun `updateEventGroup throws PERMISSION_DENIED when principal without authorization is found`() {
+    val request = updateEventGroupMetadataDescriptorRequest {
+      this.eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME_2) {
+          runBlocking { service.updateEventGroupMetadataDescriptor(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.PERMISSION_DENIED)
+  }
+
+  @Test
+  fun `batchGetEventGroupMetadataDescriptors returns descriptors in input order`() {
+    val request = batchGetEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME
+      names += listOf(EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2, EVENT_GROUP_METADATA_DESCRIPTOR_NAME)
+    }
+
+    val result =
+      withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+        runBlocking { service.batchGetEventGroupMetadataDescriptors(request) }
+      }
+
+    val expected = batchGetEventGroupMetadataDescriptorsResponse {
+      eventGroupMetadataDescriptors +=
+        listOf(
+          EVENT_GROUP_METADATA_DESCRIPTOR.copy { name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2 },
+          EVENT_GROUP_METADATA_DESCRIPTOR,
+        )
+    }
+
+    assertThat(result).isEqualTo(expected)
+  }
+
+  @Test
+  fun `batchGetEventGroupMetadataDescriptors returns descriptors for multiple DataProviders`() {
+    internalEventGroupMetadataDescriptorsMock.stub {
+      onBlocking { streamEventGroupMetadataDescriptors(any()) }
+        .thenReturn(
+          flowOf(
+            INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR,
+            INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR.copy {
+              externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID_2.value
+              externalEventGroupMetadataDescriptorId =
+                EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID_2.value
+            },
+          )
+        )
+    }
+    val eventGroupMetadataDescriptor2Key =
+      EventGroupMetadataDescriptorKey(
+        DATA_PROVIDER_EXTERNAL_ID_2.apiId.value,
+        EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID_2.apiId.value,
+      )
+    val request = batchGetEventGroupMetadataDescriptorsRequest {
+      parent = "dataProviders/-"
+      names +=
+        listOf(EVENT_GROUP_METADATA_DESCRIPTOR_NAME, eventGroupMetadataDescriptor2Key.toName())
+    }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.batchGetEventGroupMetadataDescriptors(request) }
+      }
+
+    assertThat(result)
+      .isEqualTo(
+        batchGetEventGroupMetadataDescriptorsResponse {
+          eventGroupMetadataDescriptors +=
+            listOf(
+              EVENT_GROUP_METADATA_DESCRIPTOR,
+              EVENT_GROUP_METADATA_DESCRIPTOR.copy {
+                name = eventGroupMetadataDescriptor2Key.toName()
+              },
+            )
+        }
+      )
+  }
+
+  @Test
+  fun `batchGetEventGroupMetadataDescriptors throws NOT_FOUND if descriptor not found`() {
+    val eventGroupMetadataDescriptorName3 =
+      "$DATA_PROVIDER_NAME/eventGroupMetadataDescriptors/AAAAAAAACHs"
+    val request = batchGetEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME
+      names += listOf(EVENT_GROUP_METADATA_DESCRIPTOR_NAME, eventGroupMetadataDescriptorName3)
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking { service.batchGetEventGroupMetadataDescriptors(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+  }
+
+  @Test
+  fun `batchGetEventGroupMetadataDescriptors throws PERMISSION_DENIED when edp doesn't match`() {
+    val request = batchGetEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME_2
+      names += listOf(EVENT_GROUP_METADATA_DESCRIPTOR_NAME)
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking { service.batchGetEventGroupMetadataDescriptors(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.PERMISSION_DENIED)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors with parent uses filter with parent`() {
+    val request = listEventGroupMetadataDescriptorsRequest { parent = DATA_PROVIDER_NAME }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.listEventGroupMetadataDescriptors(request) }
+      }
+
+    val expected = listEventGroupMetadataDescriptorsResponse {
+      eventGroupMetadataDescriptors += EVENT_GROUP_METADATA_DESCRIPTOR
+      eventGroupMetadataDescriptors +=
+        EVENT_GROUP_METADATA_DESCRIPTOR.copy { name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2 }
+    }
+
+    val streamEventGroupMetadataDescriptorsRequest =
+      captureFirst<StreamEventGroupMetadataDescriptorsRequest> {
+        verify(internalEventGroupMetadataDescriptorsMock)
+          .streamEventGroupMetadataDescriptors(capture())
+      }
+
+    assertThat(streamEventGroupMetadataDescriptorsRequest)
+      .ignoringRepeatedFieldOrder()
+      .isEqualTo(
+        streamEventGroupMetadataDescriptorsRequest {
+          limit = DEFAULT_LIMIT + 1
+          filter =
+            StreamEventGroupMetadataDescriptorsRequestKt.filter {
+              externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+              keyAfter = eventGroupMetadataDescriptorKey {}
+            }
+        }
+      )
+
+    assertThat(result).ignoringRepeatedFieldOrder().isEqualTo(expected)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors with wildcard doesn't uses filter with parent`() {
+    val request = listEventGroupMetadataDescriptorsRequest { parent = "dataProviders/-" }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.listEventGroupMetadataDescriptors(request) }
+      }
+
+    val expected = listEventGroupMetadataDescriptorsResponse {
+      eventGroupMetadataDescriptors += EVENT_GROUP_METADATA_DESCRIPTOR
+      eventGroupMetadataDescriptors +=
+        EVENT_GROUP_METADATA_DESCRIPTOR.copy { name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2 }
+    }
+
+    val streamEventGroupMetadataDescriptorsRequest =
+      captureFirst<StreamEventGroupMetadataDescriptorsRequest> {
+        verify(internalEventGroupMetadataDescriptorsMock)
+          .streamEventGroupMetadataDescriptors(capture())
+      }
+
+    assertThat(streamEventGroupMetadataDescriptorsRequest)
+      .ignoringRepeatedFieldOrder()
+      .isEqualTo(
+        streamEventGroupMetadataDescriptorsRequest {
+          limit = DEFAULT_LIMIT + 1
+          filter =
+            StreamEventGroupMetadataDescriptorsRequestKt.filter {
+              keyAfter = eventGroupMetadataDescriptorKey {}
+            }
+        }
+      )
+
+    assertThat(result).ignoringRepeatedFieldOrder().isEqualTo(expected)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors with page token gets next page`() {
+    val request = listEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME
+      val listEventGroupMetadataDescriptorsPageToken = listEventGroupMetadataDescriptorsPageToken {
+        pageSize = 1
+        externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+        lastEventGroupMetadataDescriptor =
+          ListEventGroupMetadataDescriptorsPageTokenKt.previousPageEnd {
+            externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+            externalEventGroupMetadataDescriptorId =
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+          }
+      }
+      pageToken = listEventGroupMetadataDescriptorsPageToken.toByteArray().base64UrlEncode()
+    }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.listEventGroupMetadataDescriptors(request) }
+      }
+
+    val expected = listEventGroupMetadataDescriptorsResponse {
+      eventGroupMetadataDescriptors += EVENT_GROUP_METADATA_DESCRIPTOR
+      val listEventGroupMetadataDescriptorsPageToken = listEventGroupMetadataDescriptorsPageToken {
+        pageSize = 1
+        externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+        lastEventGroupMetadataDescriptor =
+          ListEventGroupMetadataDescriptorsPageTokenKt.previousPageEnd {
+            externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+            externalEventGroupMetadataDescriptorId =
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+          }
+      }
+      nextPageToken = listEventGroupMetadataDescriptorsPageToken.toByteArray().base64UrlEncode()
+    }
+
+    val streamEventGroupMetadataDescriptorsRequest =
+      captureFirst<StreamEventGroupMetadataDescriptorsRequest> {
+        verify(internalEventGroupMetadataDescriptorsMock)
+          .streamEventGroupMetadataDescriptors(capture())
+      }
+
+    assertThat(streamEventGroupMetadataDescriptorsRequest)
+      .ignoringRepeatedFieldOrder()
+      .isEqualTo(
+        streamEventGroupMetadataDescriptorsRequest {
+          limit = 2
+          filter =
+            StreamEventGroupMetadataDescriptorsRequestKt.filter {
+              externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+              keyAfter = eventGroupMetadataDescriptorKey {
+                externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+                externalEventGroupMetadataDescriptorId =
+                  EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+              }
+            }
+        }
+      )
+
+    assertThat(result).ignoringRepeatedFieldOrder().isEqualTo(expected)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors with new page size replaces page size in page token`() {
+    val request = listEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME
+      pageSize = 2
+      val listEventGroupMetadataDescriptorsPageToken = listEventGroupMetadataDescriptorsPageToken {
+        pageSize = 1
+        externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+        lastEventGroupMetadataDescriptor =
+          ListEventGroupMetadataDescriptorsPageTokenKt.previousPageEnd {
+            externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+            externalEventGroupMetadataDescriptorId =
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+          }
+      }
+      pageToken = listEventGroupMetadataDescriptorsPageToken.toByteArray().base64UrlEncode()
+    }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.listEventGroupMetadataDescriptors(request) }
+      }
+
+    val expected = listEventGroupMetadataDescriptorsResponse {
+      eventGroupMetadataDescriptors += EVENT_GROUP_METADATA_DESCRIPTOR
+      eventGroupMetadataDescriptors +=
+        EVENT_GROUP_METADATA_DESCRIPTOR.copy { name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2 }
+    }
+
+    val streamEventGroupMetadataDescriptorsRequest =
+      captureFirst<StreamEventGroupMetadataDescriptorsRequest> {
+        verify(internalEventGroupMetadataDescriptorsMock)
+          .streamEventGroupMetadataDescriptors(capture())
+      }
+
+    assertThat(streamEventGroupMetadataDescriptorsRequest)
+      .ignoringRepeatedFieldOrder()
+      .isEqualTo(
+        streamEventGroupMetadataDescriptorsRequest {
+          limit = request.pageSize + 1
+          filter =
+            StreamEventGroupMetadataDescriptorsRequestKt.filter {
+              externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+              keyAfter = eventGroupMetadataDescriptorKey {
+                externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+                externalEventGroupMetadataDescriptorId =
+                  EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+              }
+            }
+        }
+      )
+
+    assertThat(result).ignoringRepeatedFieldOrder().isEqualTo(expected)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors with no page size uses page size in page token`() {
+    val request = listEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME
+      val listEventGroupMetadataDescriptorsPageToken = listEventGroupMetadataDescriptorsPageToken {
+        pageSize = 5
+        externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+        lastEventGroupMetadataDescriptor =
+          ListEventGroupMetadataDescriptorsPageTokenKt.previousPageEnd {
+            externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+            externalEventGroupMetadataDescriptorId =
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+          }
+      }
+      pageToken = listEventGroupMetadataDescriptorsPageToken.toByteArray().base64UrlEncode()
+    }
+
+    val result =
+      withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+        runBlocking { service.listEventGroupMetadataDescriptors(request) }
+      }
+
+    val expected = listEventGroupMetadataDescriptorsResponse {
+      eventGroupMetadataDescriptors += EVENT_GROUP_METADATA_DESCRIPTOR
+      eventGroupMetadataDescriptors +=
+        EVENT_GROUP_METADATA_DESCRIPTOR.copy { name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2 }
+    }
+
+    val streamEventGroupMetadataDescriptorsRequest =
+      captureFirst<StreamEventGroupMetadataDescriptorsRequest> {
+        verify(internalEventGroupMetadataDescriptorsMock)
+          .streamEventGroupMetadataDescriptors(capture())
+      }
+
+    assertThat(streamEventGroupMetadataDescriptorsRequest)
+      .ignoringRepeatedFieldOrder()
+      .isEqualTo(
+        streamEventGroupMetadataDescriptorsRequest {
+          limit = 6
+          filter =
+            StreamEventGroupMetadataDescriptorsRequestKt.filter {
+              externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+              keyAfter = eventGroupMetadataDescriptorKey {
+                externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+                externalEventGroupMetadataDescriptorId =
+                  EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+              }
+            }
+        }
+      )
+
+    assertThat(result).ignoringRepeatedFieldOrder().isEqualTo(expected)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors throws UNAUTHENTICATED when no principal is found`() {
+    val request = listEventGroupMetadataDescriptorsRequest { parent = DATA_PROVIDER_NAME }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        runBlocking { service.listEventGroupMetadataDescriptors(request) }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.UNAUTHENTICATED)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors throws PERMISSION_DENIED when edp caller doesn't match`() {
+    val request = listEventGroupMetadataDescriptorsRequest { parent = DATA_PROVIDER_NAME }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME_2) {
+          runBlocking { service.listEventGroupMetadataDescriptors(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.PERMISSION_DENIED)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors throws INVALID_ARGUMENT when parent is missing`() {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+          runBlocking {
+            service.listEventGroupMetadataDescriptors(
+              ListEventGroupMetadataDescriptorsRequest.getDefaultInstance()
+            )
+          }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `listEventGroupMetadataDescriptors throws INVALID_ARGUMENT when page size is less than 0`() {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+          runBlocking {
+            service.listEventGroupMetadataDescriptors(
+              listEventGroupMetadataDescriptorsRequest {
+                parent = DATA_PROVIDER_NAME
+                pageSize = -1
+              }
+            )
+          }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `list throws invalid argument when parent doesn't match parent in page token`() {
+    val request = listEventGroupMetadataDescriptorsRequest {
+      parent = DATA_PROVIDER_NAME
+      pageSize = 2
+      val listEventGroupMetadataDescriptorsPageToken = listEventGroupMetadataDescriptorsPageToken {
+        pageSize = 2
+        externalDataProviderId = 654
+        lastEventGroupMetadataDescriptor =
+          ListEventGroupMetadataDescriptorsPageTokenKt.previousPageEnd {
+            externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+            externalEventGroupMetadataDescriptorId =
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+          }
+      }
+      pageToken = listEventGroupMetadataDescriptorsPageToken.toByteArray().base64UrlEncode()
+    }
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withMeasurementConsumerPrincipal(MEASUREMENT_CONSUMER_NAME) {
+          runBlocking { service.listEventGroupMetadataDescriptors(request) }
+        }
+      }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `createEventGroupMetadataDescriptor throws NOT_FOUND with data provider name when data provider not found`() {
+    internalEventGroupMetadataDescriptorsMock.stub {
+      onBlocking { createEventGroupMetadataDescriptor(any()) }
+        .thenThrow(
+          DataProviderNotFoundException(DATA_PROVIDER_EXTERNAL_ID)
+            .asStatusRuntimeException(Status.Code.NOT_FOUND, "DataProvider not found.")
+        )
+    }
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking {
+            service.createEventGroupMetadataDescriptor(
+              createEventGroupMetadataDescriptorRequest {
+                parent = DATA_PROVIDER_NAME
+                eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+              }
+            )
+          }
+        }
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+    assertThat(exception.errorInfo?.metadataMap).containsEntry("dataProvider", DATA_PROVIDER_NAME)
+  }
+
+  @Test
+  fun `getEventGroupMetadataDescriptor throws NOT_FOUND with event group metadata descriptor name when event group metadata descriptor not found`() {
+    internalEventGroupMetadataDescriptorsMock.stub {
+      onBlocking { getEventGroupMetadataDescriptor(any()) }
+        .thenThrow(
+          EventGroupMetadataDescriptorNotFoundException(
+              DATA_PROVIDER_EXTERNAL_ID,
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID,
+            )
+            .asStatusRuntimeException(
+              Status.Code.NOT_FOUND,
+              "EventGroupMetadataDescriptor not found.",
+            )
+        )
+    }
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking {
+            service.getEventGroupMetadataDescriptor(
+              getEventGroupMetadataDescriptorRequest { name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME }
+            )
+          }
+        }
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+    assertThat(exception.errorInfo?.metadataMap)
+      .containsEntry("eventGroupMetadataDescriptor", EVENT_GROUP_METADATA_DESCRIPTOR_NAME)
+  }
+
+  @Test
+  fun `updateEventGroupMetadataDescriptor throws NOT_FOUND with event group metadata descriptor name when event group metadata descriptor not found`() {
+    internalEventGroupMetadataDescriptorsMock.stub {
+      onBlocking { updateEventGroupMetadataDescriptor(any()) }
+        .thenThrow(
+          EventGroupMetadataDescriptorNotFoundException(
+              DATA_PROVIDER_EXTERNAL_ID,
+              EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID,
+            )
+            .asStatusRuntimeException(
+              Status.Code.NOT_FOUND,
+              "EventGroupMetadataDescriptor not found.",
+            )
+        )
+    }
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        withDataProviderPrincipal(DATA_PROVIDER_NAME) {
+          runBlocking {
+            service.updateEventGroupMetadataDescriptor(
+              updateEventGroupMetadataDescriptorRequest {
+                this.eventGroupMetadataDescriptor = EVENT_GROUP_METADATA_DESCRIPTOR
+              }
+            )
+          }
+        }
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+    assertThat(exception.errorInfo?.metadataMap)
+      .containsEntry("eventGroupMetadataDescriptor", EVENT_GROUP_METADATA_DESCRIPTOR_NAME)
+  }
+
+  companion object {
+    private val DATA_PROVIDER_EXTERNAL_ID = ExternalId(123L)
+    private val DATA_PROVIDER_EXTERNAL_ID_2 = ExternalId(124L)
+    private val DATA_PROVIDER_KEY = DataProviderKey(DATA_PROVIDER_EXTERNAL_ID.apiId.value)
+    private val DATA_PROVIDER_KEY_2 = DataProviderKey(DATA_PROVIDER_EXTERNAL_ID_2.apiId.value)
+    private val DATA_PROVIDER_NAME = DATA_PROVIDER_KEY.toName()
+    private val DATA_PROVIDER_NAME_2 = DATA_PROVIDER_KEY_2.toName()
+
+    private const val MEASUREMENT_CONSUMER_NAME = "measurementConsumers/AAAAAAAAAHs"
+
+    private val EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID = ExternalId(456L)
+    private val EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID_2 = ExternalId(789L)
+    private val EVENT_GROUP_METADATA_DESCRIPTOR_NAME =
+      EventGroupMetadataDescriptorKey(
+          DATA_PROVIDER_KEY.dataProviderId,
+          EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.apiId.value,
+        )
+        .toName()
+    private val EVENT_GROUP_METADATA_DESCRIPTOR_NAME_2 =
+      EventGroupMetadataDescriptorKey(
+          DATA_PROVIDER_KEY.dataProviderId,
+          EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID_2.apiId.value,
+        )
+        .toName()
+    private val FILE_DESCRIPTOR_SET = FileDescriptorSet.getDefaultInstance()
+    private val API_VERSION = Version.V2_ALPHA
+
+    private val EVENT_GROUP_METADATA_DESCRIPTOR: EventGroupMetadataDescriptor =
+      eventGroupMetadataDescriptor {
+        name = EVENT_GROUP_METADATA_DESCRIPTOR_NAME
+        descriptorSet = FILE_DESCRIPTOR_SET
+      }
+
+    private val INTERNAL_EVENT_GROUP_METADATA_DESCRIPTOR: InternalEventGroupMetadataDescriptor =
+      internalEventGroupMetadataDescriptor {
+        externalDataProviderId = DATA_PROVIDER_EXTERNAL_ID.value
+        externalEventGroupMetadataDescriptorId = EVENT_GROUP_METADATA_DESCRIPTOR_EXTERNAL_ID.value
+
+        details = eventGroupMetadataDescriptorDetails {
+          apiVersion = API_VERSION.string
+          descriptorSet = FILE_DESCRIPTOR_SET
+        }
+      }
+  }
+}
