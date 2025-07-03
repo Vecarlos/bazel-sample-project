@@ -1,0 +1,14 @@
+package(
+    default_testonly = True,
+    default_visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "synthetic_generation_specs_small",
+    srcs = ["synthetic_population_spec_small.textproto"] + glob(["synthetic_event_group_spec_small*.textproto"]),
+)
+
+filegroup(
+    name = "synthetic_generation_specs_large",
+    srcs = ["synthetic_population_spec_large.textproto"] + glob(["synthetic_event_group_spec_large*.textproto"]),
+)

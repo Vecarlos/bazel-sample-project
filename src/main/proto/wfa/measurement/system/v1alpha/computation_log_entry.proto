@@ -1,0 +1,97 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.system.v1alpha;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "wfa/measurement/system/v1alpha/stage_attempt.proto";
+
+option java_package = "org.wfanet.measurement.system.v1alpha";
+option java_multiple_files = true;
+option java_outer_classname = "ComputationLogEntryProto";
+
+// Resource representing a log entry for a `ComputationParticipant`.
+//
+// TODO(googleapis/api-linter#1424): Remove when fixed in linter.
+// (-- api-linter: core::0123::resource-pattern-singular=disabled
+//     aip.dev/not-precedent: This is a nested collection. --)
+// (-- api-linter: core::0123::resource-pattern-plural=disabled
+//     aip.dev/not-precedent: This is a nested collection. --)
+message ComputationLogEntry {
+  option (google.api.resource) = {
+    type: "halo-system.wfanet.org/ComputationLogEntry"
+    singular: "computationLogEntry"
+    plural: "computationLogEntries"
+    pattern: "computations/{computation}/participants/{participant}/logEntries/{log_entry}"
+  };
+
+  // Resource name.
+  string name = 1;
+
+  // ID of some child of the `ComputationParticipant` from an external system.
+  //
+  // For example, this may identify a specific job or task.
+  string participant_child_reference_id = 2
+      [(google.api.field_behavior) = IMMUTABLE];
+
+  // Free-form human-readable log message. This should not include any sensitive
+  // info.
+  string log_message = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
+  // Information about the stage attempt. Set if the log event occurred during
+  // stage processing.
+  StageAttempt stage_attempt = 4 [(google.api.field_behavior) = IMMUTABLE];
+
+  // Details for a `ComputationParticipant` error.
+  message ErrorDetails {
+    // Type of error for a `ComputationLogEntry`.
+    enum Type {
+      // Default value used if the type is omitted.
+      TYPE_UNSPECIFIED = 0;
+
+      // Transient error.
+      //
+      // The parent `Computation` may not be in the `FAILED` state. The stage
+      // may be reattempted.
+      TRANSIENT = 1;
+
+      // Permanent error. Output-only.
+      //
+      // The parent `Computation` will be in the `FAILED` state.
+      PERMANENT = 2;
+    }
+    // Type of error for this `ComputationLogEntry`.
+    Type type = 1 [
+      (google.api.field_behavior) = REQUIRED,
+      (google.api.field_behavior) = IMMUTABLE
+    ];
+
+    // Time that the error occurred.
+    google.protobuf.Timestamp error_time = 2 [
+      (google.api.field_behavior) = REQUIRED,
+      (google.api.field_behavior) = IMMUTABLE
+    ];
+  }
+  // Details for a `ComputationParticipant` error.
+  //
+  // Only set if this `ComputationLogEntry` is for an error event.
+  ErrorDetails error_details = 5;
+}

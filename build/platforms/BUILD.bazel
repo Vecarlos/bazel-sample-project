@@ -16,3 +16,28 @@ platform(
         "//third_party/rbe_configs/config:platform",
     ],
 )
+
+constraint_value(
+    name = "glibc_2_31",
+    constraint_setting = ":glibc_version",
+)
+
+constraint_value(
+    name = "glibc_2_35",
+    constraint_setting = ":glibc_version",
+)
+
+constraint_value(
+    name = "glibc_2_28",
+    constraint_setting = ":glibc_version",
+)
+
+constraint_value(
+    name = "glibc_2_27",
+    constraint_setting = ":glibc_version",
+)
+
+constraint_value(
+    name = "glibc_2_23",
+    constraint_setting = ":glibc_version",
+)

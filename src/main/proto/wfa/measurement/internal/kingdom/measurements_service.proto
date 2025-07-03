@@ -1,0 +1,211 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "wfa/measurement/internal/kingdom/measurement.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// Internal service for persistence of Measurement entities.
+service Measurements {
+  rpc CreateMeasurement(CreateMeasurementRequest) returns (Measurement);
+
+  // Returns the Measurement for the specified external ID and parent.
+  rpc GetMeasurement(GetMeasurementRequest) returns (Measurement);
+
+  // Returns the Measurement for the specified external computation ID, using
+  // the COMPUTATION view.
+  rpc GetMeasurementByComputationId(GetMeasurementByComputationIdRequest)
+      returns (Measurement);
+
+  // Streams Measurements, ordered by (update_time, key) ascending.
+  //
+  // Which key is used for the ordering depends on which view is specified in
+  // the request.
+  //
+  // If the view is `Measurement.View.COMPUTATION` or
+  // `Measurement.View.COMPUTATION_STATS`, it is guaranteed that only
+  // Measurements with `external_computation_id` set are in a successful
+  // response.
+  rpc StreamMeasurements(StreamMeasurementsRequest)
+      returns (stream Measurement);
+
+  rpc SetMeasurementResult(SetMeasurementResultRequest) returns (Measurement);
+
+  // Marks a Measurement as CANCELLED by transitioning its state.
+  rpc CancelMeasurement(CancelMeasurementRequest) returns (Measurement);
+
+  // Marks Measurements as CANCELLED by transitioning their states.
+  rpc BatchCancelMeasurements(BatchCancelMeasurementsRequest)
+      returns (BatchCancelMeasurementsResponse);
+
+  // Permanently deletes Measurements.
+  rpc BatchDeleteMeasurements(BatchDeleteMeasurementsRequest)
+      returns (google.protobuf.Empty);
+
+  // Creates Measurements in a batch.
+  rpc BatchCreateMeasurements(BatchCreateMeasurementsRequest)
+      returns (BatchCreateMeasurementsResponse);
+
+  // Gets Measurements in a batch.
+  rpc BatchGetMeasurements(BatchGetMeasurementsRequest)
+      returns (BatchGetMeasurementsResponse);
+}
+
+message CreateMeasurementRequest {
+  Measurement measurement = 1;
+  string request_id = 2;
+}
+
+message GetMeasurementRequest {
+  fixed64 external_measurement_consumer_id = 1;
+  fixed64 external_measurement_id = 2;
+}
+
+message GetMeasurementByComputationIdRequest {
+  fixed64 external_computation_id = 1;
+}
+
+message StreamMeasurementsRequest {
+  // Filter criteria as a conjunction of specified fields. Repeated fields are
+  // disjunctions of their items.
+  message Filter {
+    reserved 5, 6;
+
+    int64 external_measurement_consumer_id = 1;
+    int64 external_measurement_consumer_certificate_id = 2;
+    repeated Measurement.State states = 3;
+    google.protobuf.Timestamp updated_after = 4;
+    string external_duchy_id = 7;
+    google.protobuf.Timestamp updated_before = 8;
+    google.protobuf.Timestamp created_before = 9;
+    google.protobuf.Timestamp created_after = 11;
+    bool has_external_computation_id = 12;
+
+    message After {
+      google.protobuf.Timestamp update_time = 1;
+      oneof key {
+        // Key of the `Measurement`, used when view is DEFAULT.
+        MeasurementKey measurement = 2;
+        // Computation key of the `Measurement`, used when view is COMPUTATION
+        // or COMPUTATION_STATS.
+        ComputationKey computation = 3;
+      }
+    }
+    After after = 10;
+  }
+  Filter filter = 1;
+
+  // The maximum number of results to return. If not specified or 0, it implies
+  // unlimited.
+  int32 limit = 2;
+
+  // The view of the `Measurement` to return.
+  Measurement.View measurement_view = 3;
+}
+
+message SetMeasurementResultRequest {
+  fixed64 external_computation_id = 1;
+
+  // External ID of the aggregator `Duchy`.
+  string external_aggregator_duchy_id = 2;
+
+  // External ID of the certificate belonging to the aggregator `Duchy`.
+  fixed64 external_aggregator_certificate_id = 3;
+
+  // Serialized `EncryptionPublicKey` message from the public API.
+  bytes result_public_key = 4;
+
+  // Encrypted `SignedData` message from the public API containing a serialized
+  // `Result` message from the public API, which can be verified using
+  // `aggregator_certificate`.
+  bytes encrypted_result = 5;
+
+  // Version of the public API for serialized message definitions.
+  string public_api_version = 6;
+}
+
+message CancelMeasurementRequest {
+  fixed64 external_measurement_consumer_id = 1;
+  fixed64 external_measurement_id = 2;
+
+  // Optional weakly validated etag computed from update time.
+  // If provided it must match the server's etag or cancellation will be
+  // aborted.
+  string etag = 3;
+}
+
+message BatchCancelMeasurementsRequest {
+  // The request message specifying the Measurements to cancel. A maximum of
+  // 1000 Measurements can be cancelled in a batch.
+  repeated CancelMeasurementRequest requests = 1;
+}
+
+message BatchCancelMeasurementsResponse {
+  // Measurements cancelled.
+  repeated Measurement measurements = 1;
+}
+
+message DeleteMeasurementRequest {
+  fixed64 external_measurement_consumer_id = 1;
+  fixed64 external_measurement_id = 2;
+
+  // Optional weakly validated etag. If provided it must match the server's etag
+  // or deletion will be aborted.
+  string etag = 3;
+}
+
+message BatchDeleteMeasurementsRequest {
+  // The request message specifying the Measurements to permanently delete. A
+  // maximum of 1000 Measurements can be deleted in a batch.
+  repeated DeleteMeasurementRequest requests = 1;
+}
+
+message MeasurementKey {
+  fixed64 external_measurement_consumer_id = 1;
+  fixed64 external_measurement_id = 2;
+}
+
+message ComputationKey {
+  fixed64 external_computation_id = 1;
+}
+
+message BatchCreateMeasurementsRequest {
+  fixed64 external_measurement_consumer_id = 1;
+  // The request message specifying the Measurements to create. All child
+  // requests must have their `external_measurement_consumer_id` match the
+  // parent `external_measurement_consumer_id`. A maximum of 50 Measurements
+  // can be created in a batch.
+  repeated CreateMeasurementRequest requests = 2;
+}
+
+message BatchCreateMeasurementsResponse {
+  repeated Measurement measurements = 1;
+}
+
+message BatchGetMeasurementsRequest {
+  fixed64 external_measurement_consumer_id = 1;
+  // A maximum of 50 Measurements can be retrieved in a batch.
+  repeated fixed64 external_measurement_ids = 2;
+}
+
+message BatchGetMeasurementsResponse {
+  repeated Measurement measurements = 1;
+}
