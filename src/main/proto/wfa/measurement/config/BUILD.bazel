@@ -1,0 +1,39 @@
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+IMPORT_PREFIX = "/src/main/proto"
+
+proto_library(
+    name = "duchy_cert_config_proto",
+    srcs = ["duchy_cert_config.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "duchy_cert_config_kt_jvm_proto",
+    deps = [":duchy_cert_config_proto"],
+)
+
+proto_library(
+    name = "authority_key_to_principal_map_proto",
+    srcs = ["authority_key_to_principal_map.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "authority_key_to_principal_map_kt_jvm_proto",
+    deps = [":authority_key_to_principal_map_proto"],
+)
+
+proto_library(
+    name = "rate_limit_config_proto",
+    srcs = ["rate_limit_config.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "rate_limit_config_kt_jvm_proto",
+    deps = [":rate_limit_config_proto"],
+)

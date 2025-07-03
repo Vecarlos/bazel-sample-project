@@ -1,0 +1,81 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/type/interval.proto";
+import "wfa/measurement/internal/kingdom/data_provider.proto";
+import "wfa/measurement/internal/kingdom/data_provider_capabilities.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// Internal service for persistence of DataProvider entities.
+service DataProviders {
+  rpc CreateDataProvider(DataProvider) returns (DataProvider);
+
+  rpc GetDataProvider(GetDataProviderRequest) returns (DataProvider);
+
+  rpc BatchGetDataProviders(BatchGetDataProvidersRequest)
+      returns (BatchGetDataProvidersResponse);
+
+  rpc ReplaceDataProviderRequiredDuchies(
+      ReplaceDataProviderRequiredDuchiesRequest) returns (DataProvider);
+
+  rpc ReplaceDataAvailabilityIntervals(ReplaceDataAvailabilityIntervalsRequest)
+      returns (DataProvider);
+
+  rpc ReplaceDataAvailabilityInterval(ReplaceDataAvailabilityIntervalRequest)
+      returns (DataProvider);
+
+  rpc ReplaceDataProviderCapabilities(ReplaceDataProviderCapabilitiesRequest)
+      returns (DataProvider);
+}
+
+message ReplaceDataProviderRequiredDuchiesRequest {
+  fixed64 external_data_provider_id = 1;
+  repeated string required_external_duchy_ids = 2;
+}
+
+message GetDataProviderRequest {
+  fixed64 external_data_provider_id = 1;
+}
+
+message BatchGetDataProvidersRequest {
+  repeated fixed64 external_data_provider_ids = 1;
+}
+
+message BatchGetDataProvidersResponse {
+  repeated DataProvider data_providers = 1;
+}
+
+message ReplaceDataAvailabilityIntervalsRequest {
+  fixed64 external_data_provider_id = 1;
+  repeated DataProvider.DataAvailabilityMapEntry data_availability_intervals =
+      2;
+}
+
+message ReplaceDataAvailabilityIntervalRequest {
+  fixed64 external_data_provider_id = 1;
+  google.type.Interval data_availability_interval = 2;
+}
+
+message ReplaceDataProviderCapabilitiesRequest {
+  fixed64 external_data_provider_id = 1;
+
+  // New value for `capabilities`.
+  DataProviderCapabilities capabilities = 2;
+}
