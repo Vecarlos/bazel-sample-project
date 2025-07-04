@@ -6,10 +6,9 @@ package(default_testonly = True)
 kt_jvm_library(
     name = "jni_honest_majority_share_shuffle_cryptor_test",
     srcs = ["JniHonestMajorityShareShuffleCryptorTest.kt"],
-    deps = [
-        "//src/main/kotlin/org/wfanet/measurement/duchy/mill/shareshuffle/crypto:honest_majority_share_shuffle_cryptor",
+    deps = ["//src/main/kotlin/org/wfanet/measurement/duchy/mill/shareshuffle/crypto:honest_majority_share_shuffle_cryptor",
         "//src/main/proto/wfa/measurement/internal/duchy/protocol:honest_majority_share_shuffle_methods_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
+        "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],
 )
@@ -18,5 +17,7 @@ kt_jvm_library(
 java_test(
     name = "JniHonestMajorityShareShuffleCryptorTest",
     test_class = "org.wfanet.measurement.duchy.mill.shareshuffle.crypto.JniHonestMajorityShareShuffleCryptorTest",
-    runtime_deps = [":jni_honest_majority_share_shuffle_cryptor_test"],
+    runtime_deps = [":jni_honest_majority_share_shuffle_cryptor_test",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
 )

@@ -14,9 +14,5 @@ kt_jvm_library(
     name = "compression",
     srcs = glob(["*.kt"]),
     runtime_deps = [":resources"],
-    deps = [
-        "//src/main/kotlin/org/wfanet/panelmatch/common/beam",
-        "//src/main/proto/wfa/panelmatch/common/compression:compression_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/com/google/protobuf",
-    ],
+    deps = [],
 )

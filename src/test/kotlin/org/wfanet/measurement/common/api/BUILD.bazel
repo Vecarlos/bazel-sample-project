@@ -6,9 +6,8 @@ kt_jvm_test(
     name = "ETagsTest",
     srcs = ["ETagsTest.kt"],
     test_class = "org.wfanet.measurement.common.api.ETagsTest",
-    deps = [
-        "//src/main/kotlin/org/wfanet/measurement/common/api:etags",
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
+    deps = ["//src/main/kotlin/org/wfanet/measurement/common/api:etags",
         "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],
 )

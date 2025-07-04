@@ -7,11 +7,8 @@ kt_jvm_test(
         "//src/main/kotlin/org/wfanet/measurement/measurementconsumer/stats:variances",
     ],
     test_class = "org.wfanet.measurement.measurementconsumer.stats.VariancesTest",
-    deps = [
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
+    deps = ["@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
     ],
 )
 
@@ -22,10 +19,7 @@ kt_jvm_test(
         "//src/main/kotlin/org/wfanet/measurement/measurementconsumer/stats:covariances",
     ],
     test_class = "org.wfanet.measurement.measurementconsumer.stats.CovariancesTest",
-    deps = [
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
+    deps = ["@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
     ],
 )

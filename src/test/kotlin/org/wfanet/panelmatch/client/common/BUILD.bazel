@@ -5,10 +5,8 @@ kt_jvm_test(
     timeout = "short",
     srcs = ["ExchangeWorkflowDependencyGraphTest.kt"],
     test_class = "org.wfanet.panelmatch.client.common.ExchangeWorkflowDependencyGraphTest",
-    deps = [
-        "//src/main/kotlin/org/wfanet/panelmatch/client/common",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/common",
         "//src/main/proto/wfa/panelmatch/client/internal:exchange_workflow_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],
@@ -19,15 +17,11 @@ kt_jvm_test(
     timeout = "short",
     srcs = ["ProtoConversionsTest.kt"],
     test_class = "org.wfanet.panelmatch.client.common.ProtoConversionsTest",
-    deps = [
-        "//src/main/kotlin/org/wfanet/panelmatch/client/common",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/common",
         "//src/main/proto/wfa/measurement/api/v2alpha:exchange_workflow_kt_jvm_proto",
         "//src/main/proto/wfa/panelmatch/client/internal:exchange_workflow_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
-        "@wfa_common_jvm//imports/java/com/google/protobuf",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
     ],
 )
 
@@ -36,9 +30,7 @@ kt_jvm_test(
     timeout = "short",
     srcs = ["TaskParametersTest.kt"],
     test_class = "org.wfanet.panelmatch.client.common.TaskParametersTest",
-    deps = [
-        "//src/main/kotlin/org/wfanet/panelmatch/client/common",
-        "@wfa_common_jvm//imports/java/com/google/common/truth",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/common",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],

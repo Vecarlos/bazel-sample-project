@@ -17,43 +17,17 @@ package(
 kt_jvm_library(
     name = "measurement_results",
     srcs = ["MeasurementResults.kt"],
-    deps = [
-        "//imports/java/org/projectnessie/cel",
-        "//src/main/kotlin/org/wfanet/measurement/populationdataprovider:population_requisition_fulfiller",
-        "@wfa_common_jvm//imports/java/com/google/protobuf",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
     name = "requisition_refusal_exception",
     srcs = ["RequisitionRefusalException.kt"],
-    deps = [
-        "//src/main/proto/wfa/measurement/api/v2alpha:requisition_kt_jvm_proto",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
     name = "requisition_fulfiller",
     srcs = ["RequisitionFulfiller.kt"],
-    deps = [
-        ":requisition_refusal_exception",
-        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:packed_messages",
-        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:resource_key",
-        "//src/main/proto/wfa/measurement/api/v2alpha:certificates_service_kt_jvm_grpc_proto",
-        "//src/main/proto/wfa/measurement/api/v2alpha:crypto_kt_jvm_proto",
-        "//src/main/proto/wfa/measurement/api/v2alpha:data_providers_service_kt_jvm_grpc_proto",
-        "//src/main/proto/wfa/measurement/api/v2alpha:direct_computation_kt_jvm_proto",
-        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_consumers_service_kt_jvm_grpc_proto",
-        "//src/main/proto/wfa/measurement/api/v2alpha:measurements_service_kt_jvm_grpc_proto",
-        "//src/main/proto/wfa/measurement/api/v2alpha:requisitions_service_kt_jvm_grpc_proto",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto:key_storage",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto/tink",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/throttler",
-        "@wfa_consent_signaling_client//src/main/kotlin/org/wfanet/measurement/consent/client/common:verification_exception",
-        "@wfa_consent_signaling_client//src/main/kotlin/org/wfanet/measurement/consent/client/dataprovider",
-    ],
+    deps = [],
 )

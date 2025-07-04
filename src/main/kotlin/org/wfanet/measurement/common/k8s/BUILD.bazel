@@ -11,10 +11,5 @@ kt_jvm_library(
         "KubernetesClient.kt",
         "Names.kt",
     ],
-    deps = [
-        "//imports/java/io/kubernetes/client",
-        "//imports/java/io/kubernetes/client/extended",
-        "@wfa_common_jvm//imports/java/org/jetbrains/annotations",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-    ],
+    deps = [],
 )

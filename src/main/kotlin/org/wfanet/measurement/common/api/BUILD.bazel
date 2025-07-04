@@ -14,7 +14,7 @@ kt_jvm_library(
 kt_jvm_library(
     name = "principal",
     srcs = ["Principal.kt"],
-    deps = [":resource_key"],
+    deps = [],
 )
 
 kt_jvm_library(
@@ -23,16 +23,13 @@ kt_jvm_library(
         "ResourceKeyLookup.kt",
         "ResourceNameLookup.kt",
     ],
-    deps = [":resource_key"],
+    deps = [],
 )
 
 kt_jvm_library(
     name = "memoizing_principal_lookup",
     srcs = ["MemoizingPrincipalLookup.kt"],
-    deps = [
-        ":principal",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
@@ -41,20 +38,13 @@ kt_jvm_library(
         "AkidConfigPrincipalLookup.kt",
         "AkidConfigResourceNameLookup.kt",
     ],
-    deps = [
-        ":principal",
-        ":resource_lookup",
-        "//src/main/proto/wfa/measurement/config:authority_key_to_principal_map_kt_jvm_proto",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
     name = "etags",
     srcs = ["ETags.kt"],
-    deps = [
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto:hashing",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
