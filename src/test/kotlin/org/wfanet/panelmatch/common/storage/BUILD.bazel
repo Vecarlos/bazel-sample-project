@@ -1,0 +1,26 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "BlobsTest",
+    timeout = "short",
+    srcs = ["BlobsTest.kt"],
+    test_class = "org.wfanet.panelmatch.common.storage.BlobsTest",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/common/storage",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/testing",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+kt_jvm_test(
+    name = "SizeLimitedStorageClientTest",
+    timeout = "short",
+    srcs = ["SizeLimitedStorageClientTest.kt"],
+    test_class = "org.wfanet.panelmatch.common.storage.SizeLimitedStorageClientTest",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/common",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/storage",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/testing",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)

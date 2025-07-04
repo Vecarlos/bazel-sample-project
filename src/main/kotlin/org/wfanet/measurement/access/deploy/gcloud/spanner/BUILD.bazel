@@ -1,0 +1,63 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/docker:macros.bzl", "java_image")
+
+package(
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/access/deploy:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/integration/deploy/gcloud:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/access/deploy:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "spanner_principals_service",
+    srcs = ["SpannerPrincipalsService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "spanner_permissions_service",
+    srcs = ["SpannerPermissionsService.kt"],
+    deps = [],
+
+)
+
+kt_jvm_library(
+    name = "spanner_roles_service",
+    srcs = ["SpannerRolesService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "spanner_policies_service",
+    srcs = ["SpannerPoliciesService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "internal_api_services",
+    srcs = ["InternalApiServices.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "internal_api_server",
+    srcs = ["InternalApiServer.kt"],
+    visibility = ["//visibility:private"],
+    deps = [],
+)
+
+# java_binary(
+#     name = "InternalApiServer",
+#     main_class = "org.wfanet.measurement.access.deploy.gcloud.spanner.InternalApiServer",
+#     visibility = ["//visibility:private"],
+#     runtime_deps = [":internal_api_server"],
+# )
+
+# java_image(
+#     name = "internal_api_server_image",
+#     binary = ":InternalApiServer",
+#     main_class = "org.wfanet.measurement.access.deploy.gcloud.spanner.InternalApiServer",
+#     visibility = ["//src:docker_image_deployment"],
+# )

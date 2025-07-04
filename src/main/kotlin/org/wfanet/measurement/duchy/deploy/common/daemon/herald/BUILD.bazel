@@ -1,0 +1,34 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/docker:macros.bzl", "java_image")
+
+package(default_testonly = True)  #TODO: delete when InMemoryKeyStore and FakeHybridCipher are not used.
+
+kt_jvm_library(
+    name = "herald_daemon",
+    srcs = ["HeraldDaemon.kt"],
+    visibility = ["//src/main/kotlin/org/wfanet/measurement/duchy/deploy:__subpackages__"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "forwarded_storage_herald_daemon",
+    srcs = ["ForwardedStorageHeraldDaemon.kt"],
+    deps = [],
+)
+
+# java_binary(
+#     name = "ForwardedStorageHeraldDaemon",
+#     main_class = "org.wfanet.measurement.duchy.deploy.common.daemon.herald.ForwardedStorageHeraldDaemonKt",
+#     runtime_deps = [
+#         ":forwarded_storage_herald_daemon",
+#         "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/logging",
+#     ],
+# )
+
+# java_image(
+#     name = "forwarded_storage_herald_daemon_image",
+#     binary = ":ForwardedStorageHeraldDaemon",
+#     main_class = "org.wfanet.measurement.duchy.deploy.common.daemon.herald.ForwardedStorageHeraldDaemonKt",
+#     visibility = ["//src:docker_image_deployment"],
+# )

@@ -1,0 +1,27 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:public"])
+
+kt_jvm_library(
+    name = "work_items_service",
+    srcs = ["WorkItemsService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "work_item_attempts_service",
+    srcs = ["WorkItemAttemptsService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "resource_conversion",
+    srcs = ["ResourceConversion.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "services",
+    srcs = ["Services.kt"],
+    deps = [],
+)

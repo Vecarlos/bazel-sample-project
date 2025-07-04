@@ -1,0 +1,226 @@
+// Copyright 2023 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.duchy.protocol;
+
+import "wfa/measurement/internal/duchy/config/protocols_setup_config.proto";
+import "wfa/measurement/internal/duchy/crypto.proto";
+import "wfa/measurement/internal/duchy/differential_privacy.proto";
+import "wfa/measurement/internal/duchy/noise_mechanism.proto";
+
+option java_package = "org.wfanet.measurement.internal.duchy.protocol";
+option java_multiple_files = true;
+
+message HonestMajorityShareShuffle {
+  // Stages of the HonestMajorityShareShuffle computation.
+  //
+  // For FIRST_NON_AGGREGATOR, the normal stage transition is:
+  // INITIALIZED -> WAIT_TO_START -> SETUP_PHASE ->
+  // WAIT_ON_SHUFFLE_INPUT_PHASE_TWO -> SHUFFLE_PHASE
+  // -> COMPLETE
+  //
+  // For SECOND_NON_AGGREGATOR, the normal stage transition is:
+  // INITIALIZED -> WAIT_ON_SHUFFLE_INPUT_PHASE_ONE -> SETUP_PHASE
+  // -> SHUFFLE_PHASE -> COMPLETE
+  //
+  // For AGGREGATOR, the normal stage transition is:
+  // INITIALIZED -> WAIT_ON_AGGREGATION_INPUT -> AGGREGATION_PHASE
+  // -> COMPLETE
+  enum Stage {
+    // The computation stage is unknown. This is never set intentionally.
+    STAGE_UNSPECIFIED = 0;
+
+    // The computation is created by the duchy. Non-aggregators populate it
+    // with sampled randomness seed and encryption key pair.
+    //
+    // Role: AGGREGATOR, FIRST_NON_AGGREGATOR, SECOND_NON_AGGREGATOR.
+    //
+    // Actions: 1. Creating local Computation. 2. Sending requisition params to
+    // the Kingdom.
+    //
+    // Advance Condition: Requisition params sent.
+    INITIALIZED = 1;
+
+    // The FIRST_NON_AGGREGATOR waits on requisition fulfillment and the signal
+    // from the kingdom to proceed.
+    //
+    // Role: FIRST_NON_AGGREGATOR
+    //
+    // Actions: Receiving requisition fulfillment from EDPs.
+    //
+    // Advance Condition: Measurement stage from the Kingdom changes to
+    // COMPUTING, which means all requisitions are fulfilled.
+    WAIT_TO_START = 2;
+
+    // The SECOND_NON_AGGREGATOR waits on requisition fulfillment and the
+    // shuffle phase input from FIRST_NON_AGGREGATOR to proceed.
+    //
+    // Role: SECOND_NON_AGGREGATOR
+    //
+    // Actions: 1. Receiving requisition fulfillment fom EDPs. 2. Receiving
+    // shuffle phase input from FIRST_NON_AGGREGATOR.
+    //
+    // Advance Condition: shuffle phase input received.
+    WAIT_ON_SHUFFLE_INPUT_PHASE_ONE = 3;
+
+    // Non-aggregator sends random seed and secret seed from DataProviders to
+    // the peer non-aggregator. Seeds are used for generating noise and
+    // permutation.
+    //
+    // Role: FIRST_NON_AGGREGATOR, SECOND_NON_AGGREGATOR
+    //
+    // Actions: Sending shuffle phase input (seeds) to the peer non-aggregator.
+    //
+    // Advance Condition: shuffle phase input sent.
+    SETUP_PHASE = 4;
+
+    // The FIRST_NON_AGGREGATOR waits for shuffle phase input from
+    // SECOND_NON_AGGREGATOR.
+    //
+    // Role: FIRST_NON_AGGREGATOR
+    //
+    // Actions: Receiving shuffle phase input from SECOND_NON_AGGREGATOR.
+    //
+    // Advance condition: Shuffle phase input received.
+    WAIT_ON_SHUFFLE_INPUT_PHASE_TWO = 5;
+
+    // The aggregator waits for input of combined shares from
+    // non-aggregators. It is the initial stage for the aggregator.
+    //
+    // Role: AGGREGATOR
+    //
+    // Actions: Receiving aggregation input from both non-aggregators.
+    //
+    // Advance condition: Both input received.
+    WAIT_ON_AGGREGATION_INPUT = 6;
+
+    // Non-aggregators execute following actions:
+    //
+    // 1. Combine FrequencyVector shares from EDPs: Expand all requisition seeds
+    // into shares. Combine all requisition shares.
+    //
+    // 2. Add noise: Generate own noise share N_0 from common random seed.
+    // Generate noise N and calculate N_1 = N - N_0. Expanding peer's common
+    // random seed into noise share M_0. Append N_1 and M_0 into combined shares
+    // from step 1.
+    //
+    // 3. Shuffle: Combine common random seeds from own and peer. Generate a
+    // permutation based on the combined seed. Shuffle the shares.
+    //
+    // 4. Send the result of the share to the aggregator.
+    SHUFFLE_PHASE = 7;
+
+    // The aggregator adds up shares from non-aggregators, subtracts noise
+    // offset, and calculates the reach and the frequency histogram, then
+    // reports the encrypted result to the kingdom.
+    AGGREGATION_PHASE = 8;
+
+    // The computation is completed or failed. The worker can remove BLOBs that
+    // are no longer needed.
+    COMPLETE = 9;
+  }
+
+  message ComputationDetails {
+    // The role of either aggregator or non-aggregator in Computations.
+    wfa.measurement.internal.duchy.config.RoleInComputation role = 1;
+
+    // Parameters used in this computation.
+    message Parameters {
+      int32 maximum_frequency = 1;
+      // The modulus used in the protocol.
+      int32 ring_modulus = 2;
+      // Differential privacy parameters for reach noise generation.
+      DifferentialPrivacyParams reach_dp_params = 3;
+      // Differential privacy parameters for frequency noise generation.
+      DifferentialPrivacyParams frequency_dp_params = 4;
+      // Noise mechanism used for generating noise.
+      NoiseMechanism noise_mechanism = 5;
+    }
+    Parameters parameters = 2;
+
+    // The list of ids of non-aggregators participating in this computation.
+    //
+    // Used to determine whether both AggregationPhaseInputs are received by
+    // the aggregator.
+    repeated string non_aggregators = 3;
+
+    // Seed generated by this worker and will be used to generate noise and
+    // permutation.
+    bytes random_seed = 4;
+
+    // Encryption key pair for participant params.
+    EncryptionKeyPair encryption_key_pair = 5;
+  }
+
+  // The input message containing the random seed from the peer worker.
+  message ShufflePhaseInput {
+    // Random seed in bytes.
+    bytes peer_random_seed = 1;
+
+    // The requisition data in format of a secret seed.
+    message SecretSeed {
+      // Requisition id from the public api.
+      string requisition_id = 1;
+
+      // Ciphertext containing a serialized `SignedMessage` message from the
+      // CMMS public API.
+      bytes secret_seed_ciphertext = 2;
+
+      // The number of registers in the FrequencyVector.
+      int64 register_count = 3;
+
+      // Resource name of the `Certificate` from the public api belonging to the
+      // parent `DataProvider` used to verify the secret_seed signature. The
+      // public api version is in requisition details.
+      string data_provider_certificate = 4;
+    }
+    repeated SecretSeed secret_seeds = 2;
+  }
+
+  // The input message of aggregation phase.
+  message AggregationPhaseInput {
+    // Combined FrequencyVectors from non-aggregators.
+    repeated uint32 combined_frequency_vectors = 1;
+    // The number of registers in FrequencyVectors.
+    //
+    // It is provided from RequisitionFulfillment.
+    int64 register_count = 2;
+  }
+
+  // Details about a particular attempt of running a stage of the
+  // HonestMajorityShareShuffle Protocol.
+  message StageDetails {
+    oneof detail {
+      // Details specific to the WAIT_ON_AGGREGATION_INPUT stage.
+      WaitOnAggregationInputDetails wait_on_aggregation_input_details = 1;
+    }
+  }
+
+  // The stage WAIT_ON_AGGREGATION_INPUT of the aggregator duchy has a
+  // bootstrapping step where it requires input from all other non-aggregators
+  // before it can move forward. The bookkeeping of which duchy has provided is
+  // stored in this message.
+  message WaitOnAggregationInputDetails {
+    // A mapping of the name of a duchy to the BlobId corresponding to the
+    // ComputationBlobDependency.OUTPUT BLOB where it will be written.
+    //
+    // Upon receiving a FrequencyVector from a duchy the OUTPUT reference with
+    // the id found in this map is updated with the local copy of the blob. When
+    // all the output references have a path the worker can move onto the next
+    // stage.
+    map<string, int64> external_duchy_local_blob_id = 1;
+  }
+}

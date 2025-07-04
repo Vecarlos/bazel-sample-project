@@ -1,0 +1,13 @@
+package(default_visibility = [
+    "//src/main/kotlin/org/wfanet/measurement/reporting/deploy/v2/gcloud:__subpackages__",
+    "//src/main/kotlin/org/wfanet/measurement/reporting/deploy/v2/postgres:__subpackages__",
+    "//src/test/kotlin/org/wfanet/measurement/reporting/deploy/v2/postgres:__subpackages__",
+])
+
+filegroup(
+    name = "postgres",
+    srcs = glob([
+        "*.yaml",
+        "*.sql",
+    ]),
+)

@@ -1,0 +1,36 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        "//src/test/kotlin/org/wfanet/measurement/integration:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "in_process_life_of_a_report_integration_test",
+    srcs = [
+        "InProcessLifeOfAReportIntegrationTest.kt",
+    ],
+    data = [
+        "//src/main/k8s/testing/secretfiles:secret_files",
+    ],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "in_process_reporting_server",
+    srcs = [
+        "InProcessReportingServer.kt",
+    ],
+    data = [
+        "//src/main/k8s/testing/secretfiles:secret_files",
+    ],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "in_process_event_groups_test",
+    srcs = ["InProcessEventGroupsTest.kt"],
+    deps = [],
+)

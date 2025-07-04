@@ -1,0 +1,71 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+_INCLUDE_PREFIX = "/src/main/cc"
+
+cc_library(
+    name = "constants",
+    hdrs = [
+        "constants.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_library(
+    name = "encryption_utility_helper",
+    srcs = [
+        "encryption_utility_helper.cc",
+    ],
+    hdrs = [
+        "encryption_utility_helper.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        ":constants",
+        ":ec_point_util",
+        ":protocol_cryptor",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/time",
+        "@wfa_common_cpp//src/main/cc/common_cpp/macros",
+    ],
+)
+
+cc_library(
+    name = "ec_point_util",
+    srcs = [
+        "ec_point_util.cc",
+    ],
+    hdrs = [
+        "ec_point_util.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_private_join_and_compute//private_join_and_compute/crypto:ec_util",
+    ],
+)
+
+cc_library(
+    name = "protocol_cryptor",
+    srcs = [
+        "protocol_cryptor.cc",
+    ],
+    hdrs = [
+        "protocol_cryptor.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        ":constants",
+        ":ec_point_util",
+        "//src/main/cc/wfa/measurement/common:string_block_sorter",
+        "@com_google_absl//absl/algorithm:container",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/strings",
+        "@com_google_private_join_and_compute//private_join_and_compute/crypto:commutative_elgamal",
+        "@com_google_private_join_and_compute//private_join_and_compute/crypto:ec_commutative_cipher",
+    ],
+)

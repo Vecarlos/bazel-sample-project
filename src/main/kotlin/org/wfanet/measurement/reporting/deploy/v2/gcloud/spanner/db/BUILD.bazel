@@ -1,0 +1,19 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/reporting/deploy/v2/gcloud/spanner:__pkg__",
+    ],
+)
+
+kt_jvm_library(
+    name = "measurement_consumers",
+    srcs = ["MeasurementConsumers.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "basic_reports",
+    srcs = ["BasicReports.kt"],
+    deps = [],
+)

@@ -1,0 +1,6 @@
+# proto-file: wfa/measurement/reporting/v2alpha/report.proto
+# proto-message: Report.ReportingMetricEntry
+key: "measurementConsumers/Dipo47pr5to/reportingSets/abc"
+value {
+  metric_calculation_specs: "measurementConsumers/Dipo47pr5to/metricCalculationSpecs/abc"
+}

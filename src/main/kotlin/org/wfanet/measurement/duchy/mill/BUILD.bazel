@@ -1,0 +1,26 @@
+load("@wfa_common_jvm//build:defs.bzl", "test_target")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = [
+    test_target(":__pkg__"),
+    "//src/main/kotlin/org/wfanet/measurement:__subpackages__",
+    "//src/test/kotlin/org/wfanet/measurement:__subpackages__",
+])
+
+kt_jvm_library(
+    name = "mill_base",
+    srcs = ["MillBase.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "mill_flags",
+    srcs = ["MillFlags.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "mill_type",
+    srcs = ["MillType.kt"],
+    deps = [],
+)

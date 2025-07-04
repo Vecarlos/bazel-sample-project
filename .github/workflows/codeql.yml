@@ -1,6 +1,11 @@
 name: "CodeQL Analysis"
 
 on:
+  push:
+    branches:
+      - master
+      - "releases/**"
+      - "**"
   pull_request:
     branches: [ '**' ]
   schedule:

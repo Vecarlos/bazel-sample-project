@@ -1,0 +1,6 @@
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "bigquery",
+    actual = "@wfa_common_jvm//imports/java/com/google/api/services/bigquery",
+)

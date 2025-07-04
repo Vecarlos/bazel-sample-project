@@ -1,0 +1,32 @@
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "join_key_exchange_proto",
+    srcs = ["join_key.proto"],
+    strip_import_prefix = "/src/main/proto",
+)
+
+cc_proto_library(
+    name = "join_key_exchange_cc_proto",
+    deps = [":join_key_exchange_proto"],
+)
+
+kt_jvm_proto_library(
+    name = "join_key_exchange_kt_jvm_proto",
+    deps = [":join_key_exchange_proto"],
+)
+
+proto_library(
+    name = "exchangesteps_proto",
+    srcs = ["exchangesteps.proto"],
+    strip_import_prefix = "/src/main/proto",
+)
+
+kt_jvm_proto_library(
+    name = "exchangesteps_kt_jvm_proto",
+    deps = [":exchangesteps_proto"],
+)
