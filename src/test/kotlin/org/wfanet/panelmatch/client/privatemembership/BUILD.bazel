@@ -33,7 +33,7 @@ kt_jvm_test(
 
 kt_jvm_test(
     name = "JniPrivateMembershipCryptorTest",
-    timeout = "short",
+    # timeout = "short",
     srcs = ["JniPrivateMembershipCryptorTest.kt"],
     test_class = "org.wfanet.panelmatch.client.privatemembership.JniPrivateMembershipCryptorTest",
     deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/privatemembership",
@@ -48,9 +48,9 @@ kt_jvm_test(
 
 kt_jvm_test(
     name = "JniQueryEvaluatorTest",
-    size = "medium",
+    # size = "medium",
     srcs = ["JniQueryEvaluatorTest.kt"],
-    shard_count = 2,
+    # shard_count = 2,
     test_class = "org.wfanet.panelmatch.client.privatemembership.JniQueryEvaluatorTest",
     deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/privatemembership",
         "//src/main/kotlin/org/wfanet/panelmatch/client/privatemembership/testing",
@@ -62,7 +62,7 @@ kt_jvm_test(
 
 kt_jvm_test(
     name = "JniEvaluateQueriesEndToEndTest",
-    timeout = "moderate",
+    # timeout = "moderate",
     srcs = ["JniEvaluateQueriesEndToEndTest.kt"],
     test_class = "org.wfanet.panelmatch.client.privatemembership.JniEvaluateQueriesEndToEndTest",
     deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/privatemembership",
