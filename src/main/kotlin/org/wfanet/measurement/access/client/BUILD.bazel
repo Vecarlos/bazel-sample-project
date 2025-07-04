@@ -7,4 +7,5 @@ package(
 kt_jvm_library(
     name = "value_in_scope",
     srcs = ["ValueInScope.kt"],
+    deps = [],
 )

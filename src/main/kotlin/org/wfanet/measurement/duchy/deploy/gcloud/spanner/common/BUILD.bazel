@@ -8,8 +8,5 @@ package(default_visibility = [
 kt_jvm_library(
     name = "common",
     srcs = glob(["*.kt"]),
-    deps = [
-        "@wfa_common_jvm//imports/java/com/google/cloud/spanner",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner",
-    ],
+    deps = [],
 )

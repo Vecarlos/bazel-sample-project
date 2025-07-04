@@ -8,31 +8,19 @@ package(default_visibility = [
 kt_jvm_library(
     name = "account_constants",
     srcs = ["AccountConstants.kt"],
-    deps = [
-        "//src/main/proto/wfa/measurement/internal/kingdom:account_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/io/grpc:api",
-        "@wfa_common_jvm//imports/java/io/grpc:context",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
     name = "api_key_constants",
     srcs = ["ApiKeyConstants.kt"],
-    deps = [
-        "//src/main/proto/wfa/measurement/internal/kingdom:measurement_consumer_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/io/grpc:api",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(
     name = "api_key_credentials",
     srcs = ["ApiKeyCredentials.kt"],
-    deps = [
-        ":api_key_constants",
-        "@wfa_common_jvm//imports/java/io/grpc:api",
-    ],
+    deps = [],
 )
 
 kt_jvm_library(

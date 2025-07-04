@@ -15,11 +15,5 @@ kt_jvm_library(
         "//imports/java/org/apache/beam/runners/direct",
         "//imports/java/org/slf4j:simple",
     ],
-    deps = [
-        "//imports/java/org/apache/beam:core",
-        "//src/main/kotlin/org/wfanet/panelmatch/common",
-        "//src/main/kotlin/org/wfanet/panelmatch/common/beam",
-        "@wfa_common_jvm//imports/java/com/google/protobuf",
-        "@wfa_common_jvm//imports/java/org/junit",
-    ],
+    deps = [],
 )

@@ -9,9 +9,5 @@ kt_jvm_library(
     name = "testing",
     testonly = True,
     srcs = glob(["*.kt"]),
-    deps = [
-        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:duchy_ids",
-        "@wfa_common_jvm//imports/java/org/junit",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-    ],
+    deps = [],
 )

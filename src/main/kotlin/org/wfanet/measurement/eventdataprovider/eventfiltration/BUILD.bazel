@@ -8,10 +8,5 @@ kt_jvm_library(
         "EventFilterException.kt",
         "EventFilters.kt",
     ],
-    deps = [
-        "//imports/java/org/projectnessie/cel",
-        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/eventfiltration/validation",
-        "//src/main/proto/wfa/measurement/api/v2alpha:event_annotations_kt_jvm_proto",
-        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
-    ],
+    deps = [],
 )
