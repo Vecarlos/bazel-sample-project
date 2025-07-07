@@ -1,4 +1,5 @@
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+load("@rules_java//java:defs.bzl", "java_test")
 
 kt_jvm_test(
     name = "duplicated_test",
@@ -32,4 +33,11 @@ kt_jvm_test(
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],
+)
+
+java_test(
+    name = "javatest",
+    srcs = ["Test.java"],
+    test_class = "com.cognite.Test",
+    deps = ["//src/main/kotlin/problem:lib"],
 )
