@@ -1,11 +1,19 @@
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
 
 kt_jvm_library(
-    name = "problem_lib",
-    srcs = [
-        "A.kt",
-        "duplicated.kt",
-        "service.kt",
-    ],
+    name = "a_lib",
+    srcs = ["A.kt"],
+    visibility = ["//visibility:public"],
+)
+
+kt_jvm_library(
+    name = "duplicated_lib",
+    srcs = ["duplicated.kt"],
+    visibility = ["//visibility:public"],
+)
+
+kt_jvm_library(
+    name = "service_lib",
+    srcs = ["service.kt"],
     visibility = ["//visibility:public"],
 )
