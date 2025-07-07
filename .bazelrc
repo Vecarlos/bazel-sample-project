@@ -55,7 +55,16 @@ build:ci --config=remote
 
 build:ci --strategy=coverage=local
 
+# Configuration for GitHub Container Registry
+build:ghcr --define container_registry=ghcr.io
+build:ghcr --define image_repo_prefix=bazel-sample-project
+
+# Convenience platform configurations.
+build:debian-bullseye --platforms=//build/platforms:debian_bullseye
+build:ubuntu-bionic --platforms=//build/platforms:ubuntu_bionic
+
 import %workspace%/container.bazelrc
+import %workspace%/maven.bazelrc
 import %workspace%/results.bazelrc
 import %workspace%/remote.bazelrc
 try-import %workspace%/auth.bazelrc
