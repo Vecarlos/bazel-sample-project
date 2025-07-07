@@ -1,4 +1,5 @@
 package org.wfanet.measurement.securecomputation.service.internal.testing
 
-fun main() {
-}
+class Services {}
+
+class WorkItemAttemptsServiceTest {}

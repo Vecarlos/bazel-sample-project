@@ -1,4 +1,7 @@
 package org.wfanet.measurement.common.api
 
-fun main() {
-}
+class ChildResourceKey {}
+
+class Factory {}
+
+class ResourceKey {}

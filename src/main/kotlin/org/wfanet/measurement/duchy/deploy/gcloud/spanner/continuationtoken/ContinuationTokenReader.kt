@@ -1,4 +1,5 @@
 package org.wfanet.measurement.duchy.deploy.gcloud.spanner.continuationtoken
 
-fun main() {
-}
+class ContinuationTokenReader {}
+
+class ContinuationTokenReaderResult {}

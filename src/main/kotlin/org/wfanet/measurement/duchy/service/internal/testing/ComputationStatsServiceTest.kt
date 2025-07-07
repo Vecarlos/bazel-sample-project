@@ -1,4 +1,5 @@
 package org.wfanet.measurement.duchy.service.internal.testing
 
-fun main() {
-}
+class ComputationStatsServiceTest {}
+
+class Services {}

@@ -1,4 +1,5 @@
 package org.wfanet.measurement.access.service.internal
 
-fun main() {
-}
+class Permission {}
+
+class PermissionMapping {}

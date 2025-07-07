@@ -1,4 +1,9 @@
 package org.wfanet.measurement.duchy.deploy.common.postgres.readers
 
-fun main() {
-}
+class Computation {}
+
+class ComputationReader {}
+
+class LockOwnerQueryResult {}
+
+class UnclaimedTaskQueryResult {}

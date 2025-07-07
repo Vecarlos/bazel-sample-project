@@ -1,4 +1,7 @@
 package org.wfanet.measurement.kingdom.deploy.gcloud.spanner.writers
 
-fun main() {
-}
+class EventGroupResult {}
+
+class Table {}
+
+class UpdateEventGroup {}

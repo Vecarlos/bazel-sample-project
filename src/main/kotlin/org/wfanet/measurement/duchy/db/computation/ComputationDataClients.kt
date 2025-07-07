@@ -1,4 +1,7 @@
 package org.wfanet.measurement.duchy.db.computation
 
-fun main() {
-}
+class ComputationDataClients {}
+
+class PermanentErrorException {}
+
+class TransientErrorException {}

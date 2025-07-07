@@ -1,4 +1,7 @@
 package org.wfanet.measurement.kingdom.deploy.common
 
-fun main() {
-}
+class DuchyIds {}
+
+class DuchyIdsFlags {}
+
+class Entry {}

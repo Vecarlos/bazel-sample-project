@@ -1,4 +1,9 @@
 package org.wfanet.measurement.loadtest.resourcesetup
 
-fun main() {
-}
+class DuchyCert {}
+
+class EntityContent {}
+
+class MeasurementConsumerAndKey {}
+
+class ResourceSetup {}

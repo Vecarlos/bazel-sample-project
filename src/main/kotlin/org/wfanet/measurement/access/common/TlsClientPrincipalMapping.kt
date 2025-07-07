@@ -1,4 +1,5 @@
 package org.wfanet.measurement.access.common
 
-fun main() {
-}
+class TlsClient {}
+
+class TlsClientPrincipalMapping {}

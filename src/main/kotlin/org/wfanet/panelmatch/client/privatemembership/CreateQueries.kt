@@ -1,4 +1,13 @@
 package org.wfanet.panelmatch.client.privatemembership
 
-fun main() {
-}
+class BucketQuery {}
+
+class CreateQueries {}
+
+class CreateQueriesOutputs {}
+
+class EncryptQueriesFn {}
+
+class EqualizeQueriesPerShardFn {}
+
+class FullUnencryptedQuery {}

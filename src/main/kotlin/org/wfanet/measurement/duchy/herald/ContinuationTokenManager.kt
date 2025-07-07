@@ -1,4 +1,7 @@
 package org.wfanet.measurement.duchy.herald
 
-fun main() {
-}
+class ContinuationTokenManager {}
+
+class SetContinuationTokenException {}
+
+class State {}

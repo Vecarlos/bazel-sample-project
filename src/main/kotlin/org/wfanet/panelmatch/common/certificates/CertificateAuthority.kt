@@ -1,4 +1,5 @@
 package org.wfanet.panelmatch.common.certificates
 
-fun main() {
-}
+class CertificateAuthority {}
+
+class Context {}

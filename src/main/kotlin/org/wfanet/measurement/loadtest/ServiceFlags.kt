@@ -1,4 +1,7 @@
 package org.wfanet.measurement.loadtest
 
-fun main() {
-}
+class KingdomInternalApiFlags {}
+
+class KingdomPublicApiFlags {}
+
+class RequisitionFulfillmentServiceFlags {}

@@ -1,4 +1,11 @@
 package org.wfanet.measurement.eventdataprovider.privacybudgetmanagement
 
-fun main() {
-}
+class AcdpCharge {}
+
+class AcdpQuery {}
+
+class EventGroupSpec {}
+
+class LandscapeMask {}
+
+class Reference {}

@@ -1,4 +1,11 @@
 package org.wfanet.measurement.reporting.service.api
 
-fun main() {
-}
+class CelEnvCacheProvider {}
+
+class CelEnvProvider {}
+
+class NonRetryableException {}
+
+class RetryableException {}
+
+class TypeRegistryAndEnv {}

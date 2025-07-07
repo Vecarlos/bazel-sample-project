@@ -1,4 +1,5 @@
 package org.wfanet.measurement.common.identity
 
-fun main() {
-}
+class DuchyIdentity {}
+
+class DuchyTlsIdentityInterceptor {}

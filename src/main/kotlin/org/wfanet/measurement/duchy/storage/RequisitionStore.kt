@@ -1,4 +1,5 @@
 package org.wfanet.measurement.duchy.storage
 
-fun main() {
-}
+class RequisitionBlobContext {}
+
+class RequisitionStore {}

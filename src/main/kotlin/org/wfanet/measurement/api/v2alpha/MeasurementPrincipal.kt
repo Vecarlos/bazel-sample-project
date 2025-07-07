@@ -1,4 +1,13 @@
 package org.wfanet.measurement.api.v2alpha
 
-fun main() {
-}
+class AccountPrincipal {}
+
+class DataProviderPrincipal {}
+
+class DuchyPrincipal {}
+
+class MeasurementConsumerPrincipal {}
+
+class MeasurementPrincipal {}
+
+class ModelProviderPrincipal {}

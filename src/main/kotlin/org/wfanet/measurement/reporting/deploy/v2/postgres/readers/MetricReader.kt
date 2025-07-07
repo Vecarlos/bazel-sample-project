@@ -1,4 +1,16 @@
 package org.wfanet.measurement.reporting.deploy.v2.postgres.readers
 
-fun main() {
-}
+
+class MetricInfo {}
+
+class MetricMeasurementKey {}
+
+class MetricReader {}
+
+
+class ReportingMetric {}
+
+class ReportingMetricKey {}
+
+
+class WeightedMeasurementInfo {}

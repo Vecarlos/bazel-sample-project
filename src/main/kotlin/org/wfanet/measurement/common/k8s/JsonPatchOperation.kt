@@ -1,4 +1,7 @@
 package org.wfanet.measurement.common.k8s
 
-fun main() {
-}
+class Add {}
+
+class JsonPatchOperation {}
+
+class Replace {}

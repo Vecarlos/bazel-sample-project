@@ -1,4 +1,5 @@
 package org.wfanet.panelmatch.integration
 
-fun main() {
-}
+class AbstractInProcessPanelMatchIntegrationTest {}
+
+class ProviderContext {}

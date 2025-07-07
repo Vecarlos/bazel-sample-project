@@ -1,4 +1,9 @@
 package org.wfanet.panelmatch.client.privatemembership
 
-fun main() {
-}
+class BuildDecryptQueryResultsParametersFn {}
+
+class DecryptQueryResults {}
+
+class DecryptQueryResultsParameters {}
+
+class DecryptResultsFn {}

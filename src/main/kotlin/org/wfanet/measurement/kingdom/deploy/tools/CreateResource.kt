@@ -1,4 +1,19 @@
 package org.wfanet.measurement.kingdom.deploy.tools
 
-fun main() {
-}
+class CreateAccountCommand {}
+
+class CreateDataProviderCommand {}
+
+class CreateDuchyCertificateCommand {}
+
+class CreateMcCreationTokenCommand {}
+
+class CreateModelProviderCommand {}
+
+class CreateRecurringExchangeCommand {}
+
+class CreateResource {}
+
+class Duchy {}
+
+class VersionConverter {}

@@ -1,4 +1,5 @@
 package org.wfanet.measurement.dataprovider
 
-fun main() {
-}
+class MeasurementResults {}
+
+class ReachAndFrequency {}

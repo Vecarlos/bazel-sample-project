@@ -1,4 +1,9 @@
 package org.wfanet.measurement.privacybudgetmanager
 
-fun main() {
-}
+class LandscapeNode {}
+
+class LandscapeProcessor {}
+
+class MappingNode {}
+
+class PopulationMappingKey {}

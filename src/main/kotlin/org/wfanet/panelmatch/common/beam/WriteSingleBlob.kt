@@ -1,4 +1,6 @@
 package org.wfanet.panelmatch.common.beam
 
-fun main() {
-}
+class WriteBlobFn {}
+
+
+class WriteSingleBlob {}

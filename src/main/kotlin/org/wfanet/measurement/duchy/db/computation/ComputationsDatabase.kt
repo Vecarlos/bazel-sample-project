@@ -1,4 +1,15 @@
 package org.wfanet.measurement.duchy.db.computation
 
-fun main() {
-}
+class AfterTransition {}
+
+class BlobRef {}
+
+class ComputationStatMetric {}
+
+class ComputationsDatabase {}
+
+class ComputationsDatabaseReader {}
+
+class ComputationsDatabaseTransactor {}
+
+class EndComputationReason {}
