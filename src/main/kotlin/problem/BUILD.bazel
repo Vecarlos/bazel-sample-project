@@ -1,4 +1,5 @@
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("@rules_java//java:defs.bzl", "java_library")
 
 kt_jvm_library(
     name = "a_lib",
@@ -15,5 +16,11 @@ kt_jvm_library(
 kt_jvm_library(
     name = "service_lib",
     srcs = ["service.kt"],
+    visibility = ["//visibility:public"],
+)
+
+java_library(
+    name = "lib",
+    srcs = ["Lib.java"],
     visibility = ["//visibility:public"],
 )
