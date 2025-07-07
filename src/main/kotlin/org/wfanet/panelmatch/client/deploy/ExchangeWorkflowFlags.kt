@@ -1,4 +1,11 @@
 package org.wfanet.panelmatch.client.deploy
 
-fun main() {
-}
+class ExchangeWorkflowFlags {}
+
+class KingdomBasedExchangeFlags {}
+
+class KingdomlessExchangeFlags {}
+
+class ProtocolOptions {}
+
+class ProtocolSpecificFlags {}

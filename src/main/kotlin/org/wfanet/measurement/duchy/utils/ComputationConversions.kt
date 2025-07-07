@@ -1,4 +1,7 @@
 package org.wfanet.measurement.duchy.utils
 
-fun main() {
-}
+class ComputationResult {}
+
+class ReachAndFrequencyResult {}
+
+class ReachResult {}

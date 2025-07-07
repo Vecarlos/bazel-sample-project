@@ -1,4 +1,8 @@
 package org.wfanet.measurement.api.v2alpha
 
-fun main() {
-}
+class CanonicalRequisitionKey {}
+
+
+class RequisitionKey {}
+
+class RequisitionParentKey {}

@@ -1,4 +1,9 @@
 package org.wfanet.measurement.reporting.service.api.v2alpha
 
-fun main() {
-}
+class MeasurementVarianceNotComputableException {}
+
+class MetricResultNotComputableException {}
+
+class NoiseMechanismUnrecognizedException {}
+
+class NoiseMechanismUnspecifiedException {}

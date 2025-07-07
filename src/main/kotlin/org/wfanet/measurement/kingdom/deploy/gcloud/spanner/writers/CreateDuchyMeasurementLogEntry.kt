@@ -1,4 +1,5 @@
 package org.wfanet.measurement.kingdom.deploy.gcloud.spanner.writers
 
-fun main() {
-}
+class CreateDuchyMeasurementLogEntry {}
+
+class MeasurementInfo {}

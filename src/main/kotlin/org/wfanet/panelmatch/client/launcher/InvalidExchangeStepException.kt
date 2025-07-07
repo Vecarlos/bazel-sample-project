@@ -1,4 +1,5 @@
 package org.wfanet.panelmatch.client.launcher
 
-fun main() {
-}
+class FailureType {}
+
+class InvalidExchangeStepException {}

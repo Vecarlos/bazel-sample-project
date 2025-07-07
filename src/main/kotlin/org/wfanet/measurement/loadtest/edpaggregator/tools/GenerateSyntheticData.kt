@@ -1,4 +1,5 @@
 package org.wfanet.measurement.loadtest.edpaggregator.tools
 
-fun main() {
-}
+class GenerateSyntheticData {}
+
+class KmsType {}

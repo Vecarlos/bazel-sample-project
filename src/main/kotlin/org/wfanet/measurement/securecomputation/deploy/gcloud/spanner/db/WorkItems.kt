@@ -1,4 +1,5 @@
 package org.wfanet.measurement.securecomputation.deploy.gcloud.spanner.db
 
-fun main() {
-}
+class WorkItemResult {}
+
+class WorkItems {}

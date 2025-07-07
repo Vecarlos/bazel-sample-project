@@ -1,4 +1,5 @@
 package org.wfanet.measurement.loadtest.dataprovider
 
-fun main() {
-}
+class IndexedValue {}
+
+class VidToIndexMapGenerator {}

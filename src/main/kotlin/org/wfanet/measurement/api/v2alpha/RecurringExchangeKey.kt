@@ -1,4 +1,8 @@
 package org.wfanet.measurement.api.v2alpha
 
-fun main() {
-}
+class CanonicalRecurringExchangeKey {}
+
+
+class RecurringExchangeKey {}
+
+class RecurringExchangeParentKey {}

@@ -1,4 +1,11 @@
 package org.wfanet.measurement.dataprovider
 
-fun main() {
-}
+class DataProviderData {}
+
+class InvalidConsentSignalException {}
+
+class InvalidSpecException {}
+
+class RequisitionFulfiller {}
+
+class Specifications {}

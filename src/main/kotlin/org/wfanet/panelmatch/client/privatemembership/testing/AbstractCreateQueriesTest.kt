@@ -1,4 +1,5 @@
 package org.wfanet.panelmatch.client.privatemembership.testing
 
-fun main() {
-}
+class AbstractCreateQueriesTest {}
+
+class PanelistQuery {}

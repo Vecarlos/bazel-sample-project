@@ -1,4 +1,5 @@
 package org.wfanet.measurement.duchy.deploy.gcloud.spanner.computation
 
-fun main() {
-}
+class UnfinishedAttemptQuery {}
+
+class UnfinishedAttemptQueryResult {}

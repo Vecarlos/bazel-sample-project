@@ -1,4 +1,9 @@
 package org.wfanet.measurement.kingdom.deploy.gcloud.spanner.writers
 
-fun main() {
-}
+class ResultScope {}
+
+class SimpleSpannerWriter {}
+
+class SpannerWriter {}
+
+class TransactionScope {}

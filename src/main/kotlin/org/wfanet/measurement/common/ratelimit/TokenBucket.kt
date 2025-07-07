@@ -1,4 +1,5 @@
 package org.wfanet.measurement.common.ratelimit
 
-fun main() {
-}
+class Acquirer {}
+
+class TokenBucket {}

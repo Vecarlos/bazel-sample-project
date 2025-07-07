@@ -1,4 +1,7 @@
 package org.wfanet.measurement.eventdataprovider.differentialprivacy
 
-fun main() {
-}
+class DynamicClipping {}
+
+class MeasurementType {}
+
+class Result {}

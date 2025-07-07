@@ -1,4 +1,5 @@
 package org.wfanet.measurement.securecomputation.service.internal
 
-fun main() {
-}
+class Queue {}
+
+class QueueMapping {}

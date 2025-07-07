@@ -1,4 +1,9 @@
 package org.wfanet.measurement.privacybudgetmanager.deploy.postgres
 
-fun main() {
-}
+class ChargesTableState {}
+
+class LedgerEntry {}
+
+class PostgresLedger {}
+
+class PostgresTransactionContext {}

@@ -1,4 +1,5 @@
 package org.wfanet.panelmatch.client.deploy
 
-fun main() {
-}
+class ExchangeWorkflowDaemon {}
+
+class RunMode {}

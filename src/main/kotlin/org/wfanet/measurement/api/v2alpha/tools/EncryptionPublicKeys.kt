@@ -1,4 +1,9 @@
 package org.wfanet.measurement.api.v2alpha.tools
 
-fun main() {
-}
+class Deserialize {}
+
+class EncryptionPublicKeys {}
+
+class Serialize {}
+
+class Sign {}

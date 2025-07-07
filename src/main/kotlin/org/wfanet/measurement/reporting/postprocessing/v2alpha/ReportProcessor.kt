@@ -1,4 +1,13 @@
 package org.wfanet.measurement.reporting.postprocessing.v2alpha
 
-fun main() {
-}
+class Default {}
+
+class GcsStorageFactory {}
+
+class ReportProcessingOutput {}
+
+class ReportProcessor {}
+
+class ReportProcessorFailureException {}
+
+class StorageFactory {}

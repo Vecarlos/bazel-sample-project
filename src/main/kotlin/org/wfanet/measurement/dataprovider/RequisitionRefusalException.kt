@@ -1,4 +1,7 @@
 package org.wfanet.measurement.dataprovider
 
-fun main() {
-}
+class Default {}
+
+class RequisitionRefusalException {}
+
+class Test {}

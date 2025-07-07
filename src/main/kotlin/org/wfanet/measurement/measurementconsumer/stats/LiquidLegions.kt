@@ -1,4 +1,5 @@
 package org.wfanet.measurement.measurementconsumer.stats
 
-fun main() {
-}
+class LiquidLegions {}
+
+class LiquidLegionsSketchParams {}

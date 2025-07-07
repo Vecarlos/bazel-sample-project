@@ -1,4 +1,5 @@
 package org.wfanet.measurement.populationdataprovider
 
-fun main() {
-}
+class PopulationInfo {}
+
+class PopulationRequisitionFulfiller {}

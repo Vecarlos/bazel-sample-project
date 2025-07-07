@@ -1,4 +1,7 @@
 package org.wfanet.measurement.loadtest.panelmatchresourcesetup
 
-fun main() {
-}
+class PanelMatchResourceKeys {}
+
+class PanelMatchResourceSetup {}
+
+class WorkflowResourceKeys {}

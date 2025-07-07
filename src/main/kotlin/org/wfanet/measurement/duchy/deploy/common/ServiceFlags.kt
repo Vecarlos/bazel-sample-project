@@ -1,4 +1,9 @@
 package org.wfanet.measurement.duchy.deploy.common
 
-fun main() {
-}
+class AsyncComputationControlServiceFlags {}
+
+class ComputationsServiceFlags {}
+
+class KingdomPublicApiFlags {}
+
+class SystemApiFlags {}

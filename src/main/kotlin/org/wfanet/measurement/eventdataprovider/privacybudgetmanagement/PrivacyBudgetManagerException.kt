@@ -1,4 +1,5 @@
 package org.wfanet.measurement.eventdataprovider.privacybudgetmanagement
 
-fun main() {
-}
+class PrivacyBudgetManagerException {}
+
+class PrivacyBudgetManagerExceptionType {}

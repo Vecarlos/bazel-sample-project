@@ -1,4 +1,5 @@
 package org.wfanet.measurement.privacybudgetmanager
 
-fun main() {
-}
+class LedgerException {}
+
+class LedgerExceptionType {}

@@ -1,4 +1,11 @@
 package org.wfanet.measurement.api.v2alpha.tools
 
-fun main() {
-}
+class ApiFlags {}
+
+class BaseFlags {}
+
+class Benchmark {}
+
+class BenchmarkReport {}
+
+class MeasurementTask {}

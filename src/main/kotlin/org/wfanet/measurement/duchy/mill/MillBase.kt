@@ -1,4 +1,9 @@
 package org.wfanet.measurement.duchy.mill
 
-fun main() {
-}
+class Certificate {}
+
+class EncryptedComputationResult {}
+
+class MillBase {}
+
+class WallDurationLogger {}

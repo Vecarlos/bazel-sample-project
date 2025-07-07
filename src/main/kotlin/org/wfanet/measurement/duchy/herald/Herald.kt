@@ -1,4 +1,7 @@
 package org.wfanet.measurement.duchy.herald
 
-fun main() {
-}
+class AttemptsExhaustedException {}
+
+class Herald {}
+
+class StreamingException {}

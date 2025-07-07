@@ -1,4 +1,9 @@
 package org.wfanet.measurement.privacybudgetmanager
 
-fun main() {
-}
+class BucketIndex {}
+
+class LedgerRowKey {}
+
+class PrivacyBucket {}
+
+class Slice {}

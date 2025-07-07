@@ -1,4 +1,17 @@
 package org.wfanet.measurement.duchy.service.internal
 
-fun main() {
-}
+class ComputationAlreadyExistsException {}
+
+class ComputationDetailsNotFoundException {}
+
+class ComputationInitialStageInvalidException {}
+
+class ComputationNotFoundException {}
+
+class ComputationTokenVersionMismatchException {}
+
+class ContinuationTokenInvalidException {}
+
+class ContinuationTokenMalformedException {}
+
+class DuchyInternalException {}

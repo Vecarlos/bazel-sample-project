@@ -1,4 +1,5 @@
 package org.wfanet.measurement.loadtest.panelmatch
 
-fun main() {
-}
+class EntitiesData {}
+
+class PanelMatchSimulator {}

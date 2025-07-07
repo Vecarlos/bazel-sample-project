@@ -1,4 +1,7 @@
 package org.wfanet.measurement.kingdom.service.api.v2alpha
 
-fun main() {
-}
+class ExchangeStepAttemptsService {}
+
+class ExternalIds {}
+
+class Permission {}

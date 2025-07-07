@@ -1,4 +1,11 @@
 package org.wfanet.measurement.common.k8s
 
-fun main() {
-}
+class CoroutineApiCallback {}
+
+class KubernetesClient {}
+
+class KubernetesClientImpl {}
+
+class PropagationPolicy {}
+
+class WatchEventType {}

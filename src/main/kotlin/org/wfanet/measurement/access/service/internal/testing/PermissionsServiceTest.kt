@@ -1,4 +1,5 @@
 package org.wfanet.measurement.access.service.internal.testing
 
-fun main() {
-}
+class PermissionsServiceTest {}
+
+class Services {}

@@ -1,4 +1,7 @@
 package org.wfanet.measurement.common
 
-fun main() {
-}
+class FileExistsHealth {}
+
+class Health {}
+
+class SettableHealth {}

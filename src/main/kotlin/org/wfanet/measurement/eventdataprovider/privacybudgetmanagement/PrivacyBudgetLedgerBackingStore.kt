@@ -1,4 +1,9 @@
 package org.wfanet.measurement.eventdataprovider.privacybudgetmanagement
 
-fun main() {
-}
+class PrivacyBudgetAcdpBalanceEntry {}
+
+class PrivacyBudgetLedgerBackingStore {}
+
+class PrivacyBudgetLedgerEntry {}
+
+class PrivacyBudgetLedgerTransactionContext {}

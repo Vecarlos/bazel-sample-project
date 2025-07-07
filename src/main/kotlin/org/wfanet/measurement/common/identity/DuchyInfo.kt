@@ -1,4 +1,7 @@
 package org.wfanet.measurement.common.identity
 
-fun main() {
-}
+class DuchyInfo {}
+
+class DuchyInfoFlags {}
+
+class Entry {}

@@ -1,4 +1,6 @@
 package org.wfanet.measurement.kingdom.deploy.gcloud.spanner.readers
 
-fun main() {
-}
+class ModelSuiteInternalKey {}
+
+class ModelSuiteReader {}
+
