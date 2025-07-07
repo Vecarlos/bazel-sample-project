@@ -1,0 +1,11 @@
+load("@rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library")
+
+kt_jvm_library(
+    name = "problem_lib",
+    srcs = [
+        "A.kt",
+        "duplicated.kt",
+        "service.kt",
+    ],
+    visibility = ["//visibility:public"],
+)

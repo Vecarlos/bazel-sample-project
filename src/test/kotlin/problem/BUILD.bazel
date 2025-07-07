@@ -1,0 +1,11 @@
+load("@rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "problem_test",
+    srcs = [
+        "B.kt",
+        "duplicated.kt",
+        "service.kt",
+    ],
+    deps = ["//src/main/kotlin/problem:problem_lib"],
+)
