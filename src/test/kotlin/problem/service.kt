@@ -1,2 +1,10 @@
 package problem
-class Service
+import org.junit.Test
+import kotlin.test.assertEquals
+
+class Service {
+    @Test
+    fun dummyTest() {
+        assertEquals(1, 1)
+    }
+}

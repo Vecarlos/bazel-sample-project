@@ -1,3 +1,11 @@
-@file:JvmName("Utils")
 package problem
-fun testUtil() = "test"
+
+import org.junit.Test
+import org.junit.Assert.assertEquals
+
+class UtilsTest {
+    @Test
+    fun testUtilFunction() {
+        assertEquals("test", "test")
+    }
+}
