@@ -30,12 +30,44 @@ jobs:
           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
           EOF
 
+      # - name: Write ~/.bazelrc
+      #   run: |
+      #     cat << EOF > ~/.bazelrc
+      #     common --config=ci
+      #     build --remote_upload_local_results
+      #     build --define basic_reports_enabled=true 
+      #     EOF
+
       - name: Write ~/.bazelrc
         run: |
           cat << EOF > ~/.bazelrc
           common --config=ci
           build --remote_upload_local_results
-          build --define basic_reports_enabled=true 
+          build --define container_registry=localhost:5001
+          build --define image_repo_prefix=halo
+          build --define image_tag=latest
+          build --define kingdom_public_api_target=kingdom.example.com:8443
+          build --define worker1_id=worker1
+          build --define worker1_public_api_target=worker1.example.com:8443
+          build --define worker2_id=worker2
+          build --define worker2_public_api_target=worker2.example.com:8443
+          build --define mc_name=measurementConsumers/foo
+          build --define mc_api_key=foo
+          build --define mc_cert_name=measurementConsumers/foo/certificates/bar
+          build --define edp1_name=dataProviders/foo1
+          build --define edp1_cert_name=dataProviders/foo1/certificates/bar1
+          build --define edp2_name=dataProviders/foo2
+          build --define edp2_cert_name=dataProviders/foo2/certificates/bar2
+          build --define edp3_name=dataProviders/foo3
+          build --define edp3_cert_name=dataProviders/foo3/certificates/bar3
+          build --define edp4_name=dataProviders/foo4
+          build --define edp4_cert_name=dataProviders/foo4/certificates/bar4
+          build --define edp5_name=dataProviders/foo5
+          build --define edp5_cert_name=dataProviders/foo5/certificates/bar5
+          build --define edp6_name=dataProviders/foo6
+          build --define edp6_cert_name=dataProviders/foo6/certificates/bar6
+          build --define google_cloud_project=example-project
+          build --define basic_reports_enabled=true
           EOF
 
       - name: Set TCP keepalive
@@ -48,7 +80,7 @@ jobs:
         run: bazel build --worker_quit_after_build //src/main/kotlin/...
 
       - name: test
-        run: bazel test //src/test/kotlin/... || true
+        run: bazel test //src/test/...
 
       - name: Run tests
         run: |
