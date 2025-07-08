@@ -48,12 +48,12 @@ val principalFromCurrentContext: MeasurementPrincipal
  * @param authenticatedPrincipal the authenticated principal
  * @return the result of [action]
  */
-inline fun <R> withPrincipal(authenticatedPrincipal: MeasurementPrincipal, action: () -> R): R {
+ fun <R> withPrincipal(authenticatedPrincipal: MeasurementPrincipal, action: () -> R): R {
   return withContext(Context.current().withPrincipal(authenticatedPrincipal), action)
 }
 
 /** Executes [block] with a [DataProviderPrincipal] installed in a new [Context]. */
-inline fun <T> withDataProviderPrincipal(dataProviderName: String, block: () -> T): T {
+ fun <T> withDataProviderPrincipal(dataProviderName: String, block: () -> T): T {
   return withPrincipal(
     DataProviderPrincipal(requireNotNull(DataProviderKey.fromName(dataProviderName))),
     block,
@@ -61,7 +61,7 @@ inline fun <T> withDataProviderPrincipal(dataProviderName: String, block: () -> 
 }
 
 /** Executes [block] with a [ModelProviderPrincipal] installed in a new [Context]. */
-inline fun <T> withModelProviderPrincipal(modelProviderName: String, block: () -> T): T {
+ fun <T> withModelProviderPrincipal(modelProviderName: String, block: () -> T): T {
   return withPrincipal(
     ModelProviderPrincipal(requireNotNull(ModelProviderKey.fromName(modelProviderName))),
     block,
@@ -69,12 +69,12 @@ inline fun <T> withModelProviderPrincipal(modelProviderName: String, block: () -
 }
 
 /** Executes [block] with a [DuchyPrincipal] installed in a new [Context]. */
-inline fun <T> withDuchyPrincipal(duchyName: String, block: () -> T): T {
+ fun <T> withDuchyPrincipal(duchyName: String, block: () -> T): T {
   return withPrincipal(DuchyPrincipal(requireNotNull(DuchyKey.fromName(duchyName))), block)
 }
 
 /** Executes [block] with a [MeasurementConsumerPrincipal] installed in a new [Context]. */
-inline fun <T> withMeasurementConsumerPrincipal(
+ fun <T> withMeasurementConsumerPrincipal(
   measurementConsumerName: String,
   block: () -> T,
 ): T {
