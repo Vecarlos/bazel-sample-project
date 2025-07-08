@@ -27,7 +27,7 @@ object Authentication {
    * Executes [action] with the current gRPC [Context] containing the specified [principal] and
    * [scopes].
    */
-  inline fun <T> withPrincipalAndScopes(
+  fun <T> withPrincipalAndScopes(
     principal: Principal,
     scopes: Set<String>,
     action: () -> T,
