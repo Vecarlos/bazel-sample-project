@@ -98,7 +98,7 @@ class ReportScheduleInfoServerInterceptor : ServerInterceptor {
       get() = REPORT_SCHEDULE_INFO_CONTEXT_KEY.get()
 
     /** Executes [block] with the resource name installed in a new [Context]. */
-    inline fun <T> withReportScheduleInfo(info: ReportScheduleInfo, block: () -> T): T {
+    fun <T> withReportScheduleInfo(info: ReportScheduleInfo, block: () -> T): T {
       return withContext(Context.current().withReportScheduleInfo(info)) { block() }
     }
 
