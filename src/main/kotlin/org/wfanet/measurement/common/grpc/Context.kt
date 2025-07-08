@@ -25,7 +25,7 @@ import io.grpc.Context
  *
  * TODO(@SanjayVas): Move this to common-jvm.
  */
-inline fun <R> withContext(context: Context, action: () -> R): R {
+fun <R> withContext(context: Context, action: () -> R): R {
   val previous: Context = context.attach()
   return try {
     action()
