@@ -1,0 +1,26 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        "//src/test/kotlin/org/wfanet/measurement/securecomputation/deploy:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "test_config",
+    srcs = ["TestConfig.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "work_item_attempts_service_test",
+    srcs = ["WorkItemAttemptsServiceTest.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "work_items_service_test",
+    srcs = ["WorkItemsServiceTest.kt"],
+    deps = [],
+)

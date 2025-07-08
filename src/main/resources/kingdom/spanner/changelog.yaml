@@ -90,6 +90,3 @@ databaseChangeLog:
 - include:
     file: add-event-group-metadata.sql
     relativeToChangeLogFile: true
-- include:
-    file: drop-event-group-default-state.sql
-    relativeToChangeLogFile: true

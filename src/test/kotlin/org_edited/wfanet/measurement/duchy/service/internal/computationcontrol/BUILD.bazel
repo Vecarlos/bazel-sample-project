@@ -1,0 +1,47 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "AsyncComputationControlServiceTest",
+    srcs = ["AsyncComputationControlServiceTest.kt"],
+    test_class = "org.wfanet.measurement.duchy.service.internal.computationcontrol.AsyncComputationControlServiceTest",
+    deps = ["//src/main/kotlin/org/wfanet/measurement/api:public_api_version",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol:async_computation_control_service",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+kt_jvm_test(
+    name = "LiquidLegionsV2StagesTest",
+    srcs = ["LiquidLegionsV2StagesTest.kt"],
+    test_class = "org.wfanet.measurement.duchy.service.internal.computationcontrol.LiquidLegionsV2StagesTest",
+    deps = ["//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol:async_computation_control_service",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+kt_jvm_test(
+    name = "ReachOnlyLiquidLegionsV2StagesTest",
+    srcs = ["ReachOnlyLiquidLegionsV2StagesTest.kt"],
+    test_class = "org.wfanet.measurement.duchy.service.internal.computationcontrol.ReachOnlyLiquidLegionsV2StagesTest",
+    deps = ["//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol:async_computation_control_service",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+kt_jvm_test(
+    name = "HonestMajorityShareShuffleStagesTest",
+    srcs = ["HonestMajorityShareShuffleStagesTest.kt"],
+    test_class = "org.wfanet.measurement.duchy.service.internal.computationcontrol.HonestMajorityShareShuffleStagesTest",
+    deps = ["//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol:async_computation_control_service",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)

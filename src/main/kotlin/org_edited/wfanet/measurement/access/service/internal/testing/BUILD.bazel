@@ -1,0 +1,38 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        "//src/test/kotlin/org/wfanet/measurement/access/deploy:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "test_config",
+    srcs = ["TestConfig.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "principals_service_test",
+    srcs = ["PrincipalsServiceTest.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "permissions_service_test",
+    srcs = ["PermissionsServiceTest.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "roles_service_test",
+    srcs = ["RolesServiceTest.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "policies_service_test",
+    srcs = ["PoliciesServiceTest.kt"],
+    deps = [],
+)

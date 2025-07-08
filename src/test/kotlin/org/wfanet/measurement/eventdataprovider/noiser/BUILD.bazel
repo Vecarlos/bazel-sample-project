@@ -4,9 +4,10 @@ kt_jvm_test(
     name = "LaplaceNoiserTest",
     srcs = ["LaplaceNoiserTest.kt"],
     test_class = "org.wfanet.measurement.eventdataprovider.noiser.LaplaceNoiserTest",
-    deps = ["//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+        "@wfa_common_jvm//imports/java/com/google/common/truth",
         "@wfa_common_jvm//imports/java/org/junit",
-        "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],
 )
 
@@ -14,7 +15,9 @@ kt_jvm_test(
     name = "GaussianNoiserTest",
     srcs = ["GaussianNoiserTest.kt"],
     test_class = "org.wfanet.measurement.eventdataprovider.noiser.GaussianNoiserTest",
-    deps = ["//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+        "@wfa_common_jvm//imports/java/com/google/common/truth",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],

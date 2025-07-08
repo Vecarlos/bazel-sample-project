@@ -14,5 +14,7 @@ kt_jvm_library(
     name = "testing",
     srcs = glob(["*.kt"]),
     resources = ["//src/main/resources/reporting/spanner"],
-    deps = [],
+    deps = [
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
 )

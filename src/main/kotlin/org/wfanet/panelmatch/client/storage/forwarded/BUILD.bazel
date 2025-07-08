@@ -8,5 +8,10 @@ package(
 kt_jvm_library(
     name = "forwarded_storage",
     srcs = glob(["*.kt"]),
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/panelmatch/client/storage",
+        "//src/main/proto/wfa/panelmatch/client/loadtest:forwarded_storage_config_kt_jvm_proto",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/storage/forwarded",
+    ],
 )

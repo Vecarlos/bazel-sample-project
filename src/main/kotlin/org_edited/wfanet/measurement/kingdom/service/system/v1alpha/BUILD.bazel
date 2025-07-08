@@ -1,0 +1,42 @@
+# v1alpha system API service implementations for Kingdom.
+
+load("@wfa_common_jvm//build:defs.bzl", "test_target")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = [
+    test_target(":__pkg__"),
+    "//src/main/kotlin/org/wfanet/measurement/integration/common:__pkg__",
+    "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy:__subpackages__",
+    "//src/test/kotlin/org/wfanet/measurement/integration/common:__pkg__",
+])
+
+kt_jvm_library(
+    name = "requisitions_service",
+    srcs = ["RequisitionsService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "computations_service",
+    srcs = ["ComputationsService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "computation_log_entries_service",
+    srcs = ["ComputationLogEntriesService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "computation_participants_service",
+    srcs = ["ComputationParticipantsService.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "proto_conversions",
+    srcs = ["ProtoConversions.kt"],
+    visibility = ["//visibility:private"],
+    deps = [],
+)

@@ -1,0 +1,13 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+kt_jvm_library(
+    name = "postgres_duchy_dependency_provider_rule",
+    testonly = True,
+    srcs = [
+        "PostgresDuchyDependencyProviderRule.kt",
+    ],
+    visibility = [
+        "//src/test/kotlin/org/wfanet/measurement/integration:__subpackages__",
+    ],
+    deps = [],
+)

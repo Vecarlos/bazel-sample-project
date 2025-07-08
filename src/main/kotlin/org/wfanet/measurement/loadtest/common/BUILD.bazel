@@ -5,7 +5,6 @@ package(
     default_visibility = [
         "//src/main/kotlin/org/wfanet/measurement/integration/common/reporting:__subpackages__",
         "//src/main/kotlin/org/wfanet/measurement/loadtest:__subpackages__",
-        "//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:__subpackages__",
         "//src/test/kotlin/org/wfanet/measurement/loadtest:__subpackages__",
     ],
 )
@@ -18,5 +17,9 @@ kt_jvm_library(
 kt_jvm_library(
     name = "sample_vids",
     srcs = ["SampleVids.kt"],
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/loadtest/config:vid_sampling",
+        "//src/main/kotlin/org/wfanet/measurement/loadtest/dataprovider:event_query",
+        "//src/main/proto/wfa/measurement/api/v2alpha:event_group_kt_jvm_proto",
+    ],
 )

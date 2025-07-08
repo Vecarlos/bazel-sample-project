@@ -13,5 +13,7 @@ kt_jvm_library(
         "LaplaceNoiser.kt",
         "Noiser.kt",
     ],
-    deps = [],
+    deps = [
+        "@wfa_common_jvm//imports/java/org/apache/commons:math3",
+    ],
 )

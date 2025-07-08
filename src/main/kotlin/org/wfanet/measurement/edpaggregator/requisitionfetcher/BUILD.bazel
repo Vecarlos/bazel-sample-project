@@ -2,36 +2,16 @@ load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
 
 package(default_visibility = [
     "//src/main/kotlin/org/wfanet/measurement/edpaggregator/deploy/gcloud/requisitionfetcher:__subpackages__",
-    "//src/main/kotlin/org/wfanet/measurement/integration/common:__subpackages__",
     "//src/test/kotlin/org/wfanet/measurement/edpaggregator:__subpackages__",
 ])
 
 kt_jvm_library(
-    name = "requisitions_validator",
-    srcs = ["RequisitionsValidator.kt"],
-    deps = [],
-)
-
-kt_jvm_library(
     name = "requisition_fetcher",
     srcs = ["RequisitionFetcher.kt"],
-    deps = [],
-)
-
-kt_jvm_library(
-    name = "requisition_grouper",
-    srcs = ["RequisitionGrouper.kt"],
-    deps = [],
-)
-
-kt_jvm_library(
-    name = "single_requisition_grouper",
-    srcs = ["SingleRequisitionGrouper.kt"],
-    deps = [],
-)
-
-kt_jvm_library(
-    name = "requisition_grouper_by_report_id",
-    srcs = ["RequisitionGrouperByReportId.kt"],
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/common/api/grpc:list_resources",
+        "//src/main/proto/wfa/measurement/api/v2alpha:requisitions_service_kt_jvm_grpc_proto",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/storage:client",
+    ],
 )

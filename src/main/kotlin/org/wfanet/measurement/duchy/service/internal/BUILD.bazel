@@ -9,5 +9,12 @@ package(default_visibility = [
 kt_jvm_library(
     name = "internal_exception",
     srcs = ["DuchyInternalException.kt"],
-    deps = [],
+    deps = [
+        "//src/main/proto/google/rpc:error_details_kt_jvm_proto",
+        "//src/main/proto/google/rpc:status_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:error_code_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+        "@wfa_common_jvm//imports/java/io/grpc/protobuf",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
 )

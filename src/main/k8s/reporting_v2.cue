@@ -141,7 +141,6 @@ package k8s
 						"--port=8443",
 						"--health-port=8080",
 						"--basic-reports-enabled=" + Reporting._basicReportsEnabled,
-						"--disable-metrics-reuse=false",
 						_impressionQualificationFilterConfigFileFlag,
 			] + _postgresConfig.flags + _reportingSpannerConfig.flags + _tlsArgs
 

@@ -12,5 +12,7 @@ kt_jvm_library(
     name = "schemata",
     srcs = ["Schemata.kt"],
     resources = ["//src/main/resources/securecomputation/spanner"],
-    deps = [],
+    deps = [
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
 )
