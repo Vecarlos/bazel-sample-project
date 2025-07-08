@@ -17,19 +17,24 @@ kt_jvm_library(
     runtime_deps = [
         "//imports/java/org/apache/beam/runners/direct",
     ],
-deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/panelmatch/client/deploy",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/storage/forwarded:forwarded_storage",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/storage/testing",
+    ],
 )
 
-# java_binary(
-#     name = "ForwardedStorageExchangeWorkflowDaemon",
-#     main_class = "org.wfanet.panelmatch.client.deploy.example.forwarded.ForwardedStorageExchangeWorkflowDaemon",
-#     runtime_deps = [":forwarded_storage_exchange_workflow_daemon"],
-# )
+java_binary(
+    name = "ForwardedStorageExchangeWorkflowDaemon",
+    main_class = "org.wfanet.panelmatch.client.deploy.example.forwarded.ForwardedStorageExchangeWorkflowDaemon",
+    runtime_deps = [":forwarded_storage_exchange_workflow_daemon"],
+)
 
-# java_image(
-#     name = "forwarded_storage_exchange_workflow_daemon_image",
-#     binary = ":ForwardedStorageExchangeWorkflowDaemon",
-#     main_class = "org.wfanet.panelmatch.client.deploy.example.forwarded.ForwardedStorageExchangeWorkflowDaemon",
-#     target_compatible_with = DISTROLESS_JAVA,
-#     visibility = ["//src:docker_image_deployment"],
-# )
+java_image(
+    name = "forwarded_storage_exchange_workflow_daemon_image",
+    binary = ":ForwardedStorageExchangeWorkflowDaemon",
+    main_class = "org.wfanet.panelmatch.client.deploy.example.forwarded.ForwardedStorageExchangeWorkflowDaemon",
+    target_compatible_with = DISTROLESS_JAVA,
+    visibility = ["//src:docker_image_deployment"],
+)

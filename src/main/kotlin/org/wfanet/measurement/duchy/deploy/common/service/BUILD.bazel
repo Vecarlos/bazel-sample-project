@@ -8,7 +8,11 @@ kt_jvm_library(
         "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/service:__pkg__",
         "//src/main/kotlin/org/wfanet/measurement/integration/deploy/common/postgres:__pkg__",
     ],
-    deps = [],
+    deps = [
+        "//src/main/proto/wfa/measurement/internal/duchy:computation_stats_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:computations_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:continuation_tokens_service_kt_jvm_grpc_proto",
+    ],
 )
 
 kt_jvm_library(
@@ -20,5 +24,10 @@ kt_jvm_library(
         "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/server:__pkg__",
         "//src/main/kotlin/org/wfanet/measurement/integration/deploy/common/postgres:__pkg__",
     ],
-    deps = [],
+    deps = [
+        ":duchy_data_services",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres:services",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/db/r2dbc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
+    ],
 )

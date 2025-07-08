@@ -14,7 +14,9 @@ package(
 kt_jvm_library(
     name = "continuation_token_manager",
     srcs = ["ContinuationTokenManager.kt"],
-    deps = [],
+    deps = [
+        "//src/main/proto/wfa/measurement/internal/duchy:continuation_tokens_service_kt_jvm_grpc_proto",
+    ],
 )
 
 kt_jvm_library(
@@ -26,5 +28,24 @@ kt_jvm_library(
         "ReachOnlyLiquidLegionsV2Starter.kt",
     ],
     runtime_deps = ["@wfa_common_jvm//imports/java/io/grpc/netty"],
-    deps = [],
+    deps = [
+        "continuation_token_manager",
+        "//src/main/kotlin/org/wfanet/measurement/api:public_api_version",
+        "//src/main/kotlin/org/wfanet/measurement/duchy:computation_stage",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/utils:computation_conversions",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/utils:duchy_order",
+        "//src/main/kotlin/org/wfanet/measurement/system/v1alpha:resource_key",
+        "//src/main/proto/wfa/measurement/api/v2alpha:crypto_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_spec_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:computations_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/system/v1alpha:computation_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/system/v1alpha:computation_participants_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/system/v1alpha:computations_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/system/v1alpha:differential_privacy_kt_jvm_proto",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+    ],
 )

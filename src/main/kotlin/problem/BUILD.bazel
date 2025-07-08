@@ -24,3 +24,9 @@ java_library(
     srcs = ["Lib.java"],
     visibility = ["//visibility:public"],
 )
+
+kt_jvm_library(
+    name = "my_service_lib",
+    srcs = ["MyService.kt"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,29 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+kt_jvm_library(
+    name = "context_keys",
+    srcs = ["ContextKeys.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "principal_auth_interceptor",
+    srcs = ["PrincipalAuthInterceptor.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "trusted_principal_auth_interceptor",
+    srcs = ["TrustedPrincipalAuthInterceptor.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "authorization",
+    srcs = ["Authorization.kt"],
+    deps = [],
+)

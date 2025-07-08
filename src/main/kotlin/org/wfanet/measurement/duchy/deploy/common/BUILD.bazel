@@ -9,5 +9,7 @@ package(default_visibility = [
 kt_jvm_library(
     name = "flags",
     srcs = glob(["*Flags.kt"]),
-    deps = [],
+    deps = [
+        "@wfa_common_jvm//imports/java/picocli",
+    ],
 )

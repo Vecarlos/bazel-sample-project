@@ -1,0 +1,47 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
+
+kt_jvm_test(
+    name = "CertificateSigningRequestsTest",
+    timeout = "short",
+    srcs = ["CertificateSigningRequestsTest.kt"],
+    test_class = "org.wfanet.panelmatch.common.certificates.CertificateSigningRequestsTest",
+    deps = ["//imports/java/org/bouncycastle:bcpkix",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates:certificate_signing_requests",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+kt_jvm_test(
+    name = "KingdomlessCertificateManagerTest",
+    timeout = "short",
+    srcs = ["KingdomlessCertificateManagerTest.kt"],
+    test_class = "org.wfanet.panelmatch.common.certificates.KingdomlessCertificateManagerTest",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/client/common",
+        "//src/main/kotlin/org/wfanet/panelmatch/common",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/secrets",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/secrets/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/testing",
+        "//src/main/proto/wfa/panelmatch/client/internal:certificate_kt_jvm_proto",
+        "//src/main/proto/wfa/panelmatch/client/internal:exchange_workflow_kt_jvm_proto",
+        "//src/main/proto/wfa/panelmatch/common/certificates:signing_keys_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
+
+kt_jvm_test(
+    name = "V2AlphaCertificateManagerTest",
+    timeout = "short",
+    srcs = ["V2AlphaCertificateManagerTest.kt"],
+    test_class = "org.wfanet.panelmatch.common.certificates.V2AlphaCertificateManagerTest",
+    deps = ["//src/main/kotlin/org/wfanet/panelmatch/common/certificates",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/secrets/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/testing",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)

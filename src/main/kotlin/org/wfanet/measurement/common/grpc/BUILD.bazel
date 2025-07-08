@@ -7,29 +7,23 @@ package(default_visibility = ["//visibility:public"])
 kt_jvm_library(
     name = "context",
     srcs = ["Context.kt"],
-    deps = [],
+    deps = ["@wfa_common_jvm//imports/java/io/grpc:context"],
 )
 
 kt_jvm_library(
     name = "error_info",
     srcs = ["ErrorInfo.kt"],
-    deps = [],
+    deps = [
+        "//src/main/proto/google/rpc:error_details_kt_jvm_proto",
+        "//src/main/proto/google/rpc:status_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/io/grpc/protobuf",
+    ],
 )
 
 kt_jvm_library(
     name = "interceptors",
     srcs = ["Interceptors.kt"],
-    deps = [],
-)
-
-kt_jvm_library(
-    name = "service_flags",
-    srcs = ["ServiceFlags.kt"],
-    deps = [],
-)
-
-kt_jvm_library(
-    name = "principal_rate_limiting_server_interceptor",
-    srcs = ["PrincipalRateLimitingServerInterceptor.kt"],
-    deps = [],
+    deps = [
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+    ],
 )

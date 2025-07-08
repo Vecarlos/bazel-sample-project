@@ -8,7 +8,12 @@ package(default_visibility = [
 kt_jvm_library(
     name = "privacy_budget_manager",
     srcs = glob(["*.kt"]),
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/eventfiltration:event_filters",
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+        "@wfa_common_jvm//imports/java/org/apache/commons:math3",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
 )
 
 kt_jvm_library(
@@ -17,5 +22,9 @@ kt_jvm_library(
         "AcdpParamsConverter.kt",
         "PrivacyQuery.kt",
     ],
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+        "@wfa_common_jvm//imports/java/org/apache/commons:math3",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
 )

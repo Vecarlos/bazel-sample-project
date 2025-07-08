@@ -1,0 +1,30 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_testonly = True,
+    default_visibility = ["//visibility:public"],
+)
+
+kt_jvm_library(
+    name = "authentication",
+    srcs = ["Authentication.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "protected_resource_matcher",
+    srcs = ["ProtectedResourceMatcher.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "principal_matcher",
+    srcs = ["PrincipalMatcher.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "permission_matcher",
+    srcs = ["PermissionMatcher.kt"],
+    deps = [],
+)

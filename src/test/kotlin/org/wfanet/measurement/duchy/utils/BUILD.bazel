@@ -4,7 +4,9 @@ kt_jvm_test(
     name = "DuchyOrderTest",
     srcs = ["DuchyOrderTest.kt"],
     test_class = "org.wfanet.measurement.duchy.utils.DuchyOrderTest",
-    deps = ["//src/main/kotlin/org/wfanet/measurement/duchy/utils:duchy_order",
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/duchy/utils:duchy_order",
+        "@wfa_common_jvm//imports/java/com/google/common/truth",
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],

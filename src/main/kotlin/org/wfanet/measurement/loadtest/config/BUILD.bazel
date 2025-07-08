@@ -5,7 +5,6 @@ package(
     default_visibility = [
         "//src/main/kotlin/org/wfanet/measurement/integration:__subpackages__",
         "//src/main/kotlin/org/wfanet/measurement/loadtest:__subpackages__",
-        "//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:__subpackages__",
         "//src/test/kotlin/org/wfanet/measurement/integration:__subpackages__",
         "//src/test/kotlin/org/wfanet/measurement/loadtest:__subpackages__",
     ],
@@ -21,13 +20,19 @@ filegroup(
 kt_jvm_library(
     name = "vid_sampling",
     srcs = ["VidSampling.kt"],
-    deps = [],
+    deps = [
+        "@any_sketch_java//src/main/java/org/wfanet/sampling",
+        "@wfa_common_jvm//imports/java/com/google/common:guava",
+    ],
 )
 
 kt_jvm_library(
     name = "privacy_budgets",
     srcs = ["PrivacyBudgets.kt"],
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/privacybudgetmanagement:privacy_budget_manager",
+        "//src/main/proto/wfa/measurement/loadtest/config:loadtest_event_kt_jvm_proto",
+    ],
 )
 
 kt_jvm_library(
@@ -38,5 +43,7 @@ kt_jvm_library(
 kt_jvm_library(
     name = "event_group_metadata",
     srcs = ["EventGroupMetadata.kt"],
-    deps = [],
+    deps = [
+        "//src/main/proto/wfa/measurement/api/v2alpha/event_group_metadata/testing:test_metadata_message_kt_jvm_proto",
+    ],
 )

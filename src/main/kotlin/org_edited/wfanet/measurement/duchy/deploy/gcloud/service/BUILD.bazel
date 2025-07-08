@@ -1,0 +1,13 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/integration/deploy/gcloud:__pkg__",
+    ],
+)
+
+kt_jvm_library(
+    name = "spanner_duchy_data_services",
+    srcs = ["SpannerDuchyDataServices.kt"],
+    deps = [],
+)

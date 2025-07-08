@@ -1,0 +1,38 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:public"])
+
+kt_jvm_library(
+    name = "testing",
+    testonly = True,
+    srcs = glob(
+        include = ["*.kt"],
+        exclude = [
+            "BasicReportsServiceTest.kt",
+            "ImpressionQualificationFiltersServiceTest.kt",
+            "MeasurementConsumersServiceTest.kt",
+        ],
+    ),
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "measurement_consumers_service_test",
+    testonly = True,
+    srcs = ["MeasurementConsumersServiceTest.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "basic_reports_service_test",
+    testonly = True,
+    srcs = ["BasicReportsServiceTest.kt"],
+    deps = [],
+)
+
+kt_jvm_library(
+    name = "impression_qualification_filters_service_test",
+    testonly = True,
+    srcs = ["ImpressionQualificationFiltersServiceTest.kt"],
+    deps = [],
+)

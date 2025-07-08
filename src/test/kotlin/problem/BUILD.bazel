@@ -41,3 +41,17 @@ java_test(
     test_class = "com.cognite.Test",
     deps = ["//src/main/kotlin/problem:lib"],
 )
+
+
+kt_jvm_test(
+    name = "my_service_test",
+    srcs = [
+        "MyServiceTest.kt",
+        "//src/main/kotlin/problem:MyService.kt",
+    ],
+    deps = [
+        "//src/main/kotlin/problem:my_service_lib",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)

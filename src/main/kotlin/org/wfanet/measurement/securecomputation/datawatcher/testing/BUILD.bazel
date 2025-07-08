@@ -11,5 +11,9 @@ package(
 kt_jvm_library(
     name = "testing",
     srcs = glob(["*.kt"]),
-    deps = [],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/securecomputation/datawatcher:data_watcher",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/storage:client",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/storage/testing",
+    ],
 )

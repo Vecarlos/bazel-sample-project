@@ -8,5 +8,12 @@ package(default_visibility = [
 kt_jvm_library(
     name = "aws",
     srcs = glob(["*.kt"]),
-    deps = [],
+    deps = [
+        "//imports/java/software/amazon/awssdk/acmpca",
+        "//src/main/kotlin/org/wfanet/panelmatch/common",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates:certificate_signing_requests",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/secrets",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto:signatures",
+    ],
 )

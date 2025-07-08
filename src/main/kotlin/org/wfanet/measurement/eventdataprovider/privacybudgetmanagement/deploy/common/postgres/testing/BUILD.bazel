@@ -11,5 +11,7 @@ kt_jvm_library(
     data = [
         "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/privacybudgetmanagement/deploy/common/postgres:ledger.sql",
     ],
-    deps = [],
+    deps = [
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
 )
