@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +37,7 @@ import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt
 import org.wfanet.measurement.api.v2alpha.EventGroup
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt
 import org.wfanet.measurement.api.v2alpha.ListEventGroupsRequestKt
+import org.wfanet.measurement.api.v2alpha.ListEventGroupsResponse
 import org.wfanet.measurement.api.v2alpha.ListMeasurementsRequestKt.filter
 import org.wfanet.measurement.api.v2alpha.ListMeasurementsResponse
 import org.wfanet.measurement.api.v2alpha.ListRequisitionsResponse
@@ -216,16 +217,21 @@ class MeasurementSystemProber(
       val eventGroup: EventGroup =
         eventGroupsStub
           .withAuthenticationKey(apiAuthenticationKey)
-          .listResources(1) { pageToken: String, remaining ->
+          // ▼▼▼ CORRECCIÓN 1 de 3 ▼▼▼
+          .listResources(
+            limit = 1,
+            initialPageToken = "",
+            emptyPageToken = ""
+          ) { pageToken: String, remaining ->
             val request = listEventGroupsRequest {
               parent = measurementConsumerName
               filter = ListEventGroupsRequestKt.filter { dataProviderIn += dataProviderName }
               this.pageToken = pageToken
               pageSize = remaining
             }
-            val response =
+            val response: ListEventGroupsResponse =
               try {
-                listEventGroups(request)
+                eventGroupsStub.listEventGroups(request)
               } catch (e: StatusException) {
                 throw Exception(
                   "Unable to get event groups associated with measurement consumer $measurementConsumerName and data provider $dataProviderName",
@@ -259,12 +265,17 @@ class MeasurementSystemProber(
   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
   private suspend fun getLastUpdatedMeasurement(): Measurement? {
     val measurements: Flow<ResourceList<Measurement, String>> =
-      measurementsStub.withAuthenticationKey(apiAuthenticationKey).listResources(Int.MAX_VALUE) {
+      measurementsStub.withAuthenticationKey(apiAuthenticationKey).listResources(
+        // ▼▼▼ CORRECCIÓN 2 de 3 ▼▼▼
+        limit = Int.MAX_VALUE,
+        initialPageToken = "",
+        emptyPageToken = ""
+      ) {
         pageToken: String,
         remaining ->
         val response: ListMeasurementsResponse =
           try {
-            listMeasurements(
+            measurementsStub.listMeasurements(
               listMeasurementsRequest {
                 parent = measurementConsumerName
                 this.pageToken = pageToken
@@ -291,10 +302,14 @@ class MeasurementSystemProber(
   private fun getRequisitionsForMeasurement(measurementName: String): Flow<Requisition> {
     return requisitionsStub
       .withAuthenticationKey(apiAuthenticationKey)
-      .listResources { pageToken: String ->
+      // ▼▼▼ CORRECCIÓN 3 de 3 ▼▼▼
+      .listResources(
+        initialPageToken = "",
+        emptyPageToken = ""
+      ) { pageToken: String ->
         val response: ListRequisitionsResponse =
           try {
-            listRequisitions(
+            requisitionsStub.listRequisitions(
               listRequisitionsRequest {
                 parent = measurementName
                 this.pageToken = pageToken

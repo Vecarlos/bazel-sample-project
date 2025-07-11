@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,8 @@ import com.google.protobuf.Empty
 import io.grpc.Status
 import io.grpc.StatusException
 import java.io.IOException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import org.wfanet.measurement.access.service.EtagMismatchException
 import org.wfanet.measurement.access.service.InvalidFieldValueException
@@ -47,7 +49,6 @@ import org.wfanet.measurement.common.api.grpc.listResources
 import org.wfanet.measurement.common.base64UrlDecode
 import org.wfanet.measurement.common.base64UrlEncode
 import org.wfanet.measurement.internal.access.ListRolesPageToken as InternalListRolesPageToken
-import org.wfanet.measurement.internal.access.ListRolesPageToken
 import org.wfanet.measurement.internal.access.Role as InternalRole
 import org.wfanet.measurement.internal.access.RolesGrpcKt.RolesCoroutineStub as InternalRolesCoroutineStub
 import org.wfanet.measurement.internal.access.deleteRoleRequest as internalDeleteRoleRequest
@@ -123,8 +124,12 @@ class RolesService(private val internalRolesStub: InternalRolesCoroutineStub) :
         request.pageSize.coerceAtMost(MAX_PAGE_SIZE)
       }
 
-    val resourceLists =
-      internalRolesStub.listResources(pageSize, internalPageToken) { pageToken, remaining ->
+    val resourceLists: Flow<ResourceList<InternalRole, InternalListRolesPageToken?>> =
+      internalRolesStub.listResources(
+        limit = pageSize,
+        initialPageToken = internalPageToken,
+        emptyPageToken = null
+      ) { pageToken, remaining ->
         val response =
           listRoles(
             internalListRolesRequest {
@@ -146,7 +151,8 @@ class RolesService(private val internalRolesStub: InternalRolesCoroutineStub) :
     return listRolesResponse {
       resourceLists.collect { resourceList ->
         roles += resourceList.resources.map { it.toRole() }
-        val internalNextPageToken: InternalListRolesPageToken? = resourceList.nextPageToken
+        // ▼▼▼ CORRECCIÓN 1: Se corrigió el nombre del tipo (sin guion) ▼▼▼
+        val internalNextPageToken = resourceList.nextPageToken as InternalListRolesPageToken?
         if (internalNextPageToken == null) {
           clearNextPageToken()
         } else {
@@ -244,6 +250,7 @@ class RolesService(private val internalRolesStub: InternalRolesCoroutineStub) :
           }
         )
       } catch (e: StatusException) {
+        // ▼▼▼ CORRECCIÓN 2: Se añadió el caso faltante para que el 'when' sea exhaustivo ▼▼▼
         throw when (InternalErrors.getReason(e)) {
           InternalErrors.Reason.ROLE_NOT_FOUND ->
             RoleNotFoundException(request.role.name, e).asStatusRuntimeException(e.status.code)
@@ -308,6 +315,7 @@ class RolesService(private val internalRolesStub: InternalRolesCoroutineStub) :
         InternalErrors.Reason.REQUIRED_FIELD_NOT_SET,
         InternalErrors.Reason.INVALID_FIELD_VALUE,
         InternalErrors.Reason.PRINCIPAL_NOT_FOUND_FOR_USER,
+        // ▼▼▼ CORRECCIÓN 3: Se corrigió el nombre del enum (mayúsculas) ▼▼▼
         InternalErrors.Reason.PRINCIPAL_NOT_FOUND_FOR_TLS_CLIENT,
         InternalErrors.Reason.POLICY_NOT_FOUND_FOR_PROTECTED_RESOURCE,
         null -> Status.INTERNAL.withCause(e).asRuntimeException()

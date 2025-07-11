@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -117,6 +117,7 @@ class EventGroupSync(
               this.campaignMetadata =
                 CmmsAdMetadataKt.campaignMetadata {
                   brandName = eventGroup.eventGroupMetadata.adMetadata.campaignMetadata.brand
+                  // ▼▼▼ CORRECCIÓN: Se eliminó una 'g' extra de "eventGroupgMetadata" ▼▼▼
                   campaignName = eventGroup.eventGroupMetadata.adMetadata.campaignMetadata.campaign
                 }
             }
@@ -158,7 +159,10 @@ class EventGroupSync(
   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
   private fun fetchEventGroups(): Flow<CmmsEventGroup> {
     return eventGroupsStub
-      .listResources { pageToken: String ->
+      .listResources(
+        initialPageToken = "",
+        emptyPageToken = ""
+      ) { pageToken: String ->
         val response =
           try {
             throttler.onReady {

@@ -74,6 +74,7 @@ import org.wfanet.measurement.api.v2alpha.FulfillRequisitionRequest
 import org.wfanet.measurement.api.v2alpha.FulfillRequisitionRequestKt.bodyChunk
 import org.wfanet.measurement.api.v2alpha.FulfillRequisitionRequestKt.header
 import org.wfanet.measurement.api.v2alpha.ListEventGroupsRequestKt
+import org.wfanet.measurement.api.v2alpha.ListEventGroupsResponse
 import org.wfanet.measurement.api.v2alpha.Measurement
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumer
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
@@ -344,30 +345,35 @@ class EdpSimulator(
    * Returns the first [EventGroup] for this `DataProvider` and [MeasurementConsumer] with
    * [eventGroupReferenceId], or `null` if not found.
    */
-  @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
-  private suspend fun getEventGroupByReferenceId(eventGroupReferenceId: String): EventGroup? {
-    return eventGroupsStub
-      .listResources { pageToken: String ->
-        val response =
-          try {
-            listEventGroups(
-              listEventGroupsRequest {
-                parent = edpData.name
-                filter =
-                  ListEventGroupsRequestKt.filter {
-                    measurementConsumerIn += measurementConsumerName
-                  }
-                this.pageToken = pageToken
-              }
-            )
-          } catch (e: StatusException) {
-            throw Exception("Error listing EventGroups", e)
-          }
-        ResourceList(response.eventGroupsList, response.nextPageToken)
-      }
-      .flattenConcat()
-      .firstOrNull { it.eventGroupReferenceId == eventGroupReferenceId }
-  }
+// ESTA ES LA FUNCIÓN CORREGIDA
+@OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
+private suspend fun getEventGroupByReferenceId(eventGroupReferenceId: String): EventGroup? {
+  return eventGroupsStub
+    // ▼▼▼ CORRECCIÓN AQUÍ ▼▼▼
+    .listResources(
+      initialPageToken = "",
+      emptyPageToken = ""
+    ) { pageToken: String ->
+      val response: ListEventGroupsResponse =
+        try {
+          eventGroupsStub.listEventGroups(
+            listEventGroupsRequest {
+              parent = edpData.name
+              filter =
+                ListEventGroupsRequestKt.filter {
+                  measurementConsumerIn += measurementConsumerName
+                }
+              this.pageToken = pageToken
+            }
+          )
+        } catch (e: StatusException) {
+          throw Exception("Error listing EventGroups", e)
+        }
+      ResourceList(response.eventGroupsList, response.nextPageToken)
+    }
+    .flattenConcat()
+    .firstOrNull { it.eventGroupReferenceId == eventGroupReferenceId }
+}
 
   private suspend fun ensureMetadataDescriptor(
     metadataDescriptor: Descriptors.Descriptor
@@ -653,12 +659,12 @@ class EdpSimulator(
         if (protocols.any { it.hasDirect() }) {
           val directProtocolConfig =
             requisition.protocolConfig.protocolsList.first { it.hasDirect() }.direct
-          val directNoiseMechanismOptions =
-            directProtocolConfig.noiseMechanismsList
-              .mapNotNull { protocolConfigNoiseMechanism ->
-                protocolConfigNoiseMechanism.toDirectNoiseMechanism()
-              }
-              .toSet()
+        val directNoiseMechanismOptions =
+          directProtocolConfig.noiseMechanismsList
+            .mapNotNull { protocolConfigNoiseMechanism ->
+              protocolConfigNoiseMechanism.toDirectNoiseMechanism()
+            }
+            .toSet()
 
           if (measurementSpec.hasReach() || measurementSpec.hasReachAndFrequency()) {
             val directProtocol =
@@ -1521,50 +1527,50 @@ class EdpSimulator(
    * overlap of a list of preferred [DirectNoiseMechanism] and a set of [DirectNoiseMechanism]
    * [options].
    */
-  private fun selectReachAndFrequencyNoiseMechanism(
-    options: Set<DirectNoiseMechanism>
-  ): DirectNoiseMechanism {
-    val preferences = DIRECT_MEASUREMENT_ACDP_NOISE_MECHANISM_PREFERENCES
+private fun selectReachAndFrequencyNoiseMechanism(
+  options: Set<DirectNoiseMechanism>
+): DirectNoiseMechanism {
+  val preferences = DIRECT_MEASUREMENT_ACDP_NOISE_MECHANISM_PREFERENCES
 
-    return preferences.firstOrNull { preference -> options.contains(preference) }
-      ?: throw RequisitionRefusalException(
-        Requisition.Refusal.Justification.SPEC_INVALID,
-        "No valid noise mechanism option for reach or frequency measurements.",
-      )
-  }
+  return preferences.firstOrNull { preference -> options.contains(preference) }
+    ?: throw RequisitionRefusalException(
+      Requisition.Refusal.Justification.SPEC_INVALID,
+      "No valid noise mechanism option for reach or frequency measurements.",
+    )
+}
 
   /**
    * Selects the most preferred [DirectNoiseMechanism] for impression measurements from the overlap
    * of a list of preferred [DirectNoiseMechanism] and a set of [DirectNoiseMechanism] [options].
    */
-  private fun selectImpressionNoiseMechanism(
-    options: Set<DirectNoiseMechanism>
-  ): DirectNoiseMechanism {
-    val preferences = DIRECT_MEASUREMENT_ACDP_NOISE_MECHANISM_PREFERENCES
+private fun selectImpressionNoiseMechanism(
+  options: Set<DirectNoiseMechanism>
+): DirectNoiseMechanism {
+  val preferences = DIRECT_MEASUREMENT_ACDP_NOISE_MECHANISM_PREFERENCES
 
-    return preferences.firstOrNull { preference -> options.contains(preference) }
-      ?: throw RequisitionRefusalException(
-        Requisition.Refusal.Justification.SPEC_INVALID,
-        "No valid noise mechanism option for impression measurements.",
-      )
-  }
+  return preferences.firstOrNull { preference -> options.contains(preference) }
+    ?: throw RequisitionRefusalException(
+      Requisition.Refusal.Justification.SPEC_INVALID,
+      "No valid noise mechanism option for impression measurements.",
+    )
+}
 
   /**
    * Selects the most preferred [DirectNoiseMechanism] for watch duration measurements from the
    * overlap of a list of preferred [DirectNoiseMechanism] and a set of [DirectNoiseMechanism]
    * [options].
    */
-  private fun selectWatchDurationNoiseMechanism(
-    options: Set<DirectNoiseMechanism>
-  ): DirectNoiseMechanism {
-    val preferences = DIRECT_MEASUREMENT_ACDP_NOISE_MECHANISM_PREFERENCES
+private fun selectWatchDurationNoiseMechanism(
+  options: Set<DirectNoiseMechanism>
+): DirectNoiseMechanism {
+  val preferences = DIRECT_MEASUREMENT_ACDP_NOISE_MECHANISM_PREFERENCES
 
-    return preferences.firstOrNull { preference -> options.contains(preference) }
-      ?: throw RequisitionRefusalException(
-        Requisition.Refusal.Justification.SPEC_INVALID,
-        "No valid noise mechanism option for watch duration measurements.",
-      )
-  }
+  return preferences.firstOrNull { preference -> options.contains(preference) }
+    ?: throw RequisitionRefusalException(
+      Requisition.Refusal.Justification.SPEC_INVALID,
+      "No valid noise mechanism option for watch duration measurements.",
+    )
+}
 
   private suspend fun fulfillImpressionMeasurement(
     requisition: Requisition,

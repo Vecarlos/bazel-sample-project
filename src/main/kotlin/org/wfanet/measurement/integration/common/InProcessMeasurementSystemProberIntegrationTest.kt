@@ -177,34 +177,39 @@ abstract class InProcessMeasurementSystemProberIntegrationTest(
     assertThat(measurements.size).isEqualTo(2)
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
-  private suspend fun listMeasurements(): List<Measurement> {
-    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+@OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
+private suspend fun listMeasurements(): List<Measurement> {
+  val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
 
-    val measurements: Flow<Measurement> =
-      publicMeasurementsClient
-        .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
-        .listResources<Measurement, String, MeasurementsCoroutineStub> { pageToken ->
-          val response =
-            try {
-              listMeasurements(
-                listMeasurementsRequest {
-                  parent = measurementConsumerData.name
-                  this.pageToken = pageToken
-                }
-              )
-            } catch (e: StatusException) {
-              throw Exception(
-                "Unable to list measurements for measurement consumer ${measurementConsumerData.name}",
-                e,
-              )
-            }
-          ResourceList(response.measurementsList, response.nextPageToken)
-        }
-        .flattenConcat()
+  val measurements: Flow<Measurement> =
+    publicMeasurementsClient
+      .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+      // ▼▼▼ CORRECCIÓN 1: Se añaden los parámetros que faltan ▼▼▼
+      .listResources(
+        initialPageToken = "",
+        emptyPageToken = ""
+      ) { pageToken: String ->
+        val response =
+          try {
+            // ▼▼▼ CORRECCIÓN 2: Se usa "this.listMeasurements" para evitar la ambigüedad ▼▼▼
+            this.listMeasurements(
+              listMeasurementsRequest {
+                parent = measurementConsumerData.name
+                this.pageToken = pageToken
+              }
+            )
+          } catch (e: StatusException) {
+            throw Exception(
+              "Unable to list measurements for measurement consumer ${measurementConsumerData.name}",
+              e,
+            )
+          }
+        ResourceList(response.measurementsList, response.nextPageToken)
+      }
+      .flattenConcat()
 
-    return measurements.toList()
-  }
+  return measurements.toList()
+}
 
   companion object {
     @BeforeClass
