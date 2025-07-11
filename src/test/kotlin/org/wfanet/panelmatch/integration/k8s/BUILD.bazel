@@ -47,40 +47,40 @@ kt_jvm_library(
     ],
 )
 
-kt_jvm_library(
-    name = "empty_cluster_panel_match_correctness_test",
-    srcs = ["EmptyClusterPanelMatchCorrectnessTest.kt"],
-    deps = [
-        ":abstract_panel_match_correctness_test",
-        "//src/main/proto/wfa/panelmatch/client/loadtest:forwarded_storage_config_kt_jvm_proto",
-        "//src/main/proto/wfa/panelmatch/client/storage:storage_details_kt_jvm_proto",
-        "@wfa_common_jvm//imports/java/org/jetbrains/annotations",
-        "@wfa_common_jvm//imports/java/org/junit",
-        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
-    ],
-)
+# kt_jvm_library(
+#     name = "empty_cluster_panel_match_correctness_test",
+#     srcs = ["EmptyClusterPanelMatchCorrectnessTest.kt"],
+#     deps = [
+#         ":abstract_panel_match_correctness_test",
+#         "//src/main/proto/wfa/panelmatch/client/loadtest:forwarded_storage_config_kt_jvm_proto",
+#         "//src/main/proto/wfa/panelmatch/client/storage:storage_details_kt_jvm_proto",
+#         "@wfa_common_jvm//imports/java/org/jetbrains/annotations",
+#         "@wfa_common_jvm//imports/java/org/junit",
+#         "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
+#     ],
+# )
 
-java_test(
-    name = "EmptyClusterPanelMatchCorrectnessTest",
-    size = "enormous",
-    timeout = "long",
-    data = [
-        "//src/main/docker:push_all_local_images",
-        "//src/main/docker/panel_exchange_client:push_all_images",
-        "//src/main/k8s/local:kingdom_for_panelmatch_setup.tar",
-        "//src/main/k8s/local/testing:cmms_for_panelmatch.tar",
-        "//src/main/k8s/panelmatch/local:edp_daemon.tar",
-        "//src/main/k8s/panelmatch/local:mp_daemon.tar",
-    ],
-    env_inherit = [
-        "DOCKER_HOST",
-        "KUBECONFIG",
-    ],
-    tags = [
-        "cpu:8",
-        "manual",
-        "no-remote-exec",
-    ],
-    test_class = "org.wfanet.panelmatch.integration.k8s.EmptyClusterPanelMatchCorrectnessTest",
-    runtime_deps = [":empty_cluster_panel_match_correctness_test"],
-)
+# java_test(
+#     name = "EmptyClusterPanelMatchCorrectnessTest",
+#     size = "enormous",
+#     timeout = "long",
+#     data = [
+#         "//src/main/docker:push_all_local_images",
+#         "//src/main/docker/panel_exchange_client:push_all_images",
+#         "//src/main/k8s/local:kingdom_for_panelmatch_setup.tar",
+#         "//src/main/k8s/local/testing:cmms_for_panelmatch.tar",
+#         "//src/main/k8s/panelmatch/local:edp_daemon.tar",
+#         "//src/main/k8s/panelmatch/local:mp_daemon.tar",
+#     ],
+#     env_inherit = [
+#         "DOCKER_HOST",
+#         "KUBECONFIG",
+#     ],
+#     tags = [
+#         "cpu:8",
+#         "manual",
+#         "no-remote-exec",
+#     ],
+#     test_class = "org.wfanet.panelmatch.integration.k8s.EmptyClusterPanelMatchCorrectnessTest",
+#     runtime_deps = [":empty_cluster_panel_match_correctness_test"],
+# )

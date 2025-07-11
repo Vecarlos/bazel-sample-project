@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import io.grpc.StatusException
 import java.security.GeneralSecurityException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.transformWhile
 import org.projectnessie.cel.common.types.Err
 import org.projectnessie.cel.common.types.ref.Val
@@ -96,8 +97,10 @@ class EventGroupsService(
     val parent = parentKey.toName()
     val eventGroupLists: Flow<ResourceList<EventGroup, String>> =
       cmmsEventGroupsStub.withAuthenticationKey(apiAuthenticationKey).listResources(
-        limit,
-        request.pageToken,
+        // ▼▼▼ LA LLAMADA FUE ACTUALIZADA AQUÍ ▼▼▼
+        limit = limit,
+        initialPageToken = request.pageToken,
+        emptyPageToken = ""
       ) { pageToken, remaining ->
         val response: CmmsListEventGroupsResponse =
           listEventGroups(

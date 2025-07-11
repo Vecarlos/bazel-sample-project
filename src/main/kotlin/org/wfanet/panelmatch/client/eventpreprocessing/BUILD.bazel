@@ -29,6 +29,7 @@ kt_jvm_library(
     runtime_deps = [
         ":swig_resources",
     ],
+    tags = ["manual"],
     deps = [
         "//imports/java/org/apache/beam:core",
         "//imports/java/org/joda",

@@ -70,30 +70,36 @@ class SpannerPrincipalsService(
   }
 
   override suspend fun createUserPrincipal(request: CreateUserPrincipalRequest): Principal {
-    val runner: AsyncDatabaseClient.TransactionRunner =
-      databaseClient.readWriteTransaction(Options.tag("action=createUserPrincipal"))
-    try {
-      runner.run { txn ->
-        val principalId: Long = idGenerator.generateNewId { id -> txn.principalExists(id) }
-        txn.insertPrincipal(principalId, request.principalResourceId)
-        txn.insertUserPrincipal(principalId, request.user.issuer, request.user.subject)
+      // Capturar valores antes de la transacción
+      val principalResourceId = request.principalResourceId
+      val userIssuer = request.user.issuer
+      val userSubject = request.user.subject
+      val userInfo = request.user
+      
+      val runner: AsyncDatabaseClient.TransactionRunner =
+        databaseClient.readWriteTransaction(Options.tag("action=createUserPrincipal"))
+      try {
+        runner.run { txn ->
+          val principalId: Long = idGenerator.generateNewId { id -> txn.principalExists(id) }
+          txn.insertPrincipal(principalId, principalResourceId)
+          txn.insertUserPrincipal(principalId, userIssuer, userSubject)
+        }
+        val commitTimestamp: Timestamp = runner.getCommitTimestamp().toProto()
+        return principal {
+          this.principalResourceId = principalResourceId
+          user = userInfo
+          createTime = commitTimestamp
+          updateTime = commitTimestamp
+        }
+      } catch (e: SpannerException) {
+        if (e.errorCode == ErrorCode.ALREADY_EXISTS) {
+          throw PrincipalAlreadyExistsException(e)
+            .asStatusRuntimeException(Status.Code.ALREADY_EXISTS)
+        } else {
+          throw e
+        }
       }
-      val commitTimestamp: Timestamp = runner.getCommitTimestamp().toProto()
-      return principal {
-        principalResourceId = request.principalResourceId
-        user = request.user
-        createTime = commitTimestamp
-        updateTime = commitTimestamp
-      }
-    } catch (e: SpannerException) {
-      if (e.errorCode == ErrorCode.ALREADY_EXISTS) {
-        throw PrincipalAlreadyExistsException(e)
-          .asStatusRuntimeException(Status.Code.ALREADY_EXISTS)
-      } else {
-        throw e
-      }
-    }
-  }
+}
 
   override suspend fun deletePrincipal(request: DeletePrincipalRequest): Empty {
     if (request.principalResourceId.isEmpty()) {

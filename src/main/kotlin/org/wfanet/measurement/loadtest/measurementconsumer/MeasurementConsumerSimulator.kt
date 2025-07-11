@@ -51,6 +51,7 @@ import org.wfanet.measurement.api.v2alpha.EventGroup
 import org.wfanet.measurement.api.v2alpha.EventGroupKey
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.GetDataProviderRequest
+import org.wfanet.measurement.api.v2alpha.ListEventGroupsResponse
 import org.wfanet.measurement.api.v2alpha.Measurement
 import org.wfanet.measurement.api.v2alpha.Measurement.DataProviderEntry
 import org.wfanet.measurement.api.v2alpha.Measurement.Failure
@@ -1274,14 +1275,18 @@ class MeasurementConsumerSimulator(
     }
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
+@OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
   private fun listEventGroups(measurementConsumer: String): Flow<EventGroup> {
     return eventGroupsClient
       .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
-      .listResources { pageToken: String ->
-        val response =
+      // ▼▼▼ CORRECCIÓN AQUÍ ▼▼▼
+      .listResources(
+        initialPageToken = "",
+        emptyPageToken = ""
+      ) { pageToken: String ->
+        val response: ListEventGroupsResponse =
           try {
-            listEventGroups(
+            eventGroupsClient.listEventGroups(
               listEventGroupsRequest {
                 parent = measurementConsumer
                 this.pageToken = pageToken

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,33 +43,46 @@ data class ResourceList<R : Message, T>(
 /**
  * Lists resources from a paginated List method on this stub.
  *
- * @param pageToken page token for initial request
- * @param list function which calls the appropriate List method on the stub
+ * @param initialPageToken page token for initial request.
+ * @param emptyPageToken The value that represents an empty/final page token (e.g., "" or null).
+ * @param list function which calls the appropriate List method on the stub.
  */
-inline fun <R : Message, reified T, S : AbstractCoroutineStub<S>> S.listResources(
-  pageToken: T = getEmptyPageToken(),
-  crossinline list: suspend S.(pageToken: T) -> ResourceList<R, T>,
+// 1. Se eliminaron 'inline' y 'reified'.
+// 2. Se eliminó el valor por defecto de 'initialPageToken'.
+// 3. Se añadió el parámetro 'emptyPageToken'.
+// 4. Se eliminó 'crossinline'.
+fun <R : Message, T, S : AbstractCoroutineStub<S>> S.listResources(
+  initialPageToken: T,
+  emptyPageToken: T,
+  list: suspend S.(pageToken: T) -> ResourceList<R, T>,
 ): Flow<ResourceList<R, T>> =
-  listResources(Int.MAX_VALUE, pageToken) { nextPageToken, _ -> list(nextPageToken) }
+  listResources(Int.MAX_VALUE, initialPageToken, emptyPageToken) { nextPageToken, _ ->
+    list(nextPageToken)
+  }
 
 /**
  * Lists resources from a paginated List method on this stub.
  *
- * @param limit maximum number of resources to emit
- * @param pageToken page token for initial request
+ * @param limit maximum number of resources to emit.
+ * @param initialPageToken page token for initial request.
+ * @param emptyPageToken The value that represents an empty/final page token (e.g., "" or null).
  * @param list function which calls the appropriate List method on the stub, returning no more than
- *   the specified remaining number of resources
+ * the specified remaining number of resources.
  */
-inline fun <R : Message, reified T, S : AbstractCoroutineStub<S>> S.listResources(
+// 1. Se eliminaron 'inline' y 'reified'.
+// 2. Se eliminó el valor por defecto de 'initialPageToken'.
+// 3. Se añadió el parámetro 'emptyPageToken'.
+// 4. Se eliminó 'crossinline'.
+fun <R : Message, T, S : AbstractCoroutineStub<S>> S.listResources(
   limit: Int,
-  pageToken: T = getEmptyPageToken(),
-  crossinline list: suspend S.(pageToken: T, remaining: Int) -> ResourceList<R, T>,
+  initialPageToken: T,
+  emptyPageToken: T,
+  list: suspend S.(pageToken: T, remaining: Int) -> ResourceList<R, T>,
 ): Flow<ResourceList<R, T>> {
   require(limit > 0) { "limit must be positive" }
-  val emptyPageToken: T = getEmptyPageToken()
   return flow {
     var remaining: Int = limit
-    var nextPageToken = pageToken
+    var nextPageToken = initialPageToken
 
     while (true) {
       coroutineContext.ensureActive()
@@ -83,6 +96,7 @@ inline fun <R : Message, reified T, S : AbstractCoroutineStub<S>> S.listResource
 
       remaining -= resourceList.size
       nextPageToken = resourceList.nextPageToken
+      // 5. Se usa el parámetro 'emptyPageToken' en lugar de llamar a una función.
       if (nextPageToken == emptyPageToken || remaining == 0) {
         break
       }
@@ -95,13 +109,4 @@ inline fun <R : Message, reified T, S : AbstractCoroutineStub<S>> S.listResource
 fun <R : Message, T> Flow<ResourceList<R, T>>.flattenConcat(): Flow<R> =
   map { it.asFlow() }.flattenConcat()
 
-@PublishedApi
-internal inline fun <reified T> getEmptyPageToken(): T {
-  return if (T::class == String::class) {
-    "" as T
-  } else if (null is T) { // T is nullable.
-    null as T
-  } else {
-    error("Unhandled page token type")
-  }
-}
+// 6. La función 'getEmptyPageToken' ya no es necesaria y se ha eliminado.
