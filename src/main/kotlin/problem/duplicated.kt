@@ -1,2 +1,0 @@
-package problem
-class Duplicate
