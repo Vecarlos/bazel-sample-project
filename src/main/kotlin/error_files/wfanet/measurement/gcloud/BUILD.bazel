@@ -1,0 +1,11 @@
+package_group(
+    name = "deployment",
+    packages = [
+        "//src/main/kotlin/error_files/wfanet/measurement/duchy/deploy/gcloud/...",
+        "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/...",
+        "//src/main/kotlin/error_files/wfanet/measurement/loadtest/...",
+        "//src/test/kotlin/error_files/wfanet/measurement/duchy/deploy/gcloud/...",
+        "//src/test/kotlin/error_files/wfanet/measurement/integration/gcloud/...",
+        "//src/test/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/...",
+    ],
+)

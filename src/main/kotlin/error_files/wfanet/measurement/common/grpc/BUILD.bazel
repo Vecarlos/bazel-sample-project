@@ -1,0 +1,16 @@
+# TODO(@SanjayVas): Move this to common-jvm.
+
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:public"])
+
+
+kt_jvm_library(
+    name = "error_info",
+    srcs = ["ErrorInfo.kt"],
+    deps = [
+        "//src/main/proto/google/rpc:error_details_kt_jvm_proto",
+        "//src/main/proto/google/rpc:status_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/io/grpc/protobuf",
+    ],
+)
