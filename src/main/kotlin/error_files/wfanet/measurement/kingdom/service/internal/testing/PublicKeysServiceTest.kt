@@ -26,7 +26,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.wfanet.measurement.common.identity.IdGenerator
 import org.wfanet.measurement.internal.kingdom.AccountsGrpcKt.AccountsCoroutineImplBase
 import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
 import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
@@ -37,217 +36,29 @@ import org.wfanet.measurement.internal.kingdom.getMeasurementConsumerRequest
 import org.wfanet.measurement.internal.kingdom.updatePublicKeyRequest
 import org.wfanet.measurement.kingdom.deploy.common.testing.DuchyIdSetter
 
-private const val API_VERSION = "v2alpha"
+import kotlin.random.Random
+import org.wfanet.measurement.common.identity.RandomIdGenerator
+import org.wfanet.measurement.common.identity.IdGenerator
 
-private val PUBLIC_KEY = ByteString.copyFromUtf8("new public key")
-private val PUBLIC_KEY_SIGNATURE = ByteString.copyFromUtf8("new public key signature")
+private const val RANDOM_SEED = 1
 
 @RunWith(JUnit4::class)
 abstract class PublicKeysServiceTest<T : PublicKeysCoroutineImplBase> {
 
-  @get:Rule val duchyIdSetter = DuchyIdSetter(Population.DUCHIES)
-
   protected data class Services<T>(
-    val publicKeysService: T,
-    val measurementConsumersService: MeasurementConsumersCoroutineImplBase,
-    val dataProvidersService: DataProvidersCoroutineImplBase,
-    val certificatesService: CertificatesCoroutineImplBase,
-    val accountsService: AccountsCoroutineImplBase,
+    val populationsService: T,
   )
 
   protected val clock: Clock = Clock.systemUTC()
-  protected val idGenerator = SequentialIdGenerator()
-  private val population = Population(clock, idGenerator)
+  protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
 
-  private lateinit var publicKeysService: T
-
-  protected lateinit var measurementConsumersService: MeasurementConsumersCoroutineImplBase
-    private set
-
-  protected lateinit var dataProvidersService: DataProvidersCoroutineImplBase
-    private set
-
-  protected lateinit var certificatesService: CertificatesCoroutineImplBase
-    private set
-
-  protected lateinit var accountsService: AccountsCoroutineImplBase
-    private set
 
   protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
 
   @Before
   fun initService() {
     val services = newServices(idGenerator)
-    publicKeysService = services.publicKeysService
-    measurementConsumersService = services.measurementConsumersService
-    dataProvidersService = services.dataProvidersService
-    certificatesService = services.certificatesService
-    accountsService = services.accountsService
+
   }
 
-  @Test
-  fun `updatePublicKey updates the public key info for a data provider`() = runBlocking {
-    val now = clock.instant()
-    val dataProvider = population.createDataProvider(dataProvidersService, notValidBefore = now)
-    val certificate =
-      population.createDataProviderCertificate(
-        certificatesService,
-        dataProvider,
-        notValidBefore = now,
-      )
-    // Insert another certificate to make sure it's not just using the most recent one.
-    population.createDataProviderCertificate(
-      certificatesService,
-      dataProvider,
-      notValidBefore = now,
-    )
-
-    publicKeysService.updatePublicKey(
-      updatePublicKeyRequest {
-        externalDataProviderId = dataProvider.externalDataProviderId
-        externalCertificateId = certificate.externalCertificateId
-        apiVersion = API_VERSION
-        publicKey = PUBLIC_KEY
-        publicKeySignature = PUBLIC_KEY_SIGNATURE
-      }
-    )
-
-    val updatedDataProvider =
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
-      )
-    assertThat(updatedDataProvider.certificate).isEqualTo(certificate)
-    assertThat(updatedDataProvider.details.publicKey).isEqualTo(PUBLIC_KEY)
-    assertThat(updatedDataProvider.details.publicKeySignature).isEqualTo(PUBLIC_KEY_SIGNATURE)
-  }
-
-  @Test
-  fun `updatePublicKey updates the public key info for a measurement consumer`() = runBlocking {
-    val now = clock.instant()
-    val measurementConsumer =
-      population.createMeasurementConsumer(
-        measurementConsumersService,
-        accountsService,
-        notValidBefore = now,
-      )
-    val certificate =
-      population.createMeasurementConsumerCertificate(
-        certificatesService,
-        measurementConsumer,
-        notValidBefore = now,
-      )
-    // Insert another certificate to make sure it's not just using the most recent one.
-    population.createMeasurementConsumerCertificate(
-      certificatesService,
-      measurementConsumer,
-      notValidBefore = now,
-    )
-
-    publicKeysService.updatePublicKey(
-      updatePublicKeyRequest {
-        externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
-        externalCertificateId = certificate.externalCertificateId
-        apiVersion = API_VERSION
-        publicKey = PUBLIC_KEY
-        publicKeySignature = PUBLIC_KEY_SIGNATURE
-      }
-    )
-
-    val updatedMeasurementConsumer =
-      measurementConsumersService.getMeasurementConsumer(
-        getMeasurementConsumerRequest {
-          externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
-        }
-      )
-    assertThat(updatedMeasurementConsumer.certificate).isEqualTo(certificate)
-    assertThat(updatedMeasurementConsumer.details.publicKey).isEqualTo(PUBLIC_KEY)
-    assertThat(updatedMeasurementConsumer.details.publicKeySignature)
-      .isEqualTo(PUBLIC_KEY_SIGNATURE)
-  }
-
-  @Test
-  fun `updatePublicKey throws NOT_FOUND when mc certificate not found`() = runBlocking {
-    val measurementConsumer =
-      population.createMeasurementConsumer(measurementConsumersService, accountsService)
-
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        publicKeysService.updatePublicKey(
-          updatePublicKeyRequest {
-            externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
-            externalCertificateId = measurementConsumer.certificate.externalCertificateId + 1L
-            apiVersion = API_VERSION
-            publicKey = measurementConsumer.details.publicKey.concat(PUBLIC_KEY)
-            publicKeySignature =
-              measurementConsumer.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
-          }
-        )
-      }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.FAILED_PRECONDITION)
-  }
-
-  @Test
-  fun `updatePublicKey throws NOT_FOUND when data provider certificate not found`() = runBlocking {
-    val dataProvider = population.createDataProvider(dataProvidersService)
-
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        publicKeysService.updatePublicKey(
-          updatePublicKeyRequest {
-            externalDataProviderId = dataProvider.externalDataProviderId
-            externalCertificateId = dataProvider.certificate.externalCertificateId + 1L
-            apiVersion = API_VERSION
-            publicKey = dataProvider.details.publicKey.concat(PUBLIC_KEY)
-            publicKeySignature =
-              dataProvider.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
-          }
-        )
-      }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.FAILED_PRECONDITION)
-  }
-
-  @Test
-  fun `updatePublicKey throws NOT_FOUND when measurement consumer not found`() = runBlocking {
-    val measurementConsumer =
-      population.createMeasurementConsumer(measurementConsumersService, accountsService)
-
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        publicKeysService.updatePublicKey(
-          updatePublicKeyRequest {
-            externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId + 1L
-            externalCertificateId = measurementConsumer.certificate.externalCertificateId
-            apiVersion = API_VERSION
-            publicKey = measurementConsumer.details.publicKey.concat(PUBLIC_KEY)
-            publicKeySignature =
-              measurementConsumer.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
-          }
-        )
-      }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
-  }
-
-  @Test
-  fun `updatePublicKey throws NOT_FOUND when data provider not found`() = runBlocking {
-    val dataProvider = population.createDataProvider(dataProvidersService)
-
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        publicKeysService.updatePublicKey(
-          updatePublicKeyRequest {
-            externalDataProviderId = dataProvider.externalDataProviderId + 1L
-            externalCertificateId = dataProvider.certificate.externalCertificateId
-            apiVersion = API_VERSION
-            publicKey = dataProvider.details.publicKey.concat(PUBLIC_KEY)
-            publicKeySignature =
-              dataProvider.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
-          }
-        )
-      }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
-  }
 }
