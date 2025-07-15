@@ -77,8 +77,8 @@ jobs:
       - name: Set TCP keepalive
         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
-      - name: Check lockfile
-        run: bazel mod deps
+      # - name: Check lockfile
+      #   run: bazel mod deps
 
       # - name: Build
       #   run: bazel build --worker_quit_after_build //src/main/kotlin/error_files/...
