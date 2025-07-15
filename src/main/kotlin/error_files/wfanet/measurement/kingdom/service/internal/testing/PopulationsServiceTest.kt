@@ -28,20 +28,14 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.Population
-import org.wfanet.measurement.internal.kingdom.PopulationKt.populationBlob
+
 import org.wfanet.measurement.internal.kingdom.PopulationsGrpcKt.PopulationsCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.StreamPopulationsRequestKt.afterFilter
-import org.wfanet.measurement.internal.kingdom.StreamPopulationsRequestKt.filter
-import org.wfanet.measurement.internal.kingdom.certificate
-import org.wfanet.measurement.internal.kingdom.certificateDetails
-import org.wfanet.measurement.internal.kingdom.dataProvider
-import org.wfanet.measurement.internal.kingdom.dataProviderDetails
-import org.wfanet.measurement.internal.kingdom.eventTemplate
-import org.wfanet.measurement.internal.kingdom.getPopulationRequest
-import org.wfanet.measurement.internal.kingdom.population
-import org.wfanet.measurement.internal.kingdom.streamPopulationsRequest
+import org.wfanet.measurement.internal.kingdom.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.AccountsGrpcKt.AccountsCoroutineImplBase
 
 import kotlin.random.Random
 import org.wfanet.measurement.common.identity.RandomIdGenerator
@@ -54,6 +48,12 @@ abstract class PopulationsServiceTest<T : PopulationsCoroutineImplBase> {
 
   protected data class Services<T>(
     val populationsService: T,
+    val measurementConsumersService: MeasurementConsumersCoroutineImplBase,
+    val dataProvidersService: DataProvidersCoroutineImplBase,
+    val measurementsService: MeasurementsCoroutineImplBase,
+    val certificatesService: CertificatesCoroutineImplBase,
+    val requisitionsService: RequisitionsCoroutineImplBase,
+    val accountsService: AccountsCoroutineImplBase,
   )
 
   protected val clock: Clock = Clock.systemUTC()

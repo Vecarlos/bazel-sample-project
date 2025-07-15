@@ -26,15 +26,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.wfanet.measurement.internal.kingdom.AccountsGrpcKt.AccountsCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineImplBase
+
 import org.wfanet.measurement.internal.kingdom.PublicKeysGrpcKt.PublicKeysCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.getDataProviderRequest
-import org.wfanet.measurement.internal.kingdom.getMeasurementConsumerRequest
-import org.wfanet.measurement.internal.kingdom.updatePublicKeyRequest
+
 import org.wfanet.measurement.kingdom.deploy.common.testing.DuchyIdSetter
+
+import org.wfanet.measurement.internal.kingdom.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.AccountsGrpcKt.AccountsCoroutineImplBase
 
 import kotlin.random.Random
 import org.wfanet.measurement.common.identity.RandomIdGenerator
@@ -47,6 +49,12 @@ abstract class PublicKeysServiceTest<T : PublicKeysCoroutineImplBase> {
 
   protected data class Services<T>(
     val populationsService: T,
+    val measurementConsumersService: MeasurementConsumersCoroutineImplBase,
+    val dataProvidersService: DataProvidersCoroutineImplBase,
+    val measurementsService: MeasurementsCoroutineImplBase,
+    val certificatesService: CertificatesCoroutineImplBase,
+    val requisitionsService: RequisitionsCoroutineImplBase,
+    val accountsService: AccountsCoroutineImplBase,
   )
 
   protected val clock: Clock = Clock.systemUTC()
