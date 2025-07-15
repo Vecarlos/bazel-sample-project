@@ -2,15 +2,13 @@ package replicate_error
 
 import org.junit.Before
 import org.junit.Test
+import org.wfanet.measurement.internal.kingdom.ApiKeysGrpcKt.ApiKeysCoroutineImplBase
 
-abstract class ApiKeysServiceTest<T : Int> {
-
-    // protected data class Services<T>(
-    //     val apiKeysService: T,
-    // )
+abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
 
     @Before
     fun initServices() {
+        // Cuerpo vacío, como en el ejemplo.
     }
 
     @Test
