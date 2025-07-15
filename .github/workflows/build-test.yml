@@ -34,13 +34,13 @@ jobs:
           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
           EOF
 
-      # - name: Write ~/.bazelrc
-      #   run: |
-      #     cat << EOF > ~/.bazelrc
-      #     common --config=ci
-      #     build --remote_upload_local_results
-      #     build --define basic_reports_enabled=true 
-      #     EOF
+      - name: Write ~/.bazelrc
+        run: |
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          build --define basic_reports_enabled=true 
+          EOF
 
       - name: Write ~/.bazelrc
         run: |
