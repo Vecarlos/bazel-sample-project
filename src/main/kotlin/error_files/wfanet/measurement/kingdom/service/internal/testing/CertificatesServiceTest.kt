@@ -33,33 +33,18 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.wfanet.measurement.common.toProtoTime
-import org.wfanet.measurement.internal.kingdom.AccountsGrpcKt.AccountsCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.Certificate
-import org.wfanet.measurement.internal.kingdom.CertificateKt
-import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.DuchyProtocolConfig
-import org.wfanet.measurement.internal.kingdom.GetCertificateRequestKt
-import org.wfanet.measurement.internal.kingdom.LiquidLegionsV2Params
-import org.wfanet.measurement.internal.kingdom.Measurement
-import org.wfanet.measurement.internal.kingdom.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.MeasurementFailure
-import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt
-import org.wfanet.measurement.internal.kingdom.ModelProvidersGrpcKt.ModelProvidersCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.ProtocolConfig
-import org.wfanet.measurement.internal.kingdom.Requisition
-import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.StreamCertificatesRequestKt
-import org.wfanet.measurement.internal.kingdom.StreamCertificatesRequestKt.orderedKey
-import org.wfanet.measurement.internal.kingdom.StreamMeasurementsRequestKt
-import org.wfanet.measurement.internal.kingdom.StreamRequisitionsRequestKt
-import org.wfanet.measurement.internal.kingdom.cancelMeasurementRequest
-import org.wfanet.measurement.internal.kingdom.certificate
+
 
 import org.wfanet.measurement.kingdom.deploy.common.Llv2ProtocolConfig
 import org.wfanet.measurement.kingdom.deploy.common.testing.DuchyIdSetter
 import org.wfanet.measurement.kingdom.service.internal.testing.Population.Companion.DUCHIES
+
+import org.wfanet.measurement.internal.kingdom.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.AccountsGrpcKt.AccountsCoroutineImplBase
 
 import kotlin.random.Random
 import org.wfanet.measurement.common.identity.RandomIdGenerator
@@ -72,6 +57,12 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
 
   protected data class Services<T>(
     val certificatesService: T,
+    val measurementConsumersService: MeasurementConsumersCoroutineImplBase,
+    val dataProvidersService: DataProvidersCoroutineImplBase,
+    val measurementsService: MeasurementsCoroutineImplBase,
+    val aaa: CertificatesCoroutineImplBase,
+    val requisitionsService: RequisitionsCoroutineImplBase,
+    val accountsService: AccountsCoroutineImplBase,
   )
 
   private val clock: Clock = Clock.systemUTC()
