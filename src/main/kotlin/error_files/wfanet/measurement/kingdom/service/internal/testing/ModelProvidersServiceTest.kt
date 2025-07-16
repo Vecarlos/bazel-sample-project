@@ -54,7 +54,6 @@ abstract class ModelProvidersServiceTest {
 
   protected lateinit var modelProvidersService: ModelProvidersCoroutineImplBase
 
-  /** Creates a /ModelProviders service implementation using [idGenerator]. */
   protected abstract fun newService(idGenerator: IdGenerator): ModelProvidersCoroutineImplBase
 
   @Before
@@ -65,28 +64,15 @@ abstract class ModelProvidersServiceTest {
   @Test
   fun `getModelProvider fails for missing ModelProvider`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
-    // val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
-    // val exception =
-    //   assertFailsWith<StatusRuntimeException> {
-    //     modelProvidersService.getModelProvider(
-    //       getModelProviderRequest { externalModelProviderId = EXTERNAL_MODEL_PROVIDER_ID }
-    //     )
-    //   }
-
   }
 
   @Test
   fun `createModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
-    // val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
   }
 
   @Test
   fun `getModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
-    // val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
   }
-
-
-
 }
