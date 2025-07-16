@@ -90,6 +90,48 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     services = newServices(idGenerator)
   }
 
+  @Test
+  fun `getDataProvider fails for missing DataProvider`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = 404L }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+    assertThat(exception).hasMessageThat().contains("DataProvider")
+  }
+
+  @Test
+  fun `createDataProvider fails for missing fields`() = runBlocking {
+    val request =
+      CREATE_DATA_PROVIDER_REQUEST.copy { details = details.copy { clearPublicKeySignature() } }
+    val exception =
+      assertFailsWith<StatusRuntimeException> { dataProvidersService.createDataProvider(request) }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+    assertThat(exception)
+      .hasMessageThat()
+      .contains("Details field of DataProvider is missing fields.")
+  }
+
+  @Test
+  fun `createDataProvider returns created DataProvider`() = runBlocking {
+    val request = CREATE_DATA_PROVIDER_REQUEST
+
+    val response: DataProvider = dataProvidersService.createDataProvider(request)
+
+    assertThat(recordingIdGenerator.externalIds).hasSize(2)
+    val remainingExternalIds = recordingIdGenerator.externalIds.toMutableSet()
+    assertThat(response).ignoringFieldDescriptors(EXTERNAL_ID_FIELD_DESCRIPTORS).isEqualTo(request)
+    val externalDataProviderId = ExternalId(response.externalDataProviderId)
+    assertThat(externalDataProviderId).isIn(remainingExternalIds)
+    remainingExternalIds.remove(externalDataProviderId)
+    assertThat(ExternalId(response.certificate.externalDataProviderId))
+      .isEqualTo(externalDataProviderId)
+    assertThat(ExternalId(response.certificate.externalCertificateId)).isIn(remainingExternalIds)
+  }
 
   @Test
   fun `createDataProvider returns created DataProvider with availability intervals`() =
@@ -135,6 +177,123 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
         )
     }
 
+  @Test
+  fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
+    val request = CREATE_DATA_PROVIDER_REQUEST.copy { requiredExternalDuchyIds.clear() }
+
+    val response: DataProvider = dataProvidersService.createDataProvider(request)
+
+    assertThat(response)
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .ignoringFieldDescriptors(EXTERNAL_ID_FIELD_DESCRIPTORS)
+      .isEqualTo(request)
+  }
+
+  @Test
+  fun `getDataProvider succeeds`() = runBlocking {
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+
+    val response =
+      dataProvidersService.getDataProvider(
+        GetDataProviderRequest.newBuilder()
+          .setExternalDataProviderId(dataProvider.externalDataProviderId)
+          .build()
+      )
+
+    assertThat(response)
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .isEqualTo(dataProvider)
+  }
+
+  @Test
+  fun `batchGetDataProviders returns DataProviders in request order`() {
+    val dataProviders = runBlocking {
+      listOf(
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+        dataProvidersService.createDataProvider(
+          CREATE_DATA_PROVIDER_REQUEST.copy {
+            certificate =
+              certificate.copy {
+                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
+              }
+          }
+        ),
+        dataProvidersService.createDataProvider(
+          CREATE_DATA_PROVIDER_REQUEST.copy {
+            certificate =
+              certificate.copy {
+                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
+              }
+          }
+        ),
+      )
+    }
+    val shuffledDataProviders = dataProviders.shuffled()
+    val request = batchGetDataProvidersRequest {
+      externalDataProviderIds += shuffledDataProviders.map { it.externalDataProviderId }
+    }
+
+    val response = runBlocking { dataProvidersService.batchGetDataProviders(request) }
+
+    assertThat(response.dataProvidersList)
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .containsExactlyElementsIn(shuffledDataProviders)
+      .inOrder()
+  }
+
+  @Test
+  fun `replaceDataProviderRequiredDuchies succeeds`() = runBlocking {
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+    val desiredDuchyList = listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
+
+    val updatedDataProvider =
+      dataProvidersService.replaceDataProviderRequiredDuchies(
+        replaceDataProviderRequiredDuchiesRequest {
+          externalDataProviderId = dataProvider.externalDataProviderId
+          requiredExternalDuchyIds += desiredDuchyList
+        }
+      )
+
+    // Ensure DataProvider with updated duchy list is returned from function.
+    assertThat(updatedDataProvider.requiredExternalDuchyIdsList).isEqualTo(desiredDuchyList)
+    // Ensure changes were persisted.
+    assertThat(
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
+        )
+      )
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .isEqualTo(updatedDataProvider)
+  }
+
+  @Test
+  fun `replaceDataProviderRequiredDuchies throws NOT_FOUND when edp not found`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataProviderRequiredDuchies(
+          replaceDataProviderRequiredDuchiesRequest {
+            externalDataProviderId = 123
+            requiredExternalDuchyIds += listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+  }
+
+  @Test
+  fun `replaceDataProviderRequiredDuchies throws INVALID_ARGUMENT when no edp id`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataProviderRequiredDuchies(
+          replaceDataProviderRequiredDuchiesRequest {
+            requiredExternalDuchyIds += listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
 
   @Test
   fun `replaceDataAvailabilityIntervals updates DataProvider`() = runBlocking {
@@ -296,7 +455,110 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
         )
     }
 
+  @Test
+  fun `replaceDataAvailabilityInterval modifies DataProvider`() = runBlocking {
+    val dataAvailabilityInterval = interval {
+      startTime = timestamp { seconds = 200 }
+      endTime = timestamp { seconds = 300 }
+    }
+    val dataProvider =
+      dataProvidersService.createDataProvider(
+        dataProvider {
+          certificate {
+            notValidBefore = timestamp { seconds = 12345 }
+            notValidAfter = timestamp { seconds = 23456 }
+            details = certificateDetails { x509Der = CERTIFICATE_DER }
+          }
+          details = dataProviderDetails {
+            apiVersion = "v2alpha"
+            publicKey = PUBLIC_KEY
+            publicKeySignature = PUBLIC_KEY_SIGNATURE
+            publicKeySignatureAlgorithmOid = PUBLIC_KEY_SIGNATURE_ALGORITHM_OID
+            this.dataAvailabilityInterval = dataAvailabilityInterval
+          }
+          requiredExternalDuchyIds += DUCHIES.map { it.externalDuchyId }
+        }
+      )
 
+    val updatedDataProvider =
+      dataProvidersService.replaceDataAvailabilityInterval(
+        replaceDataAvailabilityIntervalRequest {
+          externalDataProviderId = dataProvider.externalDataProviderId
+          this.dataAvailabilityInterval = dataAvailabilityInterval
+        }
+      )
+
+    assertThat(updatedDataProvider.details.dataAvailabilityInterval)
+      .isEqualTo(dataAvailabilityInterval)
+    // Ensure changes were persisted.
+    assertThat(
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
+        )
+      )
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .isEqualTo(updatedDataProvider)
+  }
+
+  @Test
+  fun `replaceDataAvailabilityInterval throws NOT_FOUND when edp not found`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataAvailabilityInterval(
+          replaceDataAvailabilityIntervalRequest {
+            externalDataProviderId = 123
+            dataAvailabilityInterval = interval {
+              startTime = timestamp { seconds = 200 }
+              endTime = timestamp { seconds = 300 }
+            }
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+  }
+
+  @Test
+  fun `replaceDataAvailabilityInterval throws NOT_FOUND when no edp id`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataAvailabilityInterval(
+          replaceDataAvailabilityIntervalRequest {
+            dataAvailabilityInterval = interval {
+              startTime = timestamp { seconds = 200 }
+              endTime = timestamp { seconds = 300 }
+            }
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
+
+  @Test
+  fun `replaceDataProviderCapabilites updates DataProvider`() = runBlocking {
+    val dataProvider: DataProvider =
+      dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+    val capabilities = dataProviderCapabilities { honestMajorityShareShuffleSupported = true }
+
+    val response: DataProvider =
+      dataProvidersService.replaceDataProviderCapabilities(
+        replaceDataProviderCapabilitiesRequest {
+          externalDataProviderId = dataProvider.externalDataProviderId
+          this.capabilities = capabilities
+        }
+      )
+
+    assertThat(response.details.capabilities).isEqualTo(capabilities)
+    // Ensure changes were persisted.
+    assertThat(
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
+        )
+      )
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .isEqualTo(response)
+  }
 
   /** Random [IdGenerator] which records generated IDs. */
   private class RecordingIdGenerator : IdGenerator {
