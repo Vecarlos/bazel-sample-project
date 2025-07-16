@@ -59,7 +59,14 @@ abstract class ModelProvidersServiceTest {
 
   @Before
   fun initService() {
+    idGenerator =
+      FixedIdGenerator(
+        InternalId(FIXED_GENERATED_INTERNAL_ID),
+        ExternalId(FIXED_GENERATED_EXTERNAL_ID),
+      )
     modelProvidersService = newService(idGenerator)
+
+    // modelProvidersService = newService(idGenerator)
   }
 
   @Test
