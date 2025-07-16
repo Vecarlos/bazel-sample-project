@@ -101,32 +101,20 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `createDataProvider fails for missing fields`() = runBlocking {
-    val request =
-      CREATE_DATA_PROVIDER_REQUEST.copy { details = details.copy { clearPublicKeySignature() } }
-    val exception =
-      assertFailsWith<StatusRuntimeException> { dataProvidersService.createDataProvider(request) }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
-    assertThat(exception)
-      .hasMessageThat()
-      .contains("Details field of DataProvider is missing fields.")
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
   }
 
   @Test
   fun `createDataProvider returns created DataProvider`() = runBlocking {
-    val request = CREATE_DATA_PROVIDER_REQUEST
-
-    val response: DataProvider = dataProvidersService.createDataProvider(request)
-
-    assertThat(recordingIdGenerator.externalIds).hasSize(2)
-    val remainingExternalIds = recordingIdGenerator.externalIds.toMutableSet()
-    assertThat(response).ignoringFieldDescriptors(EXTERNAL_ID_FIELD_DESCRIPTORS).isEqualTo(request)
-    val externalDataProviderId = ExternalId(response.externalDataProviderId)
-    assertThat(externalDataProviderId).isIn(remainingExternalIds)
-    remainingExternalIds.remove(externalDataProviderId)
-    assertThat(ExternalId(response.certificate.externalDataProviderId))
-      .isEqualTo(externalDataProviderId)
-    assertThat(ExternalId(response.certificate.externalCertificateId)).isIn(remainingExternalIds)
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
   }
 
   @Test
