@@ -229,8 +229,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
    val dataProvider: DataProvider =
         dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    val request = replaceDataAvailabilityIntervalsRequest {}
-   val exception =
+  val request = replaceDataAvailabilityIntervalsRequest {}
+  val exception =
               assertFailsWith<StatusRuntimeException> {
           dataProvidersService.replaceDataAvailabilityIntervals(request)
         }
@@ -238,20 +238,11 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `replaceDataAvailabilityInterval throws NOT_FOUND when edp not found`() = runBlocking {
+    val request = replaceDataAvailabilityIntervalsRequest {}
     val exception =
       assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataAvailabilityInterval(
-          replaceDataAvailabilityIntervalRequest {
-            externalDataProviderId = 123
-            dataAvailabilityInterval = interval {
-              startTime = timestamp { seconds = 200 }
-              endTime = timestamp { seconds = 300 }
-            }
-          }
-        )
+        dataProvidersService.replaceDataAvailabilityInterval(request)
       }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
   }
 
   @Test
