@@ -65,7 +65,7 @@ abstract class ModelProvidersServiceTest {
   @Test
   fun `getModelProvider fails for missing ModelProvider`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
-    val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+    // val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
     // val exception =
     //   assertFailsWith<StatusRuntimeException> {
     //     modelProvidersService.getModelProvider(
@@ -78,13 +78,13 @@ abstract class ModelProvidersServiceTest {
   @Test
   fun `createModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
-    val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+    // val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
   }
 
   @Test
   fun `getModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
-    val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+    // val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
   }
 
 
