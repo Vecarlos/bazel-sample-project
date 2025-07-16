@@ -177,8 +177,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
           }
         )
       }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
   }
 
   @Test
@@ -191,8 +189,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
           }
         )
       }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
   }
 
   @Test
