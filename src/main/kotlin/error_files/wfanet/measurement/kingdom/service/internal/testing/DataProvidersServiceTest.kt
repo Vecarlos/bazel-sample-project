@@ -229,9 +229,9 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
     val dataProvider =
       dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-
+    val request = replaceDataAvailabilityIntervalsRequest {}
     val updatedDataProvider =
-      dataProvidersService.replaceDataAvailabilityInterval()
+      dataProvidersService.replaceDataAvailabilityInterval(request)
 
     // assertThat(updatedDataProvider.details.dataAvailabilityInterval)
     //   .isEqualTo(dataAvailabilityInterval)
