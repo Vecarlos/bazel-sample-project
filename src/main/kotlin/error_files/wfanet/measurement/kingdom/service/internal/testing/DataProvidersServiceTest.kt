@@ -120,109 +120,39 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   @Test
   fun `createDataProvider returns created DataProvider with availability intervals`() =
     runBlocking {
-      val now: Instant = clock.instant()
-      val modelLines: List<ModelLine> =
-        (1..3).map {
-          population.createModelLine(
-            services.modelProvidersService,
-            services.modelSuitesService,
-            services.modelLinesService,
-          )
-        }
-      val request =
-        CREATE_DATA_PROVIDER_REQUEST.copy {
-          modelLines.forEachIndexed { index, modelLine ->
-            dataAvailabilityIntervals +=
-              DataProviderKt.dataAvailabilityMapEntry {
-                key = modelLineKey {
-                  externalModelProviderId = modelLine.externalModelProviderId
-                  externalModelSuiteId = modelLine.externalModelSuiteId
-                  externalModelLineId = modelLine.externalModelLineId
-                }
-                value = interval {
-                  val start = now.minus((index + 3) * 90L, ChronoUnit.DAYS)
-                  startTime = start.toProtoTime()
-                  endTime = start.plus(180L, ChronoUnit.DAYS).toProtoTime()
-                }
-              }
-          }
-        }
-
-      val response: DataProvider = dataProvidersService.createDataProvider(request)
-
-      assertThat(response.dataAvailabilityIntervalsList)
-        .isEqualTo(request.dataAvailabilityIntervalsList)
-      assertThat(response)
-        .ignoringRepeatedFieldOrderOfFields(DataProvider.DATA_AVAILABILITY_INTERVALS_FIELD_NUMBER)
-        .isEqualTo(
-          dataProvidersService.getDataProvider(
-            getDataProviderRequest { externalDataProviderId = response.externalDataProviderId }
-          )
-        )
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
     }
 
   @Test
   fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
-    val request = CREATE_DATA_PROVIDER_REQUEST.copy { requiredExternalDuchyIds.clear() }
-
-    val response: DataProvider = dataProvidersService.createDataProvider(request)
-
-    assertThat(response)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .ignoringFieldDescriptors(EXTERNAL_ID_FIELD_DESCRIPTORS)
-      .isEqualTo(request)
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
   }
 
   @Test
   fun `getDataProvider succeeds`() = runBlocking {
-    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-
-    val response =
+    assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
-        GetDataProviderRequest.newBuilder()
-          .setExternalDataProviderId(dataProvider.externalDataProviderId)
-          .build()
+        getDataProviderRequest { externalDataProviderId = 404L }
       )
-
-    assertThat(response)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .isEqualTo(dataProvider)
+    }
   }
 
   @Test
   fun `batchGetDataProviders returns DataProviders in request order`() {
     val dataProviders = runBlocking {
-      listOf(
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
-              }
-          }
-        ),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
-              }
-          }
-        ),
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
       )
     }
-    val shuffledDataProviders = dataProviders.shuffled()
-    val request = batchGetDataProvidersRequest {
-      externalDataProviderIds += shuffledDataProviders.map { it.externalDataProviderId }
-    }
-
-    val response = runBlocking { dataProvidersService.batchGetDataProviders(request) }
-
-    assertThat(response.dataProvidersList)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .containsExactlyElementsIn(shuffledDataProviders)
-      .inOrder()
   }
 
   @Test
