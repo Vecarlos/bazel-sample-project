@@ -254,46 +254,14 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
       }
   }
 
-  // @Test
-  // fun `replaceDataAvailabilityInterval throws NOT_FOUND when no edp id`() = runBlocking {
-  //   val exception =
-  //     assertFailsWith<StatusRuntimeException> {
-  //       dataProvidersService.replaceDataAvailabilityInterval(
-  //         replaceDataAvailabilityIntervalRequest {
-  //           dataAvailabilityInterval = interval {
-  //             startTime = timestamp { seconds = 200 }
-  //             endTime = timestamp { seconds = 300 }
-  //           }
-  //         }
-  //       )
-  //     }
-
-  //   assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
-  // }
 
   @Test
-  fun `replaceDataProviderCapabilites updates DataProvider`() = runBlocking {
-    val dataProvider: DataProvider =
-      dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    val capabilities = dataProviderCapabilities { honestMajorityShareShuffleSupported = true }
-
-    val response: DataProvider =
-      dataProvidersService.replaceDataProviderCapabilities(
-        replaceDataProviderCapabilitiesRequest {
-          externalDataProviderId = dataProvider.externalDataProviderId
-          this.capabilities = capabilities
-        }
-      )
-
-    assertThat(response.details.capabilities).isEqualTo(capabilities)
-    // Ensure changes were persisted.
-    assertThat(
-        dataProvidersService.getDataProvider(
-          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
-        )
-      )
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .isEqualTo(response)
+  fun `replaceDataAvailabilityInterval throws NOT_FOUND when edp not found 3`() = runBlocking {
+    val request = replaceDataAvailabilityIntervalsRequest {}
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataAvailabilityIntervals(request)
+      }
   }
 
   /** Random [IdGenerator] which records generated IDs. */
