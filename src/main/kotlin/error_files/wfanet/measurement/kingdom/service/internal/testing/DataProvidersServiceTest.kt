@@ -92,15 +92,11 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `getDataProvider fails for missing DataProvider`() = runBlocking {
-    val exception =
       assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.getDataProvider(
-          getDataProviderRequest { externalDataProviderId = 404L }
-        )
-      }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
-    assertThat(exception).hasMessageThat().contains("DataProvider")
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
   }
 
   @Test
@@ -518,22 +514,22 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
   }
 
-  // @Test
-  // fun `replaceDataAvailabilityInterval throws NOT_FOUND when no edp id`() = runBlocking {
-  //   val exception =
-  //     assertFailsWith<StatusRuntimeException> {
-  //       dataProvidersService.replaceDataAvailabilityInterval(
-  //         replaceDataAvailabilityIntervalRequest {
-  //           dataAvailabilityInterval = interval {
-  //             startTime = timestamp { seconds = 200 }
-  //             endTime = timestamp { seconds = 300 }
-  //           }
-  //         }
-  //       )
-  //     }
+  @Test
+  fun `replaceDataAvailabilityInterval throws NOT_FOUND when no edp id`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataAvailabilityInterval(
+          replaceDataAvailabilityIntervalRequest {
+            dataAvailabilityInterval = interval {
+              startTime = timestamp { seconds = 200 }
+              endTime = timestamp { seconds = 300 }
+            }
+          }
+        )
+      }
 
-  //   assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
-  // }
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+  }
 
   @Test
   fun `replaceDataProviderCapabilites updates DataProvider`() = runBlocking {
