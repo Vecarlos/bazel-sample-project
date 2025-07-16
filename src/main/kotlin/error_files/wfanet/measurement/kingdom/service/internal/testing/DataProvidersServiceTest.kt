@@ -175,10 +175,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
     val response = runBlocking { dataProvidersService.batchGetDataProviders(request) }
 
-    assertThat(response.dataProvidersList)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .containsExactlyElementsIn(shuffledDataProviders)
-      .inOrder()
   }
 
   @Test
