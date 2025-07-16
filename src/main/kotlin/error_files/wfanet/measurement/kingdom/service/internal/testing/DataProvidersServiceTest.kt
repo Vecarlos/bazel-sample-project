@@ -177,7 +177,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `replaceDataProviderRequiredDuchies succeeds`() = runBlocking {
-    
     val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
     val desiredDuchyList = listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
 
