@@ -228,7 +228,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   fun `replaceDataAvailabilityInterval modifies DataProvider`() = runBlocking {
 
     val dataProvider =
-      dataProvidersService.createDataProvider()
+      dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
 
     val updatedDataProvider =
       dataProvidersService.replaceDataAvailabilityInterval()
