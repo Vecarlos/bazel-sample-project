@@ -227,22 +227,13 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   @Test
   fun `replaceDataAvailabilityInterval modifies DataProvider`() = runBlocking {
 
-    val dataProvider =
-      dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+   val dataProvider: DataProvider =
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
     val request = replaceDataAvailabilityIntervalsRequest {}
-    val updatedDataProvider =
-      dataProvidersService.replaceDataAvailabilityInterval(request)
-
-    // assertThat(updatedDataProvider.details.dataAvailabilityInterval)
-    //   .isEqualTo(dataAvailabilityInterval)
-    // // Ensure changes were persisted.
-    // assertThat(
-    //     dataProvidersService.getDataProvider(
-    //       getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
-    //     )
-    //   )
-    //   .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-    //   .isEqualTo(updatedDataProvider)
+   val exception =
+              assertFailsWith<StatusRuntimeException> {
+          dataProvidersService.replaceDataAvailabilityIntervals(request)
+        }
   }
 
   @Test
