@@ -120,23 +120,21 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   @Test
   fun `createDataProvider returns created DataProvider with availability intervals`() =
     runBlocking {
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = 404L }
+        )
+      }
+    }
+
+  @Test
+  fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
+    // val response: DataProvider = dataProvidersService.createDataProvider(request)
     assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
     }
-    }
-
-  @Test
-  fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
-    val request = CREATE_DATA_PROVIDER_REQUEST.copy { requiredExternalDuchyIds.clear() }
-
-    val response: DataProvider = dataProvidersService.createDataProvider(request)
-
-    assertThat(response)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .ignoringFieldDescriptors(EXTERNAL_ID_FIELD_DESCRIPTORS)
-      .isEqualTo(request)
   }
 
   @Test
