@@ -266,7 +266,10 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   /** Random [IdGenerator] which records generated IDs. */
   private class RecordingIdGenerator : IdGenerator {
- 
+
+    override fun generateInternalId(): InternalId {
+      return delegate.generateInternalId().also { mutableInternalIds.add(it) }
+    }
   }
 
   protected data class Services<T>(
