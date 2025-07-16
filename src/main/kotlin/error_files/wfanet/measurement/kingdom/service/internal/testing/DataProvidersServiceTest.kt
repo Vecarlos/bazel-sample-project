@@ -146,10 +146,26 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `batchGetDataProviders returns DataProviders in request order`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
+  fun `batchGetDataProviders returns DataProviders in request order`() {
+    val dataProviders = runBlocking {
+      listOf(
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+        dataProvidersService.createDataProvider(
+          CREATE_DATA_PROVIDER_REQUEST.copy {
+            certificate =
+              certificate.copy {
+                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
+              }
+          }
+        ),
+        dataProvidersService.createDataProvider(
+          CREATE_DATA_PROVIDER_REQUEST.copy {
+            certificate =
+              certificate.copy {
+                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
+              }
+          }
+        ),
       )
     }
   }
