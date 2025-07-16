@@ -75,34 +75,34 @@ abstract class ModelProvidersServiceTest {
   //   assertThat(exception).hasMessageThat().contains("NOT_FOUND: ModelProvider not found")
   // }
 
-  // @Test
-  // fun `createModelProvider succeeds`() = runBlocking {
-  //   val modelProvider = ModelProvider.getDefaultInstance()
-  //   val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
-
-  //   assertThat(createdModelProvider)
-  //     .isEqualTo(
-  //       modelProvider
-  //         .toBuilder()
-  //         .apply { externalModelProviderId = FIXED_GENERATED_EXTERNAL_ID }
-  //         .build()
-  //     )
-  // }
-
   @Test
-  fun `getModelProvider succeeds`() = runBlocking {
+  fun `createModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
     val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
 
-    val modelProviderRead =
-      modelProvidersService.getModelProvider(
-        GetModelProviderRequest.newBuilder()
-          .setExternalModelProviderId(createdModelProvider.externalModelProviderId)
+    assertThat(createdModelProvider)
+      .isEqualTo(
+        modelProvider
+          .toBuilder()
+          .apply { externalModelProviderId = FIXED_GENERATED_EXTERNAL_ID }
           .build()
       )
-
-    assertThat(modelProviderRead).isEqualTo(createdModelProvider)
   }
+
+  // @Test
+  // fun `getModelProvider succeeds`() = runBlocking {
+  //   val modelProvider = ModelProvider.getDefaultInstance()
+  //   val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+
+  //   val modelProviderRead =
+  //     modelProvidersService.getModelProvider(
+  //       GetModelProviderRequest.newBuilder()
+  //         .setExternalModelProviderId(createdModelProvider.externalModelProviderId)
+  //         .build()
+  //     )
+
+  //   assertThat(modelProviderRead).isEqualTo(createdModelProvider)
+  // }
 
 
 
