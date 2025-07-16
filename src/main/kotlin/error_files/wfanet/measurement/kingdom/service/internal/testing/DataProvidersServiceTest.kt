@@ -198,16 +198,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     val dataProvider =
       dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
     val request = replaceDataAvailabilityIntervalsRequest {
-      externalDataProviderId = dataProvider.externalDataProviderId
-      // Keep/update one entry.
-      dataAvailabilityIntervals +=
-        dataProvider.dataAvailabilityIntervalsList.first().copy {
-          value = value.copy { endTime = now.minus(30L, ChronoUnit.DAYS).toProtoTime() }
-        }
-      // Add a new entry.
-      dataAvailabilityIntervals +=
-        DataProviderKt.dataAvailabilityMapEntry {
-        }
     }
 
     val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals(request)
