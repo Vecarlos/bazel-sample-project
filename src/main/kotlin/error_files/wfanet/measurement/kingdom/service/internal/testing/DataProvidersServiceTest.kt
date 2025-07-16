@@ -158,7 +158,9 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
       externalDataProviderIds += shuffledDataProviders.map { it.externalDataProviderId }
     }
 
-    val response = runBlocking { dataProvidersService.batchGetDataProviders(request) }
+    val response = runBlocking { dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      ) }
 
   }
 
