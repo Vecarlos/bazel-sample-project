@@ -293,24 +293,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   )
 
   companion object {
-    private val EXTERNAL_ID_FIELD_DESCRIPTORS =
-      listOf(
-        DataProvider.getDescriptor()
-          .findFieldByNumber(DataProvider.EXTERNAL_DATA_PROVIDER_ID_FIELD_NUMBER),
-        Certificate.getDescriptor()
-          .findFieldByNumber(Certificate.EXTERNAL_DATA_PROVIDER_ID_FIELD_NUMBER),
-        Certificate.getDescriptor()
-          .findFieldByNumber(Certificate.EXTERNAL_CERTIFICATE_ID_FIELD_NUMBER),
-      )
-    private val UNORDERED_FIELD_DESCRIPTORS =
-      listOf(
-        DataProvider.getDescriptor()
-          .findFieldByNumber(DataProvider.REQUIRED_EXTERNAL_DUCHY_IDS_FIELD_NUMBER)
-      )
 
-
-    private val CREATE_DATA_PROVIDER_REQUEST = dataProvider {
-
-    }
+    private val CREATE_DATA_PROVIDER_REQUEST = dataProvider {}
   }
 }
