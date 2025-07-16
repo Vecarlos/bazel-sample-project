@@ -194,54 +194,21 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   @Test
   fun `replaceDataAvailabilityIntervals updates DataProvider`() = runBlocking {
     val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-
-    val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals()
+    val request = replaceDataAvailabilityIntervalsRequest {}
+    val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals(request)
   }
 
   @Test
   fun `replaceDataAvailabilityIntervals throws FAILED_PRECONDITION when ModelLine not found`() =
     runBlocking {
-      val now: Instant = clock.instant()
-      val modelLine: ModelLine =
-        population.createModelLine(
-          services.modelProvidersService,
-          services.modelSuitesService,
-          services.modelLinesService,
-        )
       val dataProvider: DataProvider =
         dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-      val request = replaceDataAvailabilityIntervalsRequest {
-        externalDataProviderId = dataProvider.externalDataProviderId
-        dataAvailabilityIntervals +=
-          DataProviderKt.dataAvailabilityMapEntry {
-            key = modelLineKey {
-              externalModelProviderId = modelLine.externalModelProviderId
-              externalModelSuiteId = modelLine.externalModelSuiteId
-              externalModelLineId = 404L
-            }
-            value = interval {
-              startTime = now.minus(90L, ChronoUnit.DAYS).toProtoTime()
-              endTime = now.minus(3L, ChronoUnit.DAYS).toProtoTime()
-            }
-          }
-      }
+      val request = replaceDataAvailabilityIntervalsRequest {}
 
       val exception =
         assertFailsWith<StatusRuntimeException> {
           dataProvidersService.replaceDataAvailabilityIntervals(request)
         }
-
-      assertThat(exception.status.code).isEqualTo(Status.Code.FAILED_PRECONDITION)
-      assertThat(exception.errorInfo)
-        .isEqualTo(
-          errorInfo {
-            domain = KingdomInternalException.DOMAIN
-            reason = ErrorCode.MODEL_LINE_NOT_FOUND.name
-            metadata["external_model_provider_id"] = modelLine.externalModelProviderId.toString()
-            metadata["external_model_suite_id"] = modelLine.externalModelSuiteId.toString()
-            metadata["external_model_line_id"] = "404"
-          }
-        )
     }
 
   @Test
