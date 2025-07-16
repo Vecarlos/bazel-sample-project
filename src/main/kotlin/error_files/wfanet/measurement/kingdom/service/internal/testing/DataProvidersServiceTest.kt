@@ -150,22 +150,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     val dataProviders = runBlocking {
       listOf(
         dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
-              }
-          }
-        ),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
-              }
-          }
-        ),
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
       )
     }
     val shuffledDataProviders = dataProviders.shuffled()
@@ -177,21 +163,28 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `replaceDataProviderRequiredDuchies succeeds`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
+    
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+    val desiredDuchyList = listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
+
+    val updatedDataProvider =
+      dataProvidersService.replaceDataProviderRequiredDuchies(
+        replaceDataProviderRequiredDuchiesRequest {
+          externalDataProviderId = dataProvider.externalDataProviderId
+          requiredExternalDuchyIds += desiredDuchyList
+        }
       )
-    }
-    assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
+
+    // Ensure DataProvider with updated duchy list is returned from function.
+    assertThat(updatedDataProvider.requiredExternalDuchyIdsList).isEqualTo(desiredDuchyList)
+    // Ensure changes were persisted.
+    assertThat(
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
+        )
       )
-    }
-    assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
-      )
-    }
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .isEqualTo(updatedDataProvider)
   }
 
   @Test
