@@ -85,5 +85,169 @@ abstract class PublicKeysServiceTest<T : PublicKeysCoroutineImplBase> {
     accountsService = services.accountsService
   }
 
+  @Test
+  fun `updatePublicKey updates the public key info for a data provider`() = runBlocking {
+    val now = clock.instant()
+    val dataProvider = population.createDataProvider(dataProvidersService, notValidBefore = now)
+    val certificate =
+      population.createDataProviderCertificate(
+        certificatesService,
+        dataProvider,
+        notValidBefore = now,
+      )
+    // Insert another certificate to make sure it's not just using the most recent one.
+    population.createDataProviderCertificate(
+      certificatesService,
+      dataProvider,
+      notValidBefore = now,
+    )
 
+    publicKeysService.updatePublicKey(
+      updatePublicKeyRequest {
+        externalDataProviderId = dataProvider.externalDataProviderId
+        externalCertificateId = certificate.externalCertificateId
+        apiVersion = API_VERSION
+        publicKey = PUBLIC_KEY
+        publicKeySignature = PUBLIC_KEY_SIGNATURE
+      }
+    )
+
+    val updatedDataProvider =
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
+      )
+    assertThat(updatedDataProvider.certificate).isEqualTo(certificate)
+    assertThat(updatedDataProvider.details.publicKey).isEqualTo(PUBLIC_KEY)
+    assertThat(updatedDataProvider.details.publicKeySignature).isEqualTo(PUBLIC_KEY_SIGNATURE)
+  }
+
+  @Test
+  fun `updatePublicKey updates the public key info for a measurement consumer`() = runBlocking {
+    val now = clock.instant()
+    val measurementConsumer =
+      population.createMeasurementConsumer(
+        measurementConsumersService,
+        accountsService,
+        notValidBefore = now,
+      )
+    val certificate =
+      population.createMeasurementConsumerCertificate(
+        certificatesService,
+        measurementConsumer,
+        notValidBefore = now,
+      )
+    // Insert another certificate to make sure it's not just using the most recent one.
+    population.createMeasurementConsumerCertificate(
+      certificatesService,
+      measurementConsumer,
+      notValidBefore = now,
+    )
+
+    publicKeysService.updatePublicKey(
+      updatePublicKeyRequest {
+        externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
+        externalCertificateId = certificate.externalCertificateId
+        apiVersion = API_VERSION
+        publicKey = PUBLIC_KEY
+        publicKeySignature = PUBLIC_KEY_SIGNATURE
+      }
+    )
+
+    val updatedMeasurementConsumer =
+      measurementConsumersService.getMeasurementConsumer(
+        getMeasurementConsumerRequest {
+          externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
+        }
+      )
+    assertThat(updatedMeasurementConsumer.certificate).isEqualTo(certificate)
+    assertThat(updatedMeasurementConsumer.details.publicKey).isEqualTo(PUBLIC_KEY)
+    assertThat(updatedMeasurementConsumer.details.publicKeySignature)
+      .isEqualTo(PUBLIC_KEY_SIGNATURE)
+  }
+
+  @Test
+  fun `updatePublicKey throws NOT_FOUND when mc certificate not found`() = runBlocking {
+    val measurementConsumer =
+      population.createMeasurementConsumer(measurementConsumersService, accountsService)
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        publicKeysService.updatePublicKey(
+          updatePublicKeyRequest {
+            externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
+            externalCertificateId = measurementConsumer.certificate.externalCertificateId + 1L
+            apiVersion = API_VERSION
+            publicKey = measurementConsumer.details.publicKey.concat(PUBLIC_KEY)
+            publicKeySignature =
+              measurementConsumer.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.FAILED_PRECONDITION)
+  }
+
+  @Test
+  fun `updatePublicKey throws NOT_FOUND when data provider certificate not found`() = runBlocking {
+    val dataProvider = population.createDataProvider(dataProvidersService)
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        publicKeysService.updatePublicKey(
+          updatePublicKeyRequest {
+            externalDataProviderId = dataProvider.externalDataProviderId
+            externalCertificateId = dataProvider.certificate.externalCertificateId + 1L
+            apiVersion = API_VERSION
+            publicKey = dataProvider.details.publicKey.concat(PUBLIC_KEY)
+            publicKeySignature =
+              dataProvider.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.FAILED_PRECONDITION)
+  }
+
+  @Test
+  fun `updatePublicKey throws NOT_FOUND when measurement consumer not found`() = runBlocking {
+    val measurementConsumer =
+      population.createMeasurementConsumer(measurementConsumersService, accountsService)
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        publicKeysService.updatePublicKey(
+          updatePublicKeyRequest {
+            externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId + 1L
+            externalCertificateId = measurementConsumer.certificate.externalCertificateId
+            apiVersion = API_VERSION
+            publicKey = measurementConsumer.details.publicKey.concat(PUBLIC_KEY)
+            publicKeySignature =
+              measurementConsumer.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+  }
+
+  @Test
+  fun `updatePublicKey throws NOT_FOUND when data provider not found`() = runBlocking {
+    val dataProvider = population.createDataProvider(dataProvidersService)
+
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        publicKeysService.updatePublicKey(
+          updatePublicKeyRequest {
+            externalDataProviderId = dataProvider.externalDataProviderId + 1L
+            externalCertificateId = dataProvider.certificate.externalCertificateId
+            apiVersion = API_VERSION
+            publicKey = dataProvider.details.publicKey.concat(PUBLIC_KEY)
+            publicKeySignature =
+              dataProvider.details.publicKeySignature.concat(PUBLIC_KEY_SIGNATURE)
+          }
+        )
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+  }
 }
