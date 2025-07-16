@@ -193,14 +193,9 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `replaceDataAvailabilityIntervals updates DataProvider`() = runBlocking {
-        val now: Instant = clock.instant()
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
 
-    val dataProvider =
-      dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    val request = replaceDataAvailabilityIntervalsRequest {
-    }
-
-    val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals(request)
+    val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals()
   }
 
   @Test
