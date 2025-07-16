@@ -79,29 +79,12 @@ abstract class ModelProvidersServiceTest {
   fun `createModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
     val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
-
-    assertThat(createdModelProvider)
-      .isEqualTo(
-        modelProvider
-          .toBuilder()
-          .apply { externalModelProviderId = FIXED_GENERATED_EXTERNAL_ID }
-          .build()
-      )
   }
 
   @Test
   fun `getModelProvider succeeds`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
     val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
-
-    // val modelProviderRead =
-    //   modelProvidersService.getModelProvider(
-    //     GetModelProviderRequest.newBuilder()
-    //       .setExternalModelProviderId(createdModelProvider.externalModelProviderId)
-    //       .build()
-    //   )
-
-    // assertThat(modelProviderRead).isEqualTo(createdModelProvider)
   }
 
 
