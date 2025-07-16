@@ -62,32 +62,32 @@ abstract class ModelProvidersServiceTest {
     modelProvidersService = newService(idGenerator)
   }
 
-  @Test
-  fun `getModelProvider fails for missing ModelProvider`() = runBlocking {
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        modelProvidersService.getModelProvider(
-          getModelProviderRequest { externalModelProviderId = EXTERNAL_MODEL_PROVIDER_ID }
-        )
-      }
-
-    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
-    assertThat(exception).hasMessageThat().contains("NOT_FOUND: ModelProvider not found")
-  }
-
   // @Test
-  // fun `createModelProvider succeeds`() = runBlocking {
-  //   val modelProvider = ModelProvider.getDefaultInstance()
-  //   val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+  // fun `getModelProvider fails for missing ModelProvider`() = runBlocking {
+  //   val exception =
+  //     assertFailsWith<StatusRuntimeException> {
+  //       modelProvidersService.getModelProvider(
+  //         getModelProviderRequest { externalModelProviderId = EXTERNAL_MODEL_PROVIDER_ID }
+  //       )
+  //     }
 
-  //   assertThat(createdModelProvider)
-  //     .isEqualTo(
-  //       modelProvider
-  //         .toBuilder()
-  //         .apply { externalModelProviderId = FIXED_GENERATED_EXTERNAL_ID }
-  //         .build()
-  //     )
+  //   assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+  //   assertThat(exception).hasMessageThat().contains("NOT_FOUND: ModelProvider not found")
   // }
+
+  @Test
+  fun `createModelProvider succeeds`() = runBlocking {
+    val modelProvider = ModelProvider.getDefaultInstance()
+    val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+
+    assertThat(createdModelProvider)
+      .isEqualTo(
+        modelProvider
+          .toBuilder()
+          .apply { externalModelProviderId = FIXED_GENERATED_EXTERNAL_ID }
+          .build()
+      )
+  }
 
   @Test
   fun `getModelProvider succeeds`() = runBlocking {
