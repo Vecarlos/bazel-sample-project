@@ -129,29 +129,66 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
-      )
-    }
+    val request = CREATE_DATA_PROVIDER_REQUEST.copy { requiredExternalDuchyIds.clear() }
+
+    val response: DataProvider = dataProvidersService.createDataProvider(request)
+
+    assertThat(response)
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .ignoringFieldDescriptors(EXTERNAL_ID_FIELD_DESCRIPTORS)
+      .isEqualTo(request)
   }
 
   @Test
   fun `getDataProvider succeeds`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+
+    val response =
       dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
+        GetDataProviderRequest.newBuilder()
+          .setExternalDataProviderId(dataProvider.externalDataProviderId)
+          .build()
       )
-    }
+
+    assertThat(response)
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .isEqualTo(dataProvider)
   }
 
   @Test
-  fun `batchGetDataProviders returns DataProviders in request order`()  = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
+  fun `batchGetDataProviders returns DataProviders in request order`() {
+    val dataProviders = runBlocking {
+      listOf(
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+        dataProvidersService.createDataProvider(
+          CREATE_DATA_PROVIDER_REQUEST.copy {
+            certificate =
+              certificate.copy {
+                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
+              }
+          }
+        ),
+        dataProvidersService.createDataProvider(
+          CREATE_DATA_PROVIDER_REQUEST.copy {
+            certificate =
+              certificate.copy {
+                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
+              }
+          }
+        ),
       )
     }
+    val shuffledDataProviders = dataProviders.shuffled()
+    val request = batchGetDataProvidersRequest {
+      externalDataProviderIds += shuffledDataProviders.map { it.externalDataProviderId }
+    }
+
+    val response = runBlocking { dataProvidersService.batchGetDataProviders(request) }
+
+    assertThat(response.dataProvidersList)
+      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
+      .containsExactlyElementsIn(shuffledDataProviders)
+      .inOrder()
   }
 
   @Test
