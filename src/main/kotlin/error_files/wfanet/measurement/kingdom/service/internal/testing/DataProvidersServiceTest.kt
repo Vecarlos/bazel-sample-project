@@ -200,7 +200,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
       // Keep/update one entry.
       dataAvailabilityIntervals +=
         dataProvider.dataAvailabilityIntervalsList.first().copy {
-          value = value.copy { endTime = now.minus(30L, ChronoUnit.DAYS).toProtoTime() }
+          value = value.copy { endTime = 1}
         }
       // Add a new entry.
       dataAvailabilityIntervals +=
