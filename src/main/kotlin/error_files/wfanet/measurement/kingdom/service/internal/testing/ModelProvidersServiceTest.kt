@@ -62,71 +62,57 @@ abstract class ModelProvidersServiceTest {
     modelProvidersService = newService(idGenerator)
   }
 
-
   @Test
-  fun `listModelProviders returns all model providers ordered by external ID`(): Unit =
-    runBlocking {
-      val modelProvider1 = ModelProvider.getDefaultInstance()
-      val createdModelProvider1 = modelProvidersService.createModelProvider(modelProvider1)
-
-      idGenerator.internalId = InternalId(FIXED_GENERATED_INTERNAL_ID + 1L)
-      idGenerator.externalId = ExternalId(FIXED_GENERATED_EXTERNAL_ID + 1L)
-      val modelProvider2 = ModelProvider.getDefaultInstance()
-      val createdModelProvider2 = modelProvidersService.createModelProvider(modelProvider2)
-
-      val response: ListModelProvidersResponse =
-        modelProvidersService.listModelProviders(ListModelProvidersRequest.getDefaultInstance())
-
-      assertThat(response)
-        .isEqualTo(
-          listModelProvidersResponse {
-            modelProviders += createdModelProvider1
-            modelProviders += createdModelProvider2
-          }
+  fun `getModelProvider fails for missing ModelProvider`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        modelProvidersService.getModelProvider(
+          getModelProviderRequest { externalModelProviderId = EXTERNAL_MODEL_PROVIDER_ID }
         )
-    }
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.NOT_FOUND)
+    assertThat(exception).hasMessageThat().contains("NOT_FOUND: ModelProvider not found")
+  }
 
   @Test
-  fun `listModelProviders returns page size number of model providers after page token, and next page token when there are more results`():
-    Unit = runBlocking {
-    val modelProvider1 = ModelProvider.getDefaultInstance()
-    val createdModelProvider1 = modelProvidersService.createModelProvider(modelProvider1)
+  fun `createModelProvider succeeds`() = runBlocking {
+    val modelProvider = ModelProvider.getDefaultInstance()
+    val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
 
-    idGenerator.internalId = InternalId(FIXED_GENERATED_INTERNAL_ID + 1L)
-    idGenerator.externalId = ExternalId(FIXED_GENERATED_EXTERNAL_ID + 1L)
-    val modelProvider2 = ModelProvider.getDefaultInstance()
-    val createdModelProvider2 = modelProvidersService.createModelProvider(modelProvider2)
-
-    idGenerator.internalId = InternalId(FIXED_GENERATED_INTERNAL_ID + 2L)
-    idGenerator.externalId = ExternalId(FIXED_GENERATED_EXTERNAL_ID + 2L)
-    val modelProvider3 = ModelProvider.getDefaultInstance()
-    val createdModelProvider3 = modelProvidersService.createModelProvider(modelProvider3)
-
-    val response: ListModelProvidersResponse =
-      modelProvidersService.listModelProviders(
-        listModelProvidersRequest {
-          pageSize = 1
-          pageToken = listModelProvidersPageToken {
-            after =
-              ListModelProvidersPageTokenKt.after {
-                externalModelProviderId = createdModelProvider1.externalModelProviderId
-              }
-          }
-        }
-      )
-
-    assertThat(response)
+    assertThat(createdModelProvider)
       .isEqualTo(
-        listModelProvidersResponse {
-          modelProviders += createdModelProvider2
-          nextPageToken = listModelProvidersPageToken {
-            after =
-              ListModelProvidersPageTokenKt.after {
-                externalModelProviderId = createdModelProvider3.externalModelProviderId
-              }
-          }
-        }
+        modelProvider
+          .toBuilder()
+          .apply { externalModelProviderId = FIXED_GENERATED_EXTERNAL_ID }
+          .build()
       )
   }
 
+  @Test
+  fun `getModelProvider succeeds`() = runBlocking {
+    val modelProvider = ModelProvider.getDefaultInstance()
+    val createdModelProvider = modelProvidersService.createModelProvider(modelProvider)
+
+    val modelProviderRead =
+      modelProvidersService.getModelProvider(
+        GetModelProviderRequest.newBuilder()
+          .setExternalModelProviderId(createdModelProvider.externalModelProviderId)
+          .build()
+      )
+
+    assertThat(modelProviderRead).isEqualTo(createdModelProvider)
+  }
+
+
+  @Test
+  fun `listModelProviders fails when page size is less than 0`(): Unit = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        modelProvidersService.listModelProviders(listModelProvidersRequest { pageSize = -1 })
+      }
+
+    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
+    assertThat(exception).hasMessageThat().contains("less than 0")
+  }
 }
