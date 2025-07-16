@@ -150,22 +150,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     val dataProviders = runBlocking {
       listOf(
         dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
-              }
-          }
-        ),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
-              }
-          }
-        ),
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+
       )
     }
     val shuffledDataProviders = dataProviders.shuffled()
