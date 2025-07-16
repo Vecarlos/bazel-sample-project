@@ -308,11 +308,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
           .findFieldByNumber(DataProvider.REQUIRED_EXTERNAL_DUCHY_IDS_FIELD_NUMBER)
       )
 
-    private const val PUBLIC_KEY_SIGNATURE_ALGORITHM_OID = "2.9999"
-    private val PUBLIC_KEY = ByteString.copyFromUtf8("This is a  public key.")
-    private val PUBLIC_KEY_SIGNATURE = ByteString.copyFromUtf8("This is a  public key signature.")
-    private val CERTIFICATE_DER = ByteString.copyFromUtf8("This is a certificate der.")
-    private val CERTIFICATE_SKID = ByteString.copyFromUtf8("Certificate SKID")
+
     private val CREATE_DATA_PROVIDER_REQUEST = dataProvider {
 
     }
