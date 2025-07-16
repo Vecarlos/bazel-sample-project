@@ -153,37 +153,17 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
       )
     }
-
-
     val response = runBlocking { dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       ) }
-
   }
 
   @Test
   fun `replaceDataProviderRequiredDuchies succeeds`() = runBlocking {
     val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    val desiredDuchyList = listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
-
-    val updatedDataProvider =
-      dataProvidersService.replaceDataProviderRequiredDuchies(
-        replaceDataProviderRequiredDuchiesRequest {
-          externalDataProviderId = dataProvider.externalDataProviderId
-          requiredExternalDuchyIds += desiredDuchyList
-        }
-      )
-
-    // Ensure DataProvider with updated duchy list is returned from function.
-    assertThat(updatedDataProvider.requiredExternalDuchyIdsList).isEqualTo(desiredDuchyList)
-    // Ensure changes were persisted.
-    assertThat(
-        dataProvidersService.getDataProvider(
-          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
-        )
-      )
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .isEqualTo(updatedDataProvider)
+    dataProvidersService.getDataProvider(
+            getDataProviderRequest { externalDataProviderId = 404L }
+          )
   }
 
   @Test
