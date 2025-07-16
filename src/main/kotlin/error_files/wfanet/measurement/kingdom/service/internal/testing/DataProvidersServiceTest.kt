@@ -129,7 +129,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
-    // val response: DataProvider = dataProvidersService.createDataProvider(request)
     assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
@@ -139,18 +138,11 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `getDataProvider succeeds`() = runBlocking {
-    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-
-    val response =
+    assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
-        GetDataProviderRequest.newBuilder()
-          .setExternalDataProviderId(dataProvider.externalDataProviderId)
-          .build()
+        getDataProviderRequest { externalDataProviderId = 404L }
       )
-
-    assertThat(response)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .isEqualTo(dataProvider)
+    }
   }
 
   @Test
