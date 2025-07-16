@@ -193,6 +193,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `replaceDataAvailabilityIntervals updates DataProvider`() = runBlocking {
+        val now: Instant = clock.instant()
+
     val dataProvider =
       dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
     val request = replaceDataAvailabilityIntervalsRequest {
@@ -200,21 +202,11 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
       // Keep/update one entry.
       dataAvailabilityIntervals +=
         dataProvider.dataAvailabilityIntervalsList.first().copy {
-          value = value.copy { endTime = 1}
+          value = value.copy { endTime = now.minus(30L, ChronoUnit.DAYS).toProtoTime() }
         }
       // Add a new entry.
       dataAvailabilityIntervals +=
         DataProviderKt.dataAvailabilityMapEntry {
-          val modelLine = modelLines.last()
-          key = modelLineKey {
-            externalModelProviderId = modelLine.externalModelProviderId
-            externalModelSuiteId = modelLine.externalModelSuiteId
-            externalModelLineId = modelLine.externalModelLineId
-          }
-          value = interval {
-            startTime = now.minus(100L, ChronoUnit.DAYS).toProtoTime()
-            endTime = now.minus(40L, ChronoUnit.DAYS).toProtoTime()
-          }
         }
     }
 
