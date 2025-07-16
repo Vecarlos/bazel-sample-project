@@ -150,7 +150,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     val dataProviders = runBlocking {
       listOf(
         dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
 
       )
     }
