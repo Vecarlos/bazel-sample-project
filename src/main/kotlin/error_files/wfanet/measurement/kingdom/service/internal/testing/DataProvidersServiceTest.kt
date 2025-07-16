@@ -182,6 +182,16 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
         getDataProviderRequest { externalDataProviderId = 404L }
       )
     }
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
   }
 
   @Test
