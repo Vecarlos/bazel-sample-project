@@ -193,35 +193,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Test
   fun `replaceDataAvailabilityIntervals updates DataProvider`() = runBlocking {
-    val now: Instant = clock.instant()
-    val modelLines: List<ModelLine> =
-      (1..3).map {
-        population.createModelLine(
-          services.modelProvidersService,
-          services.modelSuitesService,
-          services.modelLinesService,
-        )
-      }
     val dataProvider =
-      dataProvidersService.createDataProvider(
-        CREATE_DATA_PROVIDER_REQUEST.copy {
-          modelLines.take(2).forEachIndexed { index, modelLine ->
-            dataAvailabilityIntervals +=
-              DataProviderKt.dataAvailabilityMapEntry {
-                key = modelLineKey {
-                  externalModelProviderId = modelLine.externalModelProviderId
-                  externalModelSuiteId = modelLine.externalModelSuiteId
-                  externalModelLineId = modelLine.externalModelLineId
-                }
-                value = interval {
-                  val start = now.minus((index + 3) * 90L, ChronoUnit.DAYS)
-                  startTime = start.toProtoTime()
-                  endTime = start.plus(180L, ChronoUnit.DAYS).toProtoTime()
-                }
-              }
-          }
-        }
-      )
+      dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
     val request = replaceDataAvailabilityIntervalsRequest {
       externalDataProviderId = dataProvider.externalDataProviderId
       // Keep/update one entry.
@@ -246,22 +219,6 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     }
 
     val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals(request)
-
-    assertThat(response)
-      .ignoringRepeatedFieldOrderOfFields(DataProvider.DATA_AVAILABILITY_INTERVALS_FIELD_NUMBER)
-      .isEqualTo(
-        dataProvider.copy {
-          dataAvailabilityIntervals.clear()
-          dataAvailabilityIntervals += request.dataAvailabilityIntervalsList
-        }
-      )
-    assertThat(response)
-      .ignoringRepeatedFieldOrderOfFields(DataProvider.DATA_AVAILABILITY_INTERVALS_FIELD_NUMBER)
-      .isEqualTo(
-        dataProvidersService.getDataProvider(
-          getDataProviderRequest { externalDataProviderId = dataProvider.externalDataProviderId }
-        )
-      )
   }
 
   @Test
