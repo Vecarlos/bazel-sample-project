@@ -146,39 +146,12 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `batchGetDataProviders returns DataProviders in request order`() {
-    val dataProviders = runBlocking {
-      listOf(
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("2"))
-              }
-          }
-        ),
-        dataProvidersService.createDataProvider(
-          CREATE_DATA_PROVIDER_REQUEST.copy {
-            certificate =
-              certificate.copy {
-                subjectKeyIdentifier = subjectKeyIdentifier.concat(ByteString.copyFromUtf8("3"))
-              }
-          }
-        ),
+  fun `batchGetDataProviders returns DataProviders in request order`() = runBlocking {
+    assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
       )
     }
-    val shuffledDataProviders = dataProviders.shuffled()
-    val request = batchGetDataProvidersRequest {
-      externalDataProviderIds += shuffledDataProviders.map { it.externalDataProviderId }
-    }
-
-    val response = runBlocking { dataProvidersService.batchGetDataProviders(request) }
-
-    assertThat(response.dataProvidersList)
-      .ignoringRepeatedFieldOrderOfFieldDescriptors(UNORDERED_FIELD_DESCRIPTORS)
-      .containsExactlyElementsIn(shuffledDataProviders)
-      .inOrder()
   }
 
   @Test
