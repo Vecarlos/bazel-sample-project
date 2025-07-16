@@ -241,7 +241,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     val request = replaceDataAvailabilityIntervalsRequest {}
     val exception =
       assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataAvailabilityInterval(request)
+        dataProvidersService.replaceDataAvailabilityIntervals(request)
       }
   }
 
