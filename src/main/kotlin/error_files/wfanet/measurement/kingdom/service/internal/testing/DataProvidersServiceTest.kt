@@ -266,6 +266,19 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   /** Random [IdGenerator] which records generated IDs. */
   private class RecordingIdGenerator : IdGenerator {
+    private val delegate = RandomIdGenerator()
+    private val mutableInternalIds: MutableList<InternalId> = mutableListOf()
+    private val mutableExternalIds: MutableList<ExternalId> = mutableListOf()
+
+    val internalIds: List<InternalId>
+      get() = mutableInternalIds
+
+    val externalIds: List<ExternalId>
+      get() = mutableExternalIds
+
+    override fun generateExternalId(): ExternalId {
+      return delegate.generateExternalId().also { mutableExternalIds.add(it) }
+    }
 
     override fun generateInternalId(): InternalId {
       return delegate.generateInternalId().also { mutableInternalIds.add(it) }
