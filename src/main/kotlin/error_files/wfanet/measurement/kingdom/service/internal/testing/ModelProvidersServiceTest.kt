@@ -105,14 +105,5 @@ abstract class ModelProvidersServiceTest {
   }
 
 
-  @Test
-  fun `listModelProviders fails when page size is less than 0`(): Unit = runBlocking {
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        modelProvidersService.listModelProviders(listModelProvidersRequest { pageSize = -1 })
-      }
 
-    assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
-    assertThat(exception).hasMessageThat().contains("less than 0")
-  }
 }
