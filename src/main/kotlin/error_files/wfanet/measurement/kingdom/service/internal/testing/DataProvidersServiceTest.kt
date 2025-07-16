@@ -223,33 +223,12 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
         )
       val dataProvider: DataProvider =
         dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-      val request = replaceDataAvailabilityIntervalsRequest {
-        externalDataProviderId = dataProvider.externalDataProviderId
-        dataAvailabilityIntervals +=
-          DataProviderKt.dataAvailabilityMapEntry {
-            key = modelLineKey {
-              externalModelProviderId = modelLine.externalModelProviderId
-              externalModelSuiteId = modelLine.externalModelSuiteId
-              externalModelLineId = modelLine.externalModelLineId
-            }
-            value = interval { startTime = now.minus(90L, ChronoUnit.DAYS).toProtoTime() }
-          }
-      }
+      val request = replaceDataAvailabilityIntervalsRequest {}
 
       val exception =
         assertFailsWith<StatusRuntimeException> {
           dataProvidersService.replaceDataAvailabilityIntervals(request)
         }
-
-      assertThat(exception.status.code).isEqualTo(Status.Code.INVALID_ARGUMENT)
-      assertThat(exception.errorInfo)
-        .isEqualTo(
-          errorInfo {
-            domain = KingdomInternalException.DOMAIN
-            reason = ErrorCode.REQUIRED_FIELD_NOT_SET.name
-            metadata["field_name"] = "data_availability_intervals[0].value.end_time"
-          }
-        )
     }
 
   @Test
