@@ -1,3 +1,3 @@
 package replicate_error
-fun empty_func_3() {
+fun empty_func_4() {
 }
