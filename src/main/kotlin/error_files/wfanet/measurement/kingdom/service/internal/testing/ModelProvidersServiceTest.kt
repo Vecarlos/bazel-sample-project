@@ -46,30 +46,30 @@ private const val FIXED_GENERATED_EXTERNAL_ID = 6789L
 @RunWith(JUnit4::class)
 abstract class ModelProvidersServiceTest {
 
-  protected val idGenerator =
-    FixedIdGenerator()
+  // protected val idGenerator =
+  //   FixedIdGenerator()
 
-  protected lateinit var modelProvidersService: ModelProvidersCoroutineImplBase
+  // protected lateinit var modelProvidersService: ModelProvidersCoroutineImplBase
 
-  protected abstract fun newService(idGenerator: IdGenerator): ModelProvidersCoroutineImplBase
+  // protected abstract fun newService(idGenerator: IdGenerator): ModelProvidersCoroutineImplBase
 
-  @Before
-  fun initService() {
-    modelProvidersService = newService(idGenerator)
-  }
+  // @Before
+  // fun initService() {
+  //   modelProvidersService = newService(idGenerator)
+  // }
 
   @Test
   fun `getModelProvider fails for missing ModelProvider`() = runBlocking {
     val modelProvider = ModelProvider.getDefaultInstance()
   }
 
-  // @Test
-  // fun `createModelProvider succeeds`() = runBlocking {
-  //   val modelProvider = ModelProvider.getDefaultInstance()
-  // }
+  @Test
+  fun `createModelProvider succeeds`() = runBlocking {
+    val modelProvider = ModelProvider.getDefaultInstance()
+  }
 
-  // @Test
-  // fun `getModelProvider succeeds`() = runBlocking {
-  //   val modelProvider = ModelProvider.getDefaultInstance()
-  // }
+  @Test
+  fun `getModelProvider succeeds`() = runBlocking {
+    val modelProvider = ModelProvider.getDefaultInstance()
+  }
 }
