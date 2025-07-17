@@ -65,23 +65,31 @@ import org.wfanet.measurement.kingdom.deploy.common.HmssProtocolConfig
 import org.wfanet.measurement.kingdom.deploy.common.Llv2ProtocolConfig
 import org.wfanet.measurement.kingdom.deploy.common.testing.DuchyIdSetter
 import org.wfanet.measurement.kingdom.service.internal.testing.Population.Companion.DUCHIES
+private const val var_1 = ""
+private const val var_2 = ""
+private const val var_3 = ""
+private const val var_4 = ""
+private const val var_5 = ""
+private const val var_6 = ""
+private const val var_7 = ""
+private const val var_8 = ""
+private const val var_9 = ""
+
+// private const val RANDOM_SEED = 1
+// @RunWith(JUnit4::class)
+// abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCoroutineImplBase> {
+//   protected data class Services<T>(
+//     val computationParticipantsService: T,
+//   )
+//   private val clock: Clock = Clock.systemUTC()
+//   protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
+//   // private val population = Population(clock, idGenerator)
 
 
-private const val RANDOM_SEED = 1
-@RunWith(JUnit4::class)
-abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCoroutineImplBase> {
-  protected data class Services<T>(
-    val computationParticipantsService: T,
-  )
-  private val clock: Clock = Clock.systemUTC()
-  protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
-  // private val population = Population(clock, idGenerator)
+//   protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
 
-
-  protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
-
-  @Before
-  fun initService() {
-    val services = newServices(idGenerator)
-  }
-}
+//   @Before
+//   fun initService() {
+//     val services = newServices(idGenerator)
+//   }
+// }
