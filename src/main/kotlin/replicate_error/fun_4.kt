@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 
 
 @RunWith(JUnit4::class)
-abstract class runBlocking2{
+abstract class runBlocking3{
 
   @Test
   fun `test_2`() {
