@@ -7,7 +7,7 @@ spanner_emulator_test(
     # IMPORTANTE: Apunta a la clase CONCRETA, no a la abstracta.
     test_class = "replicate_error.FunTest",
     deps = [
-        "//src/main/kotlin/replicate_error",
+        "//src/main/kotlin/replicate_error:replicate_error",
         "@wfa_common_jvm//imports/java/org/junit",
     ],
 )
