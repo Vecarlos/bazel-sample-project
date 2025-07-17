@@ -111,13 +111,13 @@ abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCor
   @Before
   fun initService() {
     val services = newServices(idGenerator)
-    computationParticipantsService = services.computationParticipantsService
-    measurementConsumersService = services.measurementConsumersService
-    dataProvidersService = services.dataProvidersService
-    measurementsService = services.measurementsService
-    certificatesService = services.certificatesService
-    requisitionsService = services.requisitionsService
-    accountsService = services.accountsService
+    // computationParticipantsService = services.computationParticipantsService
+    // measurementConsumersService = services.measurementConsumersService
+    // dataProvidersService = services.dataProvidersService
+    // measurementsService = services.measurementsService
+    // certificatesService = services.certificatesService
+    // requisitionsService = services.requisitionsService
+    // accountsService = services.accountsService
 
   }
 }
