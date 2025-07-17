@@ -9,19 +9,19 @@ import kotlinx.coroutines.runBlocking
 @RunWith(JUnit4::class)
 abstract class runBlocking3{
 
-  // @Test
-  // fun `test_2`() {
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  // }
+  @Test
+  fun `test_2`() {
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+  }
   @Test
   fun `test_3`() {
     runBlocking {}
