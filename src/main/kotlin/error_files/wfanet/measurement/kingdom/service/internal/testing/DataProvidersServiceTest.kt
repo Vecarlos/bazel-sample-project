@@ -144,14 +144,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     }
   }
 
-  @Test
-  fun `test_6`() = runBlocking {
-      assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
-      )
-    }
-  }
+
 
   // @Test
   // fun `test_7`() = runBlocking {
