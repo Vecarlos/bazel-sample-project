@@ -10,32 +10,6 @@ import kotlinx.coroutines.runBlocking
 abstract class runBlocking2{
 
   @Test
-  fun `test_2`() {
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-  }
-  @Test
-  fun `test_3`() {
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-  }
-  @Test
   fun `test_4`() {   
     runBlocking {}
     runBlocking {}
