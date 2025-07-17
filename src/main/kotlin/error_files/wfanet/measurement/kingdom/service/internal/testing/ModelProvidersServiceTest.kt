@@ -47,10 +47,7 @@ private const val FIXED_GENERATED_EXTERNAL_ID = 6789L
 abstract class ModelProvidersServiceTest {
 
   protected val idGenerator =
-    FixedIdGenerator(
-      // InternalId(FIXED_GENERATED_INTERNAL_ID),
-      // ExternalId(FIXED_GENERATED_EXTERNAL_ID),
-    )
+    FixedIdGenerator()
 
   protected lateinit var modelProvidersService: ModelProvidersCoroutineImplBase
 
@@ -66,13 +63,13 @@ abstract class ModelProvidersServiceTest {
     val modelProvider = ModelProvider.getDefaultInstance()
   }
 
-  @Test
-  fun `createModelProvider succeeds`() = runBlocking {
-    val modelProvider = ModelProvider.getDefaultInstance()
-  }
+  // @Test
+  // fun `createModelProvider succeeds`() = runBlocking {
+  //   val modelProvider = ModelProvider.getDefaultInstance()
+  // }
 
-  @Test
-  fun `getModelProvider succeeds`() = runBlocking {
-    val modelProvider = ModelProvider.getDefaultInstance()
-  }
+  // @Test
+  // fun `getModelProvider succeeds`() = runBlocking {
+  //   val modelProvider = ModelProvider.getDefaultInstance()
+  // }
 }
