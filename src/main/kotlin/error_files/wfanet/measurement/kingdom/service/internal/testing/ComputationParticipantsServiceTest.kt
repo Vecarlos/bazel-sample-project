@@ -70,18 +70,18 @@ import org.wfanet.measurement.kingdom.service.internal.testing.Population.Compan
 private const val RANDOM_SEED = 1
 @RunWith(JUnit4::class)
 abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCoroutineImplBase> {
-  // protected data class Services<T>(
-  //   val computationParticipantsService: T,
-  // )
-  // private val clock: Clock = Clock.systemUTC()
-  // protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
-  // // private val population = Population(clock, idGenerator)
+  protected data class Services<T>(
+    val computationParticipantsService: T,
+  )
+  private val clock: Clock = Clock.systemUTC()
+  protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
+  // private val population = Population(clock, idGenerator)
 
 
-  // protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
+  protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
 
-  // @Before
-  // fun initService() {
-  //   val services = newServices(idGenerator)
-  // }
+  @Before
+  fun initService() {
+    val services = newServices(idGenerator)
+  }
 }
