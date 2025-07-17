@@ -22,6 +22,8 @@ abstract class runBlocking{
     runBlocking {}
     runBlocking {}
 
+  @Test
+  fun `test_3`() {
     runBlocking {}
     runBlocking {}
     runBlocking {}
