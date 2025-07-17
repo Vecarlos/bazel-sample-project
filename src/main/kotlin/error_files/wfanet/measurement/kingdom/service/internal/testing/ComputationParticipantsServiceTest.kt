@@ -76,8 +76,8 @@ private const val var_8 = ""
 private const val var_9 = ""
 
 // private const val RANDOM_SEED = 1
-// @RunWith(JUnit4::class)
-// abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCoroutineImplBase> {
+@RunWith(JUnit4::class)
+abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCoroutineImplBase> {
 //   protected data class Services<T>(
 //     val computationParticipantsService: T,
 //   )
@@ -92,4 +92,4 @@ private const val var_9 = ""
 //   fun initService() {
 //     val services = newServices(idGenerator)
 //   }
-// }
+}
