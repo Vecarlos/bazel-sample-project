@@ -7,10 +7,10 @@ import kotlinx.coroutines.runBlocking
 
 
 @RunWith(JUnit4::class)
-abstract class runBlocking1{
+abstract class runBlocking2{
 
   @Test
-  fun `test_1`() {
+  fun `test_2`() {
     runBlocking {}
     runBlocking {}
     runBlocking {}
