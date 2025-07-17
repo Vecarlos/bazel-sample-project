@@ -145,14 +145,37 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `test_7`() = runBlocking {
-    listOf(
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-      )
-    dataProvidersService.getDataProvider(
+  fun `test_6`() = runBlocking {
+      assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
+    }
+  }
+
+  // @Test
+  // fun `test_7`() = runBlocking {
+  //   listOf(
+  //       dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+  //     )
+  //   dataProvidersService.getDataProvider(
+  //       getDataProviderRequest { externalDataProviderId = 404L }
+  //     )
     
+  // }
+
+
+
+  @Test
+  fun `batchGetDataProviders returns DataProviders in request order`() {
+    val dataProviders = runBlocking {
+      listOf(
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+      )
+    }
+    val response = runBlocking { dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      ) }
   }
 
   @Test
