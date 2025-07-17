@@ -116,13 +116,13 @@ jobs:
           echo "=== Archivos Python encontrados ==="
           grep "^SF:.*\.py" lcov.info || echo "No se encontraron archivos .py"
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+      # - name: Upload coverage reports to Codecov
+        # uses: codecov/codecov-action@v5
+        # with:
+        #   fail_ci_if_error: true
+        #   token: ${{ secrets.CODECOV_TOKEN }}
+        #   slug: vecarlos/bazel-sample-project
+        #   files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
       # - name: Create cluster
       #   id: create-cluster
