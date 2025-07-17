@@ -2,12 +2,10 @@ load("@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/tes
 
 spanner_emulator_test(
     name = "FunTest",
-    # El archivo que contiene la clase de prueba.
     srcs = ["FunTest.kt"],
-    # IMPORTANTE: Apunta a la clase CONCRETA, no a la abstracta.
     test_class = "replicate_error.FunTest",
     deps = [
-        "//src/main/kotlin/replicate_error:replicate_error",
+        "//src/main/kotlin/replicate_error:func",
         "@wfa_common_jvm//imports/java/org/junit",
     ],
 )
