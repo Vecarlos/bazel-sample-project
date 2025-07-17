@@ -3,11 +3,11 @@ load("//src/main/proto/wfa/measurement/internal/kingdom:all_protos.bzl", "KINGDO
 
 package(default_visibility = ["//visibility:public"])
 kt_jvm_library(
-    name = "func",
-    # name = "replicate_error",
+    # name = "func",
+    name = "replicate_error",
     testonly = True,
-    srcs = ["fun_1.kt"],
-    # srcs = glob(["*.kt"]),
+    # srcs = ["fun_1.kt"],
+    srcs = glob(["*.kt"]),
     deps = KINGDOM_INTERNAL_PROTOS + [
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
