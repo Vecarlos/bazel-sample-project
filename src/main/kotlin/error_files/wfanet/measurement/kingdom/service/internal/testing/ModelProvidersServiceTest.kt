@@ -39,9 +39,9 @@ import org.wfanet.measurement.internal.kingdom.listModelProvidersPageToken
 import org.wfanet.measurement.internal.kingdom.listModelProvidersRequest
 import org.wfanet.measurement.internal.kingdom.listModelProvidersResponse
 
-private const val EXTERNAL_MODEL_PROVIDER_ID = 123L
-private const val FIXED_GENERATED_INTERNAL_ID = 2345L
-private const val FIXED_GENERATED_EXTERNAL_ID = 6789L
+// private const val EXTERNAL_MODEL_PROVIDER_ID = 123L
+// private const val FIXED_GENERATED_INTERNAL_ID = 2345L
+// private const val FIXED_GENERATED_EXTERNAL_ID = 6789L
 
 @RunWith(JUnit4::class)
 abstract class ModelProvidersServiceTest {
