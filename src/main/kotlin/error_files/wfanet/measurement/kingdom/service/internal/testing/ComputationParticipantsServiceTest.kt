@@ -72,52 +72,22 @@ private const val RANDOM_SEED = 1
 abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCoroutineImplBase> {
   protected data class Services<T>(
     val computationParticipantsService: T,
-    val measurementConsumersService: MeasurementConsumersCoroutineImplBase,
-    val dataProvidersService: DataProvidersCoroutineImplBase,
-    val measurementsService: MeasurementsCoroutineImplBase,
-    val certificatesService: CertificatesCoroutineImplBase,
-    val requisitionsService: RequisitionsCoroutineImplBase,
-    val accountsService: AccountsCoroutineImplBase,
+    // val measurementConsumersService: MeasurementConsumersCoroutineImplBase,
+    // val dataProvidersService: DataProvidersCoroutineImplBase,
+    // val measurementsService: MeasurementsCoroutineImplBase,
+    // val certificatesService: CertificatesCoroutineImplBase,
+    // val requisitionsService: RequisitionsCoroutineImplBase,
+    // val accountsService: AccountsCoroutineImplBase,
   )
   private val clock: Clock = Clock.systemUTC()
   protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
   private val population = Population(clock, idGenerator)
 
-  // protected lateinit var computationParticipantsService: T
-  //   private set
-
-  // private lateinit var duchyCertificates: Map<String, Certificate>
-
-  // protected lateinit var measurementsService: MeasurementsCoroutineImplBase
-  //   private set
-
-  // protected lateinit var measurementConsumersService: MeasurementConsumersCoroutineImplBase
-  //   private set
-
-  // protected lateinit var dataProvidersService: DataProvidersCoroutineImplBase
-  //   private set
-
-  // protected lateinit var certificatesService: CertificatesCoroutineImplBase
-  //   private set
-
-  // protected lateinit var requisitionsService: RequisitionsCoroutineImplBase
-  //   private set
-
-  // protected lateinit var accountsService: AccountsCoroutineImplBase
-  //   private set
 
   protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
 
   @Before
   fun initService() {
     val services = newServices(idGenerator)
-    // computationParticipantsService = services.computationParticipantsService
-    // measurementConsumersService = services.measurementConsumersService
-    // dataProvidersService = services.dataProvidersService
-    // measurementsService = services.measurementsService
-    // certificatesService = services.certificatesService
-    // requisitionsService = services.requisitionsService
-    // accountsService = services.accountsService
-
   }
 }
