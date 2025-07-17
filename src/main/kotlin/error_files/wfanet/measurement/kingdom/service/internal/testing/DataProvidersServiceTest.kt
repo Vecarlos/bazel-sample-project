@@ -72,8 +72,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   @Before
   fun initServices() {
     runBlocking {}
-    // runBlocking {}
-    // runBlocking {}
+    runBlocking {}
+    runBlocking {}
 
     // runBlocking {}
     // runBlocking {}
