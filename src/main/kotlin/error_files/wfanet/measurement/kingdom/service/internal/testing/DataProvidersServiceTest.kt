@@ -24,12 +24,6 @@ import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProviders
 import org.junit.Before
 import kotlinx.coroutines.runBlocking
 
-
-@RunWith(JUnit4::class)
-abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
-
-  @Before
-  fun initServices() {
     runBlocking {}
     runBlocking {}
 
@@ -72,6 +66,14 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
 
     runBlocking {}
-  }
 
-}
+
+// @RunWith(JUnit4::class)
+// abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
+
+//   @Before
+//   fun initServices() {
+
+//   }
+
+// }
