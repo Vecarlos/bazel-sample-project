@@ -287,9 +287,9 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   protected data class Services<T>(
     val dataProvidersService: T,
-    val modelProvidersService: ModelProvidersGrpcKt.ModelProvidersCoroutineImplBase,
-    val modelSuitesService: ModelSuitesGrpcKt.ModelSuitesCoroutineImplBase,
-    val modelLinesService: ModelLinesGrpcKt.ModelLinesCoroutineImplBase,
+    // val modelProvidersService: ModelProvidersGrpcKt.ModelProvidersCoroutineImplBase,
+    // val modelSuitesService: ModelSuitesGrpcKt.ModelSuitesCoroutineImplBase,
+    // val modelLinesService: ModelLinesGrpcKt.ModelLinesCoroutineImplBase,
   )
 
   companion object {
