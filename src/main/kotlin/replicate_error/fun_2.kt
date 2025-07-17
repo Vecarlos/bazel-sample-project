@@ -11,30 +11,7 @@ abstract class runBlocking1{
 
   @Test
   fun `test_1`() {
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
+     runBlocking {}
     runBlocking {}
     runBlocking {}
     runBlocking {}
@@ -66,16 +43,6 @@ abstract class runBlocking1{
     runBlocking {}
     runBlocking {}
     runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
     runBlocking {}
 
     runBlocking {}
@@ -88,95 +55,6 @@ abstract class runBlocking1{
     runBlocking {}
     runBlocking {}
     runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
 
     runBlocking {}
     runBlocking {}
@@ -366,7 +244,6 @@ abstract class runBlocking1{
     runBlocking {}
     runBlocking {}
 
-
     runBlocking {}
     runBlocking {}
     runBlocking {}
@@ -415,172 +292,4 @@ abstract class runBlocking1{
     runBlocking {}
     runBlocking {}
     runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-
-  }}
+}}
