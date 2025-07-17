@@ -166,18 +166,18 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
           )
   }
 
-  // @Test
-  // fun `replaceDataProviderRequiredDuchies throws NOT_FOUND when edp not found`() = runBlocking {
-  //   val exception =
-  //     assertFailsWith<StatusRuntimeException> {
-  //       dataProvidersService.replaceDataProviderRequiredDuchies(
-  //         replaceDataProviderRequiredDuchiesRequest {
-  //           externalDataProviderId = 123
-  //           requiredExternalDuchyIds += listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
-  //         }
-  //       )
-  //     }
-  // }
+  @Test
+  fun `replaceDataProviderRequiredDuchies throws NOT_FOUND when edp not found`() = runBlocking {
+    val exception =
+      assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.replaceDataProviderRequiredDuchies(
+          replaceDataProviderRequiredDuchiesRequest {
+            externalDataProviderId = 123
+            requiredExternalDuchyIds += listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
+          }
+        )
+      }
+  }
 
   @Test
   fun `replaceDataProviderRequiredDuchies throws INVALID_ARGUMENT when no edp id`() = runBlocking {
