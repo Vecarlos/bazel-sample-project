@@ -73,8 +73,8 @@ abstract class ComputationParticipantsServiceTest<T : ComputationParticipantsCor
   protected data class Services<T>(
     val computationParticipantsService: T,
   )
-  // private val clock: Clock = Clock.systemUTC()
-  // protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
+  private val clock: Clock = Clock.systemUTC()
+  protected val idGenerator = RandomIdGenerator(clock, Random(RANDOM_SEED))
   // private val population = Population(clock, idGenerator)
 
 
