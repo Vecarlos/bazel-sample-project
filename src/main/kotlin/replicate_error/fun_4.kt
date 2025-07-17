@@ -22,19 +22,19 @@ abstract class runBlocking3{
   //   runBlocking {}
   //   runBlocking {}
   // }
-  // @Test
-  // fun `test_3`() {
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  //   runBlocking {}
-  // }
+  @Test
+  fun `test_3`() {
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+  }
   @Test
   fun `test_4`() {   
     runBlocking {}
