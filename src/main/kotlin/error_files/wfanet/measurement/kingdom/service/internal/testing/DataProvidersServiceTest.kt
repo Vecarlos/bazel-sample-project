@@ -93,37 +93,44 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
  @Test
   fun `test_1`(){
     runBlocking {}
-  }
-
-
- @Test
-  fun `test_2`(){
     runBlocking {}
-  }
-
-
- @Test
-  fun `test_3`(){
     runBlocking {}
-  }
 
-
- @Test
-  fun `test_4`(){
     runBlocking {}
-  }
-
-
- @Test
-  fun `test_5`(){
     runBlocking {}
-  }
-
-
-  @Test
-  fun `test_6`(){
     runBlocking {}
+
   }
+
+
+//  @Test
+//   fun `test_2`(){
+//     runBlocking {}
+//   }
+
+
+//  @Test
+//   fun `test_3`(){
+//     runBlocking {}
+//   }
+
+
+//  @Test
+//   fun `test_4`(){
+//     runBlocking {}
+//   }
+
+
+//  @Test
+//   fun `test_5`(){
+//     runBlocking {}
+//   }
+
+
+//   @Test
+//   fun `test_6`(){
+//     runBlocking {}
+//   }
 
 
 
