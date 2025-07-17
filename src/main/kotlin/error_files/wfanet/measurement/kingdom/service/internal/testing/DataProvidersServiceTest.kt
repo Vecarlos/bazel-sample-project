@@ -30,7 +30,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
 
   @Before
   fun initServices() {
-    for (i in 1..21) {
+    for (i in 1..50) {
         runBlocking {}
     }
   }
