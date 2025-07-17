@@ -68,46 +68,30 @@ import org.wfanet.measurement.kingdom.service.internal.testing.Population.Compan
 
 @RunWith(JUnit4::class)
 abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
-  // @get:Rule val duchyIdSetter = DuchyIdSetter(DUCHIES)
-
-  // private val recordingIdGenerator = RecordingIdGenerator()
-  // protected val idGenerator: IdGenerator
-  //   get() = recordingIdGenerator
-
-  // private val clock = Clock.systemUTC()
-  // private val population = Population(clock, idGenerator)
-
-  // protected lateinit var services: Services<T>
-  //   private set
-
-  // protected val dataProvidersService: T
-  //   get() = services.dataProvidersService
-
-  // protected abstract fun newServices(idGenerator: IdGenerator): Services<T>
 
   @Before
   fun initServices() {
     runBlocking {}
-    runBlocking {}
-    runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
 
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
 
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}    
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}    
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
 
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
 
 
 
@@ -155,35 +139,4 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     runBlocking {}
   }
 
-
-
-
-  // /** Random [IdGenerator] which records generated IDs. */
-  // private class RecordingIdGenerator : IdGenerator {
-  //   private val delegate = RandomIdGenerator()
-  //   private val mutableInternalIds: MutableList<InternalId> = mutableListOf()
-  //   private val mutableExternalIds: MutableList<ExternalId> = mutableListOf()
-
-  //   val internalIds: List<InternalId>
-  //     get() = mutableInternalIds
-
-  //   val externalIds: List<ExternalId>
-  //     get() = mutableExternalIds
-
-  //   override fun generateExternalId(): ExternalId {
-  //     return delegate.generateExternalId().also { mutableExternalIds.add(it) }
-  //   }
-
-  //   override fun generateInternalId(): InternalId {
-  //     return delegate.generateInternalId().also { mutableInternalIds.add(it) }
-  //   }
-  // }
-
-  // protected data class Services<T>(
-  //   val dataProvidersService: T,
-  // )
-
-  // companion object {
-  //   private val CREATE_DATA_PROVIDER_REQUEST = dataProvider {}
-  // }
 }
