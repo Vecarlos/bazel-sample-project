@@ -1,11 +1,12 @@
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/proto/wfa/measurement/internal/kingdom:all_protos.bzl", "KINGDOM_INTERNAL_PROTOS") 
 
 package(default_visibility = ["//visibility:public"])
 kt_jvm_library(
     name = "replicate_error",
     testonly = True,
     srcs = glob(["*.kt"]),
-    deps = [
+    deps = KINGDOM_INTERNAL_PROTOS + [
         "@wfa_common_jvm//imports/java/org/junit",
         "@wfa_common_jvm//imports/kotlin/kotlin/test",
     ],
