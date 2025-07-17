@@ -14,25 +14,39 @@
 
 package org.wfanet.measurement.kingdom.service.internal.testing
 
-
-
-
-
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
-import org.junit.Before
+import org.junit.Test
 import kotlinx.coroutines.runBlocking
 
 
 @RunWith(JUnit4::class)
-abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
+abstract class DataProvidersServiceTest{
 
-  @Before
-  fun initServices() {
-    for (i in 1..50) {
-        runBlocking {}
-    }
+  @Test
+  fun `test_1`() {
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
   }
 
 }
