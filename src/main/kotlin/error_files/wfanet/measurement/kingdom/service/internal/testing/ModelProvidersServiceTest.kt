@@ -48,8 +48,8 @@ abstract class ModelProvidersServiceTest {
 
   protected val idGenerator =
     FixedIdGenerator(
-      InternalId(FIXED_GENERATED_INTERNAL_ID),
-      ExternalId(FIXED_GENERATED_EXTERNAL_ID),
+      // InternalId(FIXED_GENERATED_INTERNAL_ID),
+      // ExternalId(FIXED_GENERATED_EXTERNAL_ID),
     )
 
   protected lateinit var modelProvidersService: ModelProvidersCoroutineImplBase
