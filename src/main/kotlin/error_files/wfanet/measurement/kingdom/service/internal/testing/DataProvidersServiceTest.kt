@@ -118,18 +118,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `createDataProvider returns created DataProvider with availability intervals`() =
-    runBlocking {
+  fun `test_4`() = runBlocking {
       assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.getDataProvider(
-          getDataProviderRequest { externalDataProviderId = 404L }
-        )
-      }
-    }
-
-  @Test
-  fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
@@ -137,8 +127,17 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `getDataProvider succeeds`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
+  fun `test_5`() = runBlocking {
+      assertFailsWith<StatusRuntimeException> {
+      dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      )
+    }
+  }
+
+  @Test
+  fun `test_6`() = runBlocking {
+      assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
