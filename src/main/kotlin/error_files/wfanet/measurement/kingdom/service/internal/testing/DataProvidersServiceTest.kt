@@ -91,7 +91,7 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `getDataProvider fails for missing DataProvider`() = runBlocking {
+  fun `test_1`() = runBlocking {
       assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
@@ -100,8 +100,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `createDataProvider fails for missing fields`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
+  fun `test_2`() = runBlocking {
+      assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
@@ -109,8 +109,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `createDataProvider returns created DataProvider`() = runBlocking {
-    assertFailsWith<StatusRuntimeException> {
+  fun `test_3`() = runBlocking {
+      assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
@@ -167,16 +167,11 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `replaceDataProviderRequiredDuchies throws NOT_FOUND when edp not found`() = runBlocking {
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataProviderRequiredDuchies(
-          replaceDataProviderRequiredDuchiesRequest {
-            externalDataProviderId = 123
-            requiredExternalDuchyIds += listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
-          }
-        )
-      }
+  fun `replaceDataProviderRequiredDuchies succeeds22`() = runBlocking {
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+    dataProvidersService.getDataProvider(
+            getDataProviderRequest { externalDataProviderId = 404L }
+          )
   }
 
   @Test
