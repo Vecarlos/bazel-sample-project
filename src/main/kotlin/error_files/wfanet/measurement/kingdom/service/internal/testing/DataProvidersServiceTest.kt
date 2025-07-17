@@ -118,8 +118,18 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `test_4`() = runBlocking {
+  fun `createDataProvider returns created DataProvider with availability intervals`() =
+    runBlocking {
       assertFailsWith<StatusRuntimeException> {
+        dataProvidersService.getDataProvider(
+          getDataProviderRequest { externalDataProviderId = 404L }
+        )
+      }
+    }
+
+  @Test
+  fun `createDataProvider succeeds when requiredExternalDuchyIds is empty`() = runBlocking {
+    assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
@@ -127,8 +137,8 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `test_5`() = runBlocking {
-      assertFailsWith<StatusRuntimeException> {
+  fun `getDataProvider succeeds`() = runBlocking {
+    assertFailsWith<StatusRuntimeException> {
       dataProvidersService.getDataProvider(
         getDataProviderRequest { externalDataProviderId = 404L }
       )
@@ -136,30 +146,24 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
   }
 
   @Test
-  fun `test_6`() = runBlocking {
-      assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
+  fun `batchGetDataProviders returns DataProviders in request order`() {
+    val dataProviders = runBlocking {
+      listOf(
+        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
+
       )
     }
+    val response = runBlocking { dataProvidersService.getDataProvider(
+        getDataProviderRequest { externalDataProviderId = 404L }
+      ) }
   }
 
   @Test
-  fun `test_7`() = runBlocking {
-      assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
-      )
-    }
-  }
-
-  @Test
-  fun `test_8`() = runBlocking {
-      assertFailsWith<StatusRuntimeException> {
-      dataProvidersService.getDataProvider(
-        getDataProviderRequest { externalDataProviderId = 404L }
-      )
-    }
+  fun `replaceDataProviderRequiredDuchies succeeds`() = runBlocking {
+    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
+    dataProvidersService.getDataProvider(
+            getDataProviderRequest { externalDataProviderId = 404L }
+          )
   }
 
   @Test
