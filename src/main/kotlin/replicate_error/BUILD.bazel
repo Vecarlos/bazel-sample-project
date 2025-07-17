@@ -6,7 +6,7 @@ kt_jvm_library(
     name = "func",
     # name = "replicate_error",
     testonly = True,
-    srcs = [fun_1.kt],
+    srcs = ["fun_1.kt"],
     # srcs = glob(["*.kt"]),
     deps = KINGDOM_INTERNAL_PROTOS + [
         "@wfa_common_jvm//imports/java/org/junit",
