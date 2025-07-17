@@ -95,162 +95,42 @@ abstract class DataProvidersServiceTest<T : DataProvidersCoroutineImplBase> {
     runBlocking {}
     runBlocking {}
     runBlocking {}
-  }
 
-
-
-
-//  @Test
-//   fun `test_2`(){
-//     runBlocking {}
-//   }
-
-
-//  @Test
-//   fun `test_3`(){
-//     runBlocking {}
-//   }
-
-
-//  @Test
-//   fun `test_4`(){
-//     runBlocking {}
-//   }
-
-
-//  @Test
-//   fun `test_5`(){
-//     runBlocking {}
-//   }
-
-
-//   @Test
-//   fun `test_6`(){
-//     runBlocking {}
-//   }
-
-
-
-  @Test
-  fun `test_7`() {
     runBlocking {}
+    runBlocking {}
+
+    runBlocking {}
+
+    runBlocking {}
+
+    runBlocking {}
+
+
+    runBlocking {}
+
+
+    runBlocking {}
+
+    runBlocking {}
+
+
+    runBlocking {}
+
+    runBlocking {}
+
+
+    runBlocking {}
+
+
+     runBlocking {}
+
+
+
     runBlocking {}
   }
 
 
 
-  // @Test
-  // fun `batchGetDataProviders returns DataProviders in request order`() {
-  //   val dataProviders = runBlocking {
-  //     listOf(
-  //       dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST),
-  //     )
-  //   }
-  //   val response = runBlocking { dataProvidersService.getDataProvider(
-  //       getDataProviderRequest { externalDataProviderId = 404L }
-  //     ) }
-  // }
-
-  @Test
-  fun `replaceDataProviderRequiredDuchies succeeds`() = runBlocking {
-    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    dataProvidersService.getDataProvider(
-            getDataProviderRequest { externalDataProviderId = 404L }
-          )
-  }
-
-  @Test
-  fun `replaceDataProviderRequiredDuchies succeeds22`() = runBlocking {
-    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    dataProvidersService.getDataProvider(
-            getDataProviderRequest { externalDataProviderId = 404L }
-          )
-  }
-
-  @Test
-  fun `replaceDataProviderRequiredDuchies throws INVALID_ARGUMENT when no edp id`() = runBlocking {
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataProviderRequiredDuchies(
-          replaceDataProviderRequiredDuchiesRequest {
-            requiredExternalDuchyIds += listOf(Population.AGGREGATOR_DUCHY.externalDuchyId)
-          }
-        )
-      }
-  }
-
-  @Test
-  fun `replaceDataAvailabilityIntervals updates DataProvider`() = runBlocking {
-    val dataProvider = dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-    val request = replaceDataAvailabilityIntervalsRequest {}
-    val response: DataProvider = dataProvidersService.replaceDataAvailabilityIntervals(request)
-  }
-
-  @Test
-  fun `replaceDataAvailabilityIntervals throws FAILED_PRECONDITION when ModelLine not found`() =
-    runBlocking {
-      val dataProvider: DataProvider =
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-      val request = replaceDataAvailabilityIntervalsRequest {}
-
-      val exception =
-        assertFailsWith<StatusRuntimeException> {
-          dataProvidersService.replaceDataAvailabilityIntervals(request)
-        }
-    }
-
-  @Test
-  fun `replaceDataAvailabilityIntervals throws INVALID_ARGUMENT when end time not set`() =
-    runBlocking {
-      val dataProvider: DataProvider =
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-      val request = replaceDataAvailabilityIntervalsRequest {}
-
-      val exception =
-        assertFailsWith<StatusRuntimeException> {
-          dataProvidersService.replaceDataAvailabilityIntervals(request)
-        }
-    }
-
-  @Test
-  fun `replaceDataAvailabilityInterval modifies DataProvider`() = runBlocking {
-
-   val dataProvider: DataProvider =
-        dataProvidersService.createDataProvider(CREATE_DATA_PROVIDER_REQUEST)
-  val request = replaceDataAvailabilityIntervalsRequest {}
-  val exception =
-              assertFailsWith<StatusRuntimeException> {
-          dataProvidersService.replaceDataAvailabilityIntervals(request)
-        }
-  }
-
-  @Test
-  fun `replaceDataAvailabilityInterval throws NOT_FOUND when edp not found`() = runBlocking {
-    val request = replaceDataAvailabilityIntervalsRequest {}
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataAvailabilityIntervals(request)
-      }
-  }
-
-  @Test
-  fun `replaceDataAvailabilityInterval throws NOT_FOUND when edp not found 2`() = runBlocking {
-    val request = replaceDataAvailabilityIntervalsRequest {}
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataAvailabilityIntervals(request)
-      }
-  }
-
-
-  @Test
-  fun `replaceDataAvailabilityInterval throws NOT_FOUND when edp not found 3`() = runBlocking {
-    val request = replaceDataAvailabilityIntervalsRequest {}
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        dataProvidersService.replaceDataAvailabilityIntervals(request)
-      }
-  }
 
   /** Random [IdGenerator] which records generated IDs. */
   private class RecordingIdGenerator : IdGenerator {
