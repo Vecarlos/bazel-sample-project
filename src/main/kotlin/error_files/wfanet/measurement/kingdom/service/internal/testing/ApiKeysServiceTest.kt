@@ -21,7 +21,8 @@ import io.grpc.StatusRuntimeException
 import java.time.Clock
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.runBlocking
+// import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,7 +71,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `createApiKey with no description returns an api key`() = runBlocking {
+  fun `createApiKey with no description returns an api key`() = runTest {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -87,7 +88,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `createApiKey with description returns an api key()`() = runBlocking {
+  fun `createApiKey with description returns an api key()`() = runTest {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -105,7 +106,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `createApiKey throws NOT_FOUND when measurement consumer doesn't exist`() = runBlocking {
+  fun `createApiKey throws NOT_FOUND when measurement consumer doesn't exist`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         apiKeysService.createApiKey(
@@ -121,7 +122,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteApiKey returns the api key`() = runBlocking {
+  fun `deleteApiKey returns the api key`() = runTest {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -148,7 +149,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteApiKey throws NOT_FOUND when measurement consumer doesn't exist`() = runBlocking {
+  fun `deleteApiKey throws NOT_FOUND when measurement consumer doesn't exist`() = runTest {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -180,7 +181,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteApiKey throws NOT FOUND when api key doesn't exist`() = runBlocking {
+  fun `deleteApiKey throws NOT FOUND when api key doesn't exist`() = runTest {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -214,7 +215,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
   }
 
   @Test
-  fun `authenticateApiKey returns a measurement consumer`() = runBlocking {
+  fun `authenticateApiKey returns a measurement consumer`() = runTest {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val apiKey =
@@ -237,7 +238,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
 
   @Test
   fun `authenticateApiKey throws INVALID_ARGUMENT when authentication key hash is missing`() =
-    runBlocking {
+    runTest {
       val exception =
         assertFailsWith<StatusRuntimeException> {
           apiKeysService.authenticateApiKey(authenticateApiKeyRequest {})
@@ -249,7 +250,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
 
   @Test
   fun `authenticateApiKey throws NOT_FOUND when authentication key hash doesn't match`() =
-    runBlocking {
+    runTest {
       val exception =
         assertFailsWith<StatusRuntimeException> {
           apiKeysService.authenticateApiKey(
@@ -262,7 +263,7 @@ abstract class ApiKeysServiceTest<T : ApiKeysCoroutineImplBase> {
     }
 
   @Test
-  fun `authenticateApiKey throws NOT_FOUND when api key has been deleted`() = runBlocking {
+  fun `authenticateApiKey throws NOT_FOUND when api key has been deleted`() = runTest {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val apiKey =
