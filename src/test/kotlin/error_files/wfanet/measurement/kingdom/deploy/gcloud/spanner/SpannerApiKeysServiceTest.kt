@@ -14,20 +14,38 @@
 
 package org.wfanet.measurement.kingdom.deploy.gcloud.spanner
 
-import org.junit.Test
+import java.time.Clock
+import org.junit.ClassRule
+import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.wfanet.measurement.common.identity.IdGenerator
+import org.wfanet.measurement.gcloud.spanner.testing.SpannerEmulatorDatabaseRule
+import org.wfanet.measurement.gcloud.spanner.testing.SpannerEmulatorRule
 
-/**
- * Esta es una versión simplificada de la prueba que siempre pasará.
- * No contiene lógica real, solo un método de prueba vacío.
- */
+import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.testing.Schemata
+import org.wfanet.measurement.kingdom.service.internal.testing.ApiKeysServiceTest
+
 @RunWith(JUnit4::class)
-class SpannerApiKeysServiceTest {
+class SpannerApiKeysServiceTest : ApiKeysServiceTest<SpannerApiKeysService>() {
 
-    @Test
-    fun `esta prueba siempre es verdadera`() {
-        // Un método de prueba vacío se considera exitoso en JUnit.
-        // No se realiza ninguna acción ni aserción, por lo que no puede fallar.
-    }
+  @get:Rule
+  val spannerDatabase =
+    SpannerEmulatorDatabaseRule(spannerEmulator, Schemata.KINGDOM_CHANGELOG_PATH)
+  private val clock = Clock.systemUTC()
+
+  override fun newServices(idGenerator: IdGenerator): Services<SpannerApiKeysService> {
+    val spannerServices =
+      SpannerDataServices(clock, idGenerator, spannerDatabase.databaseClient).buildDataServices()
+
+    return Services(
+      spannerServices.apiKeysService as SpannerApiKeysService,
+      spannerServices.measurementConsumersService,
+      spannerServices.accountsService,
+    )
+  }
+
+  companion object {
+    @get:ClassRule @JvmStatic val spannerEmulator = SpannerEmulatorRule()
+  }
 }
