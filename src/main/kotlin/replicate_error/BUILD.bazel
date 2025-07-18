@@ -2,11 +2,9 @@ load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
 
 package(default_visibility = ["//visibility:public"])
 kt_jvm_library(
-    # name = "func",
-    name = "replicate_error",
+    name = "func",
     testonly = True,
-    # srcs = ["fun_1.kt"],
-    srcs = glob(["*.kt"]),
+    srcs = ["fun_1.kt"],
     deps = [
         "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
         "@wfa_common_jvm//imports/java/org/junit",
