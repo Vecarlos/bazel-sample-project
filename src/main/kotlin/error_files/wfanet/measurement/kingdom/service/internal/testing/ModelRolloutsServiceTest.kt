@@ -25,7 +25,8 @@ import java.time.Instant
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
+// import kotlinx.coroutines.runTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -110,7 +111,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `createModelRollout succeeds`() = runBlocking {
+  fun `createModelRollout succeeds`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -147,7 +148,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
 
   @Test
   fun `createModelRollout succeeds when rollout start time is equal to rollout end time`() =
-    runBlocking {
+    runTest {
       val modelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
       val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -184,7 +185,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
     }
 
   @Test
-  fun `createModelRollout correctly sets previous model rollout`() = runBlocking {
+  fun `createModelRollout correctly sets previous model rollout`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -226,7 +227,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
 
   @Test
   fun `createModelRollout correctly sets previous model rollout when rollout start time is equal to rollout end time`() =
-    runBlocking {
+    runTest {
       val modelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
       val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -269,7 +270,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
     }
 
   @Test
-  fun `createModelRollout fails when rollout period start time is missing`() = runBlocking {
+  fun `createModelRollout fails when rollout period start time is missing`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -304,7 +305,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `createModelRollout fails when rollout period end time is missing`() = runBlocking {
+  fun `createModelRollout fails when rollout period end time is missing`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -339,7 +340,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `createModelRollout fails when external model release id is missing`() = runBlocking {
+  fun `createModelRollout fails when external model release id is missing`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
 
@@ -363,7 +364,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `createModelRollout fails when Model Line is not found`() = runBlocking {
+  fun `createModelRollout fails when Model Line is not found`() = runTest {
     val modelRollout = modelRollout {
       externalModelProviderId = 123L
       externalModelSuiteId = 123L
@@ -382,7 +383,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `createModelRollout fails when rollout period start time is in the past`() = runBlocking {
+  fun `createModelRollout fails when rollout period start time is in the past`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -417,7 +418,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
 
   @Test
   fun `createModelRollout fails when rollout period end time precedes rollout period start time`() =
-    runBlocking {
+    runTest {
       val modelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
       val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -454,7 +455,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
     }
 
   @Test
-  fun `createModelRollout fails when Model Release is not found`() = runBlocking {
+  fun `createModelRollout fails when Model Release is not found`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
 
@@ -476,7 +477,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `scheduleModelRolloutFreeze succeeds`() = runBlocking {
+  fun `scheduleModelRolloutFreeze succeeds`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -529,7 +530,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `scheduleModelRolloutFreeze fails when freeze time is in the past`() = runBlocking {
+  fun `scheduleModelRolloutFreeze fails when freeze time is in the past`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -572,7 +573,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
 
   @Test
   fun `scheduleModelRolloutFreeze fails when freeze time precedes rollout start time`() =
-    runBlocking {
+    runTest {
       val modelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
       val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -618,7 +619,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
 
   @Test
   fun `scheduleModelRolloutFreeze fails when freeze time is later than rollout end time`() =
-    runBlocking {
+    runTest {
       val modelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
       val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -663,7 +664,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
     }
 
   @Test
-  fun `scheduleModelRolloutFreeze fails when Model Rollout is not found`() = runBlocking {
+  fun `scheduleModelRolloutFreeze fails when Model Rollout is not found`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.scheduleModelRolloutFreeze(
@@ -682,7 +683,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteModelRollout succeeds`() = runBlocking {
+  fun `deleteModelRollout succeeds`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -732,7 +733,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteModelRollout fails when external model provider id is missing`() = runBlocking {
+  fun `deleteModelRollout fails when external model provider id is missing`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.deleteModelRollout(
@@ -749,7 +750,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteModelRollout fails when external model suite id is missing`() = runBlocking {
+  fun `deleteModelRollout fails when external model suite id is missing`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.deleteModelRollout(
@@ -766,7 +767,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteModelRollout fails when external model line id is missing`() = runBlocking {
+  fun `deleteModelRollout fails when external model line id is missing`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.deleteModelRollout(
@@ -783,7 +784,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteModelRollout fails when external model rollout id is missing`() = runBlocking {
+  fun `deleteModelRollout fails when external model rollout id is missing`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.deleteModelRollout(
@@ -800,7 +801,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteModelRollout fails when Model Rollout is not found`() = runBlocking {
+  fun `deleteModelRollout fails when Model Rollout is not found`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.deleteModelRollout(
@@ -818,7 +819,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamModelRollouts returns all model rollouts`(): Unit = runBlocking {
+  fun `streamModelRollouts returns all model rollouts`(): Unit = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -869,7 +870,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamModelRollouts can get one page at a time`(): Unit = runBlocking {
+  fun `streamModelRollouts can get one page at a time`(): Unit = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -942,7 +943,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamModelRollouts fails for missing after filter fields`(): Unit = runBlocking {
+  fun `streamModelRollouts fails for missing after filter fields`(): Unit = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -1010,7 +1011,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamModelRollouts fails when limit is less than 0`(): Unit = runBlocking {
+  fun `streamModelRollouts fails when limit is less than 0`(): Unit = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
 
@@ -1033,7 +1034,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamModelRollouts filter by rollout period interval`(): Unit = runBlocking {
+  fun `streamModelRollouts filter by rollout period interval`(): Unit = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -1102,7 +1103,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamModelRollouts fails for missing rollout interval filter fields`(): Unit = runBlocking {
+  fun `streamModelRollouts fails for missing rollout interval filter fields`(): Unit = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelRolloutsService.streamModelRollouts(
@@ -1121,7 +1122,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
   }
 
   @Test
-  fun `createModelRollout succeeds with multiple model rollouts`() = runBlocking {
+  fun `createModelRollout succeeds with multiple model rollouts`() = runTest {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
     val populationDataProvider = population.createDataProvider(dataProvidersService)
@@ -1172,7 +1173,7 @@ abstract class ModelRolloutsServiceTest<T : ModelRolloutsCoroutineImplBase> {
 
   @Test
   fun `createModelRollout fails when new model rollout start time precedes that of previous model rollout`() =
-    runBlocking {
+    runTest {
       val modelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
       val populationDataProvider = population.createDataProvider(dataProvidersService)
