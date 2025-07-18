@@ -27,8 +27,7 @@ import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.toList
-// import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -207,7 +206,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `getMeasurementByComputationId fails for missing Measurement`() = runTest {
+  fun `getMeasurementByComputationId fails for missing Measurement`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         measurementsService.getMeasurementByComputationId(
@@ -220,7 +219,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement fails for missing data provider`() = runTest {
+  fun `createMeasurement fails for missing data provider`() = runBlocking {
     val dataProvider = population.createDataProvider(dataProvidersService)
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -245,7 +244,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement fails for missing measurement consumer`() = runTest {
+  fun `createMeasurement fails for missing measurement consumer`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -271,7 +270,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement fails for revoked Measurement Consumer Certificate`() = runTest {
+  fun `createMeasurement fails for revoked Measurement Consumer Certificate`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -303,7 +302,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `createMeasurement fails when current time is before mc certificate is valid`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(
           measurementConsumersService,
@@ -331,7 +330,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `createMeasurement fails when current time is after mc certificate is valid`() = runTest {
+  fun `createMeasurement fails when current time is after mc certificate is valid`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(
         measurementConsumersService,
@@ -359,7 +358,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement fails for revoked Data Provider Certificate`() = runTest {
+  fun `createMeasurement fails for revoked Data Provider Certificate`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -394,7 +393,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `createMeasurement fails when current time is before edp certificate is valid`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider =
@@ -426,7 +425,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `createMeasurement fails when current time is after edp certificate is valid`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider =
@@ -457,7 +456,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `createMeasurement for duchy measurement succeeds`() = runTest {
+  fun `createMeasurement for duchy measurement succeeds`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -490,7 +489,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement for duchy REACH measurement succeeds`() = runTest {
+  fun `createMeasurement for duchy REACH measurement succeeds`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -523,7 +522,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement for duchy HMSS measurement succeeds`(): Unit = runTest {
+  fun `createMeasurement for duchy HMSS measurement succeeds`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -576,7 +575,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `createMeasurement for duchy measurement contains required duchies and the aggregator`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -610,7 +609,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `createMeasurement for duchy measurement fails for inactive required duchy`() = runTest {
+  fun `createMeasurement for duchy measurement fails for inactive required duchy`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider =
@@ -640,7 +639,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement for duchy measurement creates computation participants`() = runTest {
+  fun `createMeasurement for duchy measurement creates computation participants`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -675,7 +674,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `createMeasurement for duchy measurement creates requisitions with PENDING_PARAMS state`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -709,7 +708,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `createMeasurement for direct measurement succeeds`() = runTest {
+  fun `createMeasurement for direct measurement succeeds`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -748,7 +747,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement for direct measurement doesn't set computation id`() = runTest {
+  fun `createMeasurement for direct measurement doesn't set computation id`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -783,7 +782,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `createMeasurement for direct measurement creates requisitions with UNFUlFILLED state`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -823,7 +822,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `createMeasurement returns existing measurement for the same request ID`() = runTest {
+  fun `createMeasurement returns existing measurement for the same request ID`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val request = createMeasurementRequest {
@@ -843,7 +842,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `createMeasurement returns new measurement for different request ID`() = runTest {
+  fun `createMeasurement returns new measurement for different request ID`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val request = createMeasurementRequest {
@@ -865,7 +864,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `getMeasurementByComputationId returns created measurement`() = runTest {
+  fun `getMeasurementByComputationId returns created measurement`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val createdMeasurement =
@@ -896,7 +895,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `getMeasurement succeeds`() = runTest {
+  fun `getMeasurement succeeds`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val createdMeasurement =
@@ -924,7 +923,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `getMeasurementByComputationId succeeds`() =
-    runTest<Unit> {
+    runBlocking<Unit> {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -1025,7 +1024,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `setMeasurementResult fails for wrong externalComputationId`() = runTest {
+  fun `setMeasurementResult fails for wrong externalComputationId`() = runBlocking {
     val aggregatorDuchyId = Population.AGGREGATOR_DUCHY.externalDuchyId
     val duchyCertificate = population.createDuchyCertificate(certificatesService, aggregatorDuchyId)
     val request = setMeasurementResultRequest {
@@ -1045,7 +1044,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `setMeasurementResult fails for wrong aggregator certificate ID`() = runTest {
+  fun `setMeasurementResult fails for wrong aggregator certificate ID`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val createdMeasurement =
@@ -1077,7 +1076,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `setMeasurementResult succeeds`() = runTest {
+  fun `setMeasurementResult succeeds`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement =
@@ -1156,7 +1155,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `cancelMeasurement transitions Measurement state`() = runTest {
+  fun `cancelMeasurement transitions Measurement state`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement =
@@ -1193,7 +1192,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `cancelMeasurement transitions Requisition state`(): Unit = runTest {
+  fun `cancelMeasurement transitions Requisition state`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProviders = (1..2).map { population.createDataProvider(dataProvidersService) }
@@ -1242,7 +1241,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `cancelMeasurement throws FAILED_PRECONDITION when Measurement in illegal state`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val measurement =
@@ -1279,7 +1278,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `streamMeasurements returns all measurements in update time order`(): Unit = runTest {
+  fun `streamMeasurements returns all measurements in update time order`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1333,7 +1332,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements returns all measurements in id order`(): Unit = runTest {
+  fun `streamMeasurements returns all measurements in id order`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1379,7 +1378,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements can get one page at a time`(): Unit = runTest {
+  fun `streamMeasurements can get one page at a time`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1445,7 +1444,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `streamMeasurements with duchy filter only returns measurements with duchy as participant`():
-    Unit = runTest {
+    Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1511,7 +1510,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `streamMeasurements with hasExternalComputationId filter only gets computations`(): Unit =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1580,7 +1579,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `streamMeasurements with COMPUTATION_STATS view only gets computations`(): Unit =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1646,7 +1645,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `streamMeasurements with computation view only returns failure log`(): Unit = runTest {
+  fun `streamMeasurements with computation view only returns failure log`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1701,7 +1700,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements with computation stats view returns log entries`(): Unit = runTest {
+  fun `streamMeasurements with computation stats view returns log entries`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1753,7 +1752,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements respects limit`(): Unit = runTest {
+  fun `streamMeasurements respects limit`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -1787,7 +1786,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements respects externalMeasurementConsumerId`(): Unit = runTest {
+  fun `streamMeasurements respects externalMeasurementConsumerId`(): Unit = runBlocking {
     val measurementConsumer1 =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurementConsumer2 =
@@ -1831,7 +1830,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements respects states`(): Unit = runTest {
+  fun `streamMeasurements respects states`(): Unit = runBlocking {
     val measurementConsumer1 =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurementConsumer2 =
@@ -1887,7 +1886,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchDeleteMeasurements deletes all requested Measurements`(): Unit = runTest {
+  fun `batchDeleteMeasurements deletes all requested Measurements`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -1956,7 +1955,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchDeleteMeasurements does not delete any Measurements when any are missing`(): Unit =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val measurement =
@@ -2003,7 +2002,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `batchDeleteMeasurements throws NOT_FOUND when Measurement is missing`(): Unit = runTest {
+  fun `batchDeleteMeasurements throws NOT_FOUND when Measurement is missing`(): Unit = runBlocking {
     val missingMeasurementRequest = deleteMeasurementRequest {
       externalMeasurementId = 123L
       externalMeasurementConsumerId = 123L
@@ -2022,7 +2021,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchDeleteMeasurements throws INVALID_ARGUMENT when Measurement ids are not specified`():
-    Unit = runTest {
+    Unit = runBlocking {
     val invalidMeasurementRequest = deleteMeasurementRequest {}
     val exception =
       assertFailsWith<StatusRuntimeException> {
@@ -2037,7 +2036,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchDeleteMeasurements throws INVALID_ARGUMENT when Measurements requested exceed limit`():
-    Unit = runTest {
+    Unit = runBlocking {
     val deletionRequests = mutableListOf<DeleteMeasurementRequest>()
     for (i in 1..MAX_BATCH_DELETE + 1) {
       deletionRequests.add(
@@ -2059,7 +2058,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchCancelMeasurements cancels all requested Measurements`(): Unit = runTest {
+  fun `batchCancelMeasurements cancels all requested Measurements`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2132,7 +2131,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchCancelMeasurements withdraws Requisitions`(): Unit = runTest {
+  fun `batchCancelMeasurements withdraws Requisitions`(): Unit = runBlocking {
     val measurementCount = 2
     val dataProviderCount = 2
     val requisitionCount = dataProviderCount * measurementCount
@@ -2182,7 +2181,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCancelMeasurements does not cancel any Measurements when any are missing`(): Unit =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val measurement =
@@ -2229,7 +2228,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `batchCancelMeasurements throws NOT_FOUND when Measurement is missing`(): Unit = runTest {
+  fun `batchCancelMeasurements throws NOT_FOUND when Measurement is missing`(): Unit = runBlocking {
     val missingMeasurementRequest = cancelMeasurementRequest {
       externalMeasurementId = 123L
       externalMeasurementConsumerId = 123L
@@ -2248,7 +2247,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCancelMeasurements throws INVALID_ARGUMENT when Measurement ids are not specified`():
-    Unit = runTest {
+    Unit = runBlocking {
     val invalidMeasurementRequest = cancelMeasurementRequest {}
     val exception =
       assertFailsWith<StatusRuntimeException> {
@@ -2263,7 +2262,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCancelMeasurements throws INVALID_ARGUMENT when Measurements requested exceed limit`():
-    Unit = runTest {
+    Unit = runBlocking {
     val cancelRequests = mutableListOf<CancelMeasurementRequest>()
     for (i in 1..MAX_BATCH_CANCEL + 1) {
       cancelRequests.add(
@@ -2285,7 +2284,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchDeleteMeasurements deletes Measurements when all etags match`() = runTest {
+  fun `batchDeleteMeasurements deletes Measurements when all etags match`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2343,7 +2342,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchDeleteMeasurements throws ABORTED when etags do not match`() = runTest {
+  fun `batchDeleteMeasurements throws ABORTED when etags do not match`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2377,7 +2376,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchDeleteMeasurements does not delete any Measurements when any etags do not match`():
-    Unit = runTest {
+    Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2438,7 +2437,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchCancelMeasurements cancels Measurements when all etags match`() = runTest {
+  fun `batchCancelMeasurements cancels Measurements when all etags match`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2512,7 +2511,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchCancelMeasurements throws ABORTED when etags do not match`() = runTest {
+  fun `batchCancelMeasurements throws ABORTED when etags do not match`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2546,7 +2545,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCancelMeasurements does not cancel any Measurements when any etags do not match`():
-    Unit = runTest {
+    Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurement1 =
@@ -2607,7 +2606,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements respects updated before time`(): Unit = runTest {
+  fun `streamMeasurements respects updated before time`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -2646,7 +2645,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamMeasurements respects created before time`(): Unit = runTest {
+  fun `streamMeasurements respects created before time`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -2685,7 +2684,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchCreateMeasurements with 2 same create requests creates 2 measurements`() = runTest {
+  fun `batchCreateMeasurements with 2 same create requests creates 2 measurements`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -2757,7 +2756,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCreateMeasurements with requests with diff edps, certs creates 2 measurements`(): Unit =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val measurementConsumerCertificate2 =
@@ -2850,7 +2849,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCreateMeasurements with 2 requests with same request id creates 0 measurements`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -2896,7 +2895,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCreateMeasurement throws INVALID_ARGUMENT if mc doesn't match for 1 of 2 requests`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -2936,7 +2935,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchCreateMeasurement throws FAILED_PRECONDITION if mc certificate not found`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -2975,7 +2974,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `batchCreateMeasurement throws NOT_FOUND if mc not found`() = runTest {
+  fun `batchCreateMeasurement throws NOT_FOUND if mc not found`() = runBlocking {
     val dataProvider = population.createDataProvider(dataProvidersService)
     val externalMeasurementConsumerId = 123L
     val externalMeasurementConsumerCertificateId = 123L
@@ -3013,7 +3012,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
   }
 
   @Test
-  fun `batchGetMeasurements with 2 requests retrieves 2 measurements`(): Unit = runTest {
+  fun `batchGetMeasurements with 2 requests retrieves 2 measurements`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -3059,7 +3058,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
 
   @Test
   fun `batchGetMeasurements with 2 unique ids and 1 duplicate retrieves 3 measurements`(): Unit =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider = population.createDataProvider(dataProvidersService)
@@ -3105,7 +3104,7 @@ abstract class MeasurementsServiceTest<T : MeasurementsCoroutineImplBase> {
     }
 
   @Test
-  fun `batchGetMeasurements throws NOT_FOUND if 1 of 2 measurements not found`() = runTest {
+  fun `batchGetMeasurements throws NOT_FOUND if 1 of 2 measurements not found`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
