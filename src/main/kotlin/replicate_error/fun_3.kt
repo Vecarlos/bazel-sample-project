@@ -12,7 +12,7 @@ abstract class runBlocking2{
 
   @Test
   fun `test_4`() {  
-    runTest {}
+    // runTest {}
     runBlocking {}
     runBlocking {}
     runBlocking {}
