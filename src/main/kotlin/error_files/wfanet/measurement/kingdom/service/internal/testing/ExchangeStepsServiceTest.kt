@@ -27,7 +27,8 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
+// import kotlinx.coroutines.runTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -211,7 +212,7 @@ abstract class ExchangeStepsServiceTest {
     exchangeStepAttemptsService = newExchangeStepAttemptsService(idGenerator)
     val dataProvidersService = newDataProvidersService(DATA_PROVIDER_ID_GENERATOR)
     val modelProvidersService = newModelProvidersService(MODEL_ID_GENERATOR)
-    runBlocking {
+    runTest {
       dataProvidersService.createDataProvider(DATA_PROVIDER)
       modelProvidersService.createModelProvider(modelProvider {})
     }
@@ -224,7 +225,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest fails for missing party`() = runBlocking {
+  fun `claimReadyExchangeStepRequest fails for missing party`() = runTest {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         exchangeStepsService.claimReadyExchangeStep(claimReadyExchangeStepRequest {})
@@ -235,7 +236,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest returns empty for wrong party`() = runBlocking {
+  fun `claimReadyExchangeStepRequest returns empty for wrong party`() = runTest {
     createRecurringExchange()
 
     val response =
@@ -247,12 +248,12 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest fails without recurring exchange`() = runBlocking {
+  fun `claimReadyExchangeStepRequest fails without recurring exchange`() = runTest {
     assertThat(claimReadyExchangeStep()).isEqualToDefaultInstance()
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest succeeds`() = runBlocking {
+  fun `claimReadyExchangeStepRequest succeeds`() = runTest {
     createRecurringExchange()
 
     val response: ClaimReadyExchangeStepResponse = claimReadyExchangeStep()
@@ -299,7 +300,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest returns no ExchangeStep when already claimed`() = runBlocking {
+  fun `claimReadyExchangeStepRequest returns no ExchangeStep when already claimed`() = runTest {
     createRecurringExchange()
     claimReadyExchangeStep()
 
@@ -309,7 +310,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest expires ExchangeStepAttempt`() = runBlocking {
+  fun `claimReadyExchangeStepRequest expires ExchangeStepAttempt`() = runTest {
     createRecurringExchange()
 
     // Initiate the clock as yesterday and create an ExchangeStepAttempt.
@@ -376,12 +377,12 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStepRequest without any step`() = runBlocking {
+  fun `claimReadyExchangeStepRequest without any step`() = runTest {
     // TODO(yunyeng): Add test once underlying services complete.
   }
 
   @Test
-  fun `claimReadyExchangeStep creates multiple Exchanges`() = runBlocking {
+  fun `claimReadyExchangeStep creates multiple Exchanges`() = runTest {
     val date = LocalDate.now(ZoneOffset.UTC).minusDays(3)
 
     recurringExchangesService.createRecurringExchange(
@@ -403,7 +404,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `claimReadyExchangeStep does not create new Exchanges if one is failed`() = runBlocking {
+  fun `claimReadyExchangeStep does not create new Exchanges if one is failed`() = runTest {
     val exchangeDate = LocalDate.now(ZoneOffset.UTC).minusDays(3).toProtoDate()
 
     recurringExchangesService.createRecurringExchange(
@@ -436,7 +437,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `getExchangeStepRequest succeeds`() = runBlocking {
+  fun `getExchangeStepRequest succeeds`() = runTest {
     createRecurringExchange()
 
     claimReadyExchangeStep()
@@ -456,7 +457,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `streamExchangeSteps returns only step provider's steps`(): Unit = runBlocking {
+  fun `streamExchangeSteps returns only step provider's steps`(): Unit = runTest {
     createRecurringExchangeWithMultipleSteps()
     claimReadyExchangeStep()
 
@@ -479,7 +480,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `streamExchangeSteps returns all exchangeSteps in order`(): Unit = runBlocking {
+  fun `streamExchangeSteps returns all exchangeSteps in order`(): Unit = runTest {
     createRecurringExchangeWithMultipleSteps()
     claimReadyExchangeStep()
 
@@ -499,7 +500,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `streamExchangeSteps respects after filter`(): Unit = runBlocking {
+  fun `streamExchangeSteps respects after filter`(): Unit = runTest {
     createRecurringExchangeWithMultipleSteps()
     claimReadyExchangeStep()
 
@@ -526,7 +527,7 @@ abstract class ExchangeStepsServiceTest {
   }
 
   @Test
-  fun `streamExchangeSteps respects limit`(): Unit = runBlocking {
+  fun `streamExchangeSteps respects limit`(): Unit = runTest {
     createRecurringExchangeWithMultipleSteps()
     claimReadyExchangeStep()
 
