@@ -660,26 +660,5 @@ abstract class runBlocking1{
     runBlocking {}
     runBlocking {}
 
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
-    runBlocking {}
   }
 }
