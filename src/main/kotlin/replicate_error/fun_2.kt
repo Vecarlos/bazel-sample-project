@@ -3,7 +3,7 @@ package replicate_error
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit.Test
-import kotlinx.coroutines.runTest
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 
 
