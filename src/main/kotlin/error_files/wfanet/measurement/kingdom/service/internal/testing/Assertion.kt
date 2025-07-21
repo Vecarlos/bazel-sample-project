@@ -51,7 +51,7 @@ private const val STEP_INDEX = 1
       .findFieldByNumber(ExchangeStepAttemptDetails.DEBUG_LOG_ENTRIES_FIELD_NUMBER),
   )
 
-internal suspend fun ExchangesCoroutineImplBase.assertTestExchangeHasState(
+ suspend fun ExchangesCoroutineImplBase.assertTestExchangeHasState(
   exchangeState: Exchange.State
 ) {
   assertThat(
@@ -72,7 +72,7 @@ internal suspend fun ExchangesCoroutineImplBase.assertTestExchangeHasState(
     )
 }
 
-internal suspend fun ExchangeStepsCoroutineImplBase.assertTestExchangeStepHasState(
+ suspend fun ExchangeStepsCoroutineImplBase.assertTestExchangeStepHasState(
   exchangeStepState: ExchangeStep.State,
   exchangeStepIndex: Int = STEP_INDEX,
 ) {
