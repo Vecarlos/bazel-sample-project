@@ -7,6 +7,7 @@ kt_jvm_library(
     name = "testing",
     testonly = True,
     srcs = glob(["*.kt"]),
+    tags = ["no-coverage"],
     deps = KINGDOM_INTERNAL_PROTOS + [
         "//src/main/kotlin/error_files/wfanet/measurement/api:public_api_version",
         "//src/main/kotlin/error_files/wfanet/measurement/common/grpc:error_info",
