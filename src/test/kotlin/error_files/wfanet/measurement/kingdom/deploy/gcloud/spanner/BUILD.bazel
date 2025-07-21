@@ -1,26 +1,26 @@
 load("@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing:macros.bzl", "spanner_emulator_test")
 
-# spanner_emulator_test(
-#     name = "KingdomSchemaTest",
-#     srcs = ["KingdomSchemaTest.kt"],
-#     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.KingdomSchemaTest",
-#     deps = [
-#         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing",
-#         "@wfa_common_jvm//imports/java/com/google/cloud/spanner",
-#         "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
-#     ],
-# )
+spanner_emulator_test(
+    name = "KingdomSchemaTest",
+    srcs = ["KingdomSchemaTest.kt"],
+    test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.KingdomSchemaTest",
+    deps = [
+        "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing",
+        "@wfa_common_jvm//imports/java/com/google/cloud/spanner",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
+    ],
+)
 
-# spanner_emulator_test(
-#     name = "SpannerAccountsServiceTest",
-#     srcs = ["SpannerAccountsServiceTest.kt"],
-#     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerAccountsServiceTest",
-#     deps = [
-#         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
-#         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing",
-#         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/service/internal/testing",
-#     ],
-# )
+spanner_emulator_test(
+    name = "SpannerAccountsServiceTest",
+    srcs = ["SpannerAccountsServiceTest.kt"],
+    test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerAccountsServiceTest",
+    deps = [
+        "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
+        "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing",
+        "//src/main/kotlin/error_files/wfanet/measurement/kingdom/service/internal/testing",
+    ],
+)
 
 spanner_emulator_test(
     name = "SpannerApiKeysServiceTest",
