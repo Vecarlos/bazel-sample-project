@@ -3,7 +3,6 @@ load("@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/tes
 spanner_emulator_test(
     name = "KingdomSchemaTest",
     srcs = ["KingdomSchemaTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.KingdomSchemaTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing",
@@ -15,7 +14,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerAccountsServiceTest",
     srcs = ["SpannerAccountsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerAccountsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -27,7 +25,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerApiKeysServiceTest",
     srcs = ["SpannerApiKeysServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerApiKeysServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -39,7 +36,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerMeasurementsServiceTest",
     srcs = ["SpannerMeasurementsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerMeasurementsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:measurements_service",
@@ -52,7 +48,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerPublicKeysServiceTest",
     srcs = ["SpannerPublicKeysServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerPublicKeysServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -64,7 +59,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerMeasurementLogEntriesServiceTest",
     srcs = ["SpannerMeasurementLogEntriesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerMeasurementLogEntriesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -76,7 +70,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerMeasurementConsumersServiceTest",
     srcs = ["SpannerMeasurementConsumersServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerMeasurementConsumersServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -88,7 +81,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerDataProvidersServiceTest",
     srcs = ["SpannerDataProvidersServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerDataProvidersServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -100,7 +92,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelProvidersServiceTest",
     srcs = ["SpannerModelProvidersServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelProvidersServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -112,7 +103,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerCertificatesServiceTest",
     srcs = ["SpannerCertificatesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerCertificatesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -124,7 +114,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerComputationParticipantsServiceTest",
     srcs = ["SpannerComputationParticipantsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerComputationParticipantsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -136,7 +125,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerEventGroupsServiceTest",
     srcs = ["SpannerEventGroupsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerEventGroupsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -148,7 +136,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerEventGroupMetadataDescriptorsServiceTest",
     srcs = ["SpannerEventGroupMetadataDescriptorsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerEventGroupMetadataDescriptorsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -160,7 +147,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerRecurringExchangesServiceTest",
     srcs = ["SpannerRecurringExchangesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerRecurringExchangesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -172,7 +158,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerExchangeStepsServiceTest",
     srcs = ["SpannerExchangeStepsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerExchangeStepsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -184,7 +169,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerExchangeStepAttemptsServiceTest",
     srcs = ["SpannerExchangeStepAttemptsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerExchangeStepAttemptsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -196,7 +180,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerExchangesServiceTest",
     srcs = ["SpannerExchangesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerExchangesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -208,7 +191,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerRequisitionsServiceTest",
     srcs = ["SpannerRequisitionsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerRequisitionsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -220,7 +202,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelSuitesServiceTest",
     srcs = ["SpannerModelSuitesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelSuitesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -232,7 +213,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelLinesServiceTest",
     srcs = ["SpannerModelLinesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelLinesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -244,7 +224,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelOutagesServiceTest",
     srcs = ["SpannerModelOutagesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelOutagesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -256,7 +235,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelReleasesServiceTest",
     srcs = ["SpannerModelReleasesServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelReleasesServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -268,7 +246,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelShardsServiceTest",
     srcs = ["SpannerModelShardsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelShardsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
@@ -280,7 +257,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerModelRolloutsServiceTest",
     srcs = ["SpannerModelRolloutsServiceTest.kt"],
-    shard_count = 4,
     # TODO(world-federation-of-advertisers/cross-media-measurement#1368): Remove when flakiness is resolved.
     flaky = True,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerModelRolloutsServiceTest",
@@ -294,7 +270,6 @@ spanner_emulator_test(
 spanner_emulator_test(
     name = "SpannerPopulationsServiceTest",
     srcs = ["SpannerPopulationsServiceTest.kt"],
-    shard_count = 4,
     test_class = "org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerPopulationsServiceTest",
     deps = [
         "//src/main/kotlin/error_files/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
