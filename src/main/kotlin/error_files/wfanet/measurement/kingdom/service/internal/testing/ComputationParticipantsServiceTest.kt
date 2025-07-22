@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// package org.wfanet.measurement.kingdom.service.internal.testing
+package org.wfanet.measurement.kingdom.service.internal.testing
 
-// private const val RANDOM_SEED = 1
-// abstract class ComputationParticipantsServiceTest {
-// }
+private const val RANDOM_SEED = 1
+abstract class ComputationParticipantsServiceTest {
+}
