@@ -14,16 +14,6 @@
 
 package org.wfanet.measurement.kingdom.service.internal.testing
 
-
-
-
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-
-
-
-
 private const val RANDOM_SEED = 1
-// @RunWith(JUnit4::class)
 abstract class ComputationParticipantsServiceTest {
 }
