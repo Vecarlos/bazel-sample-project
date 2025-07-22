@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4
 // import org.wfanet.measurement.internal.kingdom.CertificatesGrpcKt.CertificatesCoroutineImplBase
 // import org.wfanet.measurement.internal.kingdom.ComputationParticipant
 // import org.wfanet.measurement.internal.kingdom.ComputationParticipantDetails
-// import org.wfanet.measurement.internal.kingdom.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineImplBase
 // import org.wfanet.measurement.internal.kingdom.DataProvider
 // import org.wfanet.measurement.internal.kingdom.DataProvidersGrpcKt.DataProvidersCoroutineImplBase
 // import org.wfanet.measurement.internal.kingdom.DuchyProtocolConfig
