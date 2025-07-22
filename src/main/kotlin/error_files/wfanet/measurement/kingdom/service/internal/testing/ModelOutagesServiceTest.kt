@@ -25,8 +25,7 @@ import java.time.Instant
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.toList
-// import kotlinx.coroutines.runTest
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,7 +87,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `createModelOutage succeeds`() = runTest {
+  fun `createModelOutage succeeds`() = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -117,7 +116,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `createModelOutage fails when Model Line type is not equal to PROD`() = runTest {
+  fun `createModelOutage fails when Model Line type is not equal to PROD`() = runBlocking {
     val devModelLine =
       population.createModelLine(
         modelProvidersService,
@@ -145,7 +144,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
 
   @Test
   fun `createModelOutage fails when Model Line doesn't have a HoldbackModelLine set`() =
-    runTest {
+    runBlocking {
       val devModelLine =
         population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
 
@@ -169,7 +168,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
     }
 
   @Test
-  fun `createModelOutage fails when Model Line is not found`() = runTest {
+  fun `createModelOutage fails when Model Line is not found`() = runBlocking {
     val modelOutage = modelOutage {
       externalModelProviderId = 123L
       externalModelSuiteId = 123L
@@ -186,7 +185,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `createModelOutage fails when outage interval is missing`() = runTest {
+  fun `createModelOutage fails when outage interval is missing`() = runBlocking {
     val modelOutage = modelOutage {
       externalModelProviderId = 123L
       externalModelSuiteId = 123L
@@ -201,7 +200,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `createModelOutage fails when outage interval is invalid`() = runTest {
+  fun `createModelOutage fails when outage interval is invalid`() = runBlocking {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
 
@@ -223,7 +222,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage succeeds`() = runTest {
+  fun `deleteModelOutage succeeds`() = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -262,7 +261,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage fails when externalModelProviderId is missing`() = runTest {
+  fun `deleteModelOutage fails when externalModelProviderId is missing`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelOutagesService.deleteModelOutage(
@@ -279,7 +278,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage fails when externalModelSuiteId is missing`() = runTest {
+  fun `deleteModelOutage fails when externalModelSuiteId is missing`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelOutagesService.deleteModelOutage(
@@ -296,7 +295,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage fails when externalModelLineId is missing`() = runTest {
+  fun `deleteModelOutage fails when externalModelLineId is missing`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelOutagesService.deleteModelOutage(
@@ -313,7 +312,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage fails when externalModelOutageId is missing`() = runTest {
+  fun `deleteModelOutage fails when externalModelOutageId is missing`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelOutagesService.deleteModelOutage(
@@ -330,7 +329,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage fails when Model Outage is not found`() = runTest {
+  fun `deleteModelOutage fails when Model Outage is not found`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelOutagesService.deleteModelOutage(
@@ -348,7 +347,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `deleteModelOutage fails for deleted ModelOutage`() = runTest {
+  fun `deleteModelOutage fails for deleted ModelOutage`() = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -386,7 +385,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages returns all ACTIVE model outages`(): Unit = runTest {
+  fun `streamModelOutages returns all ACTIVE model outages`(): Unit = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -439,7 +438,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages returns all ACTIVE and DELETED model outages`(): Unit = runTest {
+  fun `streamModelOutages returns all ACTIVE and DELETED model outages`(): Unit = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -494,7 +493,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages can get one page at a time`(): Unit = runTest {
+  fun `streamModelOutages can get one page at a time`(): Unit = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -558,7 +557,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages fails for missing after filter fields`(): Unit = runTest {
+  fun `streamModelOutages fails for missing after filter fields`(): Unit = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -616,7 +615,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages fails when limit is less than 0`(): Unit = runTest {
+  fun `streamModelOutages fails when limit is less than 0`(): Unit = runBlocking {
     val modelLine =
       population.createModelLine(modelProvidersService, modelSuitesService, modelLinesService)
 
@@ -639,7 +638,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages filter by outage interval`(): Unit = runTest {
+  fun `streamModelOutages filter by outage interval`(): Unit = runBlocking {
     val modelLine =
       population.createModelLine(
         modelProvidersService,
@@ -704,7 +703,7 @@ abstract class ModelOutagesServiceTest<T : ModelOutagesGrpcKt.ModelOutagesCorout
   }
 
   @Test
-  fun `streamModelOutages fails for missing outage interval filter fields`(): Unit = runTest {
+  fun `streamModelOutages fails for missing outage interval filter fields`(): Unit = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         modelOutagesService.streamModelOutages(

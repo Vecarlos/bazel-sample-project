@@ -21,8 +21,7 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import java.time.Clock
 import kotlin.test.assertFailsWith
-// import kotlinx.coroutines.runTest
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,7 +89,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `createAccount throws NOT_FOUND when creator account not found`() = runTest {
+  fun `createAccount throws NOT_FOUND when creator account not found`() = runBlocking {
     val createAccountRequest = account { externalCreatorAccountId = 1L }
 
     val exception =
@@ -101,7 +100,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `createAccount throws PERMISSION_DENIED when owned measurement consumer not found`() =
-    runTest {
+    runBlocking {
       service.createAccount(account {})
 
       val createAccountRequest = account {
@@ -117,7 +116,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `createAccount throws PERMISSION_DENIED when caller doesn't own measurement consumer`() =
-    runTest {
+    runBlocking {
       val measurementConsumer =
         population.createMeasurementConsumer(dataServices.measurementConsumersService, service)
 
@@ -140,7 +139,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `createAccount returns account when there is no creator`() {
-    val account = runTest { service.createAccount(account {}) }
+    val account = runBlocking { service.createAccount(account {}) }
 
     assertThat(account)
       .isEqualTo(
@@ -153,7 +152,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `createAccount returns account when there is creator`() = runTest {
+  fun `createAccount returns account when there is creator`() = runBlocking {
     service.createAccount(account {})
 
     idGenerator.externalId = ExternalId(FIXED_GENERATED_EXTERNAL_ID_B)
@@ -173,7 +172,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `createAccount returns account with owned MC when creator owns MC`() = runTest {
+  fun `createAccount returns account with owned MC when creator owns MC`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(dataServices.measurementConsumersService, service)
 
@@ -199,7 +198,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `activateAccount throws NOT_FOUND when account not found`() = runTest {
+  fun `activateAccount throws NOT_FOUND when account not found`() = runBlocking {
     val idToken = generateIdToken(service)
     val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -217,7 +216,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `activateAccount throws PERMISSION_DENIED when activation token doesn't match database`() =
-    runTest {
+    runBlocking {
       val idToken = generateIdToken(service)
       val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -237,7 +236,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `activateAccount throws PERMISSION_DENIED when account has already been activated`() =
-    runTest {
+    runBlocking {
       val idToken = generateIdToken(service)
       val openIdConnectIdentity = population.parseIdToken(idToken)
       service.createAccount(account {})
@@ -263,7 +262,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `activateAccount throws INVALID_ARGUMENT when issuer and subject pair already exists`() =
-    runTest {
+    runBlocking {
       val idToken = generateIdToken(service)
       val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -296,7 +295,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `activateAccount returns account when account is activated with open id connect identity`() =
-    runTest {
+    runBlocking {
       val idToken = generateIdToken(service)
       val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -321,7 +320,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
     }
 
   @Test
-  fun `activateAccount returns account when account is activated with owned MC`() = runTest {
+  fun `activateAccount returns account when account is activated with owned MC`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(dataServices.measurementConsumersService, service)
 
@@ -357,7 +356,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `replaceAccountIdentity throws NOT_FOUND when account not found`() = runTest {
+  fun `replaceAccountIdentity throws NOT_FOUND when account not found`() = runBlocking {
     val idToken = generateIdToken(service)
     val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -376,7 +375,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `replaceAccountIdentity throws FAILED_PRECONDITION when account is unactivated`() =
-    runTest {
+    runBlocking {
       val idToken = generateIdToken(service)
       val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -397,7 +396,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
 
   @Test
   fun `replaceAccountIdentity throws INVALID_ARGUMENT when passed-in id token already exists`() =
-    runTest {
+    runBlocking {
       val idToken = generateIdToken(service)
       val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -437,7 +436,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
     }
 
   @Test
-  fun `replaceAccountIdentity returns account with new open id connect identity`() = runTest {
+  fun `replaceAccountIdentity returns account with new open id connect identity`() = runBlocking {
     val idToken = generateIdToken(service)
     val openIdConnectIdentity = population.parseIdToken(idToken)
 
@@ -484,7 +483,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `authenticateAccount throws NOT_FOUND when identity doesn't exist`() = runTest {
+  fun `authenticateAccount throws NOT_FOUND when identity doesn't exist`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         service.authenticateAccount(authenticateAccountRequest {})
@@ -494,7 +493,7 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `authenticateAccount returns the account when the account has been found`() = runTest {
+  fun `authenticateAccount returns the account when the account has been found`() = runBlocking {
     val idToken = generateIdToken(service)
     val openIdConnectIdentity = population.parseIdToken(idToken)
     val createdAccount = service.createAccount(account {})
@@ -515,16 +514,17 @@ abstract class AccountsServiceTest<T : AccountsCoroutineImplBase> {
   }
 
   @Test
-  fun `generateOpenIdRequestParams returns state and nonce`() = runTest {
-    val params =  service.generateOpenIdRequestParams(generateOpenIdRequestParamsRequest {})
-
+  fun `generateOpenIdRequestParams returns state and nonce`() {
+    val params = runBlocking {
+      service.generateOpenIdRequestParams(generateOpenIdRequestParamsRequest {})
+    }
 
     assertThat(params.nonce != 0L)
     assertThat(params.state != 0L)
   }
 
   @Test
-  fun `createMeasurementConsumerCreationToken returns token`() = runTest {
+  fun `createMeasurementConsumerCreationToken returns token`() = runBlocking {
     val createTokenResponse =
       service.createMeasurementConsumerCreationToken(
         createMeasurementConsumerCreationTokenRequest {}

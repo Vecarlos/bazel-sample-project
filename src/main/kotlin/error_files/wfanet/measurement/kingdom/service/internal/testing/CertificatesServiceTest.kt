@@ -26,7 +26,6 @@ import java.time.Instant
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -146,7 +145,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `getCertificate throws INVALID_ARGUMENT when parent not specified`() = runTest {
+  fun `getCertificate throws INVALID_ARGUMENT when parent not specified`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         certificatesService.getCertificate(
@@ -157,7 +156,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `createCertificate throws INVALID_ARGUMENT when parent not specified`() = runTest {
+  fun `createCertificate throws INVALID_ARGUMENT when parent not specified`() = runBlocking {
     val certificate = CERTIFICATE.copy { clearParent() }
 
     val exception =
@@ -179,7 +178,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `getCertificate fails for missing certificates`() = runTest {
+  fun `getCertificate fails for missing certificates`() = runBlocking {
     assertGetFailsWithMissingCertificate { externalDuchyId = DUCHIES[0].externalDuchyId }
 
     val dataProviderId = population.createDataProvider(dataProvidersService).externalDataProviderId
@@ -240,7 +239,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `createCertificate succeeds`() = runTest {
+  fun `createCertificate succeeds`() = runBlocking {
     assertCreateCertificateSucceeds { externalDuchyId = DUCHIES[0].externalDuchyId }
 
     val dataProviderId = population.createDataProvider(dataProvidersService).externalDataProviderId
@@ -285,7 +284,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `getCertificate succeeds`() = runTest {
+  fun `getCertificate succeeds`() = runBlocking {
     assertGetCertificateSucceeds { externalDuchyId = DUCHIES[0].externalDuchyId }
 
     val dataProviderId = population.createDataProvider(dataProvidersService).externalDataProviderId
@@ -303,7 +302,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `streamCertificates returns certificates in order`() = runTest {
+  fun `streamCertificates returns certificates in order`() = runBlocking {
     val now = clock.instant()
     val yesterday = now.minus(Duration.ofDays(1))
     val dataProvider =
@@ -339,7 +338,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `streamCertificates filters by SKID`() = runTest {
+  fun `streamCertificates filters by SKID`() = runBlocking {
     val now = clock.instant()
     val yesterday = now.minus(Duration.ofDays(1))
     val dataProvider =
@@ -377,7 +376,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `streamCertificates filters by after`() = runTest {
+  fun `streamCertificates filters by after`() = runBlocking {
     val now = clock.instant()
     val yesterday = now.minus(Duration.ofDays(1))
     val dataProvider =
@@ -418,7 +417,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `streamCertificates returns Duchy certificates in order`() = runTest {
+  fun `streamCertificates returns Duchy certificates in order`() = runBlocking {
     val now = clock.instant()
     val yesterday = now.minus(Duration.ofDays(1))
     val duchy = DUCHIES.first()
@@ -456,7 +455,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `createCertificate fails due to subjectKeyIdentifier collision`() = runTest {
+  fun `createCertificate fails due to subjectKeyIdentifier collision`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -475,7 +474,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate throws INVALID_ARGUMENT when parent not specified`() = runTest {
+  fun `revokeCertificate throws INVALID_ARGUMENT when parent not specified`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         certificatesService.revokeCertificate(
@@ -486,7 +485,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate fails due to wrong DataProviderId`() = runTest {
+  fun `revokeCertificate fails due to wrong DataProviderId`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -514,7 +513,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate succeeds for DataProviderCertificate`() = runTest {
+  fun `revokeCertificate succeeds for DataProviderCertificate`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -550,7 +549,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate for DataProvider fails pending Measurements`(): Unit = runTest {
+  fun `revokeCertificate for DataProvider fails pending Measurements`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -632,7 +631,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate fails due to wrong MeasurementConsumerId`() = runTest {
+  fun `revokeCertificate fails due to wrong MeasurementConsumerId`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -662,7 +661,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate succeeds for MeasurementConsumerCertificate`() = runTest {
+  fun `revokeCertificate succeeds for MeasurementConsumerCertificate`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -698,7 +697,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate for MeasurementConsumer fails pending Measurements`(): Unit = runTest {
+  fun `revokeCertificate for MeasurementConsumer fails pending Measurements`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -752,7 +751,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate fails due to wrong DuchyId`() = runTest {
+  fun `revokeCertificate fails due to wrong DuchyId`() = runBlocking {
     val certificate =
       certificatesService.createCertificate(
         certificate {
@@ -777,7 +776,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate succeeds for DuchyCertificate`() = runTest {
+  fun `revokeCertificate succeeds for DuchyCertificate`() = runBlocking {
     val externalDuchyId = DUCHIES[0].externalDuchyId
 
     val certificate =
@@ -812,7 +811,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate for Duchy fails pending Measurements`(): Unit = runTest {
+  fun `revokeCertificate for Duchy fails pending Measurements`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val measurementOne =
@@ -879,7 +878,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `revokeCertificate throws exception when requested state illegal`() = runTest {
+  fun `revokeCertificate throws exception when requested state illegal`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -913,7 +912,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold throws INVALID_ARGUMENT when parent not specified`() = runTest {
+  fun `releaseCertificateHold throws INVALID_ARGUMENT when parent not specified`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         certificatesService.releaseCertificateHold(releaseCertificateHoldRequest {})
@@ -922,7 +921,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold fails due to wrong DataProviderId`() = runTest {
+  fun `releaseCertificateHold fails due to wrong DataProviderId`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -951,7 +950,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold fails due to revoked DataProviderCertificate`() = runTest {
+  fun `releaseCertificateHold fails due to revoked DataProviderCertificate`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -988,7 +987,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold succeeds for DataProviderCertificate`() = runTest {
+  fun `releaseCertificateHold succeeds for DataProviderCertificate`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -1032,7 +1031,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold fails due to wrong MeasurementConsumerId`() = runTest {
+  fun `releaseCertificateHold fails due to wrong MeasurementConsumerId`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1064,7 +1063,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
 
   @Test
   fun `releaseCertificateHold fails due to revoked measurementConsumersCertificate`() =
-    runTest {
+    runBlocking {
       val externalMeasurementConsumerId =
         population
           .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1103,7 +1102,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
     }
 
   @Test
-  fun `releaseCertificateHold succeeds for MeasurementConsumerCertificate`() = runTest {
+  fun `releaseCertificateHold succeeds for MeasurementConsumerCertificate`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1149,7 +1148,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold fails due to wrong DuchyId`() = runTest {
+  fun `releaseCertificateHold fails due to wrong DuchyId`() = runBlocking {
     val certificate =
       certificatesService.createCertificate(
         certificate {
@@ -1175,7 +1174,7 @@ abstract class CertificatesServiceTest<T : CertificatesCoroutineImplBase> {
   }
 
   @Test
-  fun `releaseCertificateHold succeeds for DuchyCertificate`() = runTest {
+  fun `releaseCertificateHold succeeds for DuchyCertificate`() = runBlocking {
     val externalDuchyId = DUCHIES[0].externalDuchyId
 
     val certificate =
