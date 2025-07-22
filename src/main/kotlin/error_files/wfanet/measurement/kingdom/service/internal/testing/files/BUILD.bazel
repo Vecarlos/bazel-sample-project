@@ -33,5 +33,7 @@ kt_jvm_library(
         "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity/testing",
         "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/openid:request_uri",
         "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
+
+        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines/test:test",
     ],
 )

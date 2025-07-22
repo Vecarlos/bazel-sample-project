@@ -34,14 +34,14 @@ import org.wfanet.measurement.internal.kingdom.getExchangeStepRequest
 private const val EXTERNAL_RECURRING_EXCHANGE_ID = 222L
 private const val STEP_INDEX = 1
 
-internal val EXCHANGE_DATE = LocalDate.now(ZoneOffset.UTC).toProtoDate()
+ val EXCHANGE_DATE = LocalDate.now(ZoneOffset.UTC).toProtoDate()
 
-internal val EXCHANGE_STEP_RESPONSE_IGNORED_FIELDS: FieldScope =
+ val EXCHANGE_STEP_RESPONSE_IGNORED_FIELDS: FieldScope =
   FieldScopes.allowingFieldDescriptors(
     ExchangeStep.getDescriptor().findFieldByNumber(ExchangeStep.UPDATE_TIME_FIELD_NUMBER)
   )
 
-internal val EXCHANGE_STEP_ATTEMPT_RESPONSE_IGNORED_FIELDS: FieldScope =
+ val EXCHANGE_STEP_ATTEMPT_RESPONSE_IGNORED_FIELDS: FieldScope =
   FieldScopes.allowingFieldDescriptors(
     ExchangeStepAttemptDetails.getDescriptor()
       .findFieldByNumber(ExchangeStepAttemptDetails.START_TIME_FIELD_NUMBER),
@@ -51,7 +51,7 @@ internal val EXCHANGE_STEP_ATTEMPT_RESPONSE_IGNORED_FIELDS: FieldScope =
       .findFieldByNumber(ExchangeStepAttemptDetails.DEBUG_LOG_ENTRIES_FIELD_NUMBER),
   )
 
-internal suspend fun ExchangesCoroutineImplBase.assertTestExchangeHasState(
+ suspend fun ExchangesCoroutineImplBase.assertTestExchangeHasState(
   exchangeState: Exchange.State
 ) {
   assertThat(
@@ -72,7 +72,7 @@ internal suspend fun ExchangesCoroutineImplBase.assertTestExchangeHasState(
     )
 }
 
-internal suspend fun ExchangeStepsCoroutineImplBase.assertTestExchangeStepHasState(
+ suspend fun ExchangeStepsCoroutineImplBase.assertTestExchangeStepHasState(
   exchangeStepState: ExchangeStep.State,
   exchangeStepIndex: Int = STEP_INDEX,
 ) {

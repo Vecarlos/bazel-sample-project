@@ -27,9 +27,7 @@ import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.toList
-// import kotlinx.coroutines.runTest
-import kotlinx.coroutines.test.runTest
-
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -117,7 +115,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `getEventGroup throws INVALID_ARGUMENT when parent ID omitted`() = runTest {
+  fun `getEventGroup throws INVALID_ARGUMENT when parent ID omitted`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         eventGroupsService.getEventGroup(
@@ -130,7 +128,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `getEventGroup throws NOT_FOUND when EventGroup not found`(): Unit = runTest {
+  fun `getEventGroup throws NOT_FOUND when EventGroup not found`(): Unit = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         eventGroupsService.getEventGroup(
@@ -152,7 +150,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteEventGroup fails for missing EventGroup`() = runTest {
+  fun `deleteEventGroup fails for missing EventGroup`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         eventGroupsService.deleteEventGroup(
@@ -168,7 +166,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `createEventGroup fails for missing data provider`() = runTest {
+  fun `createEventGroup fails for missing data provider`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -191,7 +189,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `createEventGroup fails for missing measurement consumer`() = runTest {
+  fun `createEventGroup fails for missing measurement consumer`() = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -212,7 +210,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `createEventGroup returns created EventGroup`() = runTest {
+  fun `createEventGroup returns created EventGroup`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val externalMeasurementConsumerId = measurementConsumer.externalMeasurementConsumerId
@@ -253,7 +251,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
 
   @Test
   fun `createEventGroup returns created EventGroup with data availability interval`() =
-    runTest {
+    runBlocking {
       val measurementConsumer: MeasurementConsumer =
         population.createMeasurementConsumer(measurementConsumersService, accountsService)
       val dataProvider: DataProvider = population.createDataProvider(dataProvidersService)
@@ -284,7 +282,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
     }
 
   @Test
-  fun `createEventGroup returns existing EventGroup for same request ID`() = runTest {
+  fun `createEventGroup returns existing EventGroup for same request ID`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -303,7 +301,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `createEventGroup creates new EventGroup for different request ID`(): Unit = runTest {
+  fun `createEventGroup creates new EventGroup for different request ID`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -323,7 +321,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `updateEventGroup fails for missing EventGroup`() = runTest {
+  fun `updateEventGroup fails for missing EventGroup`() = runBlocking {
     val exception =
       assertFailsWith<StatusRuntimeException> {
         eventGroupsService.updateEventGroup(
@@ -336,7 +334,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `updateEventGroup fails for missing data provider`() = runTest {
+  fun `updateEventGroup fails for missing data provider`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -369,7 +367,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `updateEventGroup fails for missing measurement consumer`() = runTest {
+  fun `updateEventGroup fails for missing measurement consumer`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -402,7 +400,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `updateEventGroup succeeds`(): Unit = runTest {
+  fun `updateEventGroup succeeds`(): Unit = runBlocking {
     val now: Instant = testClock.instant()
     val externalMeasurementConsumerId =
       population
@@ -455,7 +453,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `updateEventGroup succeeds when clearing non-required fields`(): Unit = runTest {
+  fun `updateEventGroup succeeds when clearing non-required fields`(): Unit = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
 
@@ -491,7 +489,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `getEventGroup returns EventGroup by MeasurementConsumer`() = runTest {
+  fun `getEventGroup returns EventGroup by MeasurementConsumer`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -520,7 +518,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups returns all eventGroups in order`(): Unit = runTest {
+  fun `streamEventGroups returns all eventGroups in order`(): Unit = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
     val eventGroup1 =
@@ -568,7 +566,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups can get one page at a time`(): Unit = runTest {
+  fun `streamEventGroups can get one page at a time`(): Unit = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -639,7 +637,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects limit`(): Unit = runTest {
+  fun `streamEventGroups respects limit`(): Unit = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -683,7 +681,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects externalMeasurementConsumerIdIn`(): Unit = runTest {
+  fun `streamEventGroups respects externalMeasurementConsumerIdIn`(): Unit = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -730,7 +728,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects metadata search query on campaign name`(): Unit = runTest {
+  fun `streamEventGroups respects metadata search query on campaign name`(): Unit = runBlocking {
     val now: Instant = testClock.instant()
     val measurementConsumer: MeasurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -764,7 +762,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects metadata search query on brand name`(): Unit = runTest {
+  fun `streamEventGroups respects metadata search query on brand name`(): Unit = runBlocking {
     val now: Instant = testClock.instant()
     val measurementConsumer: MeasurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -798,7 +796,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects media types filter`(): Unit = runTest {
+  fun `streamEventGroups respects media types filter`(): Unit = runBlocking {
     val now: Instant = testClock.instant()
     val measurementConsumer: MeasurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -831,7 +829,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects data availability interval filter`(): Unit = runTest {
+  fun `streamEventGroups respects data availability interval filter`(): Unit = runBlocking {
     val now: Instant = testClock.instant()
     val measurementConsumer: MeasurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -867,7 +865,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `streamEventGroups respects orderBy`(): Unit = runTest {
+  fun `streamEventGroups respects orderBy`(): Unit = runBlocking {
     val now: Instant = testClock.instant()
     val measurementConsumer: MeasurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1000,7 +998,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteEventGroup throws NOT_FOUND for missing DataProvider`() = runTest {
+  fun `deleteEventGroup throws NOT_FOUND for missing DataProvider`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1034,7 +1032,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteEventGroup transitions EventGroup to DELETED state`() = runTest {
+  fun `deleteEventGroup transitions EventGroup to DELETED state`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val externalDataProviderId =
@@ -1077,7 +1075,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `deleteEventGroup fails for deleted EventGroup`() = runTest {
+  fun `deleteEventGroup fails for deleted EventGroup`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1119,7 +1117,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `updateEventGroup fails for deleted EventGroup`() = runTest {
+  fun `updateEventGroup fails for deleted EventGroup`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1163,7 +1161,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
   }
 
   @Test
-  fun `getEventGroup succeeds for deleted EventGroup`() = runTest {
+  fun `getEventGroup succeeds for deleted EventGroup`() = runBlocking {
     val externalMeasurementConsumerId =
       population
         .createMeasurementConsumer(measurementConsumersService, accountsService)
@@ -1200,7 +1198,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
 
   @Test
   fun `streamEventGroups succeeds for deleted EventGroups when is_deleted is true`(): Unit =
-    runTest {
+    runBlocking {
       val externalDataProviderId =
         population.createDataProvider(dataProvidersService).externalDataProviderId
 
@@ -1264,7 +1262,7 @@ abstract class EventGroupsServiceTest<T : EventGroupsCoroutineImplBase> {
     }
 
   @Test
-  fun `streamEventGroups respects show_deleted is false`(): Unit = runTest {
+  fun `streamEventGroups respects show_deleted is false`(): Unit = runBlocking {
     val externalDataProviderId =
       population.createDataProvider(dataProvidersService).externalDataProviderId
 
