@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4
 
 
 
-private const val RANDOM_SEED = 1
-@RunWith(JUnit4::class)
-abstract class ComputationParticipantsServiceTest {
-}
+// private const val RANDOM_SEED = 1
+// @RunWith(JUnit4::class)
+// abstract class ComputationParticipantsServiceTest {
+// }
