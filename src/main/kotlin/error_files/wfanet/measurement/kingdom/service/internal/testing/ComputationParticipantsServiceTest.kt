@@ -15,5 +15,5 @@
 package org.wfanet.measurement.kingdom.service.internal.testing
 
 private const val RANDOM_SEED = 1
-// abstract class ComputationParticipantsServiceTest {
-// }
+abstract class ComputationParticipantsServiceTest {
+}
