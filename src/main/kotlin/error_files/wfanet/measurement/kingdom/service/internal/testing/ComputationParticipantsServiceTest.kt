@@ -20,11 +20,10 @@ package org.wfanet.measurement.kingdom.service.internal.testing
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// import org.wfanet.measurement.internal.kingdom.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineImplBase
 
 
 
-// private const val RANDOM_SEED = 1
-// @RunWith(JUnit4::class)
-// abstract class ComputationParticipantsServiceTest {
-// }
+private const val RANDOM_SEED = 1
+@RunWith(JUnit4::class)
+abstract class ComputationParticipantsServiceTest {
+}
