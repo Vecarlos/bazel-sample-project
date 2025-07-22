@@ -28,8 +28,8 @@ abstract class DataProvidersServiceTest{
   fun `test_1`() {
    
     // runBlocking {}
-    runBlocking {}
-    runBlocking {}
+    // runBlocking {}
+    // runBlocking {}
     runBlocking {}
     runBlocking {}
     runBlocking {}
