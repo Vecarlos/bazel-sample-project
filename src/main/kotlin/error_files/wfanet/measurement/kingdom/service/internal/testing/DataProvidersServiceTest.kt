@@ -26,7 +26,27 @@ abstract class DataProvidersServiceTest{
 
   @Test
   fun `test_1`() {
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
 
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
+    runBlocking {}
 
     runBlocking {}
     runBlocking {}
