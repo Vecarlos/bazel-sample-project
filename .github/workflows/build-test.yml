@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request:    
     branches: ["**"]
   workflow_dispatch:
 
@@ -82,18 +82,42 @@ jobs:
 
       # - name: Build
       #   run: bazel build --worker_quit_after_build //src/main/kotlin/error_files/...
+
       # - name: test
       #   run: bazel test //src/test/kotlin/error_files/... || true
-      - name: Run tests
-        run: |
-          bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --combined_report=lcov --instrumentation_filter="//src/main/.*,-@.*" //src/test/... || true
-        # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*" //src/test/... || true
-        # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*" //src/test/kotlin/error_files/...
-        # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*,-src/test/kotlin/org/wfanet/panelmatch/common/beam:,-src/main/kotlin/org/wfanet/panelmatch/common/beam:,-src/main/kotlin/org/wfanet/measurement/kingdom/batch:,-src/main/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner:,-src/main/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha:,-src/test/kotlin/org/wfanet/panelmatch/client/eventpreprocessing:,-src/main/kotlin/org/wfanet/panelmatch/client/privatemembership:,-src/test/kotlin/org/wfanet/panelmatch/client/eventpreprocessing/testing:,-src/main/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner:,-src/main/kotlin/org/wfanet/measurement/dataprovider:" --test_tag_filters=-privatemembership -- //src/test/kotlin/org/... -//src/test/kotlin/org/wfanet/panelmatch/client/privatemembership/... -//src/test/kotlin/org/wfanet/panelmatch/integration/... -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/... -//src/test/kotlin/org/wfanet/measurement/loadtest/dataprovider/... -//src/test/kotlin/org/wfanet/measurement/integration/k8s/... -//src/test/kotlin/org/wfanet/panelmatch/client/deploy/... -//src/test/kotlin/org/wfanet/panelmatch/client/exchangetasks/... -//src/test/kotlin/org/wfanet/panelmatch/client/launcher/... -//src/test/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/reporting/deploy/v2/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/api/v2alpha/tools/... -//src/main/kotlin/org/wfanet/measurement/api/v2alpha/tools/... -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/duchy/mill/shareshuffle/... -//src/test/kotlin/org/wfanet/measurement/kingdom/batch/...
-        # bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
+
+      # - name: Run tests
+      #   run: |
+      #     bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --combined_report=lcov --instrumentation_filter="//src/main/.*,-@.*" //src/test/... || true
+      #   # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*" //src/test/... || true
+      #   # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*" //src/test/kotlin/error_files/...
+      #   # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*,-src/test/kotlin/org/wfanet/panelmatch/common/beam:,-src/main/kotlin/org/wfanet/panelmatch/common/beam:,-src/main/kotlin/org/wfanet/measurement/kingdom/batch:,-src/main/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner:,-src/main/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha:,-src/test/kotlin/org/wfanet/panelmatch/client/eventpreprocessing:,-src/main/kotlin/org/wfanet/panelmatch/client/privatemembership:,-src/test/kotlin/org/wfanet/panelmatch/client/eventpreprocessing/testing:,-src/main/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner:,-src/main/kotlin/org/wfanet/measurement/dataprovider:" --test_tag_filters=-privatemembership -- //src/test/kotlin/org/... -//src/test/kotlin/org/wfanet/panelmatch/client/privatemembership/... -//src/test/kotlin/org/wfanet/panelmatch/integration/... -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/... -//src/test/kotlin/org/wfanet/measurement/loadtest/dataprovider/... -//src/test/kotlin/org/wfanet/measurement/integration/k8s/... -//src/test/kotlin/org/wfanet/panelmatch/client/deploy/... -//src/test/kotlin/org/wfanet/panelmatch/client/exchangetasks/... -//src/test/kotlin/org/wfanet/panelmatch/client/launcher/... -//src/test/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/reporting/deploy/v2/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/api/v2alpha/tools/... -//src/main/kotlin/org/wfanet/measurement/api/v2alpha/tools/... -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/duchy/mill/shareshuffle/... -//src/test/kotlin/org/wfanet/measurement/kingdom/batch/...
+      #   # bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
+
+      - name: Run tests with coverage
+        id: run-coverage
+        env:
+          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
+        run: >
+          bazel coverage 
+          --experimental_split_coverage_postprocessing 
+          --experimental_fetch_all_coverage_outputs 
+          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+          //src/test/kotlin/... 
+          //src/test/python/... 
+          //src/test/cc/...
 
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+
+      - name: cat coverage
+        run: |
+          cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+
+      - name: Move coverage file
+        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+
+
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -120,7 +144,7 @@ jobs:
       #     --test_output=streamed
 
       # - name: Delete Kubernetes Resources
-      #   continue-on-error: true
+      #   continue-on-error: true 
       #   run: |
       #     kubectl delete all --namespace=default --all --cascade=foreground --wait
       #     kubectl delete networkpolicies --namespace=default --all
