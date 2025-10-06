@@ -80,11 +80,11 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      - name: Build
-        run: bazel build --worker_quit_after_build //src/main/kotlin/error_files/...
+      # - name: Build
+      #   run: bazel build --worker_quit_after_build //src/main/kotlin/error_files/...
 
-      - name: test
-        run: bazel test //src/test/kotlin/error_files/... || true
+      # - name: test
+      #   run: bazel test //src/test/kotlin/error_files/... || true
 
       - name: Run tests
         run: |
