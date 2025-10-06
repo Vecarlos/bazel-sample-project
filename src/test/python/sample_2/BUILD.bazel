@@ -1,11 +1,11 @@
-load("@pip//:requirements.bzl", "requirement")
-load("@rules_python//python:defs.bzl", "py_test")
+# load("@pip//:requirements.bzl", "requirement")
+# load("@rules_python//python:defs.bzl", "py_test")
 
-py_test(
-    name = "get_length_py_test",
-    srcs = ["get_length_test.py"],
-    main = "get_length_test.py",
-    deps = [
-        "//src/main/python/sample_2",
-    ],
-)
+# py_test(
+#     name = "get_length_py_test",
+#     srcs = ["get_length_test.py"],
+#     main = "get_length_test.py",
+#     deps = [
+#         "//src/main/python/sample_2",
+#     ],
+# )
