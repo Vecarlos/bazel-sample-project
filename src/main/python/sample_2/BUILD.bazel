@@ -1,8 +1,8 @@
-load("@rules_python//python:defs.bzl", "py_library")
+# load("@rules_python//python:defs.bzl", "py_library")
 
-py_library(
-    name = "sample_2",
-    srcs = glob(["*.py"]),
-    imports = ["../"],
-    visibility = ["//visibility:public"],
-)
+# py_library(
+#     name = "sample_2",
+#     srcs = glob(["*.py"]),
+#     imports = ["../"],
+#     visibility = ["//visibility:public"],
+# )
