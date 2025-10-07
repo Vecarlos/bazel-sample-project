@@ -19,6 +19,6 @@ class SumEvaluatorTest {
   @Test
   fun `when a = 101, then return 202`() {
     val result = evaluator.evaluate(101, 2)
-    assertEquals(101, result)
+    assertEquals(202, result)
   }
 }
