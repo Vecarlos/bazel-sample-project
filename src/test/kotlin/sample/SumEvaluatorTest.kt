@@ -15,4 +15,10 @@ class SumEvaluatorTest {
     val result = evaluator.evaluate(1, 2)
     assertEquals(3, result)
   }
+
+  @Test
+  fun `when a = 101, then return 202`() {
+    val result = evaluator.evaluate(101, 2)
+    assertEquals(101, result)
+  }
 }
