@@ -16,6 +16,8 @@ syntax = "proto3";
 
 package wfa.measurement.reporting.postprocessing.v2alpha;
 
+import "src/main/proto/wfa/measurement/reporting/postprocessing/v2alpha/report_summary.proto";
+
 option java_package = "org.wfanet.measurement.reporting.postprocessing.v2alpha";
 option java_multiple_files = true;
 option java_outer_classname = "ReportPostProcessorResultProto";
@@ -46,6 +48,9 @@ message ReportPostProcessorStatus {
     // OSQP solver converged to a solution, but it did not meet the required
     // tolerance.
     PARTIAL_SOLUTION_FOUND_WITH_OSQP = 5;
+
+    // The process crashed or terminated unexpectedly due to an internal error.
+    INTERNAL_ERROR = 6;
   }
 
   // The final status code indicating the overall outcome of the solver stage
@@ -117,10 +122,21 @@ message ReportQuality {
 // The result message encapsulating the entire outcome of the post-processing
 // pipeline for a single report.
 message ReportPostProcessorResult {
+  // Stores the pre-corrected report summary.
+  ReportSummary pre_correction_report_summary = 5;
+
   // Stores the corrected value for each measurement, identified by its unique
-  // name. This map is populated if and only if the solver found a solution
+  // name. The names in this map must correspond to names found within the
+  // pre_correction_report_summary. The corrected report can be computed from
+  // the pre_correction_report_summary and the updated_measurements map. Note
+  // that this map is populated if and only if the solver found a solution
   // (i.e. when the status.status_code is not SOLUTION_NOT_FOUND).
   map<string, int64> updated_measurements = 1;
+
+  // Contains the measurements that are not corrected by the report post
+  // post processor. These measurements may be inconsistent. This field is only
+  // set when the solution or partial solution exists.
+  repeated string uncorrected_measurements = 6;
 
   // Contains the detailed status and metrics from the QP solver step. The
   // status indicates if the report post processor found a solution, a partial
@@ -137,4 +153,27 @@ message ReportPostProcessorResult {
   // the corrected measurements from the 'updated_measurements' map (if a
   // solution was found).
   ReportQuality post_correction_quality = 4;
+
+  // If an unhandled exception occurred during processing, this field contains
+  // the error message.
+  string error_message = 7;
+
+  // Contains details about a metric where the correction applied was
+  // statistically out of bound (e.g. |corrected_value - value| > 7*sigma).
+  message LargeCorrection {
+    // The unique name of the metric title that was corrected.
+    string metric_title = 1;
+
+    // The original value of the metric before correction.
+    int64 original_value = 2;
+
+    // The new value of the metric after correction.
+    int64 corrected_value = 3;
+
+    // The standard deviation of the metric.
+    double sigma = 4;
+  }
+
+  // Contains details about all metrics with large correction.
+  repeated LargeCorrection large_corrections = 8;
 }

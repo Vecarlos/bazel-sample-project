@@ -1,0 +1,22 @@
+load("@pip//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_test")
+
+py_test(
+    name = "report_test",
+    srcs = ["report_test.py"],
+    deps = [
+        "//src/main/python/wfa/measurement/reporting/postprocessing/report",
+        "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
+        requirement("protobuf"),
+    ],
+)
+
+py_test(
+    name = "report_mc_api_2_test",
+    srcs = ["report_mc_api_2_test.py"],
+    deps = [
+        "//src/main/python/wfa/measurement/reporting/postprocessing/report",
+        "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
+        requirement("protobuf"),
+    ],
+)

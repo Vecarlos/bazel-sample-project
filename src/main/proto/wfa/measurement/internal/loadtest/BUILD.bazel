@@ -1,0 +1,14 @@
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+proto_library(
+    name = "test_result_proto",
+    srcs = ["test_result.proto"],
+)
+
+kt_jvm_proto_library(
+    name = "test_result_kt_jvm_proto",
+    deps = [":test_result_proto"],
+)

@@ -1,0 +1,202 @@
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load(
+    "@wfa_rules_kotlin_jvm//kotlin:defs.bzl",
+    "kt_jvm_grpc_proto_library",
+    "kt_jvm_proto_library",
+)
+
+package(default_visibility = ["//:__subpackages__"])
+
+IMPORT_PREFIX = "/src/main/proto"
+
+proto_library(
+    name = "computation_blob_dependency_proto",
+    srcs = ["computation_blob_dependency.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "computation_blob_dependency_kt_jvm_proto",
+    deps = [":computation_blob_dependency_proto"],
+)
+
+proto_library(
+    name = "computation_protocols_proto",
+    srcs = ["computation_protocols.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:honest_majority_share_shuffle_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:liquid_legions_v2_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:reach_only_liquid_legions_v2_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:trus_tee_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_protocols_kt_jvm_proto",
+    deps = [":computation_protocols_proto"],
+)
+
+proto_library(
+    name = "computation_details_proto",
+    srcs = ["computation_details.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":crypto_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:honest_majority_share_shuffle_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:liquid_legions_v2_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:reach_only_liquid_legions_v2_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:trus_tee_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_details_kt_jvm_proto",
+    deps = [":computation_details_proto"],
+)
+
+proto_library(
+    name = "computations_service_proto",
+    srcs = ["computations_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_details_proto",
+        ":computation_protocols_proto",
+        ":computation_token_proto",
+        ":requisition_details_proto",
+        "@com_google_protobuf//:duration_proto",
+        "@com_google_protobuf//:empty_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "computations_service_kt_jvm_grpc_proto",
+    deps = [":computations_service_proto"],
+)
+
+proto_library(
+    name = "computation_token_proto",
+    srcs = ["computation_token.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_blob_dependency_proto",
+        ":computation_details_proto",
+        ":computation_protocols_proto",
+        ":requisition_details_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_token_kt_jvm_proto",
+    deps = [":computation_token_proto"],
+)
+
+proto_library(
+    name = "requisition_details_proto",
+    srcs = ["requisition_details.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "requisition_details_kt_jvm_proto",
+    deps = [":requisition_details_proto"],
+)
+
+proto_library(
+    name = "computation_stats_service_proto",
+    srcs = ["computation_stats_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [":computation_protocols_proto"],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "computation_stats_service_kt_jvm_grpc_proto",
+    deps = [":computation_stats_service_proto"],
+)
+
+proto_library(
+    name = "continuation_tokens_service_proto",
+    srcs = ["continuation_tokens_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_grpc_proto_library(
+    name = "continuation_tokens_service_kt_jvm_grpc_proto",
+    deps = [":continuation_tokens_service_proto"],
+)
+
+proto_library(
+    name = "async_computation_control_service_proto",
+    srcs = ["async_computation_control_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_protocols_proto",
+        ":computation_token_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "async_computation_control_service_kt_jvm_grpc_proto",
+    deps = [":async_computation_control_service_proto"],
+)
+
+proto_library(
+    name = "crypto_proto",
+    srcs = ["crypto.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "crypto_kt_jvm_proto",
+    deps = [":crypto_proto"],
+)
+
+cc_proto_library(
+    name = "crypto_cc_proto",
+    deps = [":crypto_proto"],
+)
+
+proto_library(
+    name = "differential_privacy_proto",
+    srcs = ["differential_privacy.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "differential_privacy_kt_jvm_proto",
+    deps = [":differential_privacy_proto"],
+)
+
+cc_proto_library(
+    name = "differential_privacy_cc_proto",
+    deps = [":differential_privacy_proto"],
+)
+
+proto_library(
+    name = "error_code_proto",
+    srcs = ["error_code.proto"],
+)
+
+kt_jvm_proto_library(
+    name = "error_code_kt_jvm_proto",
+    deps = [":error_code_proto"],
+)
+
+proto_library(
+    name = "noise_mechanism_proto",
+    srcs = ["noise_mechanism.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "noise_mechanism_kt_jvm_proto",
+    deps = [":noise_mechanism_proto"],
+)
+
+cc_proto_library(
+    name = "noise_mechanism_cc_proto",
+    deps = [":noise_mechanism_proto"],
+)
