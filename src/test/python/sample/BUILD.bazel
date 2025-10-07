@@ -10,14 +10,14 @@ py_test(
     ],
 )
 
-# py_test(
-#     name = "sum_evaluator_py_test",
-#     srcs = ["sum_evaluator_test.py"],
-#     main = "sum_evaluator_test.py",
-#     deps = [
-#         "//src/main/python/sample",
-#     ],
-# )
+py_test(
+    name = "sum_evaluator_py_test",
+    srcs = ["sum_evaluator_test.py"],
+    main = "sum_evaluator_test.py",
+    deps = [
+        "//src/main/python/sample",
+    ],
+)
 
 py_test(
     name = "manage_users_py_test",
