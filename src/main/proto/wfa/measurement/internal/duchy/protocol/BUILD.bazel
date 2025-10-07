@@ -1,0 +1,190 @@
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+IMPORT_PREFIX = "/src/main/proto"
+
+proto_library(
+    name = "liquid_legions_v2_noise_config_proto",
+    srcs = ["liquid_legions_v2_noise_config.proto"],
+    strip_import_prefix = "/src/main/proto",
+    deps = [
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "liquid_legions_v2_noise_config_cc_proto",
+    deps = [":liquid_legions_v2_noise_config_proto"],
+)
+
+kt_jvm_proto_library(
+    name = "liquid_legions_v2_noise_config_kt_jvm_proto",
+    deps = [":liquid_legions_v2_noise_config_proto"],
+)
+
+proto_library(
+    name = "liquid_legions_v2_encryption_methods_proto",
+    srcs = ["liquid_legions_v2_encryption_methods.proto"],
+    strip_import_prefix = "/src/main/proto",
+    deps = [
+        ":liquid_legions_sketch_parameter_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:crypto_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:liquid_legions_v2_noise_config_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "liquid_legions_v2_encryption_methods_cc_proto",
+    deps = [":liquid_legions_v2_encryption_methods_proto"],
+)
+
+kt_jvm_proto_library(
+    name = "liquid_legions_v2_encryption_methods_kt_jvm_proto",
+    deps = [":liquid_legions_v2_encryption_methods_proto"],
+)
+
+proto_library(
+    name = "liquid_legions_sketch_parameter_proto",
+    srcs = ["liquid_legions_sketch_parameter.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "liquid_legions_sketch_parameter_kt_jvm_proto",
+    deps = [":liquid_legions_sketch_parameter_proto"],
+)
+
+proto_library(
+    name = "liquid_legions_v2_proto",
+    srcs = ["liquid_legions_sketch_aggregation_v2.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":liquid_legions_sketch_parameter_proto",
+        ":liquid_legions_v2_noise_config_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:crypto_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/config:protocols_setup_config_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "liquid_legions_v2_kt_jvm_proto",
+    deps = [":liquid_legions_v2_proto"],
+)
+
+proto_library(
+    name = "reach_only_liquid_legions_v2_encryption_methods_proto",
+    srcs = ["reach_only_liquid_legions_v2_encryption_methods.proto"],
+    strip_import_prefix = "/src/main/proto",
+    deps = [
+        ":liquid_legions_sketch_parameter_proto",
+        ":liquid_legions_v2_encryption_methods_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:crypto_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/protocol:liquid_legions_v2_noise_config_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "reach_only_liquid_legions_v2_encryption_methods_cc_proto",
+    deps = [":reach_only_liquid_legions_v2_encryption_methods_proto"],
+)
+
+kt_jvm_proto_library(
+    name = "reach_only_liquid_legions_v2_encryption_methods_kt_jvm_proto",
+    deps = [":reach_only_liquid_legions_v2_encryption_methods_proto"],
+)
+
+proto_library(
+    name = "reach_only_liquid_legions_v2_proto",
+    srcs = ["reach_only_liquid_legions_sketch_aggregation_v2.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":liquid_legions_sketch_parameter_proto",
+        ":liquid_legions_v2_noise_config_proto",
+        ":liquid_legions_v2_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:crypto_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/config:protocols_setup_config_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "reach_only_liquid_legions_v2_kt_jvm_proto",
+    deps = [":reach_only_liquid_legions_v2_proto"],
+)
+
+proto_library(
+    name = "share_shuffle_frequency_vector_params_proto",
+    srcs = ["share_shuffle_frequency_vector_params.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "share_shuffle_frequency_vector_params_kt_jvm_proto",
+    deps = [":share_shuffle_frequency_vector_params_proto"],
+)
+
+proto_library(
+    name = "honest_majority_share_shuffle_proto",
+    srcs = ["honest_majority_share_shuffle.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":share_shuffle_frequency_vector_params_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:crypto_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/config:protocols_setup_config_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "honest_majority_share_shuffle_kt_jvm_proto",
+    deps = [":honest_majority_share_shuffle_proto"],
+)
+
+proto_library(
+    name = "honest_majority_share_shuffle_methods_proto",
+    srcs = ["honest_majority_share_shuffle_methods.proto"],
+    strip_import_prefix = "/src/main/proto",
+    deps = [
+        ":share_shuffle_frequency_vector_params_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+        "@com_google_protobuf//:duration_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "honest_majority_share_shuffle_methods_cc_proto",
+    deps = [":honest_majority_share_shuffle_methods_proto"],
+)
+
+kt_jvm_proto_library(
+    name = "honest_majority_share_shuffle_methods_kt_jvm_proto",
+    deps = [":honest_majority_share_shuffle_methods_proto"],
+)
+
+proto_library(
+    name = "trus_tee_proto",
+    srcs = ["trus_tee.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "//src/main/proto/wfa/measurement/internal/duchy:differential_privacy_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy:noise_mechanism_proto",
+        "//src/main/proto/wfa/measurement/internal/duchy/config:protocols_setup_config_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "trus_tee_kt_jvm_proto",
+    deps = [":trus_tee_proto"],
+)
