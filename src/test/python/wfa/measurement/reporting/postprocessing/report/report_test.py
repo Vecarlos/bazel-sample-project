@@ -3241,7 +3241,7 @@ class TestReport(unittest.TestCase):
 #         cumulative_inconsistency_allowed_edp_combinations={},
 #     )
 
-#     corrected, report_post_processor_result = report.get_corrected_report()
+    # corrected, report_post_processor_result = report.get_corrected_report()
 
 #     # The corrected report should be consistent:
 #     # a) Time series measurements form a non-decreasing sequences.
