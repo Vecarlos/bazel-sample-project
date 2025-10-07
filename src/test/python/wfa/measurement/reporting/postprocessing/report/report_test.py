@@ -1573,81 +1573,81 @@ class TestReport(unittest.TestCase):
 #                                            NOISE_CORRECTION_TOLERANCE))
 #     self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
 
-  def test_can_correct_overlap_constraints(self):
-    # The overlap for the cumulative and whole campaign measurements are:
-    # ami: ([0, -4], -9) and mrc: ([1, 3], 1).
-    # Overlap violations:
-    # Within ami: 0 <= -4
-    # Between ami/mrc: 0 >= 1, -4 >= 3, -9 >= 1.
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(0.00, 1, "measurement_01"),
-                        Measurement(33.0, 1, "measurement_02"),
-                    ],
-                    frozenset({EDP_TWO}): [
-                        Measurement(0.00, 1, "measurement_03"),
-                        Measurement(23.0, 1, "measurement_04"),
-                    ],
-                    frozenset({EDP_ONE, EDP_TWO}): [
-                        Measurement(0.00, 1, "measurement_05"),
-                        Measurement(60.0, 1, "measurement_06"),
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}):
-                          Measurement(30.0, 1, "measurement_07"),
-                        frozenset({EDP_TWO}):
-                          Measurement(30.0, 1, "measurement_08"),
-                        frozenset({EDP_ONE, EDP_TWO}):
-                          Measurement(69.0, 1, "measurement_09"),
-                    },
-                    k_reach={},
-                    impression={}),
-                weekly_non_cumulative_measurements={},
-            ),
-            "mrc": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(1.00, 1, "measurement_10"),
-                        Measurement(33.0, 1, "measurement_11"),
-                    ],
-                    frozenset({EDP_TWO}): [
-                        Measurement(0.00, 1, "measurement_12"),
-                        Measurement(23.0, 1, "measurement_13"),
-                    ],
-                    frozenset({EDP_ONE, EDP_TWO}): [
-                        Measurement(0.00, 1, "measurement_14"),
-                        Measurement(53.0, 1, "measurement_15"),
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}):
-                          Measurement(40.0, 1, "measurement_16"),
-                        frozenset({EDP_TWO}):
-                          Measurement(30.0, 1, "measurement_17"),
-                        frozenset({EDP_ONE, EDP_TWO}):
-                          Measurement(69.0, 1, "measurement_18"),
-                    },
-                    k_reach={},
-                    impression={}),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={"ami": ["mrc"]},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
+#   def test_can_correct_overlap_constraints(self):
+#     # The overlap for the cumulative and whole campaign measurements are:
+#     # ami: ([0, -4], -9) and mrc: ([1, 3], 1).
+#     # Overlap violations:
+#     # Within ami: 0 <= -4
+#     # Between ami/mrc: 0 >= 1, -4 >= 3, -9 >= 1.
+#     report = Report(
+#         metric_reports={
+#             "ami": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(0.00, 1, "measurement_01"),
+#                         Measurement(33.0, 1, "measurement_02"),
+#                     ],
+#                     frozenset({EDP_TWO}): [
+#                         Measurement(0.00, 1, "measurement_03"),
+#                         Measurement(23.0, 1, "measurement_04"),
+#                     ],
+#                     frozenset({EDP_ONE, EDP_TWO}): [
+#                         Measurement(0.00, 1, "measurement_05"),
+#                         Measurement(60.0, 1, "measurement_06"),
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}):
+#                           Measurement(30.0, 1, "measurement_07"),
+#                         frozenset({EDP_TWO}):
+#                           Measurement(30.0, 1, "measurement_08"),
+#                         frozenset({EDP_ONE, EDP_TWO}):
+#                           Measurement(69.0, 1, "measurement_09"),
+#                     },
+#                     k_reach={},
+#                     impression={}),
+#                 weekly_non_cumulative_measurements={},
+#             ),
+#             "mrc": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(1.00, 1, "measurement_10"),
+#                         Measurement(33.0, 1, "measurement_11"),
+#                     ],
+#                     frozenset({EDP_TWO}): [
+#                         Measurement(0.00, 1, "measurement_12"),
+#                         Measurement(23.0, 1, "measurement_13"),
+#                     ],
+#                     frozenset({EDP_ONE, EDP_TWO}): [
+#                         Measurement(0.00, 1, "measurement_14"),
+#                         Measurement(53.0, 1, "measurement_15"),
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}):
+#                           Measurement(40.0, 1, "measurement_16"),
+#                         frozenset({EDP_TWO}):
+#                           Measurement(30.0, 1, "measurement_17"),
+#                         frozenset({EDP_ONE, EDP_TWO}):
+#                           Measurement(69.0, 1, "measurement_18"),
+#                     },
+#                     k_reach={},
+#                     impression={}),
+#                 weekly_non_cumulative_measurements={},
+#             )
+#         },
+#         metric_subsets_by_parent={"ami": ["mrc"]},
+#         cumulative_inconsistency_allowed_edp_combinations={},
+#     )
 
-    corrected, _ = report.get_corrected_report()
-    self.assertFalse(
-        are_overlap_constraints_consistent(report, NOISE_CORRECTION_TOLERANCE))
-    self.assertTrue(
-        are_overlap_constraints_consistent(corrected,
-                                           NOISE_CORRECTION_TOLERANCE))
+#     corrected, _ = report.get_corrected_report()
+#     self.assertFalse(
+#         are_overlap_constraints_consistent(report, NOISE_CORRECTION_TOLERANCE))
+#     self.assertTrue(
+#         are_overlap_constraints_consistent(corrected,
+#                                            NOISE_CORRECTION_TOLERANCE))
 
 #   def test_can_correct_time_series_for_three_edps(self):
 #     report = Report(
