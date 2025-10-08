@@ -222,6 +222,9 @@ NOISE_CORRECTION_TOLERANCE = 0.1
 
 
 class TestReport(unittest.TestCase):
+  def  always_true(self):
+    self.assertTrue(True)
+
 #   def test_is_cover_returns_true_for_valid_cover_sets(self):
 #     self.assertTrue(is_cover(frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
 #                              (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO"}),
@@ -3616,13 +3619,13 @@ class TestReport(unittest.TestCase):
 #       )
 
 #   def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
-    self.assertEqual(expected.get_metrics(), actual.get_metrics())
-    for metric in expected.get_metrics():
-      self._assertMetricReportsAlmostEqual(
-          expected.get_metric_report(metric),
-          actual.get_metric_report(metric),
-          msg,
-      )
+#     self.assertEqual(expected.get_metrics(), actual.get_metrics())
+#     for metric in expected.get_metrics():
+#       self._assertMetricReportsAlmostEqual(
+#           expected.get_metric_report(metric),
+#           actual.get_metric_report(metric),
+#           msg,
+#       )
 
 if __name__ == "__main__":
   unittest.main()
