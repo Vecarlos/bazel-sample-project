@@ -19,8 +19,8 @@ from noiseninja.noised_measurements import MeasurementSet
 from noiseninja.noised_measurements import OrderedSets
 from noiseninja.noised_measurements import SetMeasurementsSpec
 
-# from report.report import EdpCombination
-# from report.report import MetricReport
+from report.report import EdpCombination
+from report.report import MetricReport
 # from report.report import Report
 from report.report import build_measurement_set
 from report.report import get_covers
