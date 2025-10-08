@@ -3549,6 +3549,80 @@ class TestReport(unittest.TestCase):
 #         NOISE_CORRECTION_TOLERANCE)
 #     self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
 
+  def _assertMeasurementAlmostEquals(
+      self, expected: Measurement, actual: Measurement, msg
+  ):
+    if expected.sigma == 0:
+      self.assertAlmostEqual(expected.value, actual.value, msg=msg)
+    else:
+      self.assertAlmostEqual(
+          expected.value, actual.value, places=EXPECTED_PRECISION, msg=msg
+      )
+
+  def _assertMetricReportsAlmostEqual(
+      self, expected: MetricReport, actual: MetricReport, msg
+  ):
+    self.assertEqual(
+        expected.get_number_of_periods(), actual.get_number_of_periods()
+    )
+    self.assertEqual(
+        expected.get_number_of_frequencies(), actual.get_number_of_frequencies()
+    )
+
+    self.assertCountEqual(
+        expected.get_weekly_cumulative_reach_edp_combinations(),
+        actual.get_weekly_cumulative_reach_edp_combinations()
+    )
+    for edp_combination in expected.get_weekly_cumulative_reach_edp_combinations():
+      for period in range(0, expected.get_number_of_periods()):
+        self._assertMeasurementAlmostEquals(
+            expected.get_weekly_cumulative_reach_measurement(edp_combination, period),
+            actual.get_weekly_cumulative_reach_measurement(edp_combination, period),
+            msg,
+        )
+
+    self.assertCountEqual(
+        expected.get_whole_campaign_reach_edp_combinations(),
+        actual.get_whole_campaign_reach_edp_combinations()
+    )
+    for edp_combination in expected.get_whole_campaign_reach_edp_combinations():
+      self._assertMeasurementAlmostEquals(
+          expected.get_whole_campaign_reach_measurement(edp_combination),
+          actual.get_whole_campaign_reach_measurement(edp_combination),
+          msg,
+      )
+
+    self.assertCountEqual(
+        expected.get_whole_campaign_k_reach_edp_combinations(),
+        actual.get_whole_campaign_k_reach_edp_combinations()
+    )
+    for edp_combination in expected.get_whole_campaign_k_reach_edp_combinations():
+      for frequency in range(1, expected.get_number_of_frequencies() + 1):
+        self._assertMeasurementAlmostEquals(
+            expected.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
+            actual.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
+            msg
+        )
+
+    self.assertCountEqual(
+        expected.get_whole_campaign_impression_edp_combinations(),
+        actual.get_whole_campaign_impression_edp_combinations()
+    )
+    for edp_combination in expected.get_whole_campaign_impression_edp_combinations():
+      self._assertMeasurementAlmostEquals(
+          expected.get_whole_campaign_impression_measurement(edp_combination),
+          actual.get_whole_campaign_impression_measurement(edp_combination),
+          msg
+      )
+
+  def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
+    self.assertEqual(expected.get_metrics(), actual.get_metrics())
+    for metric in expected.get_metrics():
+      self._assertMetricReportsAlmostEqual(
+          expected.get_metric_report(metric),
+          actual.get_metric_report(metric),
+          msg,
+      )
 
 if __name__ == "__main__":
   unittest.main()
