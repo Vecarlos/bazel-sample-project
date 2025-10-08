@@ -45,180 +45,180 @@ EDP_THREE = "EDP_THREE"
 NOISE_CORRECTION_TOLERANCE = 0.1
 
 
-# SAMPLE_REPORT = Report(
-#     metric_reports={
-#         "ami": MetricReport(
-#             weekly_cumulative_reaches={
-#                 frozenset({EDP_ONE}): [
-#                     Measurement(1, 0, "measurement_01"),
-#                     Measurement(1, 0, "measurement_02")
-#                 ],
-#                 frozenset({EDP_TWO}): [
-#                     Measurement(1, 1, "measurement_03"),
-#                     Measurement(1, 1, "measurement_04")
-#                 ],
-#                 frozenset({EDP_THREE}): [
-#                     Measurement(1, 1, "measurement_05"),
-#                     Measurement(1, 1, "measurement_06")
-#                 ],
-#                 frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
-#                     Measurement(1, 1, "measurement_07"),
-#                     Measurement(1, 1, "measurement_08")
-#                 ],
-#             },
-#             whole_campaign_measurements=build_measurement_set(
-#                 reach={
-#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_09"),
-#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_10"),
-#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_11"),
-#                     frozenset({EDP_ONE, EDP_TWO}):
-#                       Measurement(1, 1, "measurement_12"),
-#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
-#                       Measurement(1, 1, "measurement_13"),
-#                 },
-#                 k_reach={
-#                     frozenset({EDP_ONE}): {
-#                         1: Measurement(1, 0, "measurement_14"),
-#                         2: Measurement(1, 0, "measurement_15"),
-#                     },
-#                     frozenset({EDP_TWO}): {
-#                         1: Measurement(1, 1, "measurement_16"),
-#                         2: Measurement(1, 1, "measurement_17"),
-#                     },
-#                     frozenset({EDP_THREE}): {
-#                         1: Measurement(1, 1, "measurement_18"),
-#                         2: Measurement(1, 1, "measurement_19"),
-#                     },
-#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): {
-#                         1: Measurement(1, 1, "measurement_20"),
-#                         2: Measurement(1, 1, "measurement_21"),
-#                     },
-#                 },
-#                 impression={
-#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_22"),
-#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_23"),
-#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_24"),
-#                     frozenset({EDP_ONE, EDP_TWO}):
-#                       Measurement(1, 1, "measurement_25"),
-#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
-#                       Measurement(1, 1, "measurement_26"),
-#                 }),
-#             weekly_non_cumulative_measurements={},
-#         ),
-#         "mrc": MetricReport(
-#             weekly_cumulative_reaches={
-#                 frozenset({EDP_ONE}): [
-#                     Measurement(1, 0, "measurement_27"),
-#                     Measurement(1, 0, "measurement_28")
-#                 ],
-#                 frozenset({EDP_TWO}): [
-#                     Measurement(1, 1, "measurement_29"),
-#                     Measurement(1, 1, "measurement_30")
-#                 ],
-#                 frozenset({EDP_THREE}): [
-#                     Measurement(1, 1, "measurement_31"),
-#                     Measurement(1, 1, "measurement_32")
-#                 ],
-#                 frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
-#                     Measurement(1, 1, "measurement_33"),
-#                     Measurement(1, 1, "measurement_34")
-#                 ],
-#             },
-#             whole_campaign_measurements=build_measurement_set(
-#                 reach={
-#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_35"),
-#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_36"),
-#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_37"),
-#                     frozenset({EDP_TWO, EDP_THREE}):
-#                       Measurement(1, 1, "measurement_38"),
-#                 },
-#                 k_reach={
-#                     frozenset({EDP_ONE}): {
-#                         1: Measurement(1, 0, "measurement_39"),
-#                         2: Measurement(1, 0, "measurement_40"),
-#                     },
-#                     frozenset({EDP_TWO}): {
-#                         1: Measurement(1, 1, "measurement_41"),
-#                         2: Measurement(1, 1, "measurement_42"),
-#                     },
-#                     frozenset({EDP_THREE}): {
-#                         1: Measurement(1, 1, "measurement_43"),
-#                         2: Measurement(1, 1, "measurement_44"),
-#                     },
-#                     frozenset({EDP_TWO, EDP_THREE}): {
-#                         1: Measurement(1, 1, "measurement_45"),
-#                         2: Measurement(1, 1, "measurement_46"),
-#                     },
-#                 },
-#                 impression={
-#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_47"),
-#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_48"),
-#                     frozenset({EDP_THREE}):
-#                       Measurement(1, 1, "measurement_49"),
-#                     frozenset({EDP_TWO, EDP_THREE}):
-#                       Measurement(1, 1, "measurement_50"),
-#                 }),
-#             weekly_non_cumulative_measurements={},
-#         ),
-#         "custom": MetricReport(
-#             weekly_cumulative_reaches={
-#                 frozenset({EDP_ONE}): [
-#                     Measurement(1, 0, "measurement_51"),
-#                     Measurement(1, 0, "measurement_52")
-#                 ],
-#                 frozenset({EDP_TWO}): [
-#                     Measurement(1, 1, "measurement_53"),
-#                     Measurement(1, 1, "measurement_54")
-#                 ],
-#                 frozenset({EDP_THREE}): [
-#                     Measurement(1, 1, "measurement_55"),
-#                     Measurement(1, 1, "measurement_56")
-#                 ],
-#                 frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
-#                     Measurement(1, 1, "measurement_57"),
-#                     Measurement(1, 1, "measurement_58")
-#                 ],
-#             },
-#             whole_campaign_measurements=build_measurement_set(
-#                 reach={
-#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_59"),
-#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_60"),
-#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_61"),
-#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
-#                       Measurement(1, 1, "measurement_62"),
-#                 },
-#                 k_reach={
-#                     frozenset({EDP_ONE}): {
-#                         1: Measurement(1, 0, "measurement_63"),
-#                         2: Measurement(1, 0, "measurement_64"),
-#                     },
-#                     frozenset({EDP_TWO}): {
-#                         1: Measurement(1, 1, "measurement_65"),
-#                         2: Measurement(1, 1, "measurement_66"),
-#                     },
-#                     frozenset({EDP_THREE}): {
-#                         1: Measurement(1, 1, "measurement_67"),
-#                         2: Measurement(1, 1, "measurement_68"),
-#                     },
-#                     frozenset({EDP_TWO, EDP_THREE}): {
-#                         1: Measurement(1, 1, "measurement_69"),
-#                         2: Measurement(1, 1, "measurement_70"),
-#                     },
-#                 },
-#                 impression={
-#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_71"),
-#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_72"),
-#                     frozenset({EDP_THREE}):
-#                       Measurement(1, 1, "measurement_73"),
-#                     frozenset({EDP_ONE, EDP_THREE}):
-#                       Measurement(1, 1, "measurement_74"),
-#                 }),
-#             weekly_non_cumulative_measurements={},
-#         )
-#     },
-#     metric_subsets_by_parent={"ami": ["mrc", "custom"]},
-#     cumulative_inconsistency_allowed_edp_combinations={},
-# )
+SAMPLE_REPORT = Report(
+    metric_reports={
+        "ami": MetricReport(
+            weekly_cumulative_reaches={
+                frozenset({EDP_ONE}): [
+                    Measurement(1, 0, "measurement_01"),
+                    Measurement(1, 0, "measurement_02")
+                ],
+                frozenset({EDP_TWO}): [
+                    Measurement(1, 1, "measurement_03"),
+                    Measurement(1, 1, "measurement_04")
+                ],
+                frozenset({EDP_THREE}): [
+                    Measurement(1, 1, "measurement_05"),
+                    Measurement(1, 1, "measurement_06")
+                ],
+                frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+                    Measurement(1, 1, "measurement_07"),
+                    Measurement(1, 1, "measurement_08")
+                ],
+            },
+            whole_campaign_measurements=build_measurement_set(
+                reach={
+                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_09"),
+                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_10"),
+                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_11"),
+                    frozenset({EDP_ONE, EDP_TWO}):
+                      Measurement(1, 1, "measurement_12"),
+                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
+                      Measurement(1, 1, "measurement_13"),
+                },
+                k_reach={
+                    frozenset({EDP_ONE}): {
+                        1: Measurement(1, 0, "measurement_14"),
+                        2: Measurement(1, 0, "measurement_15"),
+                    },
+                    frozenset({EDP_TWO}): {
+                        1: Measurement(1, 1, "measurement_16"),
+                        2: Measurement(1, 1, "measurement_17"),
+                    },
+                    frozenset({EDP_THREE}): {
+                        1: Measurement(1, 1, "measurement_18"),
+                        2: Measurement(1, 1, "measurement_19"),
+                    },
+                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): {
+                        1: Measurement(1, 1, "measurement_20"),
+                        2: Measurement(1, 1, "measurement_21"),
+                    },
+                },
+                impression={
+                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_22"),
+                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_23"),
+                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_24"),
+                    frozenset({EDP_ONE, EDP_TWO}):
+                      Measurement(1, 1, "measurement_25"),
+                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
+                      Measurement(1, 1, "measurement_26"),
+                }),
+            weekly_non_cumulative_measurements={},
+        ),
+        "mrc": MetricReport(
+            weekly_cumulative_reaches={
+                frozenset({EDP_ONE}): [
+                    Measurement(1, 0, "measurement_27"),
+                    Measurement(1, 0, "measurement_28")
+                ],
+                frozenset({EDP_TWO}): [
+                    Measurement(1, 1, "measurement_29"),
+                    Measurement(1, 1, "measurement_30")
+                ],
+                frozenset({EDP_THREE}): [
+                    Measurement(1, 1, "measurement_31"),
+                    Measurement(1, 1, "measurement_32")
+                ],
+                frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+                    Measurement(1, 1, "measurement_33"),
+                    Measurement(1, 1, "measurement_34")
+                ],
+            },
+            whole_campaign_measurements=build_measurement_set(
+                reach={
+                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_35"),
+                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_36"),
+                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_37"),
+                    frozenset({EDP_TWO, EDP_THREE}):
+                      Measurement(1, 1, "measurement_38"),
+                },
+                k_reach={
+                    frozenset({EDP_ONE}): {
+                        1: Measurement(1, 0, "measurement_39"),
+                        2: Measurement(1, 0, "measurement_40"),
+                    },
+                    frozenset({EDP_TWO}): {
+                        1: Measurement(1, 1, "measurement_41"),
+                        2: Measurement(1, 1, "measurement_42"),
+                    },
+                    frozenset({EDP_THREE}): {
+                        1: Measurement(1, 1, "measurement_43"),
+                        2: Measurement(1, 1, "measurement_44"),
+                    },
+                    frozenset({EDP_TWO, EDP_THREE}): {
+                        1: Measurement(1, 1, "measurement_45"),
+                        2: Measurement(1, 1, "measurement_46"),
+                    },
+                },
+                impression={
+                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_47"),
+                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_48"),
+                    frozenset({EDP_THREE}):
+                      Measurement(1, 1, "measurement_49"),
+                    frozenset({EDP_TWO, EDP_THREE}):
+                      Measurement(1, 1, "measurement_50"),
+                }),
+            weekly_non_cumulative_measurements={},
+        ),
+        "custom": MetricReport(
+            weekly_cumulative_reaches={
+                frozenset({EDP_ONE}): [
+                    Measurement(1, 0, "measurement_51"),
+                    Measurement(1, 0, "measurement_52")
+                ],
+                frozenset({EDP_TWO}): [
+                    Measurement(1, 1, "measurement_53"),
+                    Measurement(1, 1, "measurement_54")
+                ],
+                frozenset({EDP_THREE}): [
+                    Measurement(1, 1, "measurement_55"),
+                    Measurement(1, 1, "measurement_56")
+                ],
+                frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+                    Measurement(1, 1, "measurement_57"),
+                    Measurement(1, 1, "measurement_58")
+                ],
+            },
+            whole_campaign_measurements=build_measurement_set(
+                reach={
+                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_59"),
+                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_60"),
+                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_61"),
+                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
+                      Measurement(1, 1, "measurement_62"),
+                },
+                k_reach={
+                    frozenset({EDP_ONE}): {
+                        1: Measurement(1, 0, "measurement_63"),
+                        2: Measurement(1, 0, "measurement_64"),
+                    },
+                    frozenset({EDP_TWO}): {
+                        1: Measurement(1, 1, "measurement_65"),
+                        2: Measurement(1, 1, "measurement_66"),
+                    },
+                    frozenset({EDP_THREE}): {
+                        1: Measurement(1, 1, "measurement_67"),
+                        2: Measurement(1, 1, "measurement_68"),
+                    },
+                    frozenset({EDP_TWO, EDP_THREE}): {
+                        1: Measurement(1, 1, "measurement_69"),
+                        2: Measurement(1, 1, "measurement_70"),
+                    },
+                },
+                impression={
+                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_71"),
+                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_72"),
+                    frozenset({EDP_THREE}):
+                      Measurement(1, 1, "measurement_73"),
+                    frozenset({EDP_ONE, EDP_THREE}):
+                      Measurement(1, 1, "measurement_74"),
+                }),
+            weekly_non_cumulative_measurements={},
+        )
+    },
+    metric_subsets_by_parent={"ami": ["mrc", "custom"]},
+    cumulative_inconsistency_allowed_edp_combinations={},
+)
 
 
 class TestReport(unittest.TestCase):
