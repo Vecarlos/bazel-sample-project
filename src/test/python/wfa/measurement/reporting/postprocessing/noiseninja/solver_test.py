@@ -167,7 +167,7 @@ class SolverTest(unittest.TestCase):
     self.assertGreaterEqual(solution[5],
                             solution[1] + 2 * solution[2] + 3 * solution[3])
 
-  def test_solve_solution_does_not_have_negative_values(self):
+    def test_solve_solution_does_not_have_negative_values(self):
     spec = SetMeasurementsSpec()
     spec.add_subset_relation(1, 2)
     spec.add_subset_relation(1, 3)
