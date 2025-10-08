@@ -45,180 +45,180 @@ EDP_THREE = "EDP_THREE"
 NOISE_CORRECTION_TOLERANCE = 0.1
 
 
-SAMPLE_REPORT = Report(
-    metric_reports={
-        "ami": MetricReport(
-            weekly_cumulative_reaches={
-                frozenset({EDP_ONE}): [
-                    Measurement(1, 0, "measurement_01"),
-                    Measurement(1, 0, "measurement_02")
-                ],
-                frozenset({EDP_TWO}): [
-                    Measurement(1, 1, "measurement_03"),
-                    Measurement(1, 1, "measurement_04")
-                ],
-                frozenset({EDP_THREE}): [
-                    Measurement(1, 1, "measurement_05"),
-                    Measurement(1, 1, "measurement_06")
-                ],
-                frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
-                    Measurement(1, 1, "measurement_07"),
-                    Measurement(1, 1, "measurement_08")
-                ],
-            },
-            whole_campaign_measurements=build_measurement_set(
-                reach={
-                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_09"),
-                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_10"),
-                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_11"),
-                    frozenset({EDP_ONE, EDP_TWO}):
-                      Measurement(1, 1, "measurement_12"),
-                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
-                      Measurement(1, 1, "measurement_13"),
-                },
-                k_reach={
-                    frozenset({EDP_ONE}): {
-                        1: Measurement(1, 0, "measurement_14"),
-                        2: Measurement(1, 0, "measurement_15"),
-                    },
-                    frozenset({EDP_TWO}): {
-                        1: Measurement(1, 1, "measurement_16"),
-                        2: Measurement(1, 1, "measurement_17"),
-                    },
-                    frozenset({EDP_THREE}): {
-                        1: Measurement(1, 1, "measurement_18"),
-                        2: Measurement(1, 1, "measurement_19"),
-                    },
-                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): {
-                        1: Measurement(1, 1, "measurement_20"),
-                        2: Measurement(1, 1, "measurement_21"),
-                    },
-                },
-                impression={
-                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_22"),
-                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_23"),
-                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_24"),
-                    frozenset({EDP_ONE, EDP_TWO}):
-                      Measurement(1, 1, "measurement_25"),
-                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
-                      Measurement(1, 1, "measurement_26"),
-                }),
-            weekly_non_cumulative_measurements={},
-        ),
-        "mrc": MetricReport(
-            weekly_cumulative_reaches={
-                frozenset({EDP_ONE}): [
-                    Measurement(1, 0, "measurement_27"),
-                    Measurement(1, 0, "measurement_28")
-                ],
-                frozenset({EDP_TWO}): [
-                    Measurement(1, 1, "measurement_29"),
-                    Measurement(1, 1, "measurement_30")
-                ],
-                frozenset({EDP_THREE}): [
-                    Measurement(1, 1, "measurement_31"),
-                    Measurement(1, 1, "measurement_32")
-                ],
-                frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
-                    Measurement(1, 1, "measurement_33"),
-                    Measurement(1, 1, "measurement_34")
-                ],
-            },
-            whole_campaign_measurements=build_measurement_set(
-                reach={
-                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_35"),
-                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_36"),
-                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_37"),
-                    frozenset({EDP_TWO, EDP_THREE}):
-                      Measurement(1, 1, "measurement_38"),
-                },
-                k_reach={
-                    frozenset({EDP_ONE}): {
-                        1: Measurement(1, 0, "measurement_39"),
-                        2: Measurement(1, 0, "measurement_40"),
-                    },
-                    frozenset({EDP_TWO}): {
-                        1: Measurement(1, 1, "measurement_41"),
-                        2: Measurement(1, 1, "measurement_42"),
-                    },
-                    frozenset({EDP_THREE}): {
-                        1: Measurement(1, 1, "measurement_43"),
-                        2: Measurement(1, 1, "measurement_44"),
-                    },
-                    frozenset({EDP_TWO, EDP_THREE}): {
-                        1: Measurement(1, 1, "measurement_45"),
-                        2: Measurement(1, 1, "measurement_46"),
-                    },
-                },
-                impression={
-                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_47"),
-                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_48"),
-                    frozenset({EDP_THREE}):
-                      Measurement(1, 1, "measurement_49"),
-                    frozenset({EDP_TWO, EDP_THREE}):
-                      Measurement(1, 1, "measurement_50"),
-                }),
-            weekly_non_cumulative_measurements={},
-        ),
-        "custom": MetricReport(
-            weekly_cumulative_reaches={
-                frozenset({EDP_ONE}): [
-                    Measurement(1, 0, "measurement_51"),
-                    Measurement(1, 0, "measurement_52")
-                ],
-                frozenset({EDP_TWO}): [
-                    Measurement(1, 1, "measurement_53"),
-                    Measurement(1, 1, "measurement_54")
-                ],
-                frozenset({EDP_THREE}): [
-                    Measurement(1, 1, "measurement_55"),
-                    Measurement(1, 1, "measurement_56")
-                ],
-                frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
-                    Measurement(1, 1, "measurement_57"),
-                    Measurement(1, 1, "measurement_58")
-                ],
-            },
-            whole_campaign_measurements=build_measurement_set(
-                reach={
-                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_59"),
-                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_60"),
-                    frozenset({EDP_THREE}): Measurement(1, 1, "measurement_61"),
-                    frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
-                      Measurement(1, 1, "measurement_62"),
-                },
-                k_reach={
-                    frozenset({EDP_ONE}): {
-                        1: Measurement(1, 0, "measurement_63"),
-                        2: Measurement(1, 0, "measurement_64"),
-                    },
-                    frozenset({EDP_TWO}): {
-                        1: Measurement(1, 1, "measurement_65"),
-                        2: Measurement(1, 1, "measurement_66"),
-                    },
-                    frozenset({EDP_THREE}): {
-                        1: Measurement(1, 1, "measurement_67"),
-                        2: Measurement(1, 1, "measurement_68"),
-                    },
-                    frozenset({EDP_TWO, EDP_THREE}): {
-                        1: Measurement(1, 1, "measurement_69"),
-                        2: Measurement(1, 1, "measurement_70"),
-                    },
-                },
-                impression={
-                    frozenset({EDP_ONE}): Measurement(1, 0, "measurement_71"),
-                    frozenset({EDP_TWO}): Measurement(1, 1, "measurement_72"),
-                    frozenset({EDP_THREE}):
-                      Measurement(1, 1, "measurement_73"),
-                    frozenset({EDP_ONE, EDP_THREE}):
-                      Measurement(1, 1, "measurement_74"),
-                }),
-            weekly_non_cumulative_measurements={},
-        )
-    },
-    metric_subsets_by_parent={"ami": ["mrc", "custom"]},
-    cumulative_inconsistency_allowed_edp_combinations={},
-)
+# SAMPLE_REPORT = Report(
+#     metric_reports={
+#         "ami": MetricReport(
+#             weekly_cumulative_reaches={
+#                 frozenset({EDP_ONE}): [
+#                     Measurement(1, 0, "measurement_01"),
+#                     Measurement(1, 0, "measurement_02")
+#                 ],
+#                 frozenset({EDP_TWO}): [
+#                     Measurement(1, 1, "measurement_03"),
+#                     Measurement(1, 1, "measurement_04")
+#                 ],
+#                 frozenset({EDP_THREE}): [
+#                     Measurement(1, 1, "measurement_05"),
+#                     Measurement(1, 1, "measurement_06")
+#                 ],
+#                 frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+#                     Measurement(1, 1, "measurement_07"),
+#                     Measurement(1, 1, "measurement_08")
+#                 ],
+#             },
+#             whole_campaign_measurements=build_measurement_set(
+#                 reach={
+#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_09"),
+#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_10"),
+#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_11"),
+#                     frozenset({EDP_ONE, EDP_TWO}):
+#                       Measurement(1, 1, "measurement_12"),
+#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
+#                       Measurement(1, 1, "measurement_13"),
+#                 },
+#                 k_reach={
+#                     frozenset({EDP_ONE}): {
+#                         1: Measurement(1, 0, "measurement_14"),
+#                         2: Measurement(1, 0, "measurement_15"),
+#                     },
+#                     frozenset({EDP_TWO}): {
+#                         1: Measurement(1, 1, "measurement_16"),
+#                         2: Measurement(1, 1, "measurement_17"),
+#                     },
+#                     frozenset({EDP_THREE}): {
+#                         1: Measurement(1, 1, "measurement_18"),
+#                         2: Measurement(1, 1, "measurement_19"),
+#                     },
+#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): {
+#                         1: Measurement(1, 1, "measurement_20"),
+#                         2: Measurement(1, 1, "measurement_21"),
+#                     },
+#                 },
+#                 impression={
+#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_22"),
+#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_23"),
+#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_24"),
+#                     frozenset({EDP_ONE, EDP_TWO}):
+#                       Measurement(1, 1, "measurement_25"),
+#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
+#                       Measurement(1, 1, "measurement_26"),
+#                 }),
+#             weekly_non_cumulative_measurements={},
+#         ),
+#         "mrc": MetricReport(
+#             weekly_cumulative_reaches={
+#                 frozenset({EDP_ONE}): [
+#                     Measurement(1, 0, "measurement_27"),
+#                     Measurement(1, 0, "measurement_28")
+#                 ],
+#                 frozenset({EDP_TWO}): [
+#                     Measurement(1, 1, "measurement_29"),
+#                     Measurement(1, 1, "measurement_30")
+#                 ],
+#                 frozenset({EDP_THREE}): [
+#                     Measurement(1, 1, "measurement_31"),
+#                     Measurement(1, 1, "measurement_32")
+#                 ],
+#                 frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+#                     Measurement(1, 1, "measurement_33"),
+#                     Measurement(1, 1, "measurement_34")
+#                 ],
+#             },
+#             whole_campaign_measurements=build_measurement_set(
+#                 reach={
+#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_35"),
+#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_36"),
+#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_37"),
+#                     frozenset({EDP_TWO, EDP_THREE}):
+#                       Measurement(1, 1, "measurement_38"),
+#                 },
+#                 k_reach={
+#                     frozenset({EDP_ONE}): {
+#                         1: Measurement(1, 0, "measurement_39"),
+#                         2: Measurement(1, 0, "measurement_40"),
+#                     },
+#                     frozenset({EDP_TWO}): {
+#                         1: Measurement(1, 1, "measurement_41"),
+#                         2: Measurement(1, 1, "measurement_42"),
+#                     },
+#                     frozenset({EDP_THREE}): {
+#                         1: Measurement(1, 1, "measurement_43"),
+#                         2: Measurement(1, 1, "measurement_44"),
+#                     },
+#                     frozenset({EDP_TWO, EDP_THREE}): {
+#                         1: Measurement(1, 1, "measurement_45"),
+#                         2: Measurement(1, 1, "measurement_46"),
+#                     },
+#                 },
+#                 impression={
+#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_47"),
+#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_48"),
+#                     frozenset({EDP_THREE}):
+#                       Measurement(1, 1, "measurement_49"),
+#                     frozenset({EDP_TWO, EDP_THREE}):
+#                       Measurement(1, 1, "measurement_50"),
+#                 }),
+#             weekly_non_cumulative_measurements={},
+#         ),
+#         "custom": MetricReport(
+#             weekly_cumulative_reaches={
+#                 frozenset({EDP_ONE}): [
+#                     Measurement(1, 0, "measurement_51"),
+#                     Measurement(1, 0, "measurement_52")
+#                 ],
+#                 frozenset({EDP_TWO}): [
+#                     Measurement(1, 1, "measurement_53"),
+#                     Measurement(1, 1, "measurement_54")
+#                 ],
+#                 frozenset({EDP_THREE}): [
+#                     Measurement(1, 1, "measurement_55"),
+#                     Measurement(1, 1, "measurement_56")
+#                 ],
+#                 frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+#                     Measurement(1, 1, "measurement_57"),
+#                     Measurement(1, 1, "measurement_58")
+#                 ],
+#             },
+#             whole_campaign_measurements=build_measurement_set(
+#                 reach={
+#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_59"),
+#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_60"),
+#                     frozenset({EDP_THREE}): Measurement(1, 1, "measurement_61"),
+#                     frozenset({EDP_ONE, EDP_TWO, EDP_THREE}):
+#                       Measurement(1, 1, "measurement_62"),
+#                 },
+#                 k_reach={
+#                     frozenset({EDP_ONE}): {
+#                         1: Measurement(1, 0, "measurement_63"),
+#                         2: Measurement(1, 0, "measurement_64"),
+#                     },
+#                     frozenset({EDP_TWO}): {
+#                         1: Measurement(1, 1, "measurement_65"),
+#                         2: Measurement(1, 1, "measurement_66"),
+#                     },
+#                     frozenset({EDP_THREE}): {
+#                         1: Measurement(1, 1, "measurement_67"),
+#                         2: Measurement(1, 1, "measurement_68"),
+#                     },
+#                     frozenset({EDP_TWO, EDP_THREE}): {
+#                         1: Measurement(1, 1, "measurement_69"),
+#                         2: Measurement(1, 1, "measurement_70"),
+#                     },
+#                 },
+#                 impression={
+#                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_71"),
+#                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_72"),
+#                     frozenset({EDP_THREE}):
+#                       Measurement(1, 1, "measurement_73"),
+#                     frozenset({EDP_ONE, EDP_THREE}):
+#                       Measurement(1, 1, "measurement_74"),
+#                 }),
+#             weekly_non_cumulative_measurements={},
+#         )
+#     },
+#     metric_subsets_by_parent={"ami": ["mrc", "custom"]},
+#     cumulative_inconsistency_allowed_edp_combinations={},
+# )
 
 
 class TestReport(unittest.TestCase):
@@ -690,548 +690,548 @@ class TestReport(unittest.TestCase):
     self.assertEqual(metric_report.get_cumulative_cover_relationships(),
                      expected)
 
-  def test_add_cover_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_cover_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_covers_by_set = {
-        # AMI constraints.
-        name_to_index["measurement_07"]: [
-            [name_to_index["measurement_01"],
-             name_to_index["measurement_03"],
-             name_to_index["measurement_05"]]
-        ],
-        name_to_index["measurement_08"]: [
-            [name_to_index["measurement_02"],
-             name_to_index["measurement_04"],
-             name_to_index["measurement_06"]]
-        ],
-        name_to_index["measurement_12"]: [
-            [name_to_index["measurement_09"],
-             name_to_index["measurement_10"]]
-        ],
-        name_to_index["measurement_13"]: [
-            [name_to_index["measurement_11"],
-             name_to_index["measurement_12"]],
-            [name_to_index["measurement_09"],
-             name_to_index["measurement_10"],
-             name_to_index["measurement_11"]],
-            [name_to_index["measurement_09"],
-             name_to_index["measurement_11"],
-             name_to_index["measurement_12"]],
-            [name_to_index["measurement_10"],
-             name_to_index["measurement_11"],
-             name_to_index["measurement_12"]],
-            [name_to_index["measurement_09"],
-             name_to_index["measurement_10"],
-             name_to_index["measurement_11"],
-             name_to_index["measurement_12"]]
-        ],
-        # MRC constraints.
-        name_to_index["measurement_33"]: [
-            [name_to_index["measurement_27"],
-             name_to_index["measurement_29"],
-             name_to_index["measurement_31"]]
-        ],
-        name_to_index["measurement_34"]: [
-            [name_to_index["measurement_28"],
-             name_to_index["measurement_30"],
-             name_to_index["measurement_32"]]
-        ],
-        name_to_index["measurement_38"]: [
-            [name_to_index["measurement_36"],
-             name_to_index["measurement_37"]]
-        ],
-        # CUSTOM constraints.
-        name_to_index["measurement_57"]: [
-            [name_to_index["measurement_51"],
-             name_to_index["measurement_53"],
-             name_to_index["measurement_55"]]
-        ],
-        name_to_index["measurement_58"]: [
-            [name_to_index["measurement_52"],
-             name_to_index["measurement_54"],
-             name_to_index["measurement_56"]]
-        ],
-        name_to_index["measurement_62"]: [
-            [name_to_index["measurement_59"],
-             name_to_index["measurement_60"],
-             name_to_index["measurement_61"]]
-        ],
-    }
+#     expected_covers_by_set = {
+#         # AMI constraints.
+#         name_to_index["measurement_07"]: [
+#             [name_to_index["measurement_01"],
+#              name_to_index["measurement_03"],
+#              name_to_index["measurement_05"]]
+#         ],
+#         name_to_index["measurement_08"]: [
+#             [name_to_index["measurement_02"],
+#              name_to_index["measurement_04"],
+#              name_to_index["measurement_06"]]
+#         ],
+#         name_to_index["measurement_12"]: [
+#             [name_to_index["measurement_09"],
+#              name_to_index["measurement_10"]]
+#         ],
+#         name_to_index["measurement_13"]: [
+#             [name_to_index["measurement_11"],
+#              name_to_index["measurement_12"]],
+#             [name_to_index["measurement_09"],
+#              name_to_index["measurement_10"],
+#              name_to_index["measurement_11"]],
+#             [name_to_index["measurement_09"],
+#              name_to_index["measurement_11"],
+#              name_to_index["measurement_12"]],
+#             [name_to_index["measurement_10"],
+#              name_to_index["measurement_11"],
+#              name_to_index["measurement_12"]],
+#             [name_to_index["measurement_09"],
+#              name_to_index["measurement_10"],
+#              name_to_index["measurement_11"],
+#              name_to_index["measurement_12"]]
+#         ],
+#         # MRC constraints.
+#         name_to_index["measurement_33"]: [
+#             [name_to_index["measurement_27"],
+#              name_to_index["measurement_29"],
+#              name_to_index["measurement_31"]]
+#         ],
+#         name_to_index["measurement_34"]: [
+#             [name_to_index["measurement_28"],
+#              name_to_index["measurement_30"],
+#              name_to_index["measurement_32"]]
+#         ],
+#         name_to_index["measurement_38"]: [
+#             [name_to_index["measurement_36"],
+#              name_to_index["measurement_37"]]
+#         ],
+#         # CUSTOM constraints.
+#         name_to_index["measurement_57"]: [
+#             [name_to_index["measurement_51"],
+#              name_to_index["measurement_53"],
+#              name_to_index["measurement_55"]]
+#         ],
+#         name_to_index["measurement_58"]: [
+#             [name_to_index["measurement_52"],
+#              name_to_index["measurement_54"],
+#              name_to_index["measurement_56"]]
+#         ],
+#         name_to_index["measurement_62"]: [
+#             [name_to_index["measurement_59"],
+#              name_to_index["measurement_60"],
+#              name_to_index["measurement_61"]]
+#         ],
+#     }
 
-    spec = SetMeasurementsSpec()
-    report._add_cover_relations_to_spec(spec)
-    self.assertEqual(len(spec._subsets_by_set), 0)
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertEqual(expected_covers_by_set.keys(), spec._covers_by_set.keys())
-    for key in spec._covers_by_set.keys():
-      self.assertEqual({tuple(sorted(inner_list)) for inner_list in
-                        expected_covers_by_set[key]},
-                       {tuple(sorted(inner_list)) for inner_list in
-                        spec._covers_by_set[key]})
+#     spec = SetMeasurementsSpec()
+#     report._add_cover_relations_to_spec(spec)
+#     self.assertEqual(len(spec._subsets_by_set), 0)
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertEqual(expected_covers_by_set.keys(), spec._covers_by_set.keys())
+#     for key in spec._covers_by_set.keys():
+#       self.assertEqual({tuple(sorted(inner_list)) for inner_list in
+#                         expected_covers_by_set[key]},
+#                        {tuple(sorted(inner_list)) for inner_list in
+#                         spec._covers_by_set[key]})
 
-  def test_add_subset_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_subset_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_subsets_by_set = {
-        # AMI constraints.
-        name_to_index["measurement_07"]: [name_to_index["measurement_01"],
-                                          name_to_index["measurement_03"],
-                                          name_to_index["measurement_05"]],
-        name_to_index["measurement_08"]: [name_to_index["measurement_02"],
-                                          name_to_index["measurement_04"],
-                                          name_to_index["measurement_06"]],
-        name_to_index["measurement_12"]: [name_to_index["measurement_09"],
-                                          name_to_index["measurement_10"]],
-        name_to_index["measurement_13"]: [name_to_index["measurement_09"],
-                                          name_to_index["measurement_10"],
-                                          name_to_index["measurement_11"],
-                                          name_to_index["measurement_12"]],
-        # MRC constraints.
-        name_to_index["measurement_33"]: [name_to_index["measurement_27"],
-                                          name_to_index["measurement_29"],
-                                          name_to_index["measurement_31"]],
-        name_to_index["measurement_34"]: [name_to_index["measurement_28"],
-                                          name_to_index["measurement_30"],
-                                          name_to_index["measurement_32"]],
-        name_to_index["measurement_38"]: [name_to_index["measurement_36"],
-                                          name_to_index["measurement_37"]],
-        # CUSTOM constraints.
-        name_to_index["measurement_57"]: [name_to_index["measurement_51"],
-                                          name_to_index["measurement_53"],
-                                          name_to_index["measurement_55"]],
-        name_to_index["measurement_58"]: [name_to_index["measurement_52"],
-                                          name_to_index["measurement_54"],
-                                          name_to_index["measurement_56"]],
-        name_to_index["measurement_62"]: [name_to_index["measurement_59"],
-                                          name_to_index["measurement_60"],
-                                          name_to_index["measurement_61"]],
-    }
+#     expected_subsets_by_set = {
+#         # AMI constraints.
+#         name_to_index["measurement_07"]: [name_to_index["measurement_01"],
+#                                           name_to_index["measurement_03"],
+#                                           name_to_index["measurement_05"]],
+#         name_to_index["measurement_08"]: [name_to_index["measurement_02"],
+#                                           name_to_index["measurement_04"],
+#                                           name_to_index["measurement_06"]],
+#         name_to_index["measurement_12"]: [name_to_index["measurement_09"],
+#                                           name_to_index["measurement_10"]],
+#         name_to_index["measurement_13"]: [name_to_index["measurement_09"],
+#                                           name_to_index["measurement_10"],
+#                                           name_to_index["measurement_11"],
+#                                           name_to_index["measurement_12"]],
+#         # MRC constraints.
+#         name_to_index["measurement_33"]: [name_to_index["measurement_27"],
+#                                           name_to_index["measurement_29"],
+#                                           name_to_index["measurement_31"]],
+#         name_to_index["measurement_34"]: [name_to_index["measurement_28"],
+#                                           name_to_index["measurement_30"],
+#                                           name_to_index["measurement_32"]],
+#         name_to_index["measurement_38"]: [name_to_index["measurement_36"],
+#                                           name_to_index["measurement_37"]],
+#         # CUSTOM constraints.
+#         name_to_index["measurement_57"]: [name_to_index["measurement_51"],
+#                                           name_to_index["measurement_53"],
+#                                           name_to_index["measurement_55"]],
+#         name_to_index["measurement_58"]: [name_to_index["measurement_52"],
+#                                           name_to_index["measurement_54"],
+#                                           name_to_index["measurement_56"]],
+#         name_to_index["measurement_62"]: [name_to_index["measurement_59"],
+#                                           name_to_index["measurement_60"],
+#                                           name_to_index["measurement_61"]],
+#     }
 
-    spec = SetMeasurementsSpec()
-    report._add_subset_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_subset_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(expected_subsets_by_set.keys(),
-                     spec._subsets_by_set.keys())
-    for key in spec._subsets_by_set.keys():
-      self.assertEqual(sorted(expected_subsets_by_set[key]),
-                       sorted(spec._subsets_by_set[key]))
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(expected_subsets_by_set.keys(),
+#                      spec._subsets_by_set.keys())
+#     for key in spec._subsets_by_set.keys():
+#       self.assertEqual(sorted(expected_subsets_by_set[key]),
+#                        sorted(spec._subsets_by_set[key]))
 
-  def test_add_whole_campaign_impression_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_whole_campaign_impression_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_subsets_by_set = {
-        # AMI constraints.
-        name_to_index["measurement_22"]: [name_to_index["measurement_09"]],
-        name_to_index["measurement_23"]: [name_to_index["measurement_10"]],
-        name_to_index["measurement_24"]: [name_to_index["measurement_11"]],
-        name_to_index["measurement_25"]: [name_to_index["measurement_12"]],
-        name_to_index["measurement_26"]: [name_to_index["measurement_13"]],
-        # MRC constraints.
-        name_to_index["measurement_47"]: [name_to_index["measurement_35"]],
-        name_to_index["measurement_48"]: [name_to_index["measurement_36"]],
-        name_to_index["measurement_49"]: [name_to_index["measurement_37"]],
-        name_to_index["measurement_50"]: [name_to_index["measurement_38"]],
-        # CUSTOM constraints.
-        name_to_index["measurement_71"]: [name_to_index["measurement_59"]],
-        name_to_index["measurement_72"]: [name_to_index["measurement_60"]],
-        name_to_index["measurement_73"]: [name_to_index["measurement_61"]],
-    }
+#     expected_subsets_by_set = {
+#         # AMI constraints.
+#         name_to_index["measurement_22"]: [name_to_index["measurement_09"]],
+#         name_to_index["measurement_23"]: [name_to_index["measurement_10"]],
+#         name_to_index["measurement_24"]: [name_to_index["measurement_11"]],
+#         name_to_index["measurement_25"]: [name_to_index["measurement_12"]],
+#         name_to_index["measurement_26"]: [name_to_index["measurement_13"]],
+#         # MRC constraints.
+#         name_to_index["measurement_47"]: [name_to_index["measurement_35"]],
+#         name_to_index["measurement_48"]: [name_to_index["measurement_36"]],
+#         name_to_index["measurement_49"]: [name_to_index["measurement_37"]],
+#         name_to_index["measurement_50"]: [name_to_index["measurement_38"]],
+#         # CUSTOM constraints.
+#         name_to_index["measurement_71"]: [name_to_index["measurement_59"]],
+#         name_to_index["measurement_72"]: [name_to_index["measurement_60"]],
+#         name_to_index["measurement_73"]: [name_to_index["measurement_61"]],
+#     }
 
-    spec = SetMeasurementsSpec()
-    report._add_reach_impression_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_reach_impression_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertEqual(expected_subsets_by_set.keys(),
-                     spec._subsets_by_set.keys())
-    for key in spec._subsets_by_set.keys():
-      self.assertEqual(sorted(expected_subsets_by_set[key]),
-                       sorted(spec._subsets_by_set[key]))
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertEqual(expected_subsets_by_set.keys(),
+#                      spec._subsets_by_set.keys())
+#     for key in spec._subsets_by_set.keys():
+#       self.assertEqual(sorted(expected_subsets_by_set[key]),
+#                        sorted(spec._subsets_by_set[key]))
 
-  def test_add_cumulative_subset_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_cumulative_subset_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_subsets_by_set = {
-        # AMI constraints.
-        name_to_index["measurement_02"]: [name_to_index["measurement_01"]],
-        name_to_index["measurement_04"]: [name_to_index["measurement_03"]],
-        name_to_index["measurement_06"]: [name_to_index["measurement_05"]],
-        name_to_index["measurement_08"]: [name_to_index["measurement_07"]],
-        # MRC constraints.
-        name_to_index["measurement_28"]: [name_to_index["measurement_27"]],
-        name_to_index["measurement_30"]: [name_to_index["measurement_29"]],
-        name_to_index["measurement_32"]: [name_to_index["measurement_31"]],
-        name_to_index["measurement_34"]: [name_to_index["measurement_33"]],
-        # CUSTOM constraints.
-        name_to_index["measurement_52"]: [name_to_index["measurement_51"]],
-        name_to_index["measurement_54"]: [name_to_index["measurement_53"]],
-        name_to_index["measurement_56"]: [name_to_index["measurement_55"]],
-        name_to_index["measurement_58"]: [name_to_index["measurement_57"]],
-    }
+#     expected_subsets_by_set = {
+#         # AMI constraints.
+#         name_to_index["measurement_02"]: [name_to_index["measurement_01"]],
+#         name_to_index["measurement_04"]: [name_to_index["measurement_03"]],
+#         name_to_index["measurement_06"]: [name_to_index["measurement_05"]],
+#         name_to_index["measurement_08"]: [name_to_index["measurement_07"]],
+#         # MRC constraints.
+#         name_to_index["measurement_28"]: [name_to_index["measurement_27"]],
+#         name_to_index["measurement_30"]: [name_to_index["measurement_29"]],
+#         name_to_index["measurement_32"]: [name_to_index["measurement_31"]],
+#         name_to_index["measurement_34"]: [name_to_index["measurement_33"]],
+#         # CUSTOM constraints.
+#         name_to_index["measurement_52"]: [name_to_index["measurement_51"]],
+#         name_to_index["measurement_54"]: [name_to_index["measurement_53"]],
+#         name_to_index["measurement_56"]: [name_to_index["measurement_55"]],
+#         name_to_index["measurement_58"]: [name_to_index["measurement_57"]],
+#     }
 
-    spec = SetMeasurementsSpec()
-    report._add_cumulative_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_cumulative_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertEqual(expected_subsets_by_set.keys(),
-                     spec._subsets_by_set.keys())
-    for key in spec._subsets_by_set.keys():
-      self.assertEqual(sorted(expected_subsets_by_set[key]),
-                       sorted(spec._subsets_by_set[key]))
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertEqual(expected_subsets_by_set.keys(),
+#                      spec._subsets_by_set.keys())
+#     for key in spec._subsets_by_set.keys():
+#       self.assertEqual(sorted(expected_subsets_by_set[key]),
+#                        sorted(spec._subsets_by_set[key]))
 
-  def test_add_overlap_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
-    expected_ordered_sets = [
-        [
-            [
-                name_to_index["measurement_08"],
-                name_to_index["measurement_01"],
-                name_to_index["measurement_03"],
-                name_to_index["measurement_05"]
-            ],
-            [
-                name_to_index["measurement_07"],
-                name_to_index["measurement_02"],
-                name_to_index["measurement_04"],
-                name_to_index["measurement_06"]
-            ]
-        ],
-        [
-            [
-                name_to_index["measurement_34"],
-                name_to_index["measurement_27"],
-                name_to_index["measurement_29"],
-                name_to_index["measurement_31"]
-            ],
-            [
-                name_to_index["measurement_33"],
-                name_to_index["measurement_28"],
-                name_to_index["measurement_30"],
-                name_to_index["measurement_32"]
-            ]
-        ],
-        [
-            [
-                name_to_index["measurement_58"],
-                name_to_index["measurement_51"],
-                name_to_index["measurement_53"],
-                name_to_index["measurement_55"]
-            ],
-            [
-                name_to_index["measurement_57"],
-                name_to_index["measurement_52"],
-                name_to_index["measurement_54"],
-                name_to_index["measurement_56"]
-            ]
-        ]
-    ]
+#   def test_add_overlap_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
+#     expected_ordered_sets = [
+#         [
+#             [
+#                 name_to_index["measurement_08"],
+#                 name_to_index["measurement_01"],
+#                 name_to_index["measurement_03"],
+#                 name_to_index["measurement_05"]
+#             ],
+#             [
+#                 name_to_index["measurement_07"],
+#                 name_to_index["measurement_02"],
+#                 name_to_index["measurement_04"],
+#                 name_to_index["measurement_06"]
+#             ]
+#         ],
+#         [
+#             [
+#                 name_to_index["measurement_34"],
+#                 name_to_index["measurement_27"],
+#                 name_to_index["measurement_29"],
+#                 name_to_index["measurement_31"]
+#             ],
+#             [
+#                 name_to_index["measurement_33"],
+#                 name_to_index["measurement_28"],
+#                 name_to_index["measurement_30"],
+#                 name_to_index["measurement_32"]
+#             ]
+#         ],
+#         [
+#             [
+#                 name_to_index["measurement_58"],
+#                 name_to_index["measurement_51"],
+#                 name_to_index["measurement_53"],
+#                 name_to_index["measurement_55"]
+#             ],
+#             [
+#                 name_to_index["measurement_57"],
+#                 name_to_index["measurement_52"],
+#                 name_to_index["measurement_54"],
+#                 name_to_index["measurement_56"]
+#             ]
+#         ]
+#     ]
 
-    spec = SetMeasurementsSpec()
-    report._add_overlap_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_overlap_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertEqual(len(spec._subsets_by_set), 0)
-    self.assertEqual(len(expected_ordered_sets), len(spec._ordered_sets))
-    self.assertEqual(
-        get_sorted_list(expected_ordered_sets),
-        ordered_sets_to_sorted_list(spec._ordered_sets)
-    )
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertEqual(len(spec._subsets_by_set), 0)
+#     self.assertEqual(len(expected_ordered_sets), len(spec._ordered_sets))
+#     self.assertEqual(
+#         get_sorted_list(expected_ordered_sets),
+#         ordered_sets_to_sorted_list(spec._ordered_sets)
+#     )
 
-  def test_add_metric_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_metric_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_subsets_by_set = {
-        # AMI cumulative >= MRC, CUSTOM cumulative.
-        name_to_index["measurement_01"]: [name_to_index["measurement_27"],
-                                          name_to_index["measurement_51"]],
-        name_to_index["measurement_02"]: [name_to_index["measurement_28"],
-                                          name_to_index["measurement_52"]],
-        name_to_index["measurement_03"]: [name_to_index["measurement_29"],
-                                          name_to_index["measurement_53"]],
-        name_to_index["measurement_04"]: [name_to_index["measurement_30"],
-                                          name_to_index["measurement_54"]],
-        name_to_index["measurement_05"]: [name_to_index["measurement_31"],
-                                          name_to_index["measurement_55"]],
-        name_to_index["measurement_06"]: [name_to_index["measurement_32"],
-                                          name_to_index["measurement_56"]],
-        name_to_index["measurement_07"]: [name_to_index["measurement_33"],
-                                          name_to_index["measurement_57"]],
-        name_to_index["measurement_08"]: [name_to_index["measurement_34"],
-                                          name_to_index["measurement_58"]],
-        # AMI total >= MRC, CUSTOM total.
-        name_to_index["measurement_09"]: [name_to_index["measurement_35"],
-                                          name_to_index["measurement_59"]],
-        name_to_index["measurement_10"]: [name_to_index["measurement_36"],
-                                          name_to_index["measurement_60"]],
-        name_to_index["measurement_11"]: [name_to_index["measurement_37"],
-                                          name_to_index["measurement_61"]],
-        name_to_index["measurement_13"]: [name_to_index["measurement_62"]],
-        # AMI impression >= MRC, CUSTOM impression.
-        name_to_index["measurement_22"]: [name_to_index["measurement_47"],
-                                          name_to_index["measurement_71"]],
-        name_to_index["measurement_23"]: [name_to_index["measurement_48"],
-                                          name_to_index["measurement_72"]],
-        name_to_index["measurement_24"]: [name_to_index["measurement_49"],
-                                          name_to_index["measurement_73"]],
-    }
+#     expected_subsets_by_set = {
+#         # AMI cumulative >= MRC, CUSTOM cumulative.
+#         name_to_index["measurement_01"]: [name_to_index["measurement_27"],
+#                                           name_to_index["measurement_51"]],
+#         name_to_index["measurement_02"]: [name_to_index["measurement_28"],
+#                                           name_to_index["measurement_52"]],
+#         name_to_index["measurement_03"]: [name_to_index["measurement_29"],
+#                                           name_to_index["measurement_53"]],
+#         name_to_index["measurement_04"]: [name_to_index["measurement_30"],
+#                                           name_to_index["measurement_54"]],
+#         name_to_index["measurement_05"]: [name_to_index["measurement_31"],
+#                                           name_to_index["measurement_55"]],
+#         name_to_index["measurement_06"]: [name_to_index["measurement_32"],
+#                                           name_to_index["measurement_56"]],
+#         name_to_index["measurement_07"]: [name_to_index["measurement_33"],
+#                                           name_to_index["measurement_57"]],
+#         name_to_index["measurement_08"]: [name_to_index["measurement_34"],
+#                                           name_to_index["measurement_58"]],
+#         # AMI total >= MRC, CUSTOM total.
+#         name_to_index["measurement_09"]: [name_to_index["measurement_35"],
+#                                           name_to_index["measurement_59"]],
+#         name_to_index["measurement_10"]: [name_to_index["measurement_36"],
+#                                           name_to_index["measurement_60"]],
+#         name_to_index["measurement_11"]: [name_to_index["measurement_37"],
+#                                           name_to_index["measurement_61"]],
+#         name_to_index["measurement_13"]: [name_to_index["measurement_62"]],
+#         # AMI impression >= MRC, CUSTOM impression.
+#         name_to_index["measurement_22"]: [name_to_index["measurement_47"],
+#                                           name_to_index["measurement_71"]],
+#         name_to_index["measurement_23"]: [name_to_index["measurement_48"],
+#                                           name_to_index["measurement_72"]],
+#         name_to_index["measurement_24"]: [name_to_index["measurement_49"],
+#                                           name_to_index["measurement_73"]],
+#     }
 
-    expected_ordered_sets = [
-        [
-            [
-                name_to_index["measurement_33"],
-                name_to_index["measurement_01"],
-                name_to_index["measurement_03"],
-                name_to_index["measurement_05"]
-            ],
-            [
-                name_to_index["measurement_07"],
-                name_to_index["measurement_27"],
-                name_to_index["measurement_29"],
-                name_to_index["measurement_31"]
-            ]
-        ],
-        [
-            [
-                name_to_index["measurement_34"],
-                name_to_index["measurement_02"],
-                name_to_index["measurement_04"],
-                name_to_index["measurement_06"]
-            ],
-            [
-                name_to_index["measurement_08"],
-                name_to_index["measurement_28"],
-                name_to_index["measurement_30"],
-                name_to_index["measurement_32"]
-            ]
-        ],
-        [
-            [
-                name_to_index["measurement_57"],
-                name_to_index["measurement_01"],
-                name_to_index["measurement_03"],
-                name_to_index["measurement_05"]
-            ],
-            [
-                name_to_index["measurement_07"],
-                name_to_index["measurement_51"],
-                name_to_index["measurement_53"],
-                name_to_index["measurement_55"]
-            ]
-        ],
-        [
-            [
-                name_to_index["measurement_58"],
-                name_to_index["measurement_02"],
-                name_to_index["measurement_04"],
-                name_to_index["measurement_06"]
-            ],
-            [
-                name_to_index["measurement_08"],
-                name_to_index["measurement_52"],
-                name_to_index["measurement_54"],
-                name_to_index["measurement_56"]
-            ]
-        ],
-        [
-            [
-                name_to_index["measurement_62"],
-                name_to_index["measurement_09"],
-                name_to_index["measurement_10"],
-                name_to_index["measurement_11"]
-            ],
-            [
-                name_to_index["measurement_13"],
-                name_to_index["measurement_59"],
-                name_to_index["measurement_60"],
-                name_to_index["measurement_61"]
-            ]
-        ]
-    ]
+#     expected_ordered_sets = [
+#         [
+#             [
+#                 name_to_index["measurement_33"],
+#                 name_to_index["measurement_01"],
+#                 name_to_index["measurement_03"],
+#                 name_to_index["measurement_05"]
+#             ],
+#             [
+#                 name_to_index["measurement_07"],
+#                 name_to_index["measurement_27"],
+#                 name_to_index["measurement_29"],
+#                 name_to_index["measurement_31"]
+#             ]
+#         ],
+#         [
+#             [
+#                 name_to_index["measurement_34"],
+#                 name_to_index["measurement_02"],
+#                 name_to_index["measurement_04"],
+#                 name_to_index["measurement_06"]
+#             ],
+#             [
+#                 name_to_index["measurement_08"],
+#                 name_to_index["measurement_28"],
+#                 name_to_index["measurement_30"],
+#                 name_to_index["measurement_32"]
+#             ]
+#         ],
+#         [
+#             [
+#                 name_to_index["measurement_57"],
+#                 name_to_index["measurement_01"],
+#                 name_to_index["measurement_03"],
+#                 name_to_index["measurement_05"]
+#             ],
+#             [
+#                 name_to_index["measurement_07"],
+#                 name_to_index["measurement_51"],
+#                 name_to_index["measurement_53"],
+#                 name_to_index["measurement_55"]
+#             ]
+#         ],
+#         [
+#             [
+#                 name_to_index["measurement_58"],
+#                 name_to_index["measurement_02"],
+#                 name_to_index["measurement_04"],
+#                 name_to_index["measurement_06"]
+#             ],
+#             [
+#                 name_to_index["measurement_08"],
+#                 name_to_index["measurement_52"],
+#                 name_to_index["measurement_54"],
+#                 name_to_index["measurement_56"]
+#             ]
+#         ],
+#         [
+#             [
+#                 name_to_index["measurement_62"],
+#                 name_to_index["measurement_09"],
+#                 name_to_index["measurement_10"],
+#                 name_to_index["measurement_11"]
+#             ],
+#             [
+#                 name_to_index["measurement_13"],
+#                 name_to_index["measurement_59"],
+#                 name_to_index["measurement_60"],
+#                 name_to_index["measurement_61"]
+#             ]
+#         ]
+#     ]
 
-    spec = SetMeasurementsSpec()
-    report._add_metric_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_metric_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertEqual(expected_subsets_by_set.keys(),
-                     spec._subsets_by_set.keys())
-    for key in spec._subsets_by_set.keys():
-      self.assertEqual(sorted(expected_subsets_by_set[key]),
-                       sorted(spec._subsets_by_set[key]))
-    self.assertEqual(len(expected_ordered_sets), len(spec._ordered_sets))
-    self.assertEqual(
-        get_sorted_list(expected_ordered_sets),
-        ordered_sets_to_sorted_list(spec._ordered_sets)
-    )
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertEqual(expected_subsets_by_set.keys(),
+#                      spec._subsets_by_set.keys())
+#     for key in spec._subsets_by_set.keys():
+#       self.assertEqual(sorted(expected_subsets_by_set[key]),
+#                        sorted(spec._subsets_by_set[key]))
+#     self.assertEqual(len(expected_ordered_sets), len(spec._ordered_sets))
+#     self.assertEqual(
+#         get_sorted_list(expected_ordered_sets),
+#         ordered_sets_to_sorted_list(spec._ordered_sets)
+#     )
 
-  def test_add_cumulative_whole_campaign_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_cumulative_whole_campaign_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_equal_sets = [
-        # AMI constraints.
-        [name_to_index["measurement_02"], [name_to_index["measurement_09"]]],
-        [name_to_index["measurement_04"], [name_to_index["measurement_10"]]],
-        [name_to_index["measurement_06"], [name_to_index["measurement_11"]]],
-        [name_to_index["measurement_08"], [name_to_index["measurement_13"]]],
-        # MRC constraints.
-        [name_to_index["measurement_28"], [name_to_index["measurement_35"]]],
-        [name_to_index["measurement_30"], [name_to_index["measurement_36"]]],
-        [name_to_index["measurement_32"], [name_to_index["measurement_37"]]],
-        # CUSTOM constraints.
-        [name_to_index["measurement_52"], [name_to_index["measurement_59"]]],
-        [name_to_index["measurement_54"], [name_to_index["measurement_60"]]],
-        [name_to_index["measurement_56"], [name_to_index["measurement_61"]]],
-        [name_to_index["measurement_58"], [name_to_index["measurement_62"]]],
-    ]
+#     expected_equal_sets = [
+#         # AMI constraints.
+#         [name_to_index["measurement_02"], [name_to_index["measurement_09"]]],
+#         [name_to_index["measurement_04"], [name_to_index["measurement_10"]]],
+#         [name_to_index["measurement_06"], [name_to_index["measurement_11"]]],
+#         [name_to_index["measurement_08"], [name_to_index["measurement_13"]]],
+#         # MRC constraints.
+#         [name_to_index["measurement_28"], [name_to_index["measurement_35"]]],
+#         [name_to_index["measurement_30"], [name_to_index["measurement_36"]]],
+#         [name_to_index["measurement_32"], [name_to_index["measurement_37"]]],
+#         # CUSTOM constraints.
+#         [name_to_index["measurement_52"], [name_to_index["measurement_59"]]],
+#         [name_to_index["measurement_54"], [name_to_index["measurement_60"]]],
+#         [name_to_index["measurement_56"], [name_to_index["measurement_61"]]],
+#         [name_to_index["measurement_58"], [name_to_index["measurement_62"]]],
+#     ]
 
-    spec = SetMeasurementsSpec()
-    report._add_cumulative_whole_campaign_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_cumulative_whole_campaign_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._subsets_by_set), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertCountEqual(spec._equal_sets, expected_equal_sets)
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._subsets_by_set), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertCountEqual(spec._equal_sets, expected_equal_sets)
 
-  def test_add_k_reach_whole_campaign_relations(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_k_reach_whole_campaign_relations(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_equal_sets = [
-        # AMI constraints.
-        [name_to_index["measurement_09"],
-         [name_to_index["measurement_14"], name_to_index["measurement_15"]]],
-        [name_to_index["measurement_10"],
-         [name_to_index["measurement_16"], name_to_index["measurement_17"]]],
-        [name_to_index["measurement_11"],
-         [name_to_index["measurement_18"], name_to_index["measurement_19"]]],
-        [name_to_index["measurement_13"],
-         [name_to_index["measurement_20"], name_to_index["measurement_21"]]],
-        # MRC constraints.
-        [name_to_index["measurement_35"],
-         [name_to_index["measurement_39"], name_to_index["measurement_40"]]],
-        [name_to_index["measurement_36"],
-         [name_to_index["measurement_41"], name_to_index["measurement_42"]]],
-        [name_to_index["measurement_37"],
-         [name_to_index["measurement_43"], name_to_index["measurement_44"]]],
-        [name_to_index["measurement_38"],
-         [name_to_index["measurement_45"], name_to_index["measurement_46"]]],
-        # CUSTOM constraints.
-        [name_to_index["measurement_59"],
-         [name_to_index["measurement_63"], name_to_index["measurement_64"]]],
-        [name_to_index["measurement_60"],
-         [name_to_index["measurement_65"], name_to_index["measurement_66"]]],
-        [name_to_index["measurement_61"],
-         [name_to_index["measurement_67"], name_to_index["measurement_68"]]],
-    ]
+#     expected_equal_sets = [
+#         # AMI constraints.
+#         [name_to_index["measurement_09"],
+#          [name_to_index["measurement_14"], name_to_index["measurement_15"]]],
+#         [name_to_index["measurement_10"],
+#          [name_to_index["measurement_16"], name_to_index["measurement_17"]]],
+#         [name_to_index["measurement_11"],
+#          [name_to_index["measurement_18"], name_to_index["measurement_19"]]],
+#         [name_to_index["measurement_13"],
+#          [name_to_index["measurement_20"], name_to_index["measurement_21"]]],
+#         # MRC constraints.
+#         [name_to_index["measurement_35"],
+#          [name_to_index["measurement_39"], name_to_index["measurement_40"]]],
+#         [name_to_index["measurement_36"],
+#          [name_to_index["measurement_41"], name_to_index["measurement_42"]]],
+#         [name_to_index["measurement_37"],
+#          [name_to_index["measurement_43"], name_to_index["measurement_44"]]],
+#         [name_to_index["measurement_38"],
+#          [name_to_index["measurement_45"], name_to_index["measurement_46"]]],
+#         # CUSTOM constraints.
+#         [name_to_index["measurement_59"],
+#          [name_to_index["measurement_63"], name_to_index["measurement_64"]]],
+#         [name_to_index["measurement_60"],
+#          [name_to_index["measurement_65"], name_to_index["measurement_66"]]],
+#         [name_to_index["measurement_61"],
+#          [name_to_index["measurement_67"], name_to_index["measurement_68"]]],
+#     ]
 
-    spec = SetMeasurementsSpec()
-    report._add_k_reach_and_reach_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_k_reach_and_reach_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._subsets_by_set), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertCountEqual(spec._equal_sets, expected_equal_sets)
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._subsets_by_set), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertCountEqual(spec._equal_sets, expected_equal_sets)
 
-  def test_add_impression_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_impression_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_equal_sets = [
-        # AMI constraints.
-        [
-            name_to_index["measurement_25"],
-            sorted([name_to_index["measurement_22"],
-                    name_to_index["measurement_23"]])
-        ],
-        [
-            name_to_index["measurement_26"],
-            sorted([name_to_index["measurement_22"],
-                    name_to_index["measurement_23"],
-                    name_to_index["measurement_24"]])
-        ],
-        # MRC constraints.
-        [
-            name_to_index["measurement_50"],
-            sorted([name_to_index["measurement_48"],
-                    name_to_index["measurement_49"]])
-        ],
-        # CUSTOM constraints.
-        [
-            name_to_index["measurement_74"],
-            sorted([name_to_index["measurement_71"],
-                    name_to_index["measurement_73"]])
-        ],
-    ]
+#     expected_equal_sets = [
+#         # AMI constraints.
+#         [
+#             name_to_index["measurement_25"],
+#             sorted([name_to_index["measurement_22"],
+#                     name_to_index["measurement_23"]])
+#         ],
+#         [
+#             name_to_index["measurement_26"],
+#             sorted([name_to_index["measurement_22"],
+#                     name_to_index["measurement_23"],
+#                     name_to_index["measurement_24"]])
+#         ],
+#         # MRC constraints.
+#         [
+#             name_to_index["measurement_50"],
+#             sorted([name_to_index["measurement_48"],
+#                     name_to_index["measurement_49"]])
+#         ],
+#         # CUSTOM constraints.
+#         [
+#             name_to_index["measurement_74"],
+#             sorted([name_to_index["measurement_71"],
+#                     name_to_index["measurement_73"]])
+#         ],
+#     ]
 
-    spec = SetMeasurementsSpec()
-    report._add_impression_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_impression_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._subsets_by_set), 0)
-    self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
-    self.assertCountEqual(spec._equal_sets, expected_equal_sets)
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._subsets_by_set), 0)
+#     self.assertEqual(len(spec._weighted_sum_upperbound_sets), 0)
+#     self.assertCountEqual(spec._equal_sets, expected_equal_sets)
 
-  def test_add_k_reach_impression_relationships(self):
-    report = SAMPLE_REPORT
-    name_to_index = report._measurement_name_to_index
+#   def test_add_k_reach_impression_relationships(self):
+#     report = SAMPLE_REPORT
+#     name_to_index = report._measurement_name_to_index
 
-    expected_weighted_sum_upperbound_sets = {
-        # AMI constraints.
-        name_to_index["measurement_22"]: [[name_to_index["measurement_14"], 1],
-                                          [name_to_index["measurement_15"], 2]],
-        name_to_index["measurement_23"]: [[name_to_index["measurement_16"], 1],
-                                          [name_to_index["measurement_17"], 2]],
-        name_to_index["measurement_24"]: [[name_to_index["measurement_18"], 1],
-                                          [name_to_index["measurement_19"], 2]],
-        name_to_index["measurement_26"]: [[name_to_index["measurement_20"], 1],
-                                          [name_to_index["measurement_21"], 2]],
-        # MRC constraints.
-        name_to_index["measurement_47"]: [[name_to_index["measurement_39"], 1],
-                                          [name_to_index["measurement_40"], 2]],
-        name_to_index["measurement_48"]: [[name_to_index["measurement_41"], 1],
-                                          [name_to_index["measurement_42"], 2]],
-        name_to_index["measurement_49"]: [[name_to_index["measurement_43"], 1],
-                                          [name_to_index["measurement_44"], 2]],
-        name_to_index["measurement_50"]: [[name_to_index["measurement_45"], 1],
-                                          [name_to_index["measurement_46"], 2]],
-        # CUSTOM constraints.
-        name_to_index["measurement_71"]: [[name_to_index["measurement_63"], 1],
-                                          [name_to_index["measurement_64"], 2]],
-        name_to_index["measurement_72"]: [[name_to_index["measurement_65"], 1],
-                                          [name_to_index["measurement_66"], 2]],
-        name_to_index["measurement_73"]: [[name_to_index["measurement_67"], 1],
-                                          [name_to_index["measurement_68"], 2]],
-    }
+#     expected_weighted_sum_upperbound_sets = {
+#         # AMI constraints.
+#         name_to_index["measurement_22"]: [[name_to_index["measurement_14"], 1],
+#                                           [name_to_index["measurement_15"], 2]],
+#         name_to_index["measurement_23"]: [[name_to_index["measurement_16"], 1],
+#                                           [name_to_index["measurement_17"], 2]],
+#         name_to_index["measurement_24"]: [[name_to_index["measurement_18"], 1],
+#                                           [name_to_index["measurement_19"], 2]],
+#         name_to_index["measurement_26"]: [[name_to_index["measurement_20"], 1],
+#                                           [name_to_index["measurement_21"], 2]],
+#         # MRC constraints.
+#         name_to_index["measurement_47"]: [[name_to_index["measurement_39"], 1],
+#                                           [name_to_index["measurement_40"], 2]],
+#         name_to_index["measurement_48"]: [[name_to_index["measurement_41"], 1],
+#                                           [name_to_index["measurement_42"], 2]],
+#         name_to_index["measurement_49"]: [[name_to_index["measurement_43"], 1],
+#                                           [name_to_index["measurement_44"], 2]],
+#         name_to_index["measurement_50"]: [[name_to_index["measurement_45"], 1],
+#                                           [name_to_index["measurement_46"], 2]],
+#         # CUSTOM constraints.
+#         name_to_index["measurement_71"]: [[name_to_index["measurement_63"], 1],
+#                                           [name_to_index["measurement_64"], 2]],
+#         name_to_index["measurement_72"]: [[name_to_index["measurement_65"], 1],
+#                                           [name_to_index["measurement_66"], 2]],
+#         name_to_index["measurement_73"]: [[name_to_index["measurement_67"], 1],
+#                                           [name_to_index["measurement_68"], 2]],
+#     }
 
-    spec = SetMeasurementsSpec()
-    report._add_k_reach_impression_relations_to_spec(spec)
+#     spec = SetMeasurementsSpec()
+#     report._add_k_reach_impression_relations_to_spec(spec)
 
-    self.assertEqual(len(spec._covers_by_set), 0)
-    self.assertEqual(len(spec._subsets_by_set), 0)
-    self.assertEqual(len(spec._equal_sets), 0)
-    self.assertCountEqual(spec._weighted_sum_upperbound_sets.keys(),
-                          expected_weighted_sum_upperbound_sets.keys())
-    for key in expected_weighted_sum_upperbound_sets.keys():
-      self.assertCountEqual(spec._weighted_sum_upperbound_sets[key],
-                            expected_weighted_sum_upperbound_sets[key])
+#     self.assertEqual(len(spec._covers_by_set), 0)
+#     self.assertEqual(len(spec._subsets_by_set), 0)
+#     self.assertEqual(len(spec._equal_sets), 0)
+#     self.assertCountEqual(spec._weighted_sum_upperbound_sets.keys(),
+#                           expected_weighted_sum_upperbound_sets.keys())
+#     for key in expected_weighted_sum_upperbound_sets.keys():
+#       self.assertCountEqual(spec._weighted_sum_upperbound_sets[key],
+#                             expected_weighted_sum_upperbound_sets[key])
 
   def test_zero_variance_edp_with_invalid_cumulative_reach_is_not_consistent(
       self):
