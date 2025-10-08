@@ -30,19 +30,19 @@ from report.testing.validate_report import are_overlap_constraints_consistent
 from report.testing.validate_report import get_sorted_list
 from report.testing.validate_report import ordered_sets_to_sorted_list
 
-# from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
-#   report_post_processor_result_pb2
+from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
+  report_post_processor_result_pb2
 
-# StatusCode = report_post_processor_result_pb2.ReportPostProcessorStatus.StatusCode
-# ReportQuality = report_post_processor_result_pb2.ReportQuality
-# LargeCorrection = report_post_processor_result_pb2.ReportPostProcessorResult.LargeCorrection
+StatusCode = report_post_processor_result_pb2.ReportPostProcessorStatus.StatusCode
+ReportQuality = report_post_processor_result_pb2.ReportQuality
+LargeCorrection = report_post_processor_result_pb2.ReportPostProcessorResult.LargeCorrection
 
 EXPECTED_PRECISION = 1
-# EDP_ONE = "EDP_ONE"
-# EDP_TWO = "EDP_TWO"
-# EDP_THREE = "EDP_THREE"
+EDP_ONE = "EDP_ONE"
+EDP_TWO = "EDP_TWO"
+EDP_THREE = "EDP_THREE"
 
-# NOISE_CORRECTION_TOLERANCE = 0.1
+NOISE_CORRECTION_TOLERANCE = 0.1
 
 
 # SAMPLE_REPORT = Report(
