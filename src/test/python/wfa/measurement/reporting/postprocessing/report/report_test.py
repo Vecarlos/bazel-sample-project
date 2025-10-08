@@ -222,6 +222,474 @@ NOISE_CORRECTION_TOLERANCE = 0.1
 
 
 class TestReport(unittest.TestCase):
+  def test_is_cover_returns_true_for_valid_cover_sets(self):
+    self.assertTrue(is_cover(frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+                             (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO"}),
+                              frozenset({"EDP_THREE"}))))
+    self.assertTrue(is_cover(frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+                             (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO"}),
+                              frozenset({"EDP_THREE"}),
+                              frozenset({"EDP_ONE", "EDP_TWO"}))))
+
+  def test_is_cover_returns_false_for_invalid_cover_sets(self):
+    self.assertFalse(is_cover(frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+                              (frozenset({"EDP_ONE"}),
+                               frozenset({"EDP_THREE"}))))
+
+  def test_get_cover_returns_all_cover_sets(self):
+    target = frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"})
+    other_sets = (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO"}),
+                  frozenset({"EDP_THREE"}),
+                  frozenset({"EDP_ONE", "EDP_TWO"}))
+
+    expected = [
+        (
+            frozenset({'EDP_TWO', 'EDP_THREE', 'EDP_ONE'}),
+            (frozenset({'EDP_THREE'}), frozenset({'EDP_TWO', 'EDP_ONE'}))
+        ),
+        (
+            frozenset({'EDP_TWO', 'EDP_THREE', 'EDP_ONE'}), (
+                frozenset({'EDP_ONE'}), frozenset({'EDP_TWO'}),
+                frozenset({'EDP_THREE'}))
+        ),
+        (
+            frozenset({'EDP_TWO', 'EDP_THREE', 'EDP_ONE'}), (
+                frozenset({'EDP_ONE'}), frozenset({'EDP_THREE'}),
+                frozenset({'EDP_TWO', 'EDP_ONE'}))
+        ),
+        (
+            frozenset({'EDP_TWO', 'EDP_THREE', 'EDP_ONE'}), (
+                frozenset({'EDP_TWO'}), frozenset({'EDP_THREE'}),
+                frozenset({'EDP_TWO', 'EDP_ONE'}))
+        ),
+        (
+            frozenset({'EDP_TWO', 'EDP_THREE', 'EDP_ONE'}), (
+                frozenset({'EDP_ONE'}), frozenset({'EDP_TWO'}),
+                frozenset({'EDP_THREE'}), frozenset({'EDP_TWO', 'EDP_ONE'}))
+        )
+    ]
+
+    cover_relationship = get_covers(target, other_sets)
+    self.assertEqual(expected, cover_relationship)
+
+  def test_get_cover_relationships(self):
+    metric_report = MetricReport(
+        weekly_cumulative_reaches={
+            frozenset({EDP_ONE}): [Measurement(1, 1, "measurement_01")],
+            frozenset({EDP_TWO}): [Measurement(1, 1, "measurement_02")],
+            frozenset({EDP_THREE}): [Measurement(1, 1, "measurement_03")],
+            frozenset({EDP_ONE, EDP_TWO}): [
+                Measurement(1, 1, "measurement_04")],
+            frozenset({EDP_TWO, EDP_THREE}): [
+                Measurement(1, 1, "measurement_05")],
+            frozenset({EDP_ONE, EDP_THREE}): [
+                Measurement(1, 1, "measurement_06")],
+            frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
+                Measurement(1, 1, "measurement_07")],
+        },
+        whole_campaign_measurements=build_measurement_set(
+            reach={},
+            k_reach={
+                frozenset({EDP_ONE}): {1: Measurement(1, 1, "measurement_08")},
+            },
+            impression={
+                frozenset({EDP_ONE}): Measurement(1, 1, "measurement_09")
+            }),
+        weekly_non_cumulative_measurements={},
+    )
+
+    expected = [
+        (
+            frozenset({"EDP_ONE", "EDP_TWO"}),
+            (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO"})),
+        ),
+        (
+            frozenset({"EDP_TWO", "EDP_THREE"}),
+            (frozenset({"EDP_TWO"}), frozenset({"EDP_THREE"})),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_THREE"}),
+            (frozenset({"EDP_ONE"}), frozenset({"EDP_THREE"})),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO", "EDP_THREE"})),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (frozenset({"EDP_TWO"}), frozenset({"EDP_ONE", "EDP_THREE"})),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (frozenset({"EDP_THREE"}), frozenset({"EDP_ONE", "EDP_TWO"})),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+        (
+            frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
+            (
+                frozenset({"EDP_ONE"}),
+                frozenset({"EDP_TWO"}),
+                frozenset({"EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_TWO"}),
+                frozenset({"EDP_TWO", "EDP_THREE"}),
+                frozenset({"EDP_ONE", "EDP_THREE"}),
+            ),
+        ),
+    ]
+    self.assertEqual(metric_report.get_cumulative_cover_relationships(),
+                     expected)
+
 #   def test_add_cover_relationships(self):
 #     report = SAMPLE_REPORT
 #     name_to_index = report._measurement_name_to_index
@@ -3081,6 +3549,80 @@ class TestReport(unittest.TestCase):
 #         NOISE_CORRECTION_TOLERANCE)
 #     self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
 
+  def _assertMeasurementAlmostEquals(
+      self, expected: Measurement, actual: Measurement, msg
+  ):
+    if expected.sigma == 0:
+      self.assertAlmostEqual(expected.value, actual.value, msg=msg)
+    else:
+      self.assertAlmostEqual(
+          expected.value, actual.value, places=EXPECTED_PRECISION, msg=msg
+      )
+
+  def _assertMetricReportsAlmostEqual(
+      self, expected: MetricReport, actual: MetricReport, msg
+  ):
+    self.assertEqual(
+        expected.get_number_of_periods(), actual.get_number_of_periods()
+    )
+    self.assertEqual(
+        expected.get_number_of_frequencies(), actual.get_number_of_frequencies()
+    )
+
+    self.assertCountEqual(
+        expected.get_weekly_cumulative_reach_edp_combinations(),
+        actual.get_weekly_cumulative_reach_edp_combinations()
+    )
+    for edp_combination in expected.get_weekly_cumulative_reach_edp_combinations():
+      for period in range(0, expected.get_number_of_periods()):
+        self._assertMeasurementAlmostEquals(
+            expected.get_weekly_cumulative_reach_measurement(edp_combination, period),
+            actual.get_weekly_cumulative_reach_measurement(edp_combination, period),
+            msg,
+        )
+
+    self.assertCountEqual(
+        expected.get_whole_campaign_reach_edp_combinations(),
+        actual.get_whole_campaign_reach_edp_combinations()
+    )
+    for edp_combination in expected.get_whole_campaign_reach_edp_combinations():
+      self._assertMeasurementAlmostEquals(
+          expected.get_whole_campaign_reach_measurement(edp_combination),
+          actual.get_whole_campaign_reach_measurement(edp_combination),
+          msg,
+      )
+
+    self.assertCountEqual(
+        expected.get_whole_campaign_k_reach_edp_combinations(),
+        actual.get_whole_campaign_k_reach_edp_combinations()
+    )
+    for edp_combination in expected.get_whole_campaign_k_reach_edp_combinations():
+      for frequency in range(1, expected.get_number_of_frequencies() + 1):
+        self._assertMeasurementAlmostEquals(
+            expected.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
+            actual.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
+            msg
+        )
+
+    self.assertCountEqual(
+        expected.get_whole_campaign_impression_edp_combinations(),
+        actual.get_whole_campaign_impression_edp_combinations()
+    )
+    for edp_combination in expected.get_whole_campaign_impression_edp_combinations():
+      self._assertMeasurementAlmostEquals(
+          expected.get_whole_campaign_impression_measurement(edp_combination),
+          actual.get_whole_campaign_impression_measurement(edp_combination),
+          msg
+      )
+
+  def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
+    self.assertEqual(expected.get_metrics(), actual.get_metrics())
+    for metric in expected.get_metrics():
+      self._assertMetricReportsAlmostEqual(
+          expected.get_metric_report(metric),
+          actual.get_metric_report(metric),
+          msg,
+      )
 
 if __name__ == "__main__":
   unittest.main()
