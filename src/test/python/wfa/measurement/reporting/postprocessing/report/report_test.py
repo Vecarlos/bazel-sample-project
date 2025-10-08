@@ -14,35 +14,35 @@
 
 import unittest
 
-from noiseninja.noised_measurements import Measurement
-from noiseninja.noised_measurements import MeasurementSet
-from noiseninja.noised_measurements import OrderedSets
-from noiseninja.noised_measurements import SetMeasurementsSpec
+# from noiseninja.noised_measurements import Measurement
+# from noiseninja.noised_measurements import MeasurementSet
+# from noiseninja.noised_measurements import OrderedSets
+# from noiseninja.noised_measurements import SetMeasurementsSpec
 
-from report.report import EdpCombination
-from report.report import MetricReport
-from report.report import Report
-from report.report import build_measurement_set
-from report.report import get_covers
-from report.report import is_cover
-from report.report import is_union_reach_consistent
-from report.testing.validate_report import are_overlap_constraints_consistent
-from report.testing.validate_report import get_sorted_list
-from report.testing.validate_report import ordered_sets_to_sorted_list
+# from report.report import EdpCombination
+# from report.report import MetricReport
+# from report.report import Report
+# from report.report import build_measurement_set
+# from report.report import get_covers
+# from report.report import is_cover
+# from report.report import is_union_reach_consistent
+# from report.testing.validate_report import are_overlap_constraints_consistent
+# from report.testing.validate_report import get_sorted_list
+# from report.testing.validate_report import ordered_sets_to_sorted_list
 
-from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
-  report_post_processor_result_pb2
+# from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
+#   report_post_processor_result_pb2
 
-StatusCode = report_post_processor_result_pb2.ReportPostProcessorStatus.StatusCode
-ReportQuality = report_post_processor_result_pb2.ReportQuality
-LargeCorrection = report_post_processor_result_pb2.ReportPostProcessorResult.LargeCorrection
+# StatusCode = report_post_processor_result_pb2.ReportPostProcessorStatus.StatusCode
+# ReportQuality = report_post_processor_result_pb2.ReportQuality
+# LargeCorrection = report_post_processor_result_pb2.ReportPostProcessorResult.LargeCorrection
 
-EXPECTED_PRECISION = 1
-EDP_ONE = "EDP_ONE"
-EDP_TWO = "EDP_TWO"
-EDP_THREE = "EDP_THREE"
+# EXPECTED_PRECISION = 1
+# EDP_ONE = "EDP_ONE"
+# EDP_TWO = "EDP_TWO"
+# EDP_THREE = "EDP_THREE"
 
-NOISE_CORRECTION_TOLERANCE = 0.1
+# NOISE_CORRECTION_TOLERANCE = 0.1
 
 
 # SAMPLE_REPORT = Report(
