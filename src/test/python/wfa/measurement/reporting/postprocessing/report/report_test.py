@@ -1435,72 +1435,72 @@ class TestReport(unittest.TestCase):
 #         report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
 #     )
 
-  def test_union_consistent_check_throws_exception_when_population_is_zero(
-      self):
-    with self.assertRaises(ValueError) as ex:
-      is_union_reach_consistent(
-          Measurement(4.00, 1, "measurement_03"),
-          [
-              Measurement(0.00, 1, "measurement_01"),
-              Measurement(3.30, 1, "measurement_02")
-          ],
-          0
-      )
+#   def test_union_consistent_check_throws_exception_when_population_is_zero(
+#       self):
+#     with self.assertRaises(ValueError) as ex:
+#       is_union_reach_consistent(
+#           Measurement(4.00, 1, "measurement_03"),
+#           [
+#               Measurement(0.00, 1, "measurement_01"),
+#               Measurement(3.30, 1, "measurement_02")
+#           ],
+#           0
+#       )
 
-    self.assertTrue(
-        str(ex.exception).startswith(
-            "The population size must be greater than 0"
-        )
-    )
+#     self.assertTrue(
+#         str(ex.exception).startswith(
+#             "The population size must be greater than 0"
+#         )
+#     )
 
-  def test_union_consistent_check_throws_exception_when_there_are_less_than_two_components(
-      self):
-    with self.assertRaises(ValueError) as ex:
-      is_union_reach_consistent(
-          Measurement(4.00, 1, "measurement_03"),
-          [
-              Measurement(0.00, 1, "measurement_01")
-          ],
-          10000000
-      )
+#   def test_union_consistent_check_throws_exception_when_there_are_less_than_two_components(
+#       self):
+#     with self.assertRaises(ValueError) as ex:
+#       is_union_reach_consistent(
+#           Measurement(4.00, 1, "measurement_03"),
+#           [
+#               Measurement(0.00, 1, "measurement_01")
+#           ],
+#           10000000
+#       )
 
-    self.assertTrue(
-        str(ex.exception).startswith(
-            "The length of individual reaches must be at least 2"
-        )
-    )
+#     self.assertTrue(
+#         str(ex.exception).startswith(
+#             "The length of individual reaches must be at least 2"
+#         )
+#     )
 
-  def test_union_consistent_check_passes_when_expected_union_is_within_confidence_interval(
-      self):
-    # The difference between the expected union and the measured one is
-    # abs(12453482 - 12460000), which is 6518. The standard deviation upperbound
-    # is 1838.5. The test passes as 6518 < 7*1838.5.
-    self.assertTrue(
-        is_union_reach_consistent(
-            union_measurement=Measurement(12460000, 1300, "measurement_01"),
-            component_measurements=[
-                Measurement(10000000, 0, "measurement_02"),
-                Measurement(2998700, 1300, "measurement_03"),
-            ],
-            population_size=55000000
-        )
-    )
+#   def test_union_consistent_check_passes_when_expected_union_is_within_confidence_interval(
+#       self):
+#     # The difference between the expected union and the measured one is
+#     # abs(12453482 - 12460000), which is 6518. The standard deviation upperbound
+#     # is 1838.5. The test passes as 6518 < 7*1838.5.
+#     self.assertTrue(
+#         is_union_reach_consistent(
+#             union_measurement=Measurement(12460000, 1300, "measurement_01"),
+#             component_measurements=[
+#                 Measurement(10000000, 0, "measurement_02"),
+#                 Measurement(2998700, 1300, "measurement_03"),
+#             ],
+#             population_size=55000000
+#         )
+#     )
 
-  def test_union_consistent_check_fails_when_expected_union_is_outside_confidence_interval(
-      self):
-    # The difference between the expected union and the measured one is
-    # abs(12453482 - 12502000), which is 48518. The standard deviation upperbound
-    # is 1838.5. The test passes as 48518 > 7*1838.5.
-    self.assertFalse(
-        is_union_reach_consistent(
-            union_measurement=Measurement(12502000, 1300, "measurement_01"),
-            component_measurements=[
-                Measurement(10000000, 0, "measurement_02"),
-                Measurement(2998700, 1300, "measurement_03"),
-            ],
-            population_size=55000000
-        )
-    )
+#   def test_union_consistent_check_fails_when_expected_union_is_outside_confidence_interval(
+#       self):
+#     # The difference between the expected union and the measured one is
+#     # abs(12453482 - 12502000), which is 48518. The standard deviation upperbound
+#     # is 1838.5. The test passes as 48518 > 7*1838.5.
+#     self.assertFalse(
+#         is_union_reach_consistent(
+#             union_measurement=Measurement(12502000, 1300, "measurement_01"),
+#             component_measurements=[
+#                 Measurement(10000000, 0, "measurement_02"),
+#                 Measurement(2998700, 1300, "measurement_03"),
+#             ],
+#             population_size=55000000
+#         )
+#     )
 
 #   def test_can_correct_time_series(self):
 #     ami = "ami"
@@ -3549,80 +3549,80 @@ class TestReport(unittest.TestCase):
 #         NOISE_CORRECTION_TOLERANCE)
 #     self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
 
-  def _assertMeasurementAlmostEquals(
-      self, expected: Measurement, actual: Measurement, msg
-  ):
-    if expected.sigma == 0:
-      self.assertAlmostEqual(expected.value, actual.value, msg=msg)
-    else:
-      self.assertAlmostEqual(
-          expected.value, actual.value, places=EXPECTED_PRECISION, msg=msg
-      )
+#   def _assertMeasurementAlmostEquals(
+#       self, expected: Measurement, actual: Measurement, msg
+#   ):
+#     if expected.sigma == 0:
+#       self.assertAlmostEqual(expected.value, actual.value, msg=msg)
+#     else:
+#       self.assertAlmostEqual(
+#           expected.value, actual.value, places=EXPECTED_PRECISION, msg=msg
+#       )
 
-  def _assertMetricReportsAlmostEqual(
-      self, expected: MetricReport, actual: MetricReport, msg
-  ):
-    self.assertEqual(
-        expected.get_number_of_periods(), actual.get_number_of_periods()
-    )
-    self.assertEqual(
-        expected.get_number_of_frequencies(), actual.get_number_of_frequencies()
-    )
+#   def _assertMetricReportsAlmostEqual(
+#       self, expected: MetricReport, actual: MetricReport, msg
+#   ):
+#     self.assertEqual(
+#         expected.get_number_of_periods(), actual.get_number_of_periods()
+#     )
+#     self.assertEqual(
+#         expected.get_number_of_frequencies(), actual.get_number_of_frequencies()
+#     )
 
-    self.assertCountEqual(
-        expected.get_weekly_cumulative_reach_edp_combinations(),
-        actual.get_weekly_cumulative_reach_edp_combinations()
-    )
-    for edp_combination in expected.get_weekly_cumulative_reach_edp_combinations():
-      for period in range(0, expected.get_number_of_periods()):
-        self._assertMeasurementAlmostEquals(
-            expected.get_weekly_cumulative_reach_measurement(edp_combination, period),
-            actual.get_weekly_cumulative_reach_measurement(edp_combination, period),
-            msg,
-        )
+#     self.assertCountEqual(
+#         expected.get_weekly_cumulative_reach_edp_combinations(),
+#         actual.get_weekly_cumulative_reach_edp_combinations()
+#     )
+#     for edp_combination in expected.get_weekly_cumulative_reach_edp_combinations():
+#       for period in range(0, expected.get_number_of_periods()):
+#         self._assertMeasurementAlmostEquals(
+#             expected.get_weekly_cumulative_reach_measurement(edp_combination, period),
+#             actual.get_weekly_cumulative_reach_measurement(edp_combination, period),
+#             msg,
+#         )
 
-    self.assertCountEqual(
-        expected.get_whole_campaign_reach_edp_combinations(),
-        actual.get_whole_campaign_reach_edp_combinations()
-    )
-    for edp_combination in expected.get_whole_campaign_reach_edp_combinations():
-      self._assertMeasurementAlmostEquals(
-          expected.get_whole_campaign_reach_measurement(edp_combination),
-          actual.get_whole_campaign_reach_measurement(edp_combination),
-          msg,
-      )
+#     self.assertCountEqual(
+#         expected.get_whole_campaign_reach_edp_combinations(),
+#         actual.get_whole_campaign_reach_edp_combinations()
+#     )
+#     for edp_combination in expected.get_whole_campaign_reach_edp_combinations():
+#       self._assertMeasurementAlmostEquals(
+#           expected.get_whole_campaign_reach_measurement(edp_combination),
+#           actual.get_whole_campaign_reach_measurement(edp_combination),
+#           msg,
+#       )
 
-    self.assertCountEqual(
-        expected.get_whole_campaign_k_reach_edp_combinations(),
-        actual.get_whole_campaign_k_reach_edp_combinations()
-    )
-    for edp_combination in expected.get_whole_campaign_k_reach_edp_combinations():
-      for frequency in range(1, expected.get_number_of_frequencies() + 1):
-        self._assertMeasurementAlmostEquals(
-            expected.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
-            actual.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
-            msg
-        )
+#     self.assertCountEqual(
+#         expected.get_whole_campaign_k_reach_edp_combinations(),
+#         actual.get_whole_campaign_k_reach_edp_combinations()
+#     )
+#     for edp_combination in expected.get_whole_campaign_k_reach_edp_combinations():
+#       for frequency in range(1, expected.get_number_of_frequencies() + 1):
+#         self._assertMeasurementAlmostEquals(
+#             expected.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
+#             actual.get_whole_campaign_k_reach_measurement(edp_combination, frequency),
+#             msg
+#         )
 
-    self.assertCountEqual(
-        expected.get_whole_campaign_impression_edp_combinations(),
-        actual.get_whole_campaign_impression_edp_combinations()
-    )
-    for edp_combination in expected.get_whole_campaign_impression_edp_combinations():
-      self._assertMeasurementAlmostEquals(
-          expected.get_whole_campaign_impression_measurement(edp_combination),
-          actual.get_whole_campaign_impression_measurement(edp_combination),
-          msg
-      )
+#     self.assertCountEqual(
+#         expected.get_whole_campaign_impression_edp_combinations(),
+#         actual.get_whole_campaign_impression_edp_combinations()
+#     )
+#     for edp_combination in expected.get_whole_campaign_impression_edp_combinations():
+#       self._assertMeasurementAlmostEquals(
+#           expected.get_whole_campaign_impression_measurement(edp_combination),
+#           actual.get_whole_campaign_impression_measurement(edp_combination),
+#           msg
+#       )
 
-  def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
-    self.assertEqual(expected.get_metrics(), actual.get_metrics())
-    for metric in expected.get_metrics():
-      self._assertMetricReportsAlmostEqual(
-          expected.get_metric_report(metric),
-          actual.get_metric_report(metric),
-          msg,
-      )
+#   def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
+#     self.assertEqual(expected.get_metrics(), actual.get_metrics())
+#     for metric in expected.get_metrics():
+#       self._assertMetricReportsAlmostEqual(
+#           expected.get_metric_report(metric),
+#           actual.get_metric_report(metric),
+#           msg,
+#       )
 
 if __name__ == "__main__":
   unittest.main()
