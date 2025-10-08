@@ -22,8 +22,8 @@ from noiseninja.noised_measurements import SetMeasurementsSpec
 # from report.report import EdpCombination
 # from report.report import MetricReport
 # from report.report import Report
-# from report.report import build_measurement_set
-# from report.report import get_covers
+from report.report import build_measurement_set
+from report.report import get_covers
 from report.report import is_cover
 from report.report import is_union_reach_consistent
 from report.testing.validate_report import are_overlap_constraints_consistent
