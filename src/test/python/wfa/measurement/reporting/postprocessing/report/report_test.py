@@ -3615,7 +3615,7 @@ class TestReport(unittest.TestCase):
 #           msg
 #       )
 
-  def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
+#   def _assertReportsAlmostEqual(self, expected: Report, actual: Report, msg):
     self.assertEqual(expected.get_metrics(), actual.get_metrics())
     for metric in expected.get_metrics():
       self._assertMetricReportsAlmostEqual(
