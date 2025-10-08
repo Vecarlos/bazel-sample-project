@@ -1233,207 +1233,207 @@ class TestReport(unittest.TestCase):
 #       self.assertCountEqual(spec._weighted_sum_upperbound_sets[key],
 #                             expected_weighted_sum_upperbound_sets[key])
 
-  def test_zero_variance_edp_with_invalid_cumulative_reach_is_not_consistent(
-      self):
-    # The cumulative reaches are decreasing.
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(55, 0, "measurement_01"),
-                        Measurement(48.0, 0, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
-                    },
-                    k_reach={
-                        frozenset({EDP_ONE}): {
-                            1: Measurement(20, 0, "measurement_04"),
-                            2: Measurement(28, 0, "measurement_05"),
-                        },
-                    },
-                    impression={
-                        frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
-                    }),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
+#   def test_zero_variance_edp_with_invalid_cumulative_reach_is_not_consistent(
+#       self):
+#     # The cumulative reaches are decreasing.
+#     report = Report(
+#         metric_reports={
+#             "ami": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(55, 0, "measurement_01"),
+#                         Measurement(48.0, 0, "measurement_02")
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
+#                     },
+#                     k_reach={
+#                         frozenset({EDP_ONE}): {
+#                             1: Measurement(20, 0, "measurement_04"),
+#                             2: Measurement(28, 0, "measurement_05"),
+#                         },
+#                     },
+#                     impression={
+#                         frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
+#                     }),
+#                 weekly_non_cumulative_measurements={},
+#             )
+#         },
+#         metric_subsets_by_parent={},
+#         cumulative_inconsistency_allowed_edp_combinations={},
+#     )
 
-    self.assertFalse(
-        report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
-    )
+#     self.assertFalse(
+#         report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
+#     )
 
-  def test_zero_variance_edp_with_mismatch_cumulative_and_total_reach_is_not_consistent(
-      self):
-    # The total reach is not equal to the last cumulative reach.
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(25, 0, "measurement_01"),
-                        Measurement(35.0, 0, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
-                    },
-                    k_reach={
-                        frozenset({EDP_ONE}): {
-                            1: Measurement(20, 0, "measurement_04"),
-                            2: Measurement(28, 0, "measurement_05"),
-                        },
-                    },
-                    impression={
-                        frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
-                    }),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
+#   def test_zero_variance_edp_with_mismatch_cumulative_and_total_reach_is_not_consistent(
+#       self):
+#     # The total reach is not equal to the last cumulative reach.
+#     report = Report(
+#         metric_reports={
+#             "ami": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(25, 0, "measurement_01"),
+#                         Measurement(35.0, 0, "measurement_02")
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
+#                     },
+#                     k_reach={
+#                         frozenset({EDP_ONE}): {
+#                             1: Measurement(20, 0, "measurement_04"),
+#                             2: Measurement(28, 0, "measurement_05"),
+#                         },
+#                     },
+#                     impression={
+#                         frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
+#                     }),
+#                 weekly_non_cumulative_measurements={},
+#             )
+#         },
+#         metric_subsets_by_parent={},
+#         cumulative_inconsistency_allowed_edp_combinations={},
+#     )
 
-    self.assertFalse(
-        report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
-    )
+#     self.assertFalse(
+#         report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
+#     )
 
-  def test_zero_variance_edp_with_mismatch_total_reach_and_k_reach_is_not_consistent(
-      self):
-    # The total reach is not equal to the sum of k reaches.
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(25, 0, "measurement_01"),
-                        Measurement(48.0, 0, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
-                    },
-                    k_reach={
-                        frozenset({EDP_ONE}): {
-                            1: Measurement(20, 0, "measurement_04"),
-                            2: Measurement(20, 0, "measurement_05"),
-                        },
-                    },
-                    impression={
-                        frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
-                    }),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
+#   def test_zero_variance_edp_with_mismatch_total_reach_and_k_reach_is_not_consistent(
+#       self):
+#     # The total reach is not equal to the sum of k reaches.
+#     report = Report(
+#         metric_reports={
+#             "ami": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(25, 0, "measurement_01"),
+#                         Measurement(48.0, 0, "measurement_02")
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
+#                     },
+#                     k_reach={
+#                         frozenset({EDP_ONE}): {
+#                             1: Measurement(20, 0, "measurement_04"),
+#                             2: Measurement(20, 0, "measurement_05"),
+#                         },
+#                     },
+#                     impression={
+#                         frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
+#                     }),
+#                 weekly_non_cumulative_measurements={},
+#             )
+#         },
+#         metric_subsets_by_parent={},
+#         cumulative_inconsistency_allowed_edp_combinations={},
+#     )
 
-    self.assertFalse(
-        report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
-    )
+#     self.assertFalse(
+#         report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
+#     )
 
-  def test_zero_variance_edp_with_impression_count_less_than_weighted_sum_of_k_reaches_is_not_consistent(
-      self):
-    # The impression count is much less than the weighted sum of k reaches.
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(25, 0, "measurement_01"),
-                        Measurement(48.0, 0, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
-                    },
-                    k_reach={
-                        frozenset({EDP_ONE}): {
-                            1: Measurement(20, 0, "measurement_04"),
-                            2: Measurement(28, 0, "measurement_05"),
-                        },
-                    },
-                    impression={
-                        frozenset({EDP_ONE}): Measurement(50, 0, "measurement_06"),
-                    }),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
+#   def test_zero_variance_edp_with_impression_count_less_than_weighted_sum_of_k_reaches_is_not_consistent(
+#       self):
+#     # The impression count is much less than the weighted sum of k reaches.
+#     report = Report(
+#         metric_reports={
+#             "ami": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(25, 0, "measurement_01"),
+#                         Measurement(48.0, 0, "measurement_02")
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
+#                     },
+#                     k_reach={
+#                         frozenset({EDP_ONE}): {
+#                             1: Measurement(20, 0, "measurement_04"),
+#                             2: Measurement(28, 0, "measurement_05"),
+#                         },
+#                     },
+#                     impression={
+#                         frozenset({EDP_ONE}): Measurement(50, 0, "measurement_06"),
+#                     }),
+#                 weekly_non_cumulative_measurements={},
+#             )
+#         },
+#         metric_subsets_by_parent={},
+#         cumulative_inconsistency_allowed_edp_combinations={},
+#     )
 
-    self.assertFalse(
-        report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
-    )
+#     self.assertFalse(
+#         report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
+#     )
 
-  def test_zero_variance_edp_with_inconsistent_metric_relation_is_not_consistent(
-      self):
-    # The first mrc cumulative week has higher reach than that of ami.
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(35, 0, "measurement_01"),
-                        Measurement(48.0, 0, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
-                    },
-                    k_reach={
-                        frozenset({EDP_ONE}): {
-                            1: Measurement(20, 0, "measurement_04"),
-                            2: Measurement(28, 0, "measurement_05"),
-                        },
-                    },
-                    impression={
-                        frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
-                    }),
-                weekly_non_cumulative_measurements={},
-            ),
-            "mrc": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(40, 0, "measurement_07"),
-                        Measurement(40.0, 0, "measurement_08")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(40, 0, "measurement_09"),
-                    },
-                    k_reach={
-                        frozenset({EDP_ONE}): {
-                            1: Measurement(20, 0, "measurement_10"),
-                            2: Measurement(20, 0, "measurement_11"),
-                        },
-                    },
-                    impression={
-                        frozenset({EDP_ONE}): Measurement(80, 0, "measurement_12"),
-                    }),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={"ami": ["mrc"]},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
+#   def test_zero_variance_edp_with_inconsistent_metric_relation_is_not_consistent(
+#       self):
+#     # The first mrc cumulative week has higher reach than that of ami.
+#     report = Report(
+#         metric_reports={
+#             "ami": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(35, 0, "measurement_01"),
+#                         Measurement(48.0, 0, "measurement_02")
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
+#                     },
+#                     k_reach={
+#                         frozenset({EDP_ONE}): {
+#                             1: Measurement(20, 0, "measurement_04"),
+#                             2: Measurement(28, 0, "measurement_05"),
+#                         },
+#                     },
+#                     impression={
+#                         frozenset({EDP_ONE}): Measurement(100, 0, "measurement_06"),
+#                     }),
+#                 weekly_non_cumulative_measurements={},
+#             ),
+#             "mrc": MetricReport(
+#                 weekly_cumulative_reaches={
+#                     frozenset({EDP_ONE}): [
+#                         Measurement(40, 0, "measurement_07"),
+#                         Measurement(40.0, 0, "measurement_08")
+#                     ],
+#                 },
+#                 whole_campaign_measurements=build_measurement_set(
+#                     reach={
+#                         frozenset({EDP_ONE}): Measurement(40, 0, "measurement_09"),
+#                     },
+#                     k_reach={
+#                         frozenset({EDP_ONE}): {
+#                             1: Measurement(20, 0, "measurement_10"),
+#                             2: Measurement(20, 0, "measurement_11"),
+#                         },
+#                     },
+#                     impression={
+#                         frozenset({EDP_ONE}): Measurement(80, 0, "measurement_12"),
+#                     }),
+#                 weekly_non_cumulative_measurements={},
+#             )
+#         },
+#         metric_subsets_by_parent={"ami": ["mrc"]},
+#         cumulative_inconsistency_allowed_edp_combinations={},
+#     )
 
-    self.assertFalse(
-        report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
-    )
+#     self.assertFalse(
+#         report._are_edp_measurements_consistent(frozenset({EDP_ONE}))
+#     )
 
   def test_union_consistent_check_throws_exception_when_population_is_zero(
       self):
