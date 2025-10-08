@@ -3552,15 +3552,15 @@ class TestReport(unittest.TestCase):
 #         NOISE_CORRECTION_TOLERANCE)
 #     self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
 
-  def _assertMeasurementAlmostEquals(
-      self, expected: Measurement, actual: Measurement, msg
-  ):
-    if expected.sigma == 0:
-      self.assertAlmostEqual(expected.value, actual.value, msg=msg)
-    else:
-      self.assertAlmostEqual(
-          expected.value, actual.value, places=EXPECTED_PRECISION, msg=msg
-      )
+#   def _assertMeasurementAlmostEquals(
+#       self, expected: Measurement, actual: Measurement, msg
+#   ):
+#     if expected.sigma == 0:
+#       self.assertAlmostEqual(expected.value, actual.value, msg=msg)
+#     else:
+#       self.assertAlmostEqual(
+#           expected.value, actual.value, places=EXPECTED_PRECISION, msg=msg
+#       )
 
 #   def _assertMetricReportsAlmostEqual(
 #       self, expected: MetricReport, actual: MetricReport, msg
