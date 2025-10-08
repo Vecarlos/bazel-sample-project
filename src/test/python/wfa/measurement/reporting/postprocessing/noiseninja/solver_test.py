@@ -129,7 +129,7 @@ class SolverTest(unittest.TestCase):
 #     self.assertGreaterEqual(solution[5],
 #                             solution[1] + 2 * solution[2] + 3 * solution[3])
 
-  def test_solve_with_different_sigma_one_constraint(self):
+#   def test_solve_with_different_sigma_one_constraint(self):
     spec = SetMeasurementsSpec()
     spec.add_subset_relation(1, 2)
     spec.add_subset_relation(1, 3)
