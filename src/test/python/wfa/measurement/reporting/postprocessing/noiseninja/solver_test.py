@@ -31,9 +31,6 @@ TOLERANCE = 1e-1
 
 
 class SolverTest(unittest.TestCase):
-    # def always_true():
-    #     self.assertFalse(False)
-
 #   def test_solve_when_highs_solver_fails_to_converge(self):
 #     spec = SetMeasurementsSpec()
 #     spec.add_subset_relation(1, 2)
@@ -130,44 +127,44 @@ class SolverTest(unittest.TestCase):
 #                             solution[1] + 2 * solution[2] + 3 * solution[3])
 
 #   def test_solve_with_different_sigma_one_constraint(self):
-    spec = SetMeasurementsSpec()
-    spec.add_subset_relation(1, 2)
-    spec.add_subset_relation(1, 3)
-    spec.add_cover(1, [2, 3])
-    spec.add_equal_relation(1, [2, 4])
-    spec.add_weighted_sum_upperbound_relation(5, [[1, 1.0], [2, 2.0], [3, 3.0]])
+#     spec = SetMeasurementsSpec()
+#     spec.add_subset_relation(1, 2)
+#     spec.add_subset_relation(1, 3)
+#     spec.add_cover(1, [2, 3])
+#     spec.add_equal_relation(1, [2, 4])
+#     spec.add_weighted_sum_upperbound_relation(5, [[1, 1.0], [2, 2.0], [3, 3.0]])
 
-    spec.add_measurement(1, Measurement(50, 1, "measurement_01"))
-    spec.add_measurement(2, Measurement(48, 0, "measurement_02"))
-    spec.add_measurement(3, Measurement(1, 1e-6, "measurement_03"))
-    spec.add_measurement(4, Measurement(51, 1, "measurement_04"))
-    spec.add_measurement(5, Measurement(51, 1, "measurement_05"))
+#     spec.add_measurement(1, Measurement(50, 1, "measurement_01"))
+#     spec.add_measurement(2, Measurement(48, 0, "measurement_02"))
+#     spec.add_measurement(3, Measurement(1, 1e-6, "measurement_03"))
+#     spec.add_measurement(4, Measurement(51, 1, "measurement_04"))
+#     spec.add_measurement(5, Measurement(51, 1, "measurement_05"))
 
-    solution, report_post_processor_status = Solver(spec).solve_and_translate()
+#     solution, report_post_processor_status = Solver(spec).solve_and_translate()
 
-    self.assertIn(
-        report_post_processor_status.status_code,
-        [StatusCode.SOLUTION_FOUND_WITH_HIGHS,
-         StatusCode.SOLUTION_FOUND_WITH_OSQP]
-    )
+#     self.assertIn(
+#         report_post_processor_status.status_code,
+#         [StatusCode.SOLUTION_FOUND_WITH_HIGHS,
+#          StatusCode.SOLUTION_FOUND_WITH_OSQP]
+#     )
 
-    self.assertLess(
-        max(report_post_processor_status.primal_equality_residual,
-            report_post_processor_status.primal_inequality_residual),
-        TOLERANCE
-    )
+#     self.assertLess(
+#         max(report_post_processor_status.primal_equality_residual,
+#             report_post_processor_status.primal_inequality_residual),
+#         TOLERANCE
+#     )
 
-    # Verifies tha all constraints are met.
-    self.assertAlmostEqual(solution[1], 48, msg=solution)
-    self.assertAlmostEqual(solution[2], 48, msg=solution)
-    # set 3 has very small sigma, therefore should not change much.
-    self.assertAlmostEqual(solution[3], 1, places=4, msg=solution)
-    self.assertAlmostEqual(solution[1], solution[2] + solution[4], places=3,
-                           msg=solution)
-    self.assertGreaterEqual(solution[5],
-                            solution[1] + 2 * solution[2] + 3 * solution[3])
+#     # Verifies tha all constraints are met.
+#     self.assertAlmostEqual(solution[1], 48, msg=solution)
+#     self.assertAlmostEqual(solution[2], 48, msg=solution)
+#     # set 3 has very small sigma, therefore should not change much.
+#     self.assertAlmostEqual(solution[3], 1, places=4, msg=solution)
+#     self.assertAlmostEqual(solution[1], solution[2] + solution[4], places=3,
+#                            msg=solution)
+#     self.assertGreaterEqual(solution[5],
+#                             solution[1] + 2 * solution[2] + 3 * solution[3])
 
-    def test_solve_solution_does_not_have_negative_values(self):
+  def test_solve_solution_does_not_have_negative_values(self):
     spec = SetMeasurementsSpec()
     spec.add_subset_relation(1, 2)
     spec.add_subset_relation(1, 3)
