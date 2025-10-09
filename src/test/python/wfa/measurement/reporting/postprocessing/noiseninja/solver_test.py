@@ -66,7 +66,7 @@ class SolverTest(unittest.TestCase):
     solver._solve = mock_solve
 
     # Verifies that the HIGHS solver returns a non-solution.
-    highs_solution, report_post_processor_status = solver._solve(HIGHS_SOLVER)
+    # highs_solution, report_post_processor_status = solver._solve(HIGHS_SOLVER)
     # self.assertFalse(highs_solution.found)
     # self.assertEqual(
     #     report_post_processor_status.status_code,
