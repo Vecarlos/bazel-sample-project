@@ -2,7 +2,7 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="solver test AND report_mc_api_2_test no test"
+COMMIT_BASE_NAME="solver test all, report_mc_api_2_test no test"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
