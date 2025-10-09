@@ -45,7 +45,7 @@ class SolverTest(unittest.TestCase):
     spec.add_measurement(3, Measurement(1, 1, "measurement_03"))
     spec.add_measurement(4, Measurement(51, 1, "measurement_04"))
 
-    # solver = Solver(spec)
+    solver = Solver(spec)
 
     # # Stores the original function.
     # original_solve = solver._solve
