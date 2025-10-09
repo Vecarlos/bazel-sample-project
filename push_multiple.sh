@@ -2,7 +2,7 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="empty Solver"
+COMMIT_BASE_NAME="Solver no init"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
