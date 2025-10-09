@@ -1,16 +1,16 @@
-Copyright 2024 The Cross-Media Measurement Authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+# Copyright 2024 The Cross-Media Measurement Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import unittest
 from unittest.mock import MagicMock
@@ -171,7 +171,7 @@ class SolverTest(unittest.TestCase):
     spec.add_cover(1, [2, 3])
     spec.add_equal_relation(1, [4])
 
-    The measurement values are set to meet the above constraints.
+    # The measurement values are set to meet the above constraints.
     spec.add_measurement(1, Measurement(-1, 1, "measurement_01"))
     spec.add_measurement(2, Measurement(-1, 1, "measurement_02"))
     spec.add_measurement(3, Measurement(-1, 1, "measurement_03"))
@@ -191,8 +191,8 @@ class SolverTest(unittest.TestCase):
         TOLERANCE
     )
 
-    Verifies that the solutions are greater than or equal to 0 due to the
-    lower bound constraints.
+    # Verifies that the solutions are greater than or equal to 0 due to the
+    # lower bound constraints.
     self.assertGreaterEqual(solution[1], 0.0)
     self.assertGreaterEqual(solution[2], 0.0)
     self.assertGreaterEqual(solution[3], 0.0)
