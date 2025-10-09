@@ -2,7 +2,7 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="only  report_mc_api_2_test"
+COMMIT_BASE_NAME="only  post_process_origin_report_test"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
