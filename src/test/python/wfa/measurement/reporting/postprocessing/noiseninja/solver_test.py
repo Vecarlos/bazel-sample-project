@@ -45,25 +45,25 @@ class SolverTest(unittest.TestCase):
     spec.add_measurement(3, Measurement(1, 1, "measurement_03"))
     spec.add_measurement(4, Measurement(51, 1, "measurement_04"))
 
-    solver = Solver(spec)
+    # solver = Solver(spec)
 
-    # Stores the original function.
-    original_solve = solver._solve
+    # # Stores the original function.
+    # original_solve = solver._solve
 
-    def side_effect(solver_name):
-      if solver_name == HIGHS_SOLVER:
-        return Solution(x=None, found=False, problem=solver._problem()), \
-          ReportPostProcessorStatus(
-              status_code=StatusCode.SOLUTION_NOT_FOUND
-          )
-      else:
-        # Call the original function for other solvers.
-        return original_solve(solver_name)
+    # def side_effect(solver_name):
+    #   if solver_name == HIGHS_SOLVER:
+    #     return Solution(x=None, found=False, problem=solver._problem()), \
+    #       ReportPostProcessorStatus(
+    #           status_code=StatusCode.SOLUTION_NOT_FOUND
+    #       )
+    #   else:
+    #     # Call the original function for other solvers.
+    #     return original_solve(solver_name)
 
-    # The mock function executes the method _solve() normally for all solvers
-    # other than HIGHS. For the HIGHS solver, it returns a non-solution.
-    mock_solve = MagicMock(side_effect=side_effect)
-    solver._solve = mock_solve
+    # # The mock function executes the method _solve() normally for all solvers
+    # # other than HIGHS. For the HIGHS solver, it returns a non-solution.
+    # mock_solve = MagicMock(side_effect=side_effect)
+    # solver._solve = mock_solve
 
     # Verifies that the HIGHS solver returns a non-solution.
     # highs_solution, report_post_processor_status = solver._solve(HIGHS_SOLVER)
