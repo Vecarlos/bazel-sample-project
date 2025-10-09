@@ -86,7 +86,7 @@ class SolverTest(unittest.TestCase):
             report_post_processor_status.primal_inequality_residual),
         TOLERANCE
     )
-
+    print(solution[1], solution[2], solution[3], solution[1])
     # Verifies that a valid solution is obtained.
     self.assertAlmostEqual(solution[1], 50.000, places=2, msg=solution)
     self.assertAlmostEqual(solution[2], 48.000, places=2, msg=solution)
