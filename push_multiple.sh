@@ -2,14 +2,14 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="only log_processor_test"
+COMMIT_BASE_NAME="all python test"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
 # Tiempo de espera en segundos (1 minuto y 20 segundos = 80 segundos)
-DELAY_SECONDS=70
+DELAY_SECONDS=80
 # --- FIN DE LA CONFIGURACIÓN ---
 
 
