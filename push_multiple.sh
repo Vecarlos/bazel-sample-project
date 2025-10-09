@@ -20,7 +20,7 @@ git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
 
 # 2. Bucle para los 5 commits vacíos (del 2 al 6)
-for i in {2..6}
+for i in {2..5}
 do
   echo -e "\n--- Esperando $DELAY_SECONDS segundos para no interrumpir la CI anterior..."
   sleep $DELAY_SECONDS
