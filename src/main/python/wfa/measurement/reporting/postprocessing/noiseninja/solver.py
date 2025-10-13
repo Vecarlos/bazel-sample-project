@@ -132,13 +132,16 @@ class Solver:
     variables = [ 1, 0, 0,-1 ]
     for equal_set in set_measurement_spec:
       a = np.zeros(self.num_variables)
+      print(a)
       a[variable_index_by_set_id[equal_set[0]]] = 1
-
+      print(a)
       # other_ids = sorted(equal_set[1])
       # variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
       # print(variables)
+      print(variable_index_by_set_id, equal_set)
+      a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+      print(a)
 
-      # a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
       self._add_eq_term(variables, 0)
 
   # def _add_weighted_sum_upperbounds(self,
