@@ -22,6 +22,10 @@ from noiseninja.noised_measurements import SetMeasurementsSpec
 from noiseninja.solver import Solver
 from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
   report_post_processor_result_pb2
+import numpy as np
+import random
+np.random.seed(0)
+random.seed(0)
 
 ReportPostProcessorStatus = report_post_processor_result_pb2.ReportPostProcessorStatus
 StatusCode = ReportPostProcessorStatus.StatusCode
@@ -44,7 +48,7 @@ class SolverTest(unittest.TestCase):
     spec.add_measurement(2, Measurement(48, 0, "measurement_02"))
     spec.add_measurement(3, Measurement(1, 1, "measurement_03"))
     spec.add_measurement(4, Measurement(51, 1, "measurement_04"))
-
+    print(spec)
     solver = Solver(spec)
 
     # # Stores the original function.
