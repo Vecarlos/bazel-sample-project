@@ -9,7 +9,7 @@ BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
 # Tiempo de espera en segundos (1 minuto y 20 segundos = 80 segundos)
-DELAY_SECONDS=60
+DELAY_SECONDS=80
 # --- FIN DE LA CONFIGURACIÓN ---
 
 
