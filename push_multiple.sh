@@ -2,7 +2,7 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="Solver  init _add_eq_term empty"
+COMMIT_BASE_NAME="Solver  init sorted dict"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
