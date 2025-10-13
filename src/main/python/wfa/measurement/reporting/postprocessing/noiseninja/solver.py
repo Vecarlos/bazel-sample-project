@@ -57,10 +57,7 @@ class Solver:
 
     self.num_variables = len(variable_index_by_set_id)
     # self._init_qp(self.num_variables)
-    print("viene")
-    print(set_measurement_spec)
-    print(variable_index_by_set_id)
-    print("se va")
+  
     self._add_equals(set_measurement_spec, variable_index_by_set_id)
     # self._add_weighted_sum_upperbounds(set_measurement_spec,
     #                                    variable_index_by_set_id)
@@ -136,7 +133,6 @@ class Solver:
       variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
 
       # variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-      print(variables)
       self._add_eq_term(variables, 0)
 
   # def _add_weighted_sum_upperbounds(self,
