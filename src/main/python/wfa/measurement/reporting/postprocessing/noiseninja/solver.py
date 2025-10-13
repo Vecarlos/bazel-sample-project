@@ -49,24 +49,24 @@ class SolutionNotFoundError(ValueError):
 
 class Solver:
 
-  # def __init__(self, set_measurement_spec: SetMeasurementsSpec):
-  #   logging.info("Initializing the solver.")
-  #   variable_index_by_set_id = Solver._map_sets_to_variables(
-  #       set_measurement_spec)
-  #   self.num_variables = len(variable_index_by_set_id)
-  #   self._init_qp(self.num_variables)
-  #   self._add_equals(set_measurement_spec, variable_index_by_set_id)
-  #   self._add_weighted_sum_upperbounds(set_measurement_spec,
-  #                                      variable_index_by_set_id)
-  #   self._add_covers(set_measurement_spec, variable_index_by_set_id)
-  #   self._add_subsets(set_measurement_spec, variable_index_by_set_id)
-  #   self._add_measurement_targets(set_measurement_spec,
-  #                                 variable_index_by_set_id)
-  #   self._add_lower_bounds()
-  #   self._init_base_value(set_measurement_spec, variable_index_by_set_id)
+  def __init__(self, set_measurement_spec: SetMeasurementsSpec):
+    logging.info("Initializing the solver.")
+    variable_index_by_set_id = Solver._map_sets_to_variables(
+        set_measurement_spec)
+    self.num_variables = len(variable_index_by_set_id)
+    self._init_qp(self.num_variables)
+    self._add_equals(set_measurement_spec, variable_index_by_set_id)
+    self._add_weighted_sum_upperbounds(set_measurement_spec,
+                                       variable_index_by_set_id)
+    # self._add_covers(set_measurement_spec, variable_index_by_set_id)
+    # self._add_subsets(set_measurement_spec, variable_index_by_set_id)
+    # self._add_measurement_targets(set_measurement_spec,
+    #                               variable_index_by_set_id)
+    # self._add_lower_bounds()
+    # self._init_base_value(set_measurement_spec, variable_index_by_set_id)
 
-  #   self.variable_map = dict(
-  #       (variable_index_by_set_id[i], i) for i in variable_index_by_set_id)
+    # self.variable_map = dict(
+    #     (variable_index_by_set_id[i], i) for i in variable_index_by_set_id)
 
   def _init_base_value(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
