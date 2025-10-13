@@ -55,7 +55,7 @@ class Solver:
     #     set_measurement_spec)
     variable_index_by_set_id = {1: 0, 2: 1, 3: 2, 4: 3}
 
-    # self.num_variables = len(variable_index_by_set_id)
+    self.num_variables = len(variable_index_by_set_id)
     # self._init_qp(self.num_variables)
     print("viene")
     print(set_measurement_spec)
