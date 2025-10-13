@@ -138,8 +138,10 @@ class Solver:
       # other_ids = sorted(equal_set[1])
       # variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
       # print(variables)
+      indexes = [variable_index_by_set_id[i] for i in equal_set[1]]
+      a[indexes] = -1
       print(variable_index_by_set_id, equal_set)
-      a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+      # a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
       print(a)
 
       self._add_eq_term(variables, 0)
