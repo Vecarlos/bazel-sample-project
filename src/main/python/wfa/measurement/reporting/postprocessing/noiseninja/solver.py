@@ -217,7 +217,7 @@ class Solver:
   #       self.P[v1][v2] += coeff1 * coeff2
 
   def _add_eq_term(self, variables: np.array, k: float):
-    print("entre")
+    pass
     # self.A.append(variables)
     # self.b.append(k)
 
