@@ -10,4 +10,5 @@ py_test(
         "//src/main/python/wfa/measurement/reporting/postprocessing/noiseninja",
         requirement("protobuf"),
     ],
+    flaky = False,
 )
