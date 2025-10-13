@@ -19,5 +19,5 @@ py_test(
         "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
         requirement("protobuf"),
     ],
-    flaky = False,
+    tags = ["no-cache"],
 )
