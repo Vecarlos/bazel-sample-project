@@ -127,7 +127,9 @@ class Solver:
   def _add_equals(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
     logging.info("Adding equal set constraints.")
-    for equal_set in set_measurement_spec.get_equal_sets():
+    for equal_set in sorted(set_measurement_spec.get_equal_sets(), key=str):
+
+    # for equal_set in set_measurement_spec.get_equal_sets():
       variables = np.zeros(self.num_variables)
       variables[variable_index_by_set_id[equal_set[0]]] = 1
 
