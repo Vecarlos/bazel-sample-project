@@ -2,14 +2,14 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="Solver no init"
+COMMIT_BASE_NAME="Solver half init"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
 # Tiempo de espera en segundos (1 minuto y 20 segundos = 80 segundos)
-DELAY_SECONDS=100
+DELAY_SECONDS=60
 # --- FIN DE LA CONFIGURACIÓN ---
 
 
