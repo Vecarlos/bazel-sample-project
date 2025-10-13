@@ -138,7 +138,7 @@ class Solver:
       # variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
       # print(variables)
 
-      a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+      # a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
       self._add_eq_term(variables, 0)
 
   # def _add_weighted_sum_upperbounds(self,
