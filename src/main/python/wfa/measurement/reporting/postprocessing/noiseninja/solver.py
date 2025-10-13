@@ -56,8 +56,8 @@ class Solver:
     self.num_variables = len(variable_index_by_set_id)
     self._init_qp(self.num_variables)
     self._add_equals(set_measurement_spec, variable_index_by_set_id)
-    self._add_weighted_sum_upperbounds(set_measurement_spec,
-                                       variable_index_by_set_id)
+    # self._add_weighted_sum_upperbounds(set_measurement_spec,
+    #                                    variable_index_by_set_id)
     # self._add_covers(set_measurement_spec, variable_index_by_set_id)
     # self._add_subsets(set_measurement_spec, variable_index_by_set_id)
     # self._add_measurement_targets(set_measurement_spec,
