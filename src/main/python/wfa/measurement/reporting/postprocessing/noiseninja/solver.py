@@ -131,8 +131,8 @@ class Solver:
     # for equal_set in set_measurement_spec.get_equal_sets():
     variables = [ 1, 0, 0,-1 ]
     for equal_set in set_measurement_spec:
-      # variables = np.zeros(self.num_variables)
-      # variables[variable_index_by_set_id[equal_set[0]]] = 1
+      a = np.zeros(self.num_variables)
+      a[variable_index_by_set_id[equal_set[0]]] = 1
 
       # other_ids = sorted(equal_set[1])
       # variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
