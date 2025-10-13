@@ -210,8 +210,9 @@ class Solver:
         self.P[v1][v2] += coeff1 * coeff2
 
   def _add_eq_term(self, variables: np.array, k: float):
-    self.A.append(variables)
-    self.b.append(k)
+    pass
+    # self.A.append(variables)
+    # self.b.append(k)
 
   def _add_gt_term(self, variables: np.array):
     self.G.append(variables)
