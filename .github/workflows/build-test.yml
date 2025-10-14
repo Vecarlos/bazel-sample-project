@@ -94,6 +94,9 @@ jobs:
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
+      - name: Wait for files to stabilize
+        run: sleep 5
+
       # - name: Get bazel-testlogs path
       #   run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
