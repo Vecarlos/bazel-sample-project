@@ -80,44 +80,6 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      # - name: Build
-      #   run: bazel build --worker_quit_after_build //src/main/kotlin/error_files/...
-
-      # - name: test
-      #   run: bazel test //src/test/kotlin/error_files/... || true
-
-      # - name: Run tests
-      #   run: |
-      #     bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --combined_report=lcov --instrumentation_filter="//src/main/.*,-@.*" //src/test/... || true
-      #   # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*" //src/test/... || true
-      #   # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*" //src/test/kotlin/error_files/...
-      #   # bazel coverage --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --remote_download_outputs=all --strategy=CoverageReport=local --nocache_test_results --combined_report=lcov --instrumentation_filter="//src/main/kotlin/.*,-@.*,-src/test/kotlin/org/wfanet/panelmatch/common/beam:,-src/main/kotlin/org/wfanet/panelmatch/common/beam:,-src/main/kotlin/org/wfanet/measurement/kingdom/batch:,-src/main/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner:,-src/main/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha:,-src/test/kotlin/org/wfanet/panelmatch/client/eventpreprocessing:,-src/main/kotlin/org/wfanet/panelmatch/client/privatemembership:,-src/test/kotlin/org/wfanet/panelmatch/client/eventpreprocessing/testing:,-src/main/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner:,-src/main/kotlin/org/wfanet/measurement/dataprovider:" --test_tag_filters=-privatemembership -- //src/test/kotlin/org/... -//src/test/kotlin/org/wfanet/panelmatch/client/privatemembership/... -//src/test/kotlin/org/wfanet/panelmatch/integration/... -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/... -//src/test/kotlin/org/wfanet/measurement/loadtest/dataprovider/... -//src/test/kotlin/org/wfanet/measurement/integration/k8s/... -//src/test/kotlin/org/wfanet/panelmatch/client/deploy/... -//src/test/kotlin/org/wfanet/panelmatch/client/exchangetasks/... -//src/test/kotlin/org/wfanet/panelmatch/client/launcher/... -//src/test/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/eventdataprovider/shareshuffle/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/reporting/deploy/v2/gcloud/spanner/... -//src/test/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/api/v2alpha/tools/... -//src/main/kotlin/org/wfanet/measurement/api/v2alpha/tools/... -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha/... -//src/test/kotlin/org/wfanet/measurement/duchy/mill/shareshuffle/... -//src/test/kotlin/org/wfanet/measurement/kingdom/batch/...
-      #   # bazel coverage --test_output=all --instrumentation_filter="-.*jacoco_exclusion" --combined_report=lcov --spawn_strategy=local //src/test/... | tee -a bazel_coverage.log || true
-
-      # - name: Run tests with coverage
-      #   id: run-coverage
-      #   env:
-      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-      #   run: >
-      #     bazel coverage 
-      #     --experimental_split_coverage_postprocessing 
-      #     --experimental_fetch_all_coverage_outputs 
-      #     --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-      #     //src/test/kotlin/... 
-      #     //src/test/python/... 
-      #     //src/test/cc/...
-
-      # - name: Run tests with coverage
-      #   id: run-coverage
-      #   env:
-      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-      #   run: >
-      #     bazel coverage 
-      #     --experimental_split_coverage_postprocessing 
-      #     --experimental_fetch_all_coverage_outputs 
-      #     --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-      #     //src/test/python/... 
-
       - name: Run tests with coverage
         id: run-coverage
         env:
@@ -132,60 +94,42 @@ jobs:
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
+      - name: Get bazel-testlogs path
+        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+
+      - name: Collect all coverage.dat files
+        run: |
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            # Crear estructura de directorios preservando el path relativo
+            relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
+            target_dir="coverage-artifacts/$(dirname "$relative_path")"
+            mkdir -p "$target_dir"
+            cp "$file" "$target_dir/"
+          done
+
+      - name: List collected coverage files
+        run: |
+          echo "Coverage files collected:"
+          find coverage-artifacts -type f -name "coverage.dat"
+
+      - name: Upload individual coverage files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-files-${{ github.sha }}
+          path: coverage-artifacts/
+          retention-days: 30
+
+
       - name: cat coverage
         run: |
           cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      # - name: Move coverage file
-      #   run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+      - name: Move coverage file
+        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
 
 
-
-      # - name: Upload coverage reports to Codecov
-      #   uses: codecov/codecov-action@v5
-      #   with:
-      #     fail_ci_if_error: true
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     slug: vecarlos/bazel-sample-project
-      #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-
-
-
-      - name: Set Bazel paths
-        run: |
-          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
-          echo "BAZEL_TESTLOGS=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
-
-      - name: Cat coverage report
-        run: |
-          cat "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" || echo "No _coverage_report.dat found"
-
-      - name: Move combined LCOV report
-        run: |
-          if [ -f "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" ]; then
-            mv "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" lcov.info
-          else
-            echo "No combined LCOV report found"
-          fi
-
-      - name: Upload combined LCOV report
-        uses: actions/upload-artifact@v4
-        with:
-          name: lcov-${{ github.run_number }}
-          path: lcov.info
-
-      - name: Collect all raw Python coverage files
-        run: |
-          mkdir -p coverage/raw
-          echo "Using testlogs at: $BAZEL_TESTLOGS"
-          find "$BAZEL_TESTLOGS" -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
-          echo "Collected $(find coverage/raw -type f | wc -l) coverage files"
-
-      - name: Upload raw coverage artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-coverage-${{ github.run_number }}
-          path: coverage/raw/
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -193,7 +137,8 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
-          files: lcov.info
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+
       # - name: Create cluster
       #   id: create-cluster
       #   run: |
