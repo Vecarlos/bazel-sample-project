@@ -136,7 +136,9 @@ class Solver:
       # other_ids = sorted(equal_set[1])
       # variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
       # print(variables)
-      indexes = [variable_index_by_set_id[i] for i in equal_set[1]]
+      # indexes = [variable_index_by_set_id[i] for i in equal_set[1]]
+      equal_set_list = sorted(equal_set[1])  # Convierte set → lista ordenada
+      indexes = [variable_index_by_set_id[i] for i in equal_set_list]
       # a[indexes] = -1
       # a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
 
