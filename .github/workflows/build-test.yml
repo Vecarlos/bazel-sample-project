@@ -138,6 +138,48 @@ jobs:
           slug: vecarlos/bazel-sample-project
           files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
+
+      - name: Run tests with coverage
+        id: run-coverage
+        env:
+          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
+        run: >
+          bazel coverage 
+          --experimental_split_coverage_postprocessing 
+          --experimental_fetch_all_coverage_outputs 
+          --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+          //src/test/python/... 
+
+      - name: Collect all raw Python coverage files
+        run: |
+          mkdir -p coverage/raw
+          find bazel-out/k8-fastbuild/testlogs -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
+          echo "Collected $(find coverage/raw -type f | wc -l) coverage files"
+
+      - name: Upload raw coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage-${{ github.run_number }}
+          path: coverage/raw/
+
+      - name: Move coverage file
+        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+
+      - name: Upload combined LCOV report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov-${{ github.run_number }}
+          path: lcov.info
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: lcov.info
+
+
       # - name: Create cluster
       #   id: create-cluster
       #   run: |
