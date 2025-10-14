@@ -155,7 +155,9 @@ jobs:
       - name: Collect all raw Python coverage files
         run: |
           mkdir -p coverage/raw
-          find bazel-out/k8-fastbuild/testlogs -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
+          BAZEL_TESTLOGS=$(bazel info bazel-testlogs)
+          echo "Using testlogs at: $BAZEL_TESTLOGS"
+          find "$BAZEL_TESTLOGS" -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
           echo "Collected $(find coverage/raw -type f | wc -l) coverage files"
 
       - name: Upload raw coverage artifacts
