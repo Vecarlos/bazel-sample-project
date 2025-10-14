@@ -93,15 +93,20 @@ jobs:
 
       # - name: Sync Bazel state
       #   run: bazel info output_path > /dev/null
-      
-      - name: Force complete read and sync of coverage files
+
+      # - name: Force complete read and sync of coverage files
+      #   run: |
+      #     TESTLOGS=$(bazel info bazel-testlogs)
+      #     echo "Found $(find "$TESTLOGS" -type f -name "coverage.dat" | wc -l) coverage files"
+      #     # Copia temporal que fuerza lectura+sync completa
+      #     mkdir -p /tmp/cov-sync
+      #     find "$TESTLOGS" -type f -name "coverage.dat" -exec cp {} /tmp/cov-sync/ \;
+      #     rm -rf /tmp/cov-sync
+      #     sync
+      - name: Force Bazel to complete all operations
         run: |
-          TESTLOGS=$(bazel info bazel-testlogs)
-          echo "Found $(find "$TESTLOGS" -type f -name "coverage.dat" | wc -l) coverage files"
-          # Copia temporal que fuerza lectura+sync completa
-          mkdir -p /tmp/cov-sync
-          find "$TESTLOGS" -type f -name "coverage.dat" -exec cp {} /tmp/cov-sync/ \;
-          rm -rf /tmp/cov-sync
+          bazel info bazel-testlogs > /dev/null
+          bazel info output_path > /dev/null
           sync
 
       - name: Bazel output path
