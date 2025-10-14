@@ -2,14 +2,14 @@
 
 # --- CONFIGURACIÓN ---
 # Cambia esta variable para el nombre base de tus commits
-COMMIT_BASE_NAME="Solver  init sorted dict"
+COMMIT_BASE_NAME="all"
 
 # Nombre de la rama a la que quieres subir los cambios
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
 # Tiempo de espera en segundos (1 minuto y 20 segundos = 80 segundos)
-DELAY_SECONDS=80
+DELAY_SECONDS=120
 # --- FIN DE LA CONFIGURACIÓN ---
 
 
@@ -20,7 +20,7 @@ git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
 
 # 2. Bucle para los 5 commits vacíos (del 2 al 6)
-for i in {2..5}
+for i in {2..6}
 do
   echo -e "\n--- Esperando $DELAY_SECONDS segundos para no interrumpir la CI anterior..."
   sleep $DELAY_SECONDS
