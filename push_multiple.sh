@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-COMMIT_BASE_NAME="all"
+COMMIT_BASE_NAME="all get error"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
