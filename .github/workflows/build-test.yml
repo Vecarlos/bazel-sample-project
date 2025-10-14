@@ -100,8 +100,8 @@ jobs:
       # - name: Wait for files to stabilize
       #   run: sleep 5
 
-      # - name: Get bazel-testlogs path
-      #   run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+      - name: Get bazel-testlogs path
+        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
       # - name: Collect all coverage.dat files
       #   run: |
