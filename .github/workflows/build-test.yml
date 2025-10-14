@@ -151,34 +151,21 @@ jobs:
 
 
 
-
-      - name: Collect all raw Python coverage files
+      - name: Set Bazel paths
         run: |
-          mkdir -p coverage/raw
-          BAZEL_TESTLOGS=$(bazel info bazel-testlogs)
-          echo "Using testlogs at: $BAZEL_TESTLOGS"
-          find "$BAZEL_TESTLOGS" -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
-          COUNT=$(find coverage/raw -type f | wc -l)
-          echo "Collected $COUNT coverage files"
-          if [ "$COUNT" -eq "0" ]; then
-            echo "no coverage.dat found - creating placeholder" > coverage/raw/NO_COVERAGE_FOUND.txt
-          fi
+          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+          echo "BAZEL_TESTLOGS=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
-      - name: Upload raw coverage artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-coverage-${{ github.run_number }}
-          path: coverage/raw/
-
-      - name: Export combined coverage (lcov.info)
+      - name: Cat coverage report
         run: |
-          OUT=$(bazel info output_path)
-          CAND="$OUT/_coverage/_coverage_report.dat"
-          if [ -f "$CAND" ]; then
-            cp "$CAND" lcov.info
-            echo "Copied combined coverage to lcov.info"
+          cat "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" || echo "No _coverage_report.dat found"
+
+      - name: Move combined LCOV report
+        run: |
+          if [ -f "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" ]; then
+            mv "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" lcov.info
           else
-            echo "No combined coverage found"
+            echo "No combined LCOV report found"
           fi
 
       - name: Upload combined LCOV report
@@ -186,6 +173,27 @@ jobs:
         with:
           name: lcov-${{ github.run_number }}
           path: lcov.info
+
+      - name: Collect all raw Python coverage files
+        run: |
+          mkdir -p coverage/raw
+          echo "Using testlogs at: $BAZEL_TESTLOGS"
+          find "$BAZEL_TESTLOGS" -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
+          echo "Collected $(find coverage/raw -type f | wc -l) coverage files"
+
+      - name: Upload raw coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage-${{ github.run_number }}
+          path: coverage/raw/
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: lcov.info
       # - name: Create cluster
       #   id: create-cluster
       #   run: |
