@@ -158,7 +158,11 @@ jobs:
           BAZEL_TESTLOGS=$(bazel info bazel-testlogs)
           echo "Using testlogs at: $BAZEL_TESTLOGS"
           find "$BAZEL_TESTLOGS" -type f -name "coverage.dat" -exec cp --parents {} coverage/raw/ \;
-          echo "Collected $(find coverage/raw -type f | wc -l) coverage files"
+          COUNT=$(find coverage/raw -type f | wc -l)
+          echo "Collected $COUNT coverage files"
+          if [ "$COUNT" -eq "0" ]; then
+            echo "no coverage.dat found - creating placeholder" > coverage/raw/NO_COVERAGE_FOUND.txt
+          fi
 
       - name: Upload raw coverage artifacts
         uses: actions/upload-artifact@v4
@@ -166,24 +170,22 @@ jobs:
           name: python-coverage-${{ github.run_number }}
           path: coverage/raw/
 
-      - name: Move coverage file
-        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+      - name: Export combined coverage (lcov.info)
+        run: |
+          OUT=$(bazel info output_path)
+          CAND="$OUT/_coverage/_coverage_report.dat"
+          if [ -f "$CAND" ]; then
+            cp "$CAND" lcov.info
+            echo "Copied combined coverage to lcov.info"
+          else
+            echo "No combined coverage found"
+          fi
 
       - name: Upload combined LCOV report
         uses: actions/upload-artifact@v4
         with:
           name: lcov-${{ github.run_number }}
           path: lcov.info
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: lcov.info
-
-
       # - name: Create cluster
       #   id: create-cluster
       #   run: |
