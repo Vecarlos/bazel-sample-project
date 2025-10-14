@@ -103,7 +103,7 @@ jobs:
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
             relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
-            # target_dir="coverage-artifacts/$(dirname "$relative_path")"
+            target_dir="coverage-artifacts/$(dirname "$relative_path")"
             # mkdir -p "$target_dir"
             # cp "$file" "$target_dir/"
           done
