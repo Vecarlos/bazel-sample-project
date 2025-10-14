@@ -9,7 +9,7 @@ BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
 # Tiempo de espera en segundos (1 minuto y 20 segundos = 80 segundos)
-DELAY_SECONDS=120
+DELAY_SECONDS=80
 # --- FIN DE LA CONFIGURACIÓN ---
 
 
@@ -20,7 +20,7 @@ git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
 
 # 2. Bucle para los 5 commits vacíos (del 2 al 6)
-for i in {2..6}
+for i in {7..11}
 do
   echo -e "\n--- Esperando $DELAY_SECONDS segundos para no interrumpir la CI anterior..."
   sleep $DELAY_SECONDS
