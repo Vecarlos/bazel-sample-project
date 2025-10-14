@@ -105,7 +105,7 @@ jobs:
             relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
             target_dir="coverage-artifacts/$(dirname "$relative_path")"
             mkdir -p "$target_dir"
-            # cp "$file" "$target_dir/"
+            cp "$file" "$target_dir/"
           done
 
       # - name: List collected coverage files
