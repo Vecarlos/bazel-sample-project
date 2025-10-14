@@ -94,32 +94,32 @@ jobs:
       - name: Bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
-      # - name: Get bazel-testlogs path
-      #   run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+      - name: Get bazel-testlogs path
+        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
-      # - name: Collect all coverage.dat files
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       # Crear estructura de directorios preservando el path relativo
-      #       relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
-      #       target_dir="coverage-artifacts/$(dirname "$relative_path")"
-      #       mkdir -p "$target_dir"
-      #       cp "$file" "$target_dir/"
-      #     done
+      - name: Collect all coverage.dat files
+        run: |
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            # Crear estructura de directorios preservando el path relativo
+            relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
+            target_dir="coverage-artifacts/$(dirname "$relative_path")"
+            mkdir -p "$target_dir"
+            cp "$file" "$target_dir/"
+          done
 
-      # - name: List collected coverage files
-      #   run: |
-      #     echo "Coverage files collected:"
-      #     find coverage-artifacts -type f -name "coverage.dat"
+      - name: List collected coverage files
+        run: |
+          echo "Coverage files collected:"
+          find coverage-artifacts -type f -name "coverage.dat"
 
-      # - name: Upload individual coverage files as artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-files-${{ github.sha }}
-      #     path: coverage-artifacts/
-      #     retention-days: 30
+      - name: Upload individual coverage files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-files-${{ github.sha }}
+          path: coverage-artifacts/
+          retention-days: 30
 
 
       - name: cat coverage
