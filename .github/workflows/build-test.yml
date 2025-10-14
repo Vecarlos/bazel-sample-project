@@ -91,28 +91,30 @@ jobs:
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/python/... 
 
-      - name: Sync Bazel state
-        run: bazel info output_path > /dev/null
+      # - name: Sync Bazel state
+      #   run: bazel info output_path > /dev/null
 
       - name: Bazel output path
-        run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+        run: |
+          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+          sync
         
       # - name: Wait for files to stabilize
       #   run: sleep 5
 
-      - name: Get bazel-testlogs path
-        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+      # - name: Get bazel-testlogs path
+      #   run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
-      - name: Collect all coverage.dat files
-        run: |
-          mkdir -p coverage-artifacts
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-          while IFS= read -r -d '' file; do
-            relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
-            target_dir="coverage-artifacts/$(dirname "$relative_path")"
-            mkdir -p "$target_dir"
-            cp "$file" "$target_dir/"
-          done
+      # - name: Collect all coverage.dat files
+      #   run: |
+      #     mkdir -p coverage-artifacts
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
+      #       target_dir="coverage-artifacts/$(dirname "$relative_path")"
+      #       mkdir -p "$target_dir"
+      #       cp "$file" "$target_dir/"
+      #     done
 
       # - name: List collected coverage files
       #   run: |
