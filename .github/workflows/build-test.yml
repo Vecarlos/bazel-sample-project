@@ -93,12 +93,22 @@ jobs:
 
       # - name: Sync Bazel state
       #   run: bazel info output_path > /dev/null
+      
+      - name: Force complete read and sync of coverage files
+        run: |
+          TESTLOGS=$(bazel info bazel-testlogs)
+          echo "Found $(find "$TESTLOGS" -type f -name "coverage.dat" | wc -l) coverage files"
+          # Copia temporal que fuerza lectura+sync completa
+          mkdir -p /tmp/cov-sync
+          find "$TESTLOGS" -type f -name "coverage.dat" -exec cp {} /tmp/cov-sync/ \;
+          rm -rf /tmp/cov-sync
+          sync
 
       - name: Bazel output path
         run: |
-          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
-          sync
-        
+          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV        
+
+
       # - name: Wait for files to stabilize
       #   run: sleep 5
 
