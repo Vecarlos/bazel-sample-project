@@ -56,7 +56,7 @@ class Solver:
     # variable_index_by_set_id = Solver._map_sets_to_variables(
     #     set_measurement_spec)
     variable_index_by_set_id = {1: 0, 2: 1, 3: 2, 4: 3}
-
+    print(set_measurement_spec, variable_index_by_set_id)
     self.num_variables = len(variable_index_by_set_id)
     # self._init_qp(self.num_variables)
   
@@ -131,14 +131,15 @@ class Solver:
     # for equal_set in set_measurement_spec.get_equal_sets():
     variables = [ 1, 0, 0,-1 ]
     for equal_set in set_measurement_spec:
+      
       a = np.zeros(self.num_variables)
       a[variable_index_by_set_id[equal_set[0]]] = 1
       # other_ids = sorted(equal_set[1])
       # variables.put([variable_index_by_set_id[i] for i in other_ids], -1)
       # print(variables)
-      # indexes = [variable_index_by_set_id[i] for i in equal_set[1]]
-      equal_set_list = sorted(equal_set[1])  # Convierte set → lista ordenada
-      indexes = [variable_index_by_set_id[i] for i in equal_set_list]
+      indexes = [variable_index_by_set_id[i] for i in equal_set[1]]
+      # equal_set_list = sorted(equal_set[1])  # Convierte set → lista ordenada
+      # indexes = [variable_index_by_set_id[i] for i in equal_set_list]
       # a[indexes] = -1
       # a.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
 
