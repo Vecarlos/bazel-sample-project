@@ -144,17 +144,24 @@ jobs:
       #       cp "$file" "$target_dir/"
       #     done
 
-      - name: List collected coverage files
-        run: |
-          echo "Coverage files collected:"
-          find coverage-artifacts -type f -name "coverage.dat"
+      # - name: List collected coverage files
+      #   run: |
+      #     echo "Coverage files collected:"
+      #     find coverage-artifacts -type f -name "coverage.dat"
 
-      - name: Upload individual coverage files as artifacts
+      - name: Upload coverage files
         uses: actions/upload-artifact@v4
         with:
           name: coverage-files-${{ github.sha }}
-          path: coverage-artifacts/
+          path: coverage/
           retention-days: 30
+
+      # - name: Upload individual coverage files as artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-files-${{ github.sha }}
+      #     path: coverage-artifacts/
+      #     retention-days: 30
 
 
       - name: cat coverage
