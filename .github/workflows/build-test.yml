@@ -117,16 +117,11 @@ jobs:
             exit 1
           fi
 
+      - name: Check if coverage report is valid
+        run: |
+          grep -E "SF:" "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" | head -5
 
 
-      # - name: Collect all MD5 coverage.dat files
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       # md5sum "$file"
-      #       head -n 5 "$file" 
-      #     done
 
       # - name: Test write access (without cp)
       #   run: |
@@ -139,28 +134,19 @@ jobs:
 
 
 
-      - name: Collect coverage only for solver_test.py
-        run: |
-          mkdir -p coverage-artifacts
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-          while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
-            cat "$file" > "coverage-artifacts/$base"
-          done
+      # - name: Collect coverage only for solver_test.py
+      #   run: |
+      #     mkdir -p coverage-artifacts
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$(dirname "$file")")_coverage.dat
+      #       cat "$file" > "coverage-artifacts/$base"
+      #     done
 
 
         # base=$(basename "$file")
 
-      - name: Hash of merged coverage report
-        run: |
-          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-          if [ -f "$REPORT_PATH" ]; then
-            echo ">>> MD5 of merged _coverage_report.dat:"
-            md5sum "$REPORT_PATH"
-          else
-            echo "❌ _coverage_report.dat not found!"
-            exit 1
-          fi
+
 
 
       # - name: Collect all coverage.dat files (flat)
@@ -194,20 +180,6 @@ jobs:
       #     path: coverage-artifacts/
       #     retention-days: 30
 
-      # - name: Upload coverage files
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-files-${{ github.sha }}
-      #     path: coverage/
-      #     retention-days: 30
-
-      # - name: Upload individual coverage files as artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-files-${{ github.sha }}
-      #     path: coverage-artifacts/
-      #     retention-days: 30
-
 
       # - name: cat coverage
       #   run: |
@@ -226,4 +198,17 @@ jobs:
           slug: vecarlos/bazel-sample-project
           files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-  
+      - name: Hash of merged coverage report
+        run: |
+          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
+          if [ -f "$REPORT_PATH" ]; then
+            echo ">>> MD5 of merged _coverage_report.dat:"
+            md5sum "$REPORT_PATH"
+          else
+            echo "❌ _coverage_report.dat not found!"
+            exit 1
+          fi
+
+      - name: Check if coverage report is valid
+        run: |
+          grep -E "SF:" "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" | head -5
