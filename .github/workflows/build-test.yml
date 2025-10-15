@@ -108,19 +108,30 @@ jobs:
       #       head -n 5 "$file" 
       #     done
 
-      - name: Test write access (without cp)
+      # - name: Test write access (without cp)
+      #   run: |
+      #     mkdir -p coverage-artifacts/test-write
+      #     echo "Testing write access..."
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$file")
+      #       echo "Writing test copy for $file"
+      #       cat "$file" > "coverage-artifacts/test-write/$base" || echo "⚠️ Could not write $base"
+      #     done
+      #     echo "Listing written files:"
+      #     ls -lh coverage-artifacts/test-write || true
+
+
+      - name: Collect all coverage.dat files (flat)
         run: |
-          mkdir -p coverage-artifacts/test-write
-          echo "Testing write access..."
+          mkdir -p coverage
+          echo "Collecting all coverage.dat files into ./coverage"
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
-            base=$(basename "$file")
-            echo "Writing test copy for $file"
-            cat "$file" > "coverage-artifacts/test-write/$base" || echo "⚠️ Could not write $base"
+            base=$(basename "$(dirname "$file")")_coverage.dat
+            echo "→ Copying $file to coverage/$base"
+            cat "$file" > "coverage/$base" || echo "⚠️ Failed to copy $file"
           done
-          echo "Listing written files:"
-          ls -lh coverage-artifacts/test-write || true
-
 
       # - name: Collect all coverage.dat files
       #   run: |
@@ -133,17 +144,17 @@ jobs:
       #       cp "$file" "$target_dir/"
       #     done
 
-      # - name: List collected coverage files
-      #   run: |
-      #     echo "Coverage files collected:"
-      #     find coverage-artifacts -type f -name "coverage.dat"
+      - name: List collected coverage files
+        run: |
+          echo "Coverage files collected:"
+          find coverage-artifacts -type f -name "coverage.dat"
 
-      # - name: Upload individual coverage files as artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-files-${{ github.sha }}
-      #     path: coverage-artifacts/
-      #     retention-days: 30
+      - name: Upload individual coverage files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-files-${{ github.sha }}
+          path: coverage-artifacts/
+          retention-days: 30
 
 
       - name: cat coverage
