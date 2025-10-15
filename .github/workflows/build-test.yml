@@ -118,25 +118,25 @@ jobs:
       #     done
 
 
-      # - name: Collect coverage only for solver_test.py
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -path "*/solver_test/coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$file")
-      #       cat "$file" > "coverage-artifacts/$base"
-      #     done
-
-
-      - name: Collect all coverage.dat files (flat)
+      - name: Collect coverage only for solver_test.py
         run: |
-          mkdir -p coverage
+          mkdir -p coverage-artifacts
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
+            base=$(basename "$file")
+            cat "$file" > "coverage-artifacts/$base"
           done
 
-        # cat "$file" > "coverage/$base" 
+
+      # - name: Collect all coverage.dat files (flat)
+      #   run: |
+      #     mkdir -p coverage
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$(dirname "$file")")_coverage.dat
+      #       cat "$file" > "coverage/$base" 
+      #     done
+
       # - name: Collect all coverage.dat files
       #   run: |
       #     mkdir -p coverage-artifacts
