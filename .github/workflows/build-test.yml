@@ -108,14 +108,25 @@ jobs:
       #       head -n 5 "$file" 
       #     done
 
-      - name: Test write access (without cp)
+      # - name: Test write access (without cp)
+      #   run: |
+      #     mkdir -p coverage-artifacts/test-write
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$file")
+      #       cat "$file" > "coverage-artifacts/test-write/$base" 
+      #     done
+
+
+      - name: Collect coverage only for solver_test.py
         run: |
-          mkdir -p coverage-artifacts/test-write
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -path "*/solver_test/coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
             base=$(basename "$file")
-            cat "$file" > "coverage-artifacts/test-write/$base" 
+            cat "$file" > "coverage-artifacts/$base"
           done
+
 
       # - name: Collect all coverage.dat files (flat)
       #   run: |
@@ -146,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-files-${{ github.sha }}
-          path: coverage-artifacts/test-write/
+          path: coverage-artifacts/
           retention-days: 30
 
       # - name: Upload coverage files
