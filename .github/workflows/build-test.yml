@@ -86,8 +86,6 @@ jobs:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
         run: >
           bazel coverage 
-          # --experimental_split_coverage_postprocessing 
-          # --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/python/... 
 
@@ -98,6 +96,8 @@ jobs:
       - name: Get bazel-testlogs path
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
+      # --experimental_split_coverage_postprocessing 
+      # --experimental_fetch_all_coverage_outputs 
 
       # - name: Collect all MD5 coverage.dat files
       #   run: |
