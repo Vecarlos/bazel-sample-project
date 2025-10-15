@@ -91,57 +91,35 @@ jobs:
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/python/... 
 
-      # - name: Sync Bazel state
-      #   run: bazel info output_path > /dev/null
-
-      # - name: Force complete read and sync of coverage files
-      #   run: |
-      #     TESTLOGS=$(bazel info bazel-testlogs)
-      #     echo "Found $(find "$TESTLOGS" -type f -name "coverage.dat" | wc -l) coverage files"
-      #     # Copia temporal que fuerza lectura+sync completa
-      #     mkdir -p /tmp/cov-sync
-      #     find "$TESTLOGS" -type f -name "coverage.dat" -exec cp {} /tmp/cov-sync/ \;
-      #     rm -rf /tmp/cov-sync
-      #     sync
-      - name: Force Bazel to complete all operations
-        run: |
-          bazel info bazel-testlogs > /dev/null
-          bazel info output_path > /dev/null
-          sync
-
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV        
 
+      - name: Get bazel-testlogs path
+        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
-      # - name: Wait for files to stabilize
-      #   run: sleep 5
+      - name: Collect all coverage.dat files
+        run: |
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
+            target_dir="coverage-artifacts/$(dirname "$relative_path")"
+            mkdir -p "$target_dir"
+            cp "$file" "$target_dir/"
+          done
 
-      # - name: Get bazel-testlogs path
-      #   run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+      - name: List collected coverage files
+        run: |
+          echo "Coverage files collected:"
+          find coverage-artifacts -type f -name "coverage.dat"
 
-      # - name: Collect all coverage.dat files
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
-      #       target_dir="coverage-artifacts/$(dirname "$relative_path")"
-      #       mkdir -p "$target_dir"
-      #       cp "$file" "$target_dir/"
-      #     done
-
-      # - name: List collected coverage files
-      #   run: |
-      #     echo "Coverage files collected:"
-      #     find coverage-artifacts -type f -name "coverage.dat"
-
-      # - name: Upload individual coverage files as artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-files-${{ github.sha }}
-      #     path: coverage-artifacts/
-      #     retention-days: 30
+      - name: Upload individual coverage files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-files-${{ github.sha }}
+          path: coverage-artifacts/
+          retention-days: 30
 
 
       - name: cat coverage
