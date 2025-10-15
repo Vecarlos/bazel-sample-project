@@ -9,6 +9,7 @@ py_test(
         "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
         requirement("protobuf"),
     ],
+    tags = ["no-cache"],
 )
 
 py_test(
@@ -19,5 +20,5 @@ py_test(
         "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
         requirement("protobuf"),
     ],
-    # tags = ["no-cache"],
+    tags = ["no-cache"],
 )
