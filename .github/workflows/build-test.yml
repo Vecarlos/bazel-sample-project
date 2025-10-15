@@ -106,7 +106,6 @@ jobs:
           echo ">>> MD5 hashes of each coverage.dat:"
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
 
-      # 🔍 Verificar el hash del archivo final generado por Bazel
       - name: Hash of merged coverage report
         run: |
           REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
@@ -116,6 +115,8 @@ jobs:
           else
             echo "❌ _coverage_report.dat not found!"
             exit 1
+          fi
+
 
 
       # - name: Collect all MD5 coverage.dat files
