@@ -200,15 +200,11 @@ jobs:
 
       - name: Hash of merged coverage report
         run: |
-          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
+          REPORT_PATH="lcov.info"
           if [ -f "$REPORT_PATH" ]; then
-            echo ">>> MD5 of merged _coverage_report.dat:"
+            echo ">>> MD5 of merged coverage report:"
             md5sum "$REPORT_PATH"
           else
-            echo "❌ _coverage_report.dat not found!"
+            echo "❌ Coverage report not found!"
             exit 1
           fi
-
-      - name: Check if coverage report is valid
-        run: |
-          grep -E "SF:" "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" | head -5
