@@ -128,14 +128,27 @@ jobs:
       #       head -n 5 "$file" 
       #     done
 
-      # - name: Test write access (without cp)
-      #   run: |
-      #     mkdir -p coverage-artifacts/test-write
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$file")
-      #       cat "$file" > "coverage-artifacts/test-write/$base" 
-      #     done
+      - name: Test write access (without cp)
+        run: |
+          mkdir -p coverage-artifacts/test-write
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            base=$(basename "$file")
+            cat "$file" > "coverage-artifacts/test-write/$base" 
+          done
+
+      - name: Hash of merged coverage report
+        run: |
+          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
+          if [ -f "$REPORT_PATH" ]; then
+            echo ">>> MD5 of merged _coverage_report.dat:"
+            md5sum "$REPORT_PATH"
+          else
+            echo "❌ _coverage_report.dat not found!"
+            exit 1
+          fi
+
+
 
 
       # - name: Collect coverage only for solver_test.py
