@@ -99,7 +99,7 @@ jobs:
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
 
-      - name: Collect all coverage.dat files
+      - name: Collect all MD5 coverage.dat files
         run: |
           mkdir -p coverage-artifacts
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
