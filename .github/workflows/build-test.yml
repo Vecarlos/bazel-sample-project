@@ -104,7 +104,8 @@ jobs:
           mkdir -p coverage-artifacts
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
-            md5sum "$file"
+            # md5sum "$file"
+            head -n 5 "$file" 
           done
 
       # - name: Collect all coverage.dat files

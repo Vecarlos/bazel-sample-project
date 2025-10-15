@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-COMMIT_BASE_NAME="all collect all, cache and MD5"
+COMMIT_BASE_NAME="all collect all, cache and head"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
