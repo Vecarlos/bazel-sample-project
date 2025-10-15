@@ -98,6 +98,19 @@ jobs:
       - name: Get bazel-testlogs path
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
+
+
+      - name: Collect coverage only for solver_test.py
+        run: |
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            base=$(basename "$(dirname "$file")")_coverage.dat
+            cat "$file" > "coverage-artifacts/$base"
+          done
+
+
+
       - name: List and hash coverage.dat files
         run: |
           echo ">>> Coverage.dat files found:"
@@ -134,14 +147,6 @@ jobs:
 
 
 
-      # - name: Collect coverage only for solver_test.py
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$(dirname "$file")")_coverage.dat
-      #       cat "$file" > "coverage-artifacts/$base"
-      #     done
 
 
         # base=$(basename "$file")
