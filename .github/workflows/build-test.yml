@@ -134,9 +134,9 @@ jobs:
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
             base=$(basename "$(dirname "$file")")_coverage.dat
-            cat "$file" > "coverage/$base" 
           done
 
+        # cat "$file" > "coverage/$base" 
       # - name: Collect all coverage.dat files
       #   run: |
       #     mkdir -p coverage-artifacts
