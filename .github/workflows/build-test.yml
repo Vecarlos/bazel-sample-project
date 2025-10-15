@@ -162,9 +162,9 @@ jobs:
       #     retention-days: 30
 
 
-      - name: cat coverage
-        run: |
-          cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+      # - name: cat coverage
+      #   run: |
+      #     cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
       - name: Move coverage file
         run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
