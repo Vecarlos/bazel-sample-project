@@ -108,28 +108,23 @@ jobs:
       #       head -n 5 "$file" 
       #     done
 
-      # - name: Test write access (without cp)
-      #   run: |
-      #     mkdir -p coverage-artifacts/test-write
-      #     echo "Testing write access..."
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$file")
-      #       echo "Writing test copy for $file"
-      #       cat "$file" > "coverage-artifacts/test-write/$base" || echo "⚠️ Could not write $base"
-      #     done
-      #     echo "Listing written files:"
-      #     ls -lh coverage-artifacts/test-write || true
-
-
-      - name: Collect all coverage.dat files (flat)
+      - name: Test write access (without cp)
         run: |
-          mkdir -p coverage
+          mkdir -p coverage-artifacts/test-write
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
-            cat "$file" > "coverage/$base" 
+            base=$(basename "$file")
+            cat "$file" > "coverage-artifacts/test-write/$base" 
           done
+
+      # - name: Collect all coverage.dat files (flat)
+      #   run: |
+      #     mkdir -p coverage
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$(dirname "$file")")_coverage.dat
+      #       cat "$file" > "coverage/$base" 
+      #     done
 
       # - name: Collect all coverage.dat files
       #   run: |
