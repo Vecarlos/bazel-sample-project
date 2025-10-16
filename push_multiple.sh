@@ -5,7 +5,7 @@ COMMIT_BASE_NAME="all collect all, cache and write coverage"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
-DELAY_SECONDS=100
+DELAY_SECONDS=150
 
 echo ">>> 1. Creando commit real con 'git add .'"
 git add .
