@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-COMMIT_BASE_NAME="all collect all, cache and write coverage"
+COMMIT_BASE_NAME="all collect all, cache and write coverage, no logs"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 

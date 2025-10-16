@@ -67,20 +67,20 @@ def get_subset_relationships(
 ) -> list[Tuple[EdpCombination, EdpCombination]]:
   """Returns a list of tuples where first element in the tuple is the parent
   and second element is the subset."""
-  logging.debug(
-      "Getting subset relations for the list of EDP combinations "
-      f"{edp_combinations}."
-  )
+  # logging.debug(
+  #     "Getting subset relations for the list of EDP combinations "
+  #     f"{edp_combinations}."
+  # )
   subset_relationships = []
   for comb1, comb2 in combinations(edp_combinations, 2):
     if comb1.issubset(comb2):
       subset_relationships.append((comb2, comb1))
     elif comb2.issubset(comb1):
       subset_relationships.append((comb1, comb2))
-  logging.debug(
-      f"The subset relationships for {edp_combinations} are "
-      f"{subset_relationships}."
-  )
+  # logging.debug(
+  #     f"The subset relationships for {edp_combinations} are "
+  #     f"{subset_relationships}."
+  # )
   return subset_relationships
 
 
@@ -121,7 +121,7 @@ def get_covers(
     The first element of the tuple is the `target_set`, and the second element
     is a tuple containing the sets from `other_sets` that cover it.
   """
-  logging.debug(f"Getting cover relations for {target_set} from {other_sets}.")
+  # logging.debug(f"Getting cover relations for {target_set} from {other_sets}.")
 
   def generate_all_length_combinations(data: list[Any]) -> list[
     tuple[Any, ...]]:
@@ -161,10 +161,10 @@ def get_cover_relationships(
   For each of these considered combinations, take their union and check if it is equal to
   s_i. If so, this combination is a cover of s_i.
   """
-  logging.debug(
-      "Getting all cover relationships from a list of EDP combinations "
-      f"{edp_combinations}"
-  )
+  # logging.debug(
+  #     "Getting all cover relationships from a list of EDP combinations "
+  #     f"{edp_combinations}"
+  # )
   cover_relationships = []
   for i in range(len(edp_combinations)):
     possible_covered = edp_combinations[i]
@@ -789,11 +789,11 @@ class Report:
 
         difference = abs(corrected_measurement.value - measurement.value)
         if difference > STANDARD_DEVIATION_TEST_THRESHOLD*measurement.sigma:
-          logging.warning(
-            f"Measurement {measurement.name} has a large correction: original="
-            f"{measurement.value}, corrected={corrected_measurement.value}, "
-            f"sigma={measurement.sigma}."
-          )
+          # logging.warning(
+          #   f"Measurement {measurement.name} has a large correction: original="
+          #   f"{measurement.value}, corrected={corrected_measurement.value}, "
+          #   f"sigma={measurement.sigma}."
+          # )
           report_post_processor_result.large_corrections.add(
             metric_title=measurement_name,
             original_value=round(measurement.value),
@@ -804,7 +804,7 @@ class Report:
     return corrected_report, report_post_processor_result
 
   def report_from_solution(self, solution: Solution) -> Optional["Report"]:
-    logging.info("Generating the adjusted report from the solution.")
+    # logging.info("Generating the adjusted report from the solution.")
 
     if solution:
       return Report(
@@ -901,9 +901,9 @@ class Report:
     for metric in self._metric_reports:
       for cover_relationship in self._metric_reports[
         metric].get_cumulative_cover_relationships():
-        logging.debug(
-            f"Adding {metric} cover relations for cumulative measurements."
-        )
+        # logging.debug(
+        #     f"Adding {metric} cover relations for cumulative measurements."
+        # )
         covered_parent = cover_relationship[0]
         covering_children = cover_relationship[1]
         for period in range(0, self._num_periods):
@@ -918,9 +918,9 @@ class Report:
           )
       for cover_relationship in self._metric_reports[
         metric].get_whole_campaign_reach_cover_relationships():
-        logging.debug(
-            f"Adding {metric} cover relations for total campaign measurements."
-        )
+        # logging.debug(
+        #     f"Adding {metric} cover relations for total campaign measurements."
+        # )
         covered_parent = cover_relationship[0]
         covering_children = cover_relationship[1]
         spec.add_cover(
@@ -932,10 +932,10 @@ class Report:
         )
       for cover_relationship in self._metric_reports[
         metric].get_weekly_non_cumulative_reach_cover_relationships():
-        logging.debug(
-            f"Adding {metric} cover relations for weekly non cumulative reach "
-            f"measurements."
-        )
+        # logging.debug(
+        #     f"Adding {metric} cover relations for weekly non cumulative reach "
+        #     f"measurements."
+        # )
         covered_parent = cover_relationship[0]
         covering_children = cover_relationship[1]
         for period in range(0, self._num_periods):
@@ -947,7 +947,7 @@ class Report:
               parent=self._get_weekly_non_cumulative_reach_measurement_index(
                   metric, covered_parent, period),
           )
-    logging.info("Finished adding cover relations to spec.")
+    # logging.info("Finished adding cover relations to spec.")
 
   def _add_subset_relations_to_spec(self, spec: SetMeasurementsSpec):
     for metric in self._metric_reports:
@@ -1008,7 +1008,7 @@ class Report:
                 ),
             )
 
-    logging.info("Finished adding subset relations to spec.")
+    # logging.info("Finished adding subset relations to spec.")
 
   def _get_ordered_sets(
       self,
@@ -1070,12 +1070,12 @@ class Report:
             edp_combination, cumulative_edp_combinations
         )
         if len(edps) != len(edp_combination):
-          logging.info(
-              f'Skipping the overlap check for the cumulative measurements of '
-              f'{edp_combination} in {metric}. Expecting measurements for each '
-              f'EDP in {edp_combination}, however, there are only measurements '
-              f'for EDPs in {edps}.'
-          )
+          # logging.info(
+          #     f'Skipping the overlap check for the cumulative measurements of '
+          #     f'{edp_combination} in {metric}. Expecting measurements for each '
+          #     f'EDP in {edp_combination}, however, there are only measurements '
+          #     f'for EDPs in {edps}.'
+          # )
           continue
 
         for period in range(0, self._num_periods - 1):
@@ -1118,10 +1118,10 @@ class Report:
                         edp_combination))
             ],
         )
-    logging.info(
-        "Finished adding the relationship between cumulative and total "
-        "campaign measurements to spec."
-    )
+    # logging.info(
+    #     "Finished adding the relationship between cumulative and total "
+    #     "campaign measurements to spec."
+    # )
 
   def _add_k_reach_and_reach_relations_to_spec(self,
       spec: SetMeasurementsSpec):
@@ -1293,10 +1293,10 @@ class Report:
     # metric1>=metric#2
     for parent_metric in self._metric_subsets_by_parent:
       for child_metric in self._metric_subsets_by_parent[parent_metric]:
-        logging.debug(
-            f"Adding metric relationship for {child_metric} and "
-            f"{parent_metric}."
-        )
+        # logging.debug(
+        #     f"Adding metric relationship for {child_metric} and "
+        #     f"{parent_metric}."
+        # )
 
         parent_metric_report = self._metric_reports[parent_metric]
         child_metric_report = self._metric_reports[child_metric]
@@ -1327,12 +1327,12 @@ class Report:
               edp_combination, common_cumulative_edp_combinations
           )
           if len(edps) != len(edp_combination):
-            logging.info(
-                f'Skipping the overlap check for the cumulative measurements of '
-                f'{edp_combination} across {parent_metric}/{child_metric}. '
-                f'Expecting measurements for each EDP in {edp_combination}, '
-                f'however, there are only measurements for EDPs in {edps}.'
-            )
+            # logging.info(
+            #     f'Skipping the overlap check for the cumulative measurements of '
+            #     f'{edp_combination} across {parent_metric}/{child_metric}. '
+            #     f'Expecting measurements for each EDP in {edp_combination}, '
+            #     f'however, there are only measurements for EDPs in {edps}.'
+            # )
             continue
 
           for period in range(0, self._num_periods):
@@ -1378,12 +1378,12 @@ class Report:
               edp_combination, common_whole_campaign_edp_combinations
           )
           if len(edps) != len(edp_combination):
-            logging.info(
-                f'Skipping the overlap check for the whole campaign measurement'
-                f' of {edp_combination} across {parent_metric}/{child_metric}. '
-                f'Expecting measurements for each EDP in {edp_combination}, '
-                f'however, there are only measurements for EDPs in {edps}.'
-            )
+            # logging.info(
+            #     f'Skipping the overlap check for the whole campaign measurement'
+            #     f' of {edp_combination} across {parent_metric}/{child_metric}. '
+            #     f'Expecting measurements for each EDP in {edp_combination}, '
+            #     f'however, there are only measurements for EDPs in {edps}.'
+            # )
             continue
 
           spec.add_ordered_sets_relation(self._get_ordered_sets(
@@ -1495,10 +1495,10 @@ class Report:
                   ),
               )
 
-  logging.info(
-      "Finished adding the relationship for measurements from different "
-      "metrics."
-  )
+  # logging.info(
+  #     "Finished adding the relationship for measurements from different "
+  #     "metrics."
+  # )
 
   def _add_cumulative_relations_to_spec(self, spec: SetMeasurementsSpec):
     for metric in self._metric_reports.keys():
@@ -1523,7 +1523,7 @@ class Report:
                     metric].get_weekly_cumulative_reach_measurement(
                       edp_combination, period + 1)),
           )
-    logging.info("Finished adding cumulative relations to spec.")
+    # logging.info("Finished adding cumulative relations to spec.")
 
   def _add_set_relations_to_spec(self, spec: SetMeasurementsSpec):
     # sum of subsets >= union for each period.
@@ -1551,7 +1551,7 @@ class Report:
     # metric#1>=metric#2.
     self._add_metric_relations_to_spec(spec)
 
-    logging.info("Finished adding set relations to spec.")
+    # logging.info("Finished adding set relations to spec.")
 
   def _add_weekly_cumulative_measurements_to_spec(self,
                                                   spec: SetMeasurementsSpec):
@@ -1649,8 +1649,8 @@ class Report:
     self._add_weekly_cumulative_measurements_to_spec(spec)
     self._add_whole_campaign_measurements_to_spec(spec)
     self._add_weekly_non_cumulative_measurements_to_spec(spec)
-    logging.info(
-        "Finished adding the measurements to the set measurement spec.")
+    # logging.info(
+    #     "Finished adding the measurements to the set measurement spec.")
 
   def _normalized_sigma(self, sigma: float) -> float:
     """Normalizes the standard deviation.
@@ -1701,7 +1701,7 @@ class Report:
 
   def _metric_report_from_solution(self, metric: str,
       solution: Solution) -> "MetricReport":
-    logging.debug(f"Generating the metric report for {metric}.")
+    # logging.debug(f"Generating the metric report for {metric}.")
     solution_time_series = {}
     solution_whole_campaign = {}
     solution_k_reach = {}
