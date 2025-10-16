@@ -100,67 +100,29 @@ jobs:
 
 
 
-      # - name: Collect coverage only for solver_test.py
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$(dirname "$file")")_coverage.dat
-      #       cat "$file" > "coverage-artifacts/$base"
-      #     done
 
 
 
       - name: List and hash coverage.dat files
         run: |
-          echo ">>> Coverage.dat files found:"
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" | sort
-          echo
           echo ">>> MD5 hashes of each coverage.dat:"
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
 
       - name: Hash of merged coverage report
         run: |
           REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-          if [ -f "$REPORT_PATH" ]; then
-            echo ">>> MD5 of merged _coverage_report.dat:"
-            md5sum "$REPORT_PATH"
-          else
-            echo "❌ _coverage_report.dat not found!"
-            exit 1
-          fi
+          md5sum "$REPORT_PATH"
 
-      - name: Check if coverage report is valid
+      - name: Collect coverage only for solver_test.py
         run: |
-          grep -E "SF:" "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat" | head -5
-
-
-
-      # - name: Test write access (without cp)
-      #   run: |
-      #     mkdir -p coverage-artifacts/test-write
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$file")
-      #       cat "$file" > "coverage-artifacts/test-write/$base" 
-      #     done
-
-
-
-
-
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            base=$(basename "$(dirname "$file")")_coverage.dat
+            cat "$file" > "coverage-artifacts/$base"
+          done
         # base=$(basename "$file")
 
-
-
-
-      # - name: Collect all coverage.dat files (flat)
-      #   run: |
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$(dirname "$file")")_coverage.dat
-      #       cat "$file" > "coverage/$base" 
-      #     done
 
       # - name: Collect all coverage.dat files
       #   run: |
@@ -173,32 +135,15 @@ jobs:
       #       cp "$file" "$target_dir/"
       #     done
 
-      # - name: List collected coverage files
-      #   run: |
-      #     echo "Coverage files collected:"
-      #     find coverage-artifacts -type f -name "coverage.dat"
-
-      # - name: Upload coverage files
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-files-${{ github.sha }}
-      #     path: coverage-artifacts/
-      #     retention-days: 30
-
-
-      # - name: cat coverage
-      #   run: |
-      #     cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-
       # - name: Move coverage file
       #   run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
 
-      - name: Upload merged coverage as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-lcov-${{ github.sha }}
-          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-          retention-days: 30
+      # - name: Upload merged coverage as artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-lcov-${{ github.sha }}
+      #     path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+      #     retention-days: 30
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -211,10 +156,4 @@ jobs:
       - name: Hash of merged coverage report
         run: |
           REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-          if [ -f "$REPORT_PATH" ]; then
-            echo ">>> MD5 of merged coverage report:"
-            md5sum "$REPORT_PATH"
-          else
-            echo "❌ Coverage report not found!"
-            exit 1
-          fi
+          md5sum "$REPORT_PATH"
