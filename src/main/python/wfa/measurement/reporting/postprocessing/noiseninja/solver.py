@@ -52,7 +52,7 @@ class SolutionNotFoundError(ValueError):
 class Solver:
 
   def __init__(self, set_measurement_spec: SetMeasurementsSpec):
-    logging.info("Initializing the solver.")
+    # logging.info("Initializing the solver.")
     variable_index_by_set_id = Solver._map_sets_to_variables(
         set_measurement_spec)
     # variable_index_by_set_id = {1: 0, 2: 1, 3: 2, 4: 3}
@@ -86,11 +86,11 @@ class Solver:
     self.base_value = np.array(list(
         (mean_measurement_by_variable[i]
          for i in range(0, self.num_variables))))
-    logging.debug(f"The base values are {self.base_value}.")
+    # logging.debug(f"The base values are {self.base_value}.")
 
   def _add_measurement_targets(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
-    logging.info("Calculating the loss and equality terms.")
+    # logging.info("Calculating the loss and equality terms.")
     for (measured_set, variable) in variable_index_by_set_id.items():
       variables = np.zeros(self.num_variables)
       variables[variable] = 1
@@ -126,7 +126,7 @@ class Solver:
 
   def _add_equals(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
-    logging.info("Adding equal set constraints.")
+    # logging.info("Adding equal set constraints.")
     
     for equal_set in set_measurement_spec.get_equal_sets():
     # variables = [ 1, 0, 0,-1 ]
@@ -148,7 +148,7 @@ class Solver:
   def _add_weighted_sum_upperbounds(self,
       set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
-    logging.info("Adding weighted sum upperbound constraints.")
+    # logging.info("Adding weighted sum upperbound constraints.")
     for key, value in set_measurement_spec.get_weighted_sum_upperbound_sets().items():
       variables = np.zeros(self.num_variables)
       variables[variable_index_by_set_id[key]] = -1
@@ -158,7 +158,7 @@ class Solver:
 
   def _add_subsets(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
-    logging.info("Adding subset constraints.")
+    # logging.info("Adding subset constraints.")
     for measured_set in set_measurement_spec.all_sets():
       for subset in set(set_measurement_spec.get_subsets(measured_set)):
         self._add_parent_gt_child_term(
@@ -167,7 +167,7 @@ class Solver:
 
   def _add_ordered_sets(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
-    logging.infor("Adding ordered sets constraints.")
+    # logging.infor("Adding ordered sets constraints.")
     ordered_sets: list[OrderedSets] = set_measurement_spec.get_ordered_sets()
     for i in range(len(ordered_sets)):
       if len(ordered_sets[i].larger_set) == 0 or len(
@@ -192,7 +192,7 @@ class Solver:
 
   def _add_covers(self, set_measurement_spec: SetMeasurementsSpec,
       variable_index_by_set_id: dict[int, int]):
-    logging.info("Adding cover set constraints.")
+    # logging.info("Adding cover set constraints.")
     for measured_set in set_measurement_spec.all_sets():
       for cover in set_measurement_spec.get_covers_of_set(measured_set):
         self._add_cover_set_constraint(
@@ -201,7 +201,7 @@ class Solver:
 
   # Enforces that all the variables are non-negative.
   def _add_lower_bounds(self):
-    logging.info("Adding lower bounds constraints.")
+    # logging.info("Adding lower bounds constraints.")
     for i in range(self.num_variables):
       variables = np.zeros(self.num_variables)
       variables[i] = -1
@@ -253,7 +253,7 @@ class Solver:
 
   def _solve(self, solver_name: str) -> tuple[
     Solution, ReportPostProcessorStatus]:
-    logging.info("Solving the quadratic program.")
+    # logging.info("Solving the quadratic program.")
     attempt_count = 0
     best_solution = Solution(False)
     smallest_residual = float('inf')
@@ -312,18 +312,18 @@ class Solver:
     return best_solution, report_post_processor_status
 
   def solve(self) -> tuple[Solution, ReportPostProcessorStatus]:
-    logging.info(
-        "Solving the quadratic program with the HIGHS solver."
-    )
+    # logging.info(
+        # "Solving the quadratic program with the HIGHS solver."
+    # )
     solution, report_post_processor_status = self._solve(HIGHS_SOLVER)
 
     # If the highs solver does not converge, switch to the osqp solver which
     # is more robust. However, OSQP in general is less accurate than HIGHS
     # (See https://web.stanford.edu/~boyd/papers/pdf/osqp.pdf).
     if not solution.found:
-      logging.info(
-          "Switching to OSQP solver as HIGHS solver failed to converge."
-      )
+      # logging.info(
+          # "Switching to OSQP solver as HIGHS solver failed to converge."
+      # )
       solution, report_post_processor_status = self._solve(OSQP_SOLVER)
 
     return solution, report_post_processor_status
