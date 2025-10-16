@@ -190,14 +190,14 @@ jobs:
       #   run: |
       #     cat ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Move coverage file
-        run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
+      # - name: Move coverage file
+      #   run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
 
       - name: Upload merged coverage as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-lcov-${{ github.sha }}
-          path: lcov.info
+          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
           retention-days: 30
 
       - name: Upload coverage reports to Codecov
@@ -210,7 +210,7 @@ jobs:
 
       - name: Hash of merged coverage report
         run: |
-          REPORT_PATH="lcov.info"
+          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
           if [ -f "$REPORT_PATH" ]; then
             echo ">>> MD5 of merged coverage report:"
             md5sum "$REPORT_PATH"
