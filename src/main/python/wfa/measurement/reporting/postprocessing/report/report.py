@@ -619,132 +619,132 @@ class Report:
     self._population_size = population_size
 
     # All metrics in the set relationships must have a corresponding report.
-    for parent in metric_subsets_by_parent.keys():
-      if not (parent in metric_reports):
-        raise ValueError(
-            "key {1} does not have a corresponding report".format(parent)
-        )
-      for child in metric_subsets_by_parent[parent]:
-        if not (child in metric_reports):
-          raise ValueError(
-              "key {1} does not have a corresponding report".format(child)
-          )
+    # for parent in metric_subsets_by_parent.keys():
+    #   if not (parent in metric_reports):
+    #     raise ValueError(
+    #         "key {1} does not have a corresponding report".format(parent)
+    #     )
+    #   for child in metric_subsets_by_parent[parent]:
+    #     if not (child in metric_reports):
+    #       raise ValueError(
+    #           "key {1} does not have a corresponding report".format(child)
+    #       )
 
-    self._metric_index = {}
-    for index, metric in enumerate(metric_reports.keys()):
-      self._metric_index[metric] = index
+    # self._metric_index = {}
+    # for index, metric in enumerate(metric_reports.keys()):
+    #   self._metric_index[metric] = index
 
-    periods = set()
-    for metric in metric_reports.keys():
-      if metric_reports[metric].get_num_periods() > 0:
-        periods.add(metric_reports[metric].get_num_periods())
+    # periods = set()
+    # for metric in metric_reports.keys():
+    #   if metric_reports[metric].get_num_periods() > 0:
+    #     periods.add(metric_reports[metric].get_num_periods())
 
-    if len(periods) > 1:
-      raise ValueError("All weekly measurements must have the same number of periods.")
+    # if len(periods) > 1:
+    #   raise ValueError("All weekly measurements must have the same number of periods.")
 
-    self._num_periods = periods.pop() if len(periods) == 1 else 0
+    # self._num_periods = periods.pop() if len(periods) == 1 else 0
 
-    frequencies = set()
-    for metric in metric_reports.keys():
-      if metric_reports[metric].get_num_frequencies() > 0:
-        frequencies.add(metric_reports[metric].get_num_frequencies())
+    # frequencies = set()
+    # for metric in metric_reports.keys():
+    #   if metric_reports[metric].get_num_frequencies() > 0:
+    #     frequencies.add(metric_reports[metric].get_num_frequencies())
 
-    if len(frequencies) > 1:
-      raise ValueError("All k-reach measurements must have the same number of frequencies.")
+    # if len(frequencies) > 1:
+    #   raise ValueError("All k-reach measurements must have the same number of frequencies.")
 
-    self._num_frequencies = frequencies.pop() if len(frequencies) == 1 else 0
+    # self._num_frequencies = frequencies.pop() if len(frequencies) == 1 else 0
 
-    # Assigns an index to each measurement and keeps track of the max standard
-    # deviation. This max standard deviation will be used to normalized the
-    # standard deviation of the measurements when the report is corrected.
-    measurement_index = 0
-    self._measurement_name_to_index = {}
-    self._index_to_measurement_name = {}
-    self._measurement_name_to_measurement = {}
-    self._max_standard_deviation = UNIT_SCALING_FACTOR
-    for metric in metric_reports.keys():
-      metric_report = metric_reports[metric]
-      # Assigns an index for whole campaign reaches.
-      for edp_combination in metric_report.get_whole_campaign_reach_edp_combinations():
-        measurement = metric_report.get_whole_campaign_reach_measurement(
-          edp_combination)
-        self._measurement_name_to_index[measurement.name] = measurement_index
-        self._index_to_measurement_name[measurement_index] = measurement.name
-        self._measurement_name_to_measurement[measurement.name] = measurement
-        self._max_standard_deviation = max(self._max_standard_deviation,
-                                           measurement.sigma)
-        measurement_index += 1
+    # # Assigns an index to each measurement and keeps track of the max standard
+    # # deviation. This max standard deviation will be used to normalized the
+    # # standard deviation of the measurements when the report is corrected.
+    # measurement_index = 0
+    # self._measurement_name_to_index = {}
+    # self._index_to_measurement_name = {}
+    # self._measurement_name_to_measurement = {}
+    # self._max_standard_deviation = UNIT_SCALING_FACTOR
+    # for metric in metric_reports.keys():
+    #   metric_report = metric_reports[metric]
+    #   # Assigns an index for whole campaign reaches.
+    #   for edp_combination in metric_report.get_whole_campaign_reach_edp_combinations():
+    #     measurement = metric_report.get_whole_campaign_reach_measurement(
+    #       edp_combination)
+    #     self._measurement_name_to_index[measurement.name] = measurement_index
+    #     self._index_to_measurement_name[measurement_index] = measurement.name
+    #     self._measurement_name_to_measurement[measurement.name] = measurement
+    #     self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                        measurement.sigma)
+    #     measurement_index += 1
 
-      # Assigns an index for cumulative reaches.
-      for edp_combination in metric_report.get_weekly_cumulative_reach_edp_combinations():
-        for period in range(0, self._num_periods):
-          measurement = metric_report.get_weekly_cumulative_reach_measurement(
-            edp_combination, period)
-          self._measurement_name_to_index[measurement.name] = measurement_index
-          self._index_to_measurement_name[measurement_index] = measurement.name
-          self._measurement_name_to_measurement[measurement.name] = measurement
-          self._max_standard_deviation = max(self._max_standard_deviation,
-                                             measurement.sigma)
-          measurement_index += 1
+    #   # Assigns an index for cumulative reaches.
+    #   for edp_combination in metric_report.get_weekly_cumulative_reach_edp_combinations():
+    #     for period in range(0, self._num_periods):
+    #       measurement = metric_report.get_weekly_cumulative_reach_measurement(
+    #         edp_combination, period)
+    #       self._measurement_name_to_index[measurement.name] = measurement_index
+    #       self._index_to_measurement_name[measurement_index] = measurement.name
+    #       self._measurement_name_to_measurement[measurement.name] = measurement
+    #       self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                          measurement.sigma)
+    #       measurement_index += 1
 
-      # Assign an index for whole campaign k_reach.
-      for edp_combination in metric_report.get_whole_campaign_k_reach_edp_combinations():
-        for frequency in range(1, self._num_frequencies + 1):
-          measurement = metric_report.get_whole_campaign_k_reach_measurement(
-                  edp_combination, frequency)
-          self._measurement_name_to_index[measurement.name] = measurement_index
-          self._index_to_measurement_name[measurement_index] = measurement.name
-          self._measurement_name_to_measurement[measurement.name] = measurement
-          self._max_standard_deviation = max(self._max_standard_deviation,
-                                             measurement.sigma)
-          measurement_index += 1
+    #   # Assign an index for whole campaign k_reach.
+    #   for edp_combination in metric_report.get_whole_campaign_k_reach_edp_combinations():
+    #     for frequency in range(1, self._num_frequencies + 1):
+    #       measurement = metric_report.get_whole_campaign_k_reach_measurement(
+    #               edp_combination, frequency)
+    #       self._measurement_name_to_index[measurement.name] = measurement_index
+    #       self._index_to_measurement_name[measurement_index] = measurement.name
+    #       self._measurement_name_to_measurement[measurement.name] = measurement
+    #       self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                          measurement.sigma)
+    #       measurement_index += 1
 
-      # Assigns an index for whole campaign impressions.
-      for edp_combination in metric_report.get_whole_campaign_impression_edp_combinations():
-        measurement = metric_report.get_whole_campaign_impression_measurement(
-          edp_combination)
-        self._measurement_name_to_index[measurement.name] = measurement_index
-        self._index_to_measurement_name[measurement_index] = measurement.name
-        self._measurement_name_to_measurement[measurement.name] = measurement
-        self._max_standard_deviation = max(self._max_standard_deviation,
-                                           measurement.sigma)
-        measurement_index += 1
+    #   # Assigns an index for whole campaign impressions.
+    #   for edp_combination in metric_report.get_whole_campaign_impression_edp_combinations():
+    #     measurement = metric_report.get_whole_campaign_impression_measurement(
+    #       edp_combination)
+    #     self._measurement_name_to_index[measurement.name] = measurement_index
+    #     self._index_to_measurement_name[measurement_index] = measurement.name
+    #     self._measurement_name_to_measurement[measurement.name] = measurement
+    #     self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                        measurement.sigma)
+    #     measurement_index += 1
 
-      # Assign an index for weekly non cumulative reach.
-      for edp_combination in metric_report.get_weekly_non_cumulative_reach_edp_combinations():
-        for period in range(0, self._num_periods):
-          measurement = metric_report.get_weekly_non_cumulative_reach_measurement(
-            edp_combination, period)
-          self._measurement_name_to_index[measurement.name] = measurement_index
-          self._index_to_measurement_name[measurement_index] = measurement.name
-          self._max_standard_deviation = max(self._max_standard_deviation,
-                                             measurement.sigma)
-          measurement_index += 1
+    #   # Assign an index for weekly non cumulative reach.
+    #   for edp_combination in metric_report.get_weekly_non_cumulative_reach_edp_combinations():
+    #     for period in range(0, self._num_periods):
+    #       measurement = metric_report.get_weekly_non_cumulative_reach_measurement(
+    #         edp_combination, period)
+    #       self._measurement_name_to_index[measurement.name] = measurement_index
+    #       self._index_to_measurement_name[measurement_index] = measurement.name
+    #       self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                          measurement.sigma)
+    #       measurement_index += 1
 
-      # Assign an index for weekly non cumulative k-reach.
-      for edp_combination in metric_report.get_weekly_non_cumulative_k_reach_edp_combinations():
-        for period in range(0, self._num_periods):
-          for frequency in range(1, self._num_frequencies + 1):
-            measurement = metric_report.get_weekly_non_cumulative_k_reach_measurement(
-              edp_combination, period, frequency)
-            self._measurement_name_to_index[measurement.name] = measurement_index
-            self._index_to_measurement_name[measurement_index] = measurement.name
-            self._max_standard_deviation = max(self._max_standard_deviation,
-                                               measurement.sigma)
-            measurement_index += 1
+    #   # Assign an index for weekly non cumulative k-reach.
+    #   for edp_combination in metric_report.get_weekly_non_cumulative_k_reach_edp_combinations():
+    #     for period in range(0, self._num_periods):
+    #       for frequency in range(1, self._num_frequencies + 1):
+    #         measurement = metric_report.get_weekly_non_cumulative_k_reach_measurement(
+    #           edp_combination, period, frequency)
+    #         self._measurement_name_to_index[measurement.name] = measurement_index
+    #         self._index_to_measurement_name[measurement_index] = measurement.name
+    #         self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                            measurement.sigma)
+    #         measurement_index += 1
 
-      # Assign an index for weekly non cumulative impression.
-      for edp_combination in metric_report.get_weekly_non_cumulative_impression_edp_combinations():
-        for period in range(0, self._num_periods):
-          measurement = metric_report.get_weekly_non_cumulative_impression_measurement(
-            edp_combination, period)
-          self._measurement_name_to_index[measurement.name] = measurement_index
-          self._index_to_measurement_name[measurement_index] = measurement.name
-          self._max_standard_deviation = max(self._max_standard_deviation,
-                                             measurement.sigma)
-          measurement_index += 1
+    #   # Assign an index for weekly non cumulative impression.
+    #   for edp_combination in metric_report.get_weekly_non_cumulative_impression_edp_combinations():
+    #     for period in range(0, self._num_periods):
+    #       measurement = metric_report.get_weekly_non_cumulative_impression_measurement(
+    #         edp_combination, period)
+    #       self._measurement_name_to_index[measurement.name] = measurement_index
+    #       self._index_to_measurement_name[measurement_index] = measurement.name
+    #       self._max_standard_deviation = max(self._max_standard_deviation,
+    #                                          measurement.sigma)
+    #       measurement_index += 1
 
-    self._num_vars = measurement_index
+    # self._num_vars = measurement_index
 
   def get_measurement_from_name(self, measurement_name: str) -> Measurement:
     if measurement_name not in self._measurement_name_to_measurement:
