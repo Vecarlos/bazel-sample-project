@@ -19,11 +19,5 @@ from noiseninja.solver import Solver
 
 class Report:
 
-  def __init__(
-      self,
-      metric_reports: dict[str, int],
-      metric_subsets_by_parent: dict[str, list[str]],
-      cumulative_inconsistency_allowed_edp_combinations: set[str],
-      population_size: float = 0.0,
-  ):
-    self._population_size = population_size
+  def __init__(self):
+    pass
