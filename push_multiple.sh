@@ -5,13 +5,13 @@ COMMIT_BASE_NAME="all collect all, cache and write coverage, no logs"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
-DELAY_SECONDS=80
+DELAY_SECONDS=65
 
 echo ">>> 1. Creando commit real con 'git add .'"
 git add .
 git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
-for i in {2..6}
+for i in {2..7}
 do
   echo -e "\n--- Esperando $DELAY_SECONDS segundos para no interrumpir la CI anterior..."
   sleep $DELAY_SECONDS
