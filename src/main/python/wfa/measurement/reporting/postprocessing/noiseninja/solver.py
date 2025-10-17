@@ -24,13 +24,13 @@ class Solver:
     self._add_equals(set_measurement_spec, variable_index_by_set_id)
 
   def _add_equals(self, set_measurement_spec,variable_index_by_set_id):
-
-    for equal_set in set_measurement_spec:
+    variables = []
+    # for equal_set in set_measurement_spec:
       
-      variables = np.zeros(self.num_variables)
-      variables[variable_index_by_set_id[equal_set[0]]] = 1
+    #   variables = np.zeros(self.num_variables)
+    #   variables[variable_index_by_set_id[equal_set[0]]] = 1
  
-      variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+    #   variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
       self._add_eq_term(variables, 0)
 
 
