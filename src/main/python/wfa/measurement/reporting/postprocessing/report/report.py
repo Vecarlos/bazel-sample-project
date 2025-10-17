@@ -35,8 +35,9 @@ from noiseninja.solver import Solver
 from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
   report_post_processor_result_pb2
 
-random.seed(10)
-
+SEED = 10
+random.seed(SEED)
+np.random.seed(SEED)
 ReportPostProcessorResult = report_post_processor_result_pb2.ReportPostProcessorResult
 ReportPostProcessorStatus = report_post_processor_result_pb2.ReportPostProcessorStatus
 ReportQuality = report_post_processor_result_pb2.ReportQuality
@@ -302,36 +303,36 @@ class MetricReport:
     # Get the number of periods and check that all time series have the same
     # length.
     periods = set()
-    for edp_combination in weekly_cumulative_reaches.keys():
-      periods.add(len(weekly_cumulative_reaches[edp_combination]))
-    for edp_combination in weekly_non_cumulative_measurements.keys():
-      periods.add(len(weekly_non_cumulative_measurements[edp_combination]))
+    # for edp_combination in weekly_cumulative_reaches.keys():
+    #   periods.add(len(weekly_cumulative_reaches[edp_combination]))
+    # for edp_combination in weekly_non_cumulative_measurements.keys():
+    #   periods.add(len(weekly_non_cumulative_measurements[edp_combination]))
 
-    if len(periods) > 1:
-      raise ValueError("All weekly measurements must have the same number of periods.")
+    # if len(periods) > 1:
+    #   raise ValueError("All weekly measurements must have the same number of periods.")
 
-    self._num_periods = periods.pop() if len(periods) == 1 else 0
+    # self._num_periods = periods.pop() if len(periods) == 1 else 0
 
-    frequencies = set()
-    for edp_combination in whole_campaign_measurements.keys():
-      k_reach_measurements = whole_campaign_measurements[edp_combination].k_reach
-      if k_reach_measurements is not None and len(k_reach_measurements) > 0:
-        frequencies.add(len(k_reach_measurements))
+    # frequencies = set()
+    # for edp_combination in whole_campaign_measurements.keys():
+    #   k_reach_measurements = whole_campaign_measurements[edp_combination].k_reach
+    #   if k_reach_measurements is not None and len(k_reach_measurements) > 0:
+    #     frequencies.add(len(k_reach_measurements))
 
-    for edp_combination in weekly_non_cumulative_measurements.keys():
-      for period in range(0, self._num_periods):
-        k_reach_measurements = weekly_non_cumulative_measurements[edp_combination][period].k_reach
-        if k_reach_measurements is not None and len(k_reach_measurements) > 0:
-          frequencies.add(len(k_reach_measurements))
+    # for edp_combination in weekly_non_cumulative_measurements.keys():
+    #   for period in range(0, self._num_periods):
+    #     k_reach_measurements = weekly_non_cumulative_measurements[edp_combination][period].k_reach
+    #     if k_reach_measurements is not None and len(k_reach_measurements) > 0:
+    #       frequencies.add(len(k_reach_measurements))
 
-    if len(frequencies) > 1:
-      raise ValueError("All k-reach measurements must have the same number of frequencies.")
+    # if len(frequencies) > 1:
+    #   raise ValueError("All k-reach measurements must have the same number of frequencies.")
 
-    self._num_frequencies = frequencies.pop() if len(frequencies) == 1 else 0
+    # self._num_frequencies = frequencies.pop() if len(frequencies) == 1 else 0
 
-    self._weekly_cumulative_reaches = weekly_cumulative_reaches
-    self._whole_campaign_measurements = whole_campaign_measurements
-    self._weekly_non_cumulative_measurements = weekly_non_cumulative_measurements
+    # self._weekly_cumulative_reaches = weekly_cumulative_reaches
+    # self._whole_campaign_measurements = whole_campaign_measurements
+    # self._weekly_non_cumulative_measurements = weekly_non_cumulative_measurements
 
   def sample_with_noise(self) -> "MetricReport":
     """
