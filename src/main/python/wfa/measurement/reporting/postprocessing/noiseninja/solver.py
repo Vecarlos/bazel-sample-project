@@ -31,7 +31,7 @@ class Solver:
     #   variables[variable_index_by_set_id[equal_set[0]]] = 1
  
     #   variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-      self._add_eq_term(variables, 0)
+    self._add_eq_term(variables, 0)
 
 
   def _add_eq_term(self, variables: np.array, k: float):
