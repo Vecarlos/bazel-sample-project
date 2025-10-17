@@ -113,6 +113,15 @@ jobs:
           REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
           md5sum "$REPORT_PATH"
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+
+
       - name: Collect coverage only for solver_test.py
         run: |
           mkdir -p coverage-artifacts
@@ -145,7 +154,7 @@ jobs:
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
           retention-days: 30
 
-      - name: Upload coverage reports to Codecov
+      - name: Upload coverage reports to Codecov 2
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
