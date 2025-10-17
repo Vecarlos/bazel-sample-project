@@ -44,68 +44,6 @@ ReportQuality = report_post_processor_result_pb2.ReportQuality
 
 EdpCombination: TypeAlias = FrozenSet[str]
 
-MIN_STANDARD_VARIATION_RATIO = 0.001
-UNIT_SCALING_FACTOR = 1.0
-TOLERANCE = 1e-6
-
-# The probability of a value falling outside the [-7*STDDEV; 7*STDDEV] range is
-# approximately 2^{-38.5}.
-STANDARD_DEVIATION_TEST_THRESHOLD = 7.0
-
-CONSISTENCY_TEST_TOLERANCE = 1.0
-
-
-# def fuzzy_equal(val: float, target: float, tolerance: float) -> bool:
-#   """Checks if two float values are approximately equal within an absolute tolerance."""
-#   return math.isclose(val, target, rel_tol=0.0, abs_tol=tolerance)
-
-
-# def fuzzy_less_equal(smaller: float, larger: float, tolerance: float) -> bool:
-#   """Checks if one float value is less than or equal to another within a tolerance."""
-#   return larger - smaller + tolerance >= 0
-
-
-# def get_subset_relationships(
-#     edp_combinations: list[EdpCombination],
-# ) -> list[Tuple[EdpCombination, EdpCombination]]:
-#   """Returns a list of tuples where first element in the tuple is the parent
-#   and second element is the subset."""
-#   # logging.debug(
-#   #     "Getting subset relations for the list of EDP combinations "
-#   #     f"{edp_combinations}."
-#   # )
-#   subset_relationships = []
-#   for comb1, comb2 in combinations(edp_combinations, 2):
-#     if comb1.issubset(comb2):
-#       subset_relationships.append((comb2, comb1))
-#     elif comb2.issubset(comb1):
-#       subset_relationships.append((comb1, comb2))
-#   # logging.debug(
-#   #     f"The subset relationships for {edp_combinations} are "
-#   #     f"{subset_relationships}."
-#   # )
-#   return subset_relationships
-
-
-# def is_cover(
-#     target_set: EdpCombination, possible_cover: list[EdpCombination]
-# ) -> bool:
-#   """Checks if a collection of sets covers a target set.
-
-#   Args:
-#     target_set: The set that should be covered.
-#     possible_cover: A collection of sets that may cover the target set.
-
-#   Returns:
-#     True if the union of the sets in `possible_cover` equals `target_set`,
-#     False otherwise.
-#   """
-#   union_of_possible_cover = reduce(
-#       lambda x, y: x.union(y), possible_cover
-#   )
-#   return union_of_possible_cover == target_set
-
-
 
 
 class Report:
