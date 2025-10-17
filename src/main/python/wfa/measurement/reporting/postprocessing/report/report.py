@@ -35,6 +35,8 @@ from noiseninja.solver import Solver
 from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
   report_post_processor_result_pb2
 
+random.seed(10)
+
 ReportPostProcessorResult = report_post_processor_result_pb2.ReportPostProcessorResult
 ReportPostProcessorStatus = report_post_processor_result_pb2.ReportPostProcessorStatus
 ReportQuality = report_post_processor_result_pb2.ReportQuality
