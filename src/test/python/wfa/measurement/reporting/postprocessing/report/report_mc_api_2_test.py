@@ -15,11 +15,8 @@
 import unittest
 
 
-# from report.report import MetricReport
-from report.report import Report
-# from report.report import build_measurement_set
-# from report.testing.validate_report import get_sorted_list
-# from report.testing.validate_report import ordered_sets_to_sorted_list
+# from report.report import Report
+
 
 
 
