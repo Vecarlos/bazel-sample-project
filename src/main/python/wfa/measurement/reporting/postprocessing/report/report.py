@@ -55,523 +55,523 @@ STANDARD_DEVIATION_TEST_THRESHOLD = 7.0
 CONSISTENCY_TEST_TOLERANCE = 1.0
 
 
-def fuzzy_equal(val: float, target: float, tolerance: float) -> bool:
-  """Checks if two float values are approximately equal within an absolute tolerance."""
-  return math.isclose(val, target, rel_tol=0.0, abs_tol=tolerance)
-
-
-def fuzzy_less_equal(smaller: float, larger: float, tolerance: float) -> bool:
-  """Checks if one float value is less than or equal to another within a tolerance."""
-  return larger - smaller + tolerance >= 0
-
-
-def get_subset_relationships(
-    edp_combinations: list[EdpCombination],
-) -> list[Tuple[EdpCombination, EdpCombination]]:
-  """Returns a list of tuples where first element in the tuple is the parent
-  and second element is the subset."""
-  # logging.debug(
-  #     "Getting subset relations for the list of EDP combinations "
-  #     f"{edp_combinations}."
-  # )
-  subset_relationships = []
-  for comb1, comb2 in combinations(edp_combinations, 2):
-    if comb1.issubset(comb2):
-      subset_relationships.append((comb2, comb1))
-    elif comb2.issubset(comb1):
-      subset_relationships.append((comb1, comb2))
-  # logging.debug(
-  #     f"The subset relationships for {edp_combinations} are "
-  #     f"{subset_relationships}."
-  # )
-  return subset_relationships
-
-
-def is_cover(
-    target_set: EdpCombination, possible_cover: list[EdpCombination]
-) -> bool:
-  """Checks if a collection of sets covers a target set.
-
-  Args:
-    target_set: The set that should be covered.
-    possible_cover: A collection of sets that may cover the target set.
-
-  Returns:
-    True if the union of the sets in `possible_cover` equals `target_set`,
-    False otherwise.
-  """
-  union_of_possible_cover = reduce(
-      lambda x, y: x.union(y), possible_cover
-  )
-  return union_of_possible_cover == target_set
-
-
-def get_covers(
-    target_set: EdpCombination, other_sets: list[EdpCombination]
-) -> list[Tuple[EdpCombination, list[EdpCombination]]]:
-  """Finds all combinations of sets from `other_sets` that cover `target_set`.
-
-  This function identifies all possible combinations of sets within `other_sets`
-  whose union equals the `target_set`. It only considers sets that are subsets of
-  the `target_set`.
-
-  Args:
-    target_set: The set that needs to be covered.
-    other_sets: A collection of sets that may be used to cover the `target_set`.
-
-  Returns:
-    A list of tuples, where each tuple represents a covering relationship.
-    The first element of the tuple is the `target_set`, and the second element
-    is a tuple containing the sets from `other_sets` that cover it.
-  """
-  # logging.debug(f"Getting cover relations for {target_set} from {other_sets}.")
-
-  def generate_all_length_combinations(data: list[Any]) -> list[
-    tuple[Any, ...]]:
-    """Generates all possible combinations of elements from a list.
-
-    Args:
-      data: A list of elements.
-
-    Returns:
-      A list of tuples, where each tuple represents a combination of elements.
-    """
-    return [
-        comb for r in range(1, len(data) + 1) for comb in
-        combinations(data, r)
-    ]
-
-  cover_relationship = []
-  all_subsets_of_possible_covered = [other_set for other_set in other_sets
-                                     if
-                                     other_set.issubset(target_set)]
-  possible_covers = generate_all_length_combinations(
-      all_subsets_of_possible_covered)
-  for possible_cover in possible_covers:
-    if is_cover(target_set, possible_cover):
-      cover_relationship.append((target_set, possible_cover))
-  logging.debug(
-      f"The cover relationship is {cover_relationship}."
-  )
-  return cover_relationship
-
-
-def get_cover_relationships(
-    edp_combinations: list[EdpCombination],
-) -> list[Tuple[EdpCombination, list[EdpCombination]]]:
-  """Returns covers as defined here: # https://en.wikipedia.org/wiki/Cover_(topology).
-  For each set (s_i) in the list, enumerate combinations of all sets excluding this one.
-  For each of these considered combinations, take their union and check if it is equal to
-  s_i. If so, this combination is a cover of s_i.
-  """
-  # logging.debug(
-  #     "Getting all cover relationships from a list of EDP combinations "
-  #     f"{edp_combinations}"
-  # )
-  cover_relationships = []
-  for i in range(len(edp_combinations)):
-    possible_covered = edp_combinations[i]
-    other_sets = edp_combinations[:i] + edp_combinations[i + 1:]
-    cover_relationship = get_covers(possible_covered, other_sets)
-    cover_relationships.extend(cover_relationship)
-  return cover_relationships
-
-
-def is_union_reach_consistent(
-    union_measurement: Measurement,
-    component_measurements: list[Measurement], population_size: float) -> bool:
-  """Verifies that the expected union reach is statistically consistent with
-  individual EDP measurements assuming conditional independence between the sets
-  of VIDs reached by the different EDPs.
-
-  The check is done by comparing the absolute difference between the observed
-  union reach and the expected union reach against a confidence range.
-
-  Let U be the population size, X_1, ..., X_n be the single EDPs. If the reach
-  of the EDPs are independent of one another, the expected union reach is:
-      |X_1 union … union Xn_| = U - (U - |X_1|)...(U - |X_n|)/U^{n-1}
-
-  Let D = expected union - measuremed union.
-
-  The standard deviation of the difference between the expected union reach
-  and the measured union reach is bounded by
-  std(D) <= sqrt(var(|X_1|) + ... + var(|X_n|) + var(measured union)).
-
-  Returns:
-    True if D is in [-7*std(D); 7*std(D)].
-    False otherwise.
-  """
-
-  if population_size <= 0:
-    raise ValueError(
-        f"The population size must be greater than 0, but got"
-        f" {population_size}."
-    )
-
-  if len(component_measurements) <= 1:
-    raise ValueError(
-        f"The length of individual reaches must be at least 2, but got"
-        f" {len(component_measurements)}."
-    )
-
-  variance = union_measurement.sigma ** 2
-
-  probability = 1.0
-
-  for measurement in component_measurements:
-    probability *= max(0.0, 1.0 - measurement.value / population_size)
-    variance += measurement.sigma ** 2
-
-  probability = min(1.0, probability)
-
-  expected_union_measurement = population_size * (1.0 - probability)
-
-  # An upperbound of STDDEV(expected union - measured union).
-  standard_deviation = np.sqrt(variance)
-
-  return abs(expected_union_measurement - union_measurement.value) <= \
-    STANDARD_DEVIATION_TEST_THRESHOLD * standard_deviation
-
-
-def get_edps_from_edp_combination(
-    edp_combination: EdpCombination,
-    all_edp_combinations: set[EdpCombination]
-) -> list[EdpCombination]:
-  return list(
-    all_edp_combinations.intersection([frozenset({edp}) for edp in edp_combination])
-  )
-
-
-
-def build_measurement_set(
-    reach: dict[EdpCombination, Measurement],
-    k_reach: dict[EdpCombination, KReachMeasurements],
-    impression: dict[EdpCombination, Measurement]
-) -> dict[EdpCombination, MeasurementSet]:
-  """Builds a dictionary of MeasurementSet from separate measurement dicts."""
-  all_edps = (
-      set(reach.keys())
-      | set(k_reach.keys())
-      | set(impression.keys())
-  )
-  whole_campaign_measurements = {}
-  for edp in all_edps:
-    whole_campaign_measurements[edp] = MeasurementSet(
-        reach=reach.get(edp),
-        k_reach=k_reach.get(edp, {}),
-        impression=impression.get(edp),
-    )
-  return whole_campaign_measurements
-
-
-
-class MetricReport:
-  """Represents a metric sub-report view (e.g., MRC, AMI) within a report.
-
-    This class stores and provides access to various measurements for different
-    EDP (Event, Data Provider, and Platform) combinations. It holds three main
-    types of data:
-
-        * Cumulative reach over time, represented as a time series.
-        * A set of measurements (reach, k-reach, impression) for the whole
-          campaign.
-        * A time series of weekly non-cumulative measurements for each period.
-
-    Attributes:
-        _weekly_cumulative_reaches: A dictionary mapping EDP combinations (represented
-                            as frozensets of strings) to lists of Measurement
-                            objects, where each list represents a time series of
-                            reach values.
-        _whole_campaign_measurements: A dictionary mapping EDP combinations to
-                                      MeasurementSet objects, each containing
-                                      the reach, k-reach, and impression for
-                                      the entire campaign.
-        _weekly_non_cumulative_measurements: A dictionary mapping EDP combinations to
-                                      lists of MeasurementSet objects, where
-                                      each set represents the non-cumulative
-                                      measurements for a specific time period.
-  """
-
-  def __init__(
-      self,
-      weekly_cumulative_reaches: dict[EdpCombination, list[Measurement]],
-      whole_campaign_measurements: dict[EdpCombination, MeasurementSet],
-      weekly_non_cumulative_measurements: dict[
-          EdpCombination, list[MeasurementSet]
-      ],
-  ):
-    # Get the number of periods and check that all time series have the same
-    # length.
-    periods = set()
-    # for edp_combination in weekly_cumulative_reaches.keys():
-    #   periods.add(len(weekly_cumulative_reaches[edp_combination]))
-    # for edp_combination in weekly_non_cumulative_measurements.keys():
-    #   periods.add(len(weekly_non_cumulative_measurements[edp_combination]))
-
-    # if len(periods) > 1:
-    #   raise ValueError("All weekly measurements must have the same number of periods.")
-
-    # self._num_periods = periods.pop() if len(periods) == 1 else 0
-
-    # frequencies = set()
-    # for edp_combination in whole_campaign_measurements.keys():
-    #   k_reach_measurements = whole_campaign_measurements[edp_combination].k_reach
-    #   if k_reach_measurements is not None and len(k_reach_measurements) > 0:
-    #     frequencies.add(len(k_reach_measurements))
-
-    # for edp_combination in weekly_non_cumulative_measurements.keys():
-    #   for period in range(0, self._num_periods):
-    #     k_reach_measurements = weekly_non_cumulative_measurements[edp_combination][period].k_reach
-    #     if k_reach_measurements is not None and len(k_reach_measurements) > 0:
-    #       frequencies.add(len(k_reach_measurements))
-
-    # if len(frequencies) > 1:
-    #   raise ValueError("All k-reach measurements must have the same number of frequencies.")
-
-    # self._num_frequencies = frequencies.pop() if len(frequencies) == 1 else 0
-
-    # self._weekly_cumulative_reaches = weekly_cumulative_reaches
-    # self._whole_campaign_measurements = whole_campaign_measurements
-    # self._weekly_non_cumulative_measurements = weekly_non_cumulative_measurements
-
-  def sample_with_noise(self) -> "MetricReport":
-    """
-    :return: a new MetricReport where measurements have been resampled
-    according to their mean and variance.
-    """
-    return MetricReport(
-        weekly_cumulative_reaches={
-            edp_combination: [
-                MetricReport._sample_with_noise(measurement)
-                for measurement in self._weekly_cumulative_reaches[
-                  edp_combination
-                ]
-            ]
-            for edp_combination in
-            self._weekly_cumulative_reaches.keys()
-        }
-    )
-
-  def get_num_periods(self) -> int:
-    return self._num_periods
-
-  def get_num_frequencies(self) -> int:
-    return self._num_frequencies
-
-  def get_weekly_cumulative_reach_measurements(
-      self, edp_combination: EdpCombination
-  ) -> list[Measurement]:
-    if edp_combination not in self._weekly_cumulative_reaches:
-      return None
-
-    return self._weekly_cumulative_reaches[edp_combination]
-
-  def get_weekly_cumulative_reach_measurement(
-      self, edp_combination: EdpCombination, period: int
-  ) -> Measurement:
-    if edp_combination not in self._weekly_cumulative_reaches:
-      return None
-
-    if period >= self._num_periods:
-      return None
-
-    return self._weekly_cumulative_reaches[edp_combination][period]
-
-  def get_weekly_non_cumulative_reach_measurement(
-      self, edp_combination: EdpCombination, period: int
-  ) -> Measurement:
-    if edp_combination not in self._weekly_non_cumulative_measurements:
-      return None
-
-    if period >= len(self._weekly_non_cumulative_measurements[edp_combination]):
-      return None
-
-    if self._weekly_non_cumulative_measurements[edp_combination][period].reach is None:
-      return None
-
-    return self._weekly_non_cumulative_measurements[edp_combination][period].reach
-
-  def get_weekly_non_cumulative_impression_measurement(
-      self, edp_combination: EdpCombination, period: int
-  ) -> Measurement:
-    if edp_combination not in self._weekly_non_cumulative_measurements:
-      return None
-
-    if period >= len(self._weekly_non_cumulative_measurements[edp_combination]):
-      return None
-
-    if self._weekly_non_cumulative_measurements[edp_combination][period].impression is None:
-      return None
-
-    return self._weekly_non_cumulative_measurements[edp_combination][period].impression
-
-  def get_weekly_non_cumulative_k_reach_measurements(
-      self, edp_combination: EdpCombination, period: int
-  ) -> list[Measurement]:
-    if edp_combination not in self._weekly_non_cumulative_measurements:
-      return None
-
-    if period >= len(self._weekly_non_cumulative_measurements[edp_combination]):
-      return None
-
-    return self._weekly_non_cumulative_measurements[edp_combination][period].k_reach.values()
-
-  def get_weekly_non_cumulative_k_reach_measurement(
-      self, edp_combination: EdpCombination, period: int, frequency: int
-  ) -> Measurement:
-    k_reach_measurements = self.get_weekly_non_cumulative_k_reach_measurements(
-        edp_combination, period)
-
-    if k_reach_measurements is None:
-      return None
-
-    return self._weekly_non_cumulative_measurements[edp_combination][period].k_reach[frequency]
-
-  def get_whole_campaign_reach_measurement(
-      self, edp_combination: EdpCombination
-  ) -> Measurement:
-    if edp_combination not in self._whole_campaign_measurements:
-      return None
-
-    return self._whole_campaign_measurements[edp_combination].reach
-
-  def get_whole_campaign_impression_measurement(
-      self, edp_combination: EdpCombination
-  ) -> Measurement:
-    if edp_combination not in self._whole_campaign_measurements:
-      return None
-
-    return self._whole_campaign_measurements[edp_combination].impression
-
-  def get_whole_campaign_k_reach_measurements(
-      self, edp_combination: EdpCombination
-  ) -> list[Measurement]:
-    if edp_combination not in self._whole_campaign_measurements:
-      return None
-
-    if self._whole_campaign_measurements[edp_combination].k_reach is None:
-      return None
-
-    return list(self._whole_campaign_measurements[edp_combination].k_reach.values())
-
-  def get_whole_campaign_k_reach_measurement(
-      self, edp_combination: EdpCombination, frequency: int
-  ) -> Measurement:
-    if edp_combination not in self._whole_campaign_measurements:
-      return None
-
-    if self._whole_campaign_measurements[edp_combination].k_reach is None:
-      return None
-
-    if frequency not in self._whole_campaign_measurements[edp_combination].k_reach:
-      return None
-
-    return self._whole_campaign_measurements[edp_combination].k_reach[frequency]
-
-  def get_weekly_cumulative_reach_edp_combinations(self) -> set[EdpCombination]:
-    return set(self._weekly_cumulative_reaches.keys())
-
-  def get_weekly_non_cumulative_reach_edp_combinations(self) -> set[EdpCombination]:
-    return {
-        edp
-        for edp in self._weekly_non_cumulative_measurements.keys()
-        if len(self._weekly_non_cumulative_measurements[edp]) > 0 and
-          self._weekly_non_cumulative_measurements[edp][0].reach is not None
-    }
-
-  def get_weekly_non_cumulative_k_reach_edp_combinations(self) -> set[EdpCombination]:
-    return {
-        edp
-        for edp in self._weekly_non_cumulative_measurements.keys()
-        if len(self._weekly_non_cumulative_measurements[edp]) > 0 and
-          self._weekly_non_cumulative_measurements[edp][0].k_reach is not None
-    }
-
-  def get_weekly_non_cumulative_impression_edp_combinations(self) -> set[EdpCombination]:
-    return {
-        edp
-        for edp in self._weekly_non_cumulative_measurements.keys()
-        if len(self._weekly_non_cumulative_measurements[edp]) > 0 and
-          self._weekly_non_cumulative_measurements[edp][0].impression is not None
-    }
-
-  def get_whole_campaign_reach_edp_combinations(self) -> set[EdpCombination]:
-    return {
-        edp
-        for edp, measurement_set in self._whole_campaign_measurements.items()
-        if measurement_set.reach is not None
-    }
+# def fuzzy_equal(val: float, target: float, tolerance: float) -> bool:
+#   """Checks if two float values are approximately equal within an absolute tolerance."""
+#   return math.isclose(val, target, rel_tol=0.0, abs_tol=tolerance)
+
+
+# def fuzzy_less_equal(smaller: float, larger: float, tolerance: float) -> bool:
+#   """Checks if one float value is less than or equal to another within a tolerance."""
+#   return larger - smaller + tolerance >= 0
+
+
+# def get_subset_relationships(
+#     edp_combinations: list[EdpCombination],
+# ) -> list[Tuple[EdpCombination, EdpCombination]]:
+#   """Returns a list of tuples where first element in the tuple is the parent
+#   and second element is the subset."""
+#   # logging.debug(
+#   #     "Getting subset relations for the list of EDP combinations "
+#   #     f"{edp_combinations}."
+#   # )
+#   subset_relationships = []
+#   for comb1, comb2 in combinations(edp_combinations, 2):
+#     if comb1.issubset(comb2):
+#       subset_relationships.append((comb2, comb1))
+#     elif comb2.issubset(comb1):
+#       subset_relationships.append((comb1, comb2))
+#   # logging.debug(
+#   #     f"The subset relationships for {edp_combinations} are "
+#   #     f"{subset_relationships}."
+#   # )
+#   return subset_relationships
+
+
+# def is_cover(
+#     target_set: EdpCombination, possible_cover: list[EdpCombination]
+# ) -> bool:
+#   """Checks if a collection of sets covers a target set.
+
+#   Args:
+#     target_set: The set that should be covered.
+#     possible_cover: A collection of sets that may cover the target set.
+
+#   Returns:
+#     True if the union of the sets in `possible_cover` equals `target_set`,
+#     False otherwise.
+#   """
+#   union_of_possible_cover = reduce(
+#       lambda x, y: x.union(y), possible_cover
+#   )
+#   return union_of_possible_cover == target_set
+
+
+# def get_covers(
+#     target_set: EdpCombination, other_sets: list[EdpCombination]
+# ) -> list[Tuple[EdpCombination, list[EdpCombination]]]:
+#   """Finds all combinations of sets from `other_sets` that cover `target_set`.
+
+#   This function identifies all possible combinations of sets within `other_sets`
+#   whose union equals the `target_set`. It only considers sets that are subsets of
+#   the `target_set`.
+
+#   Args:
+#     target_set: The set that needs to be covered.
+#     other_sets: A collection of sets that may be used to cover the `target_set`.
+
+#   Returns:
+#     A list of tuples, where each tuple represents a covering relationship.
+#     The first element of the tuple is the `target_set`, and the second element
+#     is a tuple containing the sets from `other_sets` that cover it.
+#   """
+#   # logging.debug(f"Getting cover relations for {target_set} from {other_sets}.")
+
+#   def generate_all_length_combinations(data: list[Any]) -> list[
+#     tuple[Any, ...]]:
+#     """Generates all possible combinations of elements from a list.
+
+#     Args:
+#       data: A list of elements.
+
+#     Returns:
+#       A list of tuples, where each tuple represents a combination of elements.
+#     """
+#     return [
+#         comb for r in range(1, len(data) + 1) for comb in
+#         combinations(data, r)
+#     ]
+
+#   cover_relationship = []
+#   all_subsets_of_possible_covered = [other_set for other_set in other_sets
+#                                      if
+#                                      other_set.issubset(target_set)]
+#   possible_covers = generate_all_length_combinations(
+#       all_subsets_of_possible_covered)
+#   for possible_cover in possible_covers:
+#     if is_cover(target_set, possible_cover):
+#       cover_relationship.append((target_set, possible_cover))
+#   logging.debug(
+#       f"The cover relationship is {cover_relationship}."
+#   )
+#   return cover_relationship
+
+
+# def get_cover_relationships(
+#     edp_combinations: list[EdpCombination],
+# ) -> list[Tuple[EdpCombination, list[EdpCombination]]]:
+#   """Returns covers as defined here: # https://en.wikipedia.org/wiki/Cover_(topology).
+#   For each set (s_i) in the list, enumerate combinations of all sets excluding this one.
+#   For each of these considered combinations, take their union and check if it is equal to
+#   s_i. If so, this combination is a cover of s_i.
+#   """
+#   # logging.debug(
+#   #     "Getting all cover relationships from a list of EDP combinations "
+#   #     f"{edp_combinations}"
+#   # )
+#   cover_relationships = []
+#   for i in range(len(edp_combinations)):
+#     possible_covered = edp_combinations[i]
+#     other_sets = edp_combinations[:i] + edp_combinations[i + 1:]
+#     cover_relationship = get_covers(possible_covered, other_sets)
+#     cover_relationships.extend(cover_relationship)
+#   return cover_relationships
+
+
+# def is_union_reach_consistent(
+#     union_measurement: Measurement,
+#     component_measurements: list[Measurement], population_size: float) -> bool:
+#   """Verifies that the expected union reach is statistically consistent with
+#   individual EDP measurements assuming conditional independence between the sets
+#   of VIDs reached by the different EDPs.
+
+#   The check is done by comparing the absolute difference between the observed
+#   union reach and the expected union reach against a confidence range.
+
+#   Let U be the population size, X_1, ..., X_n be the single EDPs. If the reach
+#   of the EDPs are independent of one another, the expected union reach is:
+#       |X_1 union … union Xn_| = U - (U - |X_1|)...(U - |X_n|)/U^{n-1}
+
+#   Let D = expected union - measuremed union.
+
+#   The standard deviation of the difference between the expected union reach
+#   and the measured union reach is bounded by
+#   std(D) <= sqrt(var(|X_1|) + ... + var(|X_n|) + var(measured union)).
+
+#   Returns:
+#     True if D is in [-7*std(D); 7*std(D)].
+#     False otherwise.
+#   """
+
+#   if population_size <= 0:
+#     raise ValueError(
+#         f"The population size must be greater than 0, but got"
+#         f" {population_size}."
+#     )
+
+#   if len(component_measurements) <= 1:
+#     raise ValueError(
+#         f"The length of individual reaches must be at least 2, but got"
+#         f" {len(component_measurements)}."
+#     )
+
+#   variance = union_measurement.sigma ** 2
+
+#   probability = 1.0
+
+#   for measurement in component_measurements:
+#     probability *= max(0.0, 1.0 - measurement.value / population_size)
+#     variance += measurement.sigma ** 2
+
+#   probability = min(1.0, probability)
+
+#   expected_union_measurement = population_size * (1.0 - probability)
+
+#   # An upperbound of STDDEV(expected union - measured union).
+#   standard_deviation = np.sqrt(variance)
+
+#   return abs(expected_union_measurement - union_measurement.value) <= \
+#     STANDARD_DEVIATION_TEST_THRESHOLD * standard_deviation
+
+
+# def get_edps_from_edp_combination(
+#     edp_combination: EdpCombination,
+#     all_edp_combinations: set[EdpCombination]
+# ) -> list[EdpCombination]:
+#   return list(
+#     all_edp_combinations.intersection([frozenset({edp}) for edp in edp_combination])
+#   )
+
+
+
+# def build_measurement_set(
+#     reach: dict[EdpCombination, Measurement],
+#     k_reach: dict[EdpCombination, KReachMeasurements],
+#     impression: dict[EdpCombination, Measurement]
+# ) -> dict[EdpCombination, MeasurementSet]:
+#   """Builds a dictionary of MeasurementSet from separate measurement dicts."""
+#   all_edps = (
+#       set(reach.keys())
+#       | set(k_reach.keys())
+#       | set(impression.keys())
+#   )
+#   whole_campaign_measurements = {}
+#   for edp in all_edps:
+#     whole_campaign_measurements[edp] = MeasurementSet(
+#         reach=reach.get(edp),
+#         k_reach=k_reach.get(edp, {}),
+#         impression=impression.get(edp),
+#     )
+#   return whole_campaign_measurements
+
+
+
+# class MetricReport:
+#   """Represents a metric sub-report view (e.g., MRC, AMI) within a report.
+
+#     This class stores and provides access to various measurements for different
+#     EDP (Event, Data Provider, and Platform) combinations. It holds three main
+#     types of data:
+
+#         * Cumulative reach over time, represented as a time series.
+#         * A set of measurements (reach, k-reach, impression) for the whole
+#           campaign.
+#         * A time series of weekly non-cumulative measurements for each period.
+
+#     Attributes:
+#         _weekly_cumulative_reaches: A dictionary mapping EDP combinations (represented
+#                             as frozensets of strings) to lists of Measurement
+#                             objects, where each list represents a time series of
+#                             reach values.
+#         _whole_campaign_measurements: A dictionary mapping EDP combinations to
+#                                       MeasurementSet objects, each containing
+#                                       the reach, k-reach, and impression for
+#                                       the entire campaign.
+#         _weekly_non_cumulative_measurements: A dictionary mapping EDP combinations to
+#                                       lists of MeasurementSet objects, where
+#                                       each set represents the non-cumulative
+#                                       measurements for a specific time period.
+#   """
+
+#   def __init__(
+#       self,
+#       weekly_cumulative_reaches: dict[EdpCombination, list[Measurement]],
+#       whole_campaign_measurements: dict[EdpCombination, MeasurementSet],
+#       weekly_non_cumulative_measurements: dict[
+#           EdpCombination, list[MeasurementSet]
+#       ],
+#   ):
+#     # Get the number of periods and check that all time series have the same
+#     # length.
+#     periods = set()
+#     # for edp_combination in weekly_cumulative_reaches.keys():
+#     #   periods.add(len(weekly_cumulative_reaches[edp_combination]))
+#     # for edp_combination in weekly_non_cumulative_measurements.keys():
+#     #   periods.add(len(weekly_non_cumulative_measurements[edp_combination]))
+
+#     # if len(periods) > 1:
+#     #   raise ValueError("All weekly measurements must have the same number of periods.")
+
+#     # self._num_periods = periods.pop() if len(periods) == 1 else 0
+
+#     # frequencies = set()
+#     # for edp_combination in whole_campaign_measurements.keys():
+#     #   k_reach_measurements = whole_campaign_measurements[edp_combination].k_reach
+#     #   if k_reach_measurements is not None and len(k_reach_measurements) > 0:
+#     #     frequencies.add(len(k_reach_measurements))
+
+#     # for edp_combination in weekly_non_cumulative_measurements.keys():
+#     #   for period in range(0, self._num_periods):
+#     #     k_reach_measurements = weekly_non_cumulative_measurements[edp_combination][period].k_reach
+#     #     if k_reach_measurements is not None and len(k_reach_measurements) > 0:
+#     #       frequencies.add(len(k_reach_measurements))
+
+#     # if len(frequencies) > 1:
+#     #   raise ValueError("All k-reach measurements must have the same number of frequencies.")
+
+#     # self._num_frequencies = frequencies.pop() if len(frequencies) == 1 else 0
+
+#     # self._weekly_cumulative_reaches = weekly_cumulative_reaches
+#     # self._whole_campaign_measurements = whole_campaign_measurements
+#     # self._weekly_non_cumulative_measurements = weekly_non_cumulative_measurements
+
+#   def sample_with_noise(self) -> "MetricReport":
+#     """
+#     :return: a new MetricReport where measurements have been resampled
+#     according to their mean and variance.
+#     """
+#     return MetricReport(
+#         weekly_cumulative_reaches={
+#             edp_combination: [
+#                 MetricReport._sample_with_noise(measurement)
+#                 for measurement in self._weekly_cumulative_reaches[
+#                   edp_combination
+#                 ]
+#             ]
+#             for edp_combination in
+#             self._weekly_cumulative_reaches.keys()
+#         }
+#     )
+
+#   def get_num_periods(self) -> int:
+#     return self._num_periods
+
+#   def get_num_frequencies(self) -> int:
+#     return self._num_frequencies
+
+#   def get_weekly_cumulative_reach_measurements(
+#       self, edp_combination: EdpCombination
+#   ) -> list[Measurement]:
+#     if edp_combination not in self._weekly_cumulative_reaches:
+#       return None
+
+#     return self._weekly_cumulative_reaches[edp_combination]
+
+#   def get_weekly_cumulative_reach_measurement(
+#       self, edp_combination: EdpCombination, period: int
+#   ) -> Measurement:
+#     if edp_combination not in self._weekly_cumulative_reaches:
+#       return None
+
+#     if period >= self._num_periods:
+#       return None
+
+#     return self._weekly_cumulative_reaches[edp_combination][period]
+
+#   def get_weekly_non_cumulative_reach_measurement(
+#       self, edp_combination: EdpCombination, period: int
+#   ) -> Measurement:
+#     if edp_combination not in self._weekly_non_cumulative_measurements:
+#       return None
+
+#     if period >= len(self._weekly_non_cumulative_measurements[edp_combination]):
+#       return None
+
+#     if self._weekly_non_cumulative_measurements[edp_combination][period].reach is None:
+#       return None
+
+#     return self._weekly_non_cumulative_measurements[edp_combination][period].reach
+
+#   def get_weekly_non_cumulative_impression_measurement(
+#       self, edp_combination: EdpCombination, period: int
+#   ) -> Measurement:
+#     if edp_combination not in self._weekly_non_cumulative_measurements:
+#       return None
+
+#     if period >= len(self._weekly_non_cumulative_measurements[edp_combination]):
+#       return None
+
+#     if self._weekly_non_cumulative_measurements[edp_combination][period].impression is None:
+#       return None
+
+#     return self._weekly_non_cumulative_measurements[edp_combination][period].impression
+
+#   def get_weekly_non_cumulative_k_reach_measurements(
+#       self, edp_combination: EdpCombination, period: int
+#   ) -> list[Measurement]:
+#     if edp_combination not in self._weekly_non_cumulative_measurements:
+#       return None
+
+#     if period >= len(self._weekly_non_cumulative_measurements[edp_combination]):
+#       return None
+
+#     return self._weekly_non_cumulative_measurements[edp_combination][period].k_reach.values()
+
+#   def get_weekly_non_cumulative_k_reach_measurement(
+#       self, edp_combination: EdpCombination, period: int, frequency: int
+#   ) -> Measurement:
+#     k_reach_measurements = self.get_weekly_non_cumulative_k_reach_measurements(
+#         edp_combination, period)
+
+#     if k_reach_measurements is None:
+#       return None
+
+#     return self._weekly_non_cumulative_measurements[edp_combination][period].k_reach[frequency]
+
+#   def get_whole_campaign_reach_measurement(
+#       self, edp_combination: EdpCombination
+#   ) -> Measurement:
+#     if edp_combination not in self._whole_campaign_measurements:
+#       return None
+
+#     return self._whole_campaign_measurements[edp_combination].reach
+
+#   def get_whole_campaign_impression_measurement(
+#       self, edp_combination: EdpCombination
+#   ) -> Measurement:
+#     if edp_combination not in self._whole_campaign_measurements:
+#       return None
+
+#     return self._whole_campaign_measurements[edp_combination].impression
+
+#   def get_whole_campaign_k_reach_measurements(
+#       self, edp_combination: EdpCombination
+#   ) -> list[Measurement]:
+#     if edp_combination not in self._whole_campaign_measurements:
+#       return None
+
+#     if self._whole_campaign_measurements[edp_combination].k_reach is None:
+#       return None
+
+#     return list(self._whole_campaign_measurements[edp_combination].k_reach.values())
+
+#   def get_whole_campaign_k_reach_measurement(
+#       self, edp_combination: EdpCombination, frequency: int
+#   ) -> Measurement:
+#     if edp_combination not in self._whole_campaign_measurements:
+#       return None
+
+#     if self._whole_campaign_measurements[edp_combination].k_reach is None:
+#       return None
+
+#     if frequency not in self._whole_campaign_measurements[edp_combination].k_reach:
+#       return None
+
+#     return self._whole_campaign_measurements[edp_combination].k_reach[frequency]
+
+#   def get_weekly_cumulative_reach_edp_combinations(self) -> set[EdpCombination]:
+#     return set(self._weekly_cumulative_reaches.keys())
+
+#   def get_weekly_non_cumulative_reach_edp_combinations(self) -> set[EdpCombination]:
+#     return {
+#         edp
+#         for edp in self._weekly_non_cumulative_measurements.keys()
+#         if len(self._weekly_non_cumulative_measurements[edp]) > 0 and
+#           self._weekly_non_cumulative_measurements[edp][0].reach is not None
+#     }
+
+#   def get_weekly_non_cumulative_k_reach_edp_combinations(self) -> set[EdpCombination]:
+#     return {
+#         edp
+#         for edp in self._weekly_non_cumulative_measurements.keys()
+#         if len(self._weekly_non_cumulative_measurements[edp]) > 0 and
+#           self._weekly_non_cumulative_measurements[edp][0].k_reach is not None
+#     }
+
+#   def get_weekly_non_cumulative_impression_edp_combinations(self) -> set[EdpCombination]:
+#     return {
+#         edp
+#         for edp in self._weekly_non_cumulative_measurements.keys()
+#         if len(self._weekly_non_cumulative_measurements[edp]) > 0 and
+#           self._weekly_non_cumulative_measurements[edp][0].impression is not None
+#     }
+
+#   def get_whole_campaign_reach_edp_combinations(self) -> set[EdpCombination]:
+#     return {
+#         edp
+#         for edp, measurement_set in self._whole_campaign_measurements.items()
+#         if measurement_set.reach is not None
+#     }
     
-  def get_whole_campaign_impression_edp_combinations(self) -> set[EdpCombination]:
-    return {
-        edp
-        for edp, measurement_set in self._whole_campaign_measurements.items()
-        if measurement_set.impression is not None
-    }
+#   def get_whole_campaign_impression_edp_combinations(self) -> set[EdpCombination]:
+#     return {
+#         edp
+#         for edp, measurement_set in self._whole_campaign_measurements.items()
+#         if measurement_set.impression is not None
+#     }
 
-  def get_whole_campaign_k_reach_edp_combinations(self) -> set[EdpCombination]:
-    return {
-        edp
-        for edp, measurement_set in self._whole_campaign_measurements.items()
-        if len(measurement_set.k_reach) > 0
-    }
+#   def get_whole_campaign_k_reach_edp_combinations(self) -> set[EdpCombination]:
+#     return {
+#         edp
+#         for edp, measurement_set in self._whole_campaign_measurements.items()
+#         if len(measurement_set.k_reach) > 0
+#     }
 
-  def get_weekly_cumulative_reach_edp_combinations_count(self) -> int:
-    return len(self._weekly_cumulative_reaches.keys())
+#   def get_weekly_cumulative_reach_edp_combinations_count(self) -> int:
+#     return len(self._weekly_cumulative_reaches.keys())
 
-  def get_whole_campaign_reach_edp_combinations_count(self) -> int:
-    return len(self.get_whole_campaign_reach_edp_combinations())
+#   def get_whole_campaign_reach_edp_combinations_count(self) -> int:
+#     return len(self.get_whole_campaign_reach_edp_combinations())
 
-  def get_number_of_periods(self) -> int:
-    return len(next(iter(self._weekly_cumulative_reaches.values()))) \
-      if self._weekly_cumulative_reaches else 0
+#   def get_number_of_periods(self) -> int:
+#     return len(next(iter(self._weekly_cumulative_reaches.values()))) \
+#       if self._weekly_cumulative_reaches else 0
 
-  def get_number_of_frequencies(self) -> int:
-    k_reach_lengths = {
-        len(measurement_set.k_reach)
-        for measurement_set in self._whole_campaign_measurements.values()
-        if measurement_set.k_reach
-    }
+#   def get_number_of_frequencies(self) -> int:
+#     k_reach_lengths = {
+#         len(measurement_set.k_reach)
+#         for measurement_set in self._whole_campaign_measurements.values()
+#         if measurement_set.k_reach
+#     }
 
-    if len(k_reach_lengths) > 0:
-      return next(iter(k_reach_lengths))
-    else:
-      return 0
+#     if len(k_reach_lengths) > 0:
+#       return next(iter(k_reach_lengths))
+#     else:
+#       return 0
 
-  def get_cumulative_subset_relationships(self) -> list[
-    Tuple[EdpCombination, EdpCombination]]:
-    return get_subset_relationships(list(self._weekly_cumulative_reaches))
+#   def get_cumulative_subset_relationships(self) -> list[
+#     Tuple[EdpCombination, EdpCombination]]:
+#     return get_subset_relationships(list(self._weekly_cumulative_reaches))
 
-  def get_whole_campaign_reach_subset_relationships(self) -> list[
-    Tuple[EdpCombination, EdpCombination]]:
-    return get_subset_relationships(
-        list(self.get_whole_campaign_reach_edp_combinations()))
+#   def get_whole_campaign_reach_subset_relationships(self) -> list[
+#     Tuple[EdpCombination, EdpCombination]]:
+#     return get_subset_relationships(
+#         list(self.get_whole_campaign_reach_edp_combinations()))
 
-  def get_weekly_non_cumulative_reach_subset_relationships(self) -> list[
-    Tuple[EdpCombination, EdpCombination]]:
-    return get_subset_relationships(
-        list(self.get_weekly_non_cumulative_reach_edp_combinations()))
+#   def get_weekly_non_cumulative_reach_subset_relationships(self) -> list[
+#     Tuple[EdpCombination, EdpCombination]]:
+#     return get_subset_relationships(
+#         list(self.get_weekly_non_cumulative_reach_edp_combinations()))
 
-  def get_cumulative_cover_relationships(self) -> list[
-    Tuple[EdpCombination, list[EdpCombination]]]:
-    return get_cover_relationships(list(self._weekly_cumulative_reaches))
+#   def get_cumulative_cover_relationships(self) -> list[
+#     Tuple[EdpCombination, list[EdpCombination]]]:
+#     return get_cover_relationships(list(self._weekly_cumulative_reaches))
 
-  def get_whole_campaign_reach_cover_relationships(
-      self,
-  ) -> list[Tuple[EdpCombination, list[EdpCombination]]]:
-    return get_cover_relationships(
-        list(self.get_whole_campaign_reach_edp_combinations()))
+#   def get_whole_campaign_reach_cover_relationships(
+#       self,
+#   ) -> list[Tuple[EdpCombination, list[EdpCombination]]]:
+#     return get_cover_relationships(
+#         list(self.get_whole_campaign_reach_edp_combinations()))
 
-  def get_weekly_non_cumulative_reach_cover_relationships(self) -> list[
-     Tuple[EdpCombination, list[EdpCombination]]]:
-     return get_cover_relationships(list(self.get_weekly_non_cumulative_reach_edp_combinations()))
+#   def get_weekly_non_cumulative_reach_cover_relationships(self) -> list[
+#      Tuple[EdpCombination, list[EdpCombination]]]:
+#      return get_cover_relationships(list(self.get_weekly_non_cumulative_reach_edp_combinations()))
 
-  @staticmethod
-  def _sample_with_noise(measurement: Measurement) -> Measurement:
-    return Measurement(
-        measurement.value + random.gauss(0, measurement.sigma),
-        measurement.sigma
-    )
+#   @staticmethod
+#   def _sample_with_noise(measurement: Measurement) -> Measurement:
+#     return Measurement(
+#         measurement.value + random.gauss(0, measurement.sigma),
+#         measurement.sigma
+#     )
 
 
 class Report:
@@ -598,7 +598,7 @@ class Report:
 
   def __init__(
       self,
-      metric_reports: dict[str, MetricReport],
+      metric_reports: dict[str, int],
       metric_subsets_by_parent: dict[str, list[str]],
       cumulative_inconsistency_allowed_edp_combinations: set[str],
       population_size: float = 0.0,
