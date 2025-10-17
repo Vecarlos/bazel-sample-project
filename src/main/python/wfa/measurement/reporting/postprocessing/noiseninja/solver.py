@@ -13,37 +13,17 @@
 # limitations under the License.
 
 import numpy as np
-from threading import Semaphore
-
-
-from qpsolvers import Solution
-
-from noiseninja.noised_measurements import SetMeasurementsSpec
-
-# SEMAPHORE = Semaphore()
-
-
-# class SolutionNotFoundError(ValueError):
-#   _non_solution: Solution
-
-#   def __init__(self, non_solution: Solution):
-#     super().__init__(non_solution)
-#     self._non_solution = non_solution
-
-#   def get_non_solution_details(self):
-#     return self._non_solution
 
 
 class Solver:
 
-  def __init__(self, set_measurement_spec: SetMeasurementsSpec):
+  def __init__(self, set_measurement_spec):
     variable_index_by_set_id = {1: 0, 2: 1, 3: 2, 4: 3}
     self.num_variables = len(variable_index_by_set_id)
   
     self._add_equals(set_measurement_spec, variable_index_by_set_id)
 
-  def _add_equals(self, set_measurement_spec: SetMeasurementsSpec,
-      variable_index_by_set_id: dict[int, int]):
+  def _add_equals(self, set_measurement_spec,variable_index_by_set_id):
 
     for equal_set in set_measurement_spec:
       
