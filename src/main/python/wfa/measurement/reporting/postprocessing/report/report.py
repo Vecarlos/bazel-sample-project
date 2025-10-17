@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-# from noiseninja.solver import Solver
+from noiseninja.solver import Solver
 
 
 
