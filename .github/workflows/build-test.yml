@@ -118,7 +118,7 @@ jobs:
           mkdir -p coverage-artifacts
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
           while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
+            base=$(basename "$(dirname "$file")").dat
             cat "$file" > "coverage-artifacts/$base"
           done
         # base=$(basename "$file")
