@@ -20,18 +20,18 @@ from qpsolvers import Solution
 
 from noiseninja.noised_measurements import SetMeasurementsSpec
 
-SEMAPHORE = Semaphore()
+# SEMAPHORE = Semaphore()
 
 
-class SolutionNotFoundError(ValueError):
-  _non_solution: Solution
+# class SolutionNotFoundError(ValueError):
+#   _non_solution: Solution
 
-  def __init__(self, non_solution: Solution):
-    super().__init__(non_solution)
-    self._non_solution = non_solution
+#   def __init__(self, non_solution: Solution):
+#     super().__init__(non_solution)
+#     self._non_solution = non_solution
 
-  def get_non_solution_details(self):
-    return self._non_solution
+#   def get_non_solution_details(self):
+#     return self._non_solution
 
 
 class Solver:
