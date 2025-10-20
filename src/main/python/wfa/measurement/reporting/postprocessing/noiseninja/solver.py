@@ -26,7 +26,7 @@ class Solver:
     variables =  np.zeros(4)
     equal_set = [1, [4]]
     variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-    variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+    # variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
 
   #   self._add_eq_term()
 
