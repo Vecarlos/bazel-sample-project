@@ -27,9 +27,11 @@ class Solver:
     variables =  np.zeros(self.num_variables)
     equal_set = [1, [4]]
     variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-    self._add_eq_term()
+    variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+
+  #   self._add_eq_term()
 
 
-  def _add_eq_term(self):
-    print('2')
-    pass
+  # def _add_eq_term(self):
+  #   print('2')
+  #   pass
