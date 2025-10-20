@@ -122,14 +122,14 @@ jobs:
           files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
-      - name: Collect coverage only for solver_test.py
-        run: |
-          mkdir -p coverage-artifacts
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-          while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
-            cat "$file" > "coverage-artifacts/$base"
-          done
+      # - name: Collect coverage only for solver_test.py
+      #   run: |
+      #     mkdir -p coverage-artifacts
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$(dirname "$file")")_coverage.dat
+      #       cat "$file" > "coverage-artifacts/$base"
+      #     done
         # base=$(basename "$file")
 
 

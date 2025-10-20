@@ -17,8 +17,8 @@ py_test(
     srcs = ["report_mc_api_2_test.py"],
     deps = [
         "//src/main/python/wfa/measurement/reporting/postprocessing/report",
-        "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
-        requirement("protobuf"),
+        # "//src/main/python/wfa/measurement/reporting/postprocessing/report/testing:validate_report",
+        # requirement("protobuf"),
     ],
     tags = ["no-cache"],
 )
