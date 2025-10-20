@@ -24,10 +24,15 @@ class Solver:
     self._add_equals(variable_index_by_set_id)
 
   def _add_equals(self,variable_index_by_set_id):
-    variables =  np.zeros(self.num_variables)
+    variables =  [0, 0, 0, 0]
     equal_set = [1, [4]]
-    variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-    variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+    for i in equal_set[1]:
+      variables[variable_index_by_set_id[i]] = -1
+    for i in equal_set[1]:
+      variables[variable_index_by_set_id[i]] = -1
+
+    # variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+    # variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
 
   #   self._add_eq_term()
 
