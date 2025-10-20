@@ -20,6 +20,10 @@ jobs:
       contents: read
     env:
       CLUSTER_LOGS_PATH: cluster-logs
+      PYTHONHASHSEED: "0"
+      PYTHONDONTWRITEBYTECODE: "1"
+      TZ: "UTC"
+      LC_ALL: "C"
     steps:
       - name: Check out revision
         uses: actions/checkout@v4
@@ -86,6 +90,9 @@ jobs:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
         run: >
           bazel coverage 
+          --test_env=PYTHONHASHSEED=0 \
+          --test_env=PYTHONDONTWRITEBYTECODE=1 \
+          --test_env=TZ=UTC \
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
@@ -103,15 +110,15 @@ jobs:
 
 
 
-      - name: List and hash coverage.dat files
-        run: |
-          echo ">>> MD5 hashes of each coverage.dat:"
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
+      # - name: List and hash coverage.dat files
+      #   run: |
+      #     echo ">>> MD5 hashes of each coverage.dat:"
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
 
-      - name: Hash of merged coverage report
-        run: |
-          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-          md5sum "$REPORT_PATH"
+      # - name: Hash of merged coverage report
+      #   run: |
+      #     REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
+      #     md5sum "$REPORT_PATH"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -164,12 +171,12 @@ jobs:
 
 
 
-      - name: List and hash coverage.dat files
-        run: |
-          echo ">>> MD5 hashes of each coverage.dat:"
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
+      # - name: List and hash coverage.dat files
+      #   run: |
+      #     echo ">>> MD5 hashes of each coverage.dat:"
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
 
-      - name: Hash of merged coverage report
-        run: |
-          REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-          md5sum "$REPORT_PATH"
+      # - name: Hash of merged coverage report
+      #   run: |
+      #     REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
+      #     md5sum "$REPORT_PATH"
