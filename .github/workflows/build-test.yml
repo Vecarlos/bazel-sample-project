@@ -89,8 +89,6 @@ jobs:
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-          --test_env=PYTHONHASHSEED=0
-          --runs_per_test=1
           //src/test/python/... 
 
       - name: Bazel output path
@@ -124,14 +122,14 @@ jobs:
           files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
-      # - name: Collect coverage only for solver_test.py
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$(dirname "$file")")_coverage.dat
-      #       cat "$file" > "coverage-artifacts/$base"
-      #     done
+      - name: Collect coverage only for solver_test.py
+        run: |
+          mkdir -p coverage-artifacts
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+          while IFS= read -r -d '' file; do
+            base=$(basename "$(dirname "$file")")_coverage.dat
+            cat "$file" > "coverage-artifacts/$base"
+          done
         # base=$(basename "$file")
 
 
