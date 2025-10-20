@@ -89,6 +89,8 @@ jobs:
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+          --test_env=PYTHONHASHSEED=0
+          --runs_per_test=1
           //src/test/python/... 
 
       - name: Bazel output path
