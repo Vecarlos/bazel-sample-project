@@ -19,27 +19,18 @@ class Solver:
 
   def __init__(self):
     variable_index_by_set_id = {1: 0, 2: 1, 3: 2, 4: 3}
-    self.num_variables = len(variable_index_by_set_id)
   
     self._add_equals(variable_index_by_set_id)
 
   def _add_equals(self,variable_index_by_set_id):
-    variables =  [0, 0, 0, 0]
+    variables =  np.zeros(4)
     equal_set = [1, [4]]
-    for i in equal_set[1]:
-      variables[variable_index_by_set_id[i]] = -1
-    for i in equal_set[1]:
-      variables[variable_index_by_set_id[i]] = -1
+    variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
+    variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
 
-    # # variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-    # # variables.put([variable_index_by_set_id[i] for i in equal_set[1]], -1)
-
-    self._add_eq_term()
+  #   self._add_eq_term()
 
 
-
-
-
-  def _add_eq_term(self):
-    print('2')
-    pass
+  # def _add_eq_term(self):
+  #   print('2')
+  #   pass
