@@ -21,8 +21,7 @@ class SolverTest(unittest.TestCase):
 
 
   def test_solve_when_highs_solver_fails_to_converge(self):
-    spec = [[1, [4]]]
-    solver = Solver(spec)
+    solver = Solver()
 
 
 if __name__ == "__main__":
