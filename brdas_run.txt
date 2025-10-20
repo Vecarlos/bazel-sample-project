@@ -1,0 +1,12 @@
+src/main/python/sample_2/get_length.py:00000:000:000:1
+src/main/python/sample_2/get_length.py:00002:000:001:1
+src/main/python/sample/count_letters_evaluator.py:00000:000:000:1
+src/main/python/sample/count_letters_evaluator.py:00002:000:001:1
+src/main/python/sample/sum_evaluator.py:00000:000:000:1
+src/main/python/sample/sum_evaluator.py:00002:000:001:1
+src/main/python/wfa/measurement/reporting/postprocessing/noiseninja/solver.py:00000:000:000:1
+src/main/python/wfa/measurement/reporting/postprocessing/noiseninja/solver.py:00000:001:000:1
+src/main/python/wfa/measurement/reporting/postprocessing/noiseninja/solver.py:00028:000:001:1
+src/main/python/wfa/measurement/reporting/postprocessing/noiseninja/solver.py:00029:000:002:1
+src/main/python/wfa/measurement/reporting/postprocessing/noiseninja/solver.py:00029:001:001:1
+src/main/python/wfa/measurement/reporting/postprocessing/noiseninja/solver.py:00031:001:002:1
