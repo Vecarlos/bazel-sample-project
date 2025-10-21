@@ -98,7 +98,7 @@ jobs:
       - name: List and hash coverage.dat files
         run: |
           echo ">>> MD5 hashes of each coverage.dat:"
-          find coverage-artifacts -type f -name "coverage.dat" -exec md5sum {} \; | sort
+          find coverage-artifacts -type f -exec md5sum {} \; | sort
 
 
 
