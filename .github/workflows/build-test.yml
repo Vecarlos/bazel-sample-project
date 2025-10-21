@@ -117,8 +117,6 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
-          files: |
-            ${{ env.BAZEL_TESTLOGS_PATH }}/**/coverage.dat
 
 
       # - name: Upload merged coverage as artifact
