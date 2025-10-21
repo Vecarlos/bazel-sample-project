@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  pull_request:    
+  pull_request:
     branches: ["**"]
   workflow_dispatch:
 
@@ -46,31 +46,6 @@ jobs:
         run: |
           cat << EOF > ~/.bazelrc
           common --config=ci
-          build --remote_upload_local_results
-          build --define container_registry=localhost:5001
-          build --define image_repo_prefix=halo
-          build --define image_tag=latest
-          build --define kingdom_public_api_target=kingdom.example.com:8443
-          build --define worker1_id=worker1
-          build --define worker1_public_api_target=worker1.example.com:8443
-          build --define worker2_id=worker2
-          build --define worker2_public_api_target=worker2.example.com:8443
-          build --define mc_name=measurementConsumers/foo
-          build --define mc_api_key=foo
-          build --define mc_cert_name=measurementConsumers/foo/certificates/bar
-          build --define edp1_name=dataProviders/foo1
-          build --define edp1_cert_name=dataProviders/foo1/certificates/bar1
-          build --define edp2_name=dataProviders/foo2
-          build --define edp2_cert_name=dataProviders/foo2/certificates/bar2
-          build --define edp3_name=dataProviders/foo3
-          build --define edp3_cert_name=dataProviders/foo3/certificates/bar3
-          build --define edp4_name=dataProviders/foo4
-          build --define edp4_cert_name=dataProviders/foo4/certificates/bar4
-          build --define edp5_name=dataProviders/foo5
-          build --define edp5_cert_name=dataProviders/foo5/certificates/bar5
-          build --define edp6_name=dataProviders/foo6
-          build --define edp6_cert_name=dataProviders/foo6/certificates/bar6
-          build --define google_cloud_project=example-project
           build --define basic_reports_enabled=true
           EOF
 
@@ -89,38 +64,14 @@ jobs:
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-          //src/test/python/... 
+          //src/test/python/...
 
       - name: Bazel output path
         run: |
-          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV        
+          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
       - name: Get bazel-testlogs path
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
-
-
-
-
-
-
-      # - name: List and hash coverage.dat files
-      #   run: |
-      #     echo ">>> MD5 hashes of each coverage.dat:"
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
-
-      # - name: Hash of merged coverage report
-      #   run: |
-      #     REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-      #     md5sum "$REPORT_PATH"
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-
 
       # - name: Collect coverage only for solver_test.py
       #   run: |
@@ -132,21 +83,6 @@ jobs:
       #     done
         # base=$(basename "$file")
 
-
-      # - name: Collect all coverage.dat files
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       relative_path="${file#${{ env.BAZEL_TESTLOGS_PATH }}/}"
-      #       target_dir="coverage-artifacts/$(dirname "$relative_path")"
-      #       mkdir -p "$target_dir"
-      #       cp "$file" "$target_dir/"
-      #     done
-
-      # - name: Move coverage file
-      #   run: mv ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat lcov.info
-
       - name: Upload merged coverage as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -154,15 +90,13 @@ jobs:
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
           retention-days: 30
 
-      # - name: Upload coverage reports to Codecov 2
-      #   uses: codecov/codecov-action@v5
-      #   with:
-      #     fail_ci_if_error: true
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     slug: vecarlos/bazel-sample-project
-      #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-
-
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
       # - name: List and hash coverage.dat files
       #   run: |
