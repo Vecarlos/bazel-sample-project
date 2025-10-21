@@ -5,7 +5,7 @@ COMMIT_BASE_NAME="no array put"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 WORKFLOW_NAME=".github/workflows/build-test.yml"
-DELAY_SECONDS=440
+DELAY_SECONDS=80
 
 echo ">>> 1. Creando commit real con 'git add .'"
 git add .
@@ -21,4 +21,4 @@ do
 done
 echo -e "\n✅ Proceso completado. Se han creado y subido 6 commits."
 
-
+  gh workflow run .github/workflows/build-test.yml --ref buildbuddy
