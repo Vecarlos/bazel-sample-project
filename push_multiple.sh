@@ -11,7 +11,7 @@ echo ">>> 1. Creando commit real con 'git add .'"
 git add .
 git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
-for i in {2..7}
+for i in {2..10}
 do
   echo -e "\n--- Esperando $DELAY_SECONDS segundos para no interrumpir la CI anterior..."
   sleep $DELAY_SECONDS
