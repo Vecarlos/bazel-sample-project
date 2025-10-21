@@ -26,53 +26,53 @@ jobs:
 
       # - uses: ./.github/actions/free-disk-space
 
-      # - name: Write auth.bazelrc
-      #   env:
-      #     BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-      #   run: |
-      #     cat << EOF > auth.bazelrc
-      #     build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
-      #     EOF
+      - name: Write auth.bazelrc
+        env:
+          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+        run: |
+          cat << EOF > auth.bazelrc
+          build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
+          EOF
 
-      # - name: Write ~/.bazelrc
-      #   run: |
-      #     cat << EOF > ~/.bazelrc
-      #     common --config=ci
-      #     build --remote_upload_local_results
-      #     build --define basic_reports_enabled=true 
-      #     EOF
+      - name: Write ~/.bazelrc
+        run: |
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          build --define basic_reports_enabled=true 
+          EOF
 
-      # - name: Write ~/.bazelrc
-      #   run: |
-      #     cat << EOF > ~/.bazelrc
-      #     common --config=ci
-      #     build --remote_upload_local_results
-      #     build --define container_registry=localhost:5001
-      #     build --define image_repo_prefix=halo
-      #     build --define image_tag=latest
-      #     build --define kingdom_public_api_target=kingdom.example.com:8443
-      #     build --define worker1_id=worker1
-      #     build --define worker1_public_api_target=worker1.example.com:8443
-      #     build --define worker2_id=worker2
-      #     build --define worker2_public_api_target=worker2.example.com:8443
-      #     build --define mc_name=measurementConsumers/foo
-      #     build --define mc_api_key=foo
-      #     build --define mc_cert_name=measurementConsumers/foo/certificates/bar
-      #     build --define edp1_name=dataProviders/foo1
-      #     build --define edp1_cert_name=dataProviders/foo1/certificates/bar1
-      #     build --define edp2_name=dataProviders/foo2
-      #     build --define edp2_cert_name=dataProviders/foo2/certificates/bar2
-      #     build --define edp3_name=dataProviders/foo3
-      #     build --define edp3_cert_name=dataProviders/foo3/certificates/bar3
-      #     build --define edp4_name=dataProviders/foo4
-      #     build --define edp4_cert_name=dataProviders/foo4/certificates/bar4
-      #     build --define edp5_name=dataProviders/foo5
-      #     build --define edp5_cert_name=dataProviders/foo5/certificates/bar5
-      #     build --define edp6_name=dataProviders/foo6
-      #     build --define edp6_cert_name=dataProviders/foo6/certificates/bar6
-      #     build --define google_cloud_project=example-project
-      #     build --define basic_reports_enabled=true
-      #     EOF
+      - name: Write ~/.bazelrc
+        run: |
+          cat << EOF > ~/.bazelrc
+          common --config=ci
+          build --remote_upload_local_results
+          build --define container_registry=localhost:5001
+          build --define image_repo_prefix=halo
+          build --define image_tag=latest
+          build --define kingdom_public_api_target=kingdom.example.com:8443
+          build --define worker1_id=worker1
+          build --define worker1_public_api_target=worker1.example.com:8443
+          build --define worker2_id=worker2
+          build --define worker2_public_api_target=worker2.example.com:8443
+          build --define mc_name=measurementConsumers/foo
+          build --define mc_api_key=foo
+          build --define mc_cert_name=measurementConsumers/foo/certificates/bar
+          build --define edp1_name=dataProviders/foo1
+          build --define edp1_cert_name=dataProviders/foo1/certificates/bar1
+          build --define edp2_name=dataProviders/foo2
+          build --define edp2_cert_name=dataProviders/foo2/certificates/bar2
+          build --define edp3_name=dataProviders/foo3
+          build --define edp3_cert_name=dataProviders/foo3/certificates/bar3
+          build --define edp4_name=dataProviders/foo4
+          build --define edp4_cert_name=dataProviders/foo4/certificates/bar4
+          build --define edp5_name=dataProviders/foo5
+          build --define edp5_cert_name=dataProviders/foo5/certificates/bar5
+          build --define edp6_name=dataProviders/foo6
+          build --define edp6_cert_name=dataProviders/foo6/certificates/bar6
+          build --define google_cloud_project=example-project
+          build --define basic_reports_enabled=true
+          EOF
 
       - name: Set TCP keepalive
         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
@@ -80,23 +80,14 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      # - name: Run tests with coverage
-      #   id: run-coverage
-      #   env:
-      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-      #   run: >
-      #     bazel coverage 
-      #     --experimental_split_coverage_postprocessing 
-      #     --experimental_fetch_all_coverage_outputs 
-      #     --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-      #     //src/test/python/... 
-
       - name: Run tests with coverage
         id: run-coverage
         env:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
         run: >
           bazel coverage 
+          --experimental_split_coverage_postprocessing 
+          --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/python/... 
 
@@ -131,14 +122,14 @@ jobs:
           files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
-      - name: Collect coverage only for solver_test.py
-        run: |
-          mkdir -p coverage-artifacts
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-          while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
-            cat "$file" > "coverage-artifacts/$base"
-          done
+      # - name: Collect coverage only for solver_test.py
+      #   run: |
+      #     mkdir -p coverage-artifacts
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$(dirname "$file")")_coverage.dat
+      #       cat "$file" > "coverage-artifacts/$base"
+      #     done
         # base=$(basename "$file")
 
 
