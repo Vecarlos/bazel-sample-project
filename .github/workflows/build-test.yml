@@ -79,14 +79,14 @@ jobs:
           find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
 
 
-      - name: Collect coverage only for solver_test.py
-        run: |
-          mkdir -p coverage-artifacts
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-          while IFS= read -r -d '' file; do
-            base=$(basename "$(dirname "$file")")_coverage.dat
-            cat "$file" > "coverage-artifacts/$base"
-          done
+      # - name: Collect coverage only for solver_test.py
+      #   run: |
+      #     mkdir -p coverage-artifacts
+      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
+      #     while IFS= read -r -d '' file; do
+      #       base=$(basename "$(dirname "$file")")_coverage.dat
+      #       cat "$file" > "coverage-artifacts/$base"
+      #     done
         # base=$(basename "$file")
 
 
@@ -117,6 +117,7 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
+          directory: ${{ env.BAZEL_TESTLOGS_PATH }}
 
 
       # - name: Upload merged coverage as artifact
