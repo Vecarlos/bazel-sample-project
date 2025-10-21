@@ -5,7 +5,7 @@ COMMIT_BASE_NAME="no array put"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 
-DELAY_SECONDS=120
+DELAY_SECONDS=150
 
 echo ">>> 1. Creando commit real con 'git add .'"
 git add .
