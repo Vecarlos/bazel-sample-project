@@ -73,6 +73,11 @@ jobs:
       - name: Get bazel-testlogs path
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
+      - name: List coverage.dat files with details
+        run: |
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec ls -lh {} \; | sort
+
+
       - name: Collect coverage only for solver_test.py
         run: |
           mkdir -p coverage-artifacts
@@ -82,6 +87,10 @@ jobs:
             cat "$file" > "coverage-artifacts/$base"
           done
         # base=$(basename "$file")
+        
+      - name: List coverage.dat files with details
+        run: |
+          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec ls -lh {} \; | sort
 
       - name: Upload merged coverage as artifact
         uses: actions/upload-artifact@v4
