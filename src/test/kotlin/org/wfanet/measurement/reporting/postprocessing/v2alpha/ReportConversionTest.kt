@@ -825,17 +825,17 @@ class ReportConversionTest {
     assertThat(reportSummaries).contains(expectedReportSummary12)
   }
 
-  // @Test
-  // fun `report with unsuccessful state fails to be converted to report summary proto`() {
-  //   val reportFile = TEST_DATA_RUNTIME_DIR.resolve("report_with_unspecified_state.json").toFile()
-  //   val reportAsJson = reportFile.readText()
-  //   val exception =
-  //     assertFailsWith<IllegalArgumentException> {
-  //       ReportConversion.convertJsontoReportSummaries(reportAsJson)
-  //     }
+  @Test
+  fun `report with unsuccessful state fails to be converted to report summary proto`() {
+    val reportFile = TEST_DATA_RUNTIME_DIR.resolve("report_with_unspecified_state.json").toFile()
+    val reportAsJson = reportFile.readText()
+    val exception =
+      assertFailsWith<IllegalArgumentException> {
+        ReportConversion.convertJsontoReportSummaries(reportAsJson)
+      }
 
-  //   assertThat(exception).hasMessageThat().contains("not supported")
-  // }
+    assertThat(exception).hasMessageThat().contains("not supported")
+  }
 
   @Test
   fun `report with failed measurement fails to be converted to report summary proto`() {
