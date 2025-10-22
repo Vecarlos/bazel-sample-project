@@ -5,7 +5,7 @@ COMMIT_BASE_NAME="no array put"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 WORKFLOW_NAME="/home/dev/vecarlos/workspace/bazel-sample-project/.github/workflows/build-test.yml"
-DELAY_SECONDS=80
+DELAY_SECONDS=100
 
 echo ">>> 1. Creando commit real con 'git add .'"
 git add .
