@@ -61,9 +61,6 @@ service RequisitionMetadataService {
   //
   // Used to determine the starting point for fetching new
   // requisitions from the Kingdom.
-  //
-  // If there is no requisitions for the given parent, a timestamp of epoch
-  // will be returned.
   rpc FetchLatestCmmsCreateTime(FetchLatestCmmsCreateTimeRequest)
       returns (google.protobuf.Timestamp) {}
 
@@ -176,6 +173,9 @@ message LookupRequisitionMetadataRequest {
     string cmms_requisition = 2 [
       (google.api.resource_reference) = { type: "halo.wfanet.org/Requisition" }
     ];
+
+    // The blob storage URI.
+    string blob_uri = 3;
   }
 }
 

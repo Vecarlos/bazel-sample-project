@@ -54,6 +54,15 @@ proto_library(
 )
 
 proto_library(
+    name = "debug_service_proto",
+    srcs = ["debug_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+proto_library(
     name = "event_filter_proto",
     srcs = ["event_filter.proto"],
     strip_import_prefix = IMPORT_PREFIX,
@@ -279,6 +288,7 @@ SERVICE_LIBS = [
     ":report_schedules_service_proto",
     ":reporting_sets_service_proto",
     ":reports_service_proto",
+    ":debug_service_proto",
 ]
 
 proto_library(

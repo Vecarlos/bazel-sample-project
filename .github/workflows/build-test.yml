@@ -73,33 +73,6 @@ jobs:
       - name: Get bazel-testlogs path
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
-      - name: List and hash coverage.dat files
-        run: |
-          echo ">>> MD5 hashes of each coverage.dat:"
-          find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
-
-
-      # - name: Collect coverage only for solver_test.py
-      #   run: |
-      #     mkdir -p coverage-artifacts
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -print0 | \
-      #     while IFS= read -r -d '' file; do
-      #       base=$(basename "$(dirname "$file")")_coverage.dat
-      #       cat "$file" > "coverage-artifacts/$base"
-      #     done
-        # base=$(basename "$file")
-
-
-      # - name: List and hash coverage.dat files
-      #   run: |
-      #     echo ">>> MD5 hashes of each coverage.dat:"
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
-
-      # - name: List and hash coverage.dat files
-      #   run: |
-      #     echo ">>> MD5 hashes of each coverage.dat:"
-      #     find coverage-artifacts -type f -exec md5sum {} \; | sort
-
 
 
       # - name: Upload coverage reports to Codecov
@@ -118,21 +91,3 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
           directory: ${{ env.BAZEL_TESTLOGS_PATH }}
-
-
-      # - name: Upload merged coverage as artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-lcov-${{ github.sha }}
-      #     path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-      #     retention-days: 30
-
-      # - name: List and hash coverage.dat files
-      #   run: |
-      #     echo ">>> MD5 hashes of each coverage.dat:"
-      #     find ${{ env.BAZEL_TESTLOGS_PATH }} -type f -name "coverage.dat" -exec md5sum {} \; | sort
-
-      # - name: Hash of merged coverage report
-      #   run: |
-      #     REPORT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
-      #     md5sum "$REPORT_PATH"
