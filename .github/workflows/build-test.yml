@@ -65,6 +65,7 @@ jobs:
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/python/wfa/measurement/reporting/postprocessing/noiseninja:solver_test
+          //src/test/python/wfa/measurement/reporting/postprocessing/report:report_test
 
       - name: Bazel output path
         run: |
