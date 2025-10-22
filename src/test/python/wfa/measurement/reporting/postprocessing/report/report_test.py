@@ -22,20 +22,17 @@ from noiseninja.noised_measurements import SetMeasurementsSpec
 from report.report import EdpCombination
 from report.report import MetricReport
 from report.report import Report
-from report.report import build_measurement_set
+from report.report import build_whole_campaign_measurements
 from report.report import get_covers
 from report.report import is_cover
 from report.report import is_union_reach_consistent
 from report.testing.validate_report import are_overlap_constraints_consistent
-from report.testing.validate_report import get_sorted_list
-from report.testing.validate_report import ordered_sets_to_sorted_list
 
 from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
   report_post_processor_result_pb2
 
 StatusCode = report_post_processor_result_pb2.ReportPostProcessorStatus.StatusCode
 ReportQuality = report_post_processor_result_pb2.ReportQuality
-LargeCorrection = report_post_processor_result_pb2.ReportPostProcessorResult.LargeCorrection
 
 EXPECTED_PRECISION = 1
 EDP_ONE = "EDP_ONE"
@@ -66,7 +63,7 @@ SAMPLE_REPORT = Report(
                     Measurement(1, 1, "measurement_08")
                 ],
             },
-            whole_campaign_measurements=build_measurement_set(
+            whole_campaign_measurements=build_whole_campaign_measurements(
                 reach={
                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_09"),
                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_10"),
@@ -124,7 +121,7 @@ SAMPLE_REPORT = Report(
                     Measurement(1, 1, "measurement_34")
                 ],
             },
-            whole_campaign_measurements=build_measurement_set(
+            whole_campaign_measurements=build_whole_campaign_measurements(
                 reach={
                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_35"),
                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_36"),
@@ -179,7 +176,7 @@ SAMPLE_REPORT = Report(
                     Measurement(1, 1, "measurement_58")
                 ],
             },
-            whole_campaign_measurements=build_measurement_set(
+            whole_campaign_measurements=build_whole_campaign_measurements(
                 reach={
                     frozenset({EDP_ONE}): Measurement(1, 0, "measurement_59"),
                     frozenset({EDP_TWO}): Measurement(1, 1, "measurement_60"),
@@ -221,9 +218,25 @@ SAMPLE_REPORT = Report(
 )
 
 
+def get_sorted_list(lst):
+  sorted_list = []
+  for item in lst:
+    if isinstance(item, list):
+      sorted_list.append(tuple(sorted(get_sorted_list(item))))
+    else:
+      sorted_list.append(item)
+  return sorted(sorted_list)
+
+
+def ordered_sets_to_sorted_list(ordered_sets: list[OrderedSets]):
+  ordered_sets_list = []
+  for ordered_pair in ordered_sets:
+    ordered_sets_list.append(
+        [list(ordered_pair.larger_set), list(ordered_pair.smaller_set)])
+  return get_sorted_list(ordered_sets_list)
+
+
 class TestReport(unittest.TestCase):
-
-
   def test_is_cover_returns_true_for_valid_cover_sets(self):
     self.assertTrue(is_cover(frozenset({"EDP_ONE", "EDP_TWO", "EDP_THREE"}),
                              (frozenset({"EDP_ONE"}), frozenset({"EDP_TWO"}),
@@ -289,7 +302,7 @@ class TestReport(unittest.TestCase):
             frozenset({EDP_ONE, EDP_TWO, EDP_THREE}): [
                 Measurement(1, 1, "measurement_07")],
         },
-        whole_campaign_measurements=build_measurement_set(
+        whole_campaign_measurements=build_whole_campaign_measurements(
             reach={},
             k_reach={
                 frozenset({EDP_ONE}): {1: Measurement(1, 1, "measurement_08")},
@@ -848,7 +861,7 @@ class TestReport(unittest.TestCase):
     }
 
     spec = SetMeasurementsSpec()
-    report._add_reach_impression_relations_to_spec(spec)
+    report._add_whole_campaign_reach_impression_relations_to_spec(spec)
 
     self.assertEqual(len(spec._covers_by_set), 0)
     self.assertEqual(len(spec._equal_sets), 0)
@@ -1145,7 +1158,7 @@ class TestReport(unittest.TestCase):
     ]
 
     spec = SetMeasurementsSpec()
-    report._add_k_reach_and_reach_relations_to_spec(spec)
+    report._add_k_reach_whole_campaign_relations_to_spec(spec)
 
     self.assertEqual(len(spec._covers_by_set), 0)
     self.assertEqual(len(spec._subsets_by_set), 0)
@@ -1247,7 +1260,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -1283,7 +1296,7 @@ class TestReport(unittest.TestCase):
                         Measurement(35.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -1319,7 +1332,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -1355,7 +1368,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -1391,7 +1404,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -1413,7 +1426,7 @@ class TestReport(unittest.TestCase):
                         Measurement(40.0, 0, "measurement_08")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(40, 0, "measurement_09"),
                     },
@@ -1598,7 +1611,7 @@ class TestReport(unittest.TestCase):
                         Measurement(60.0, 1, "measurement_06"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}):
                           Measurement(30.0, 1, "measurement_07"),
@@ -1626,7 +1639,7 @@ class TestReport(unittest.TestCase):
                         Measurement(53.0, 1, "measurement_15"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}):
                           Measurement(40.0, 1, "measurement_16"),
@@ -1822,7 +1835,7 @@ class TestReport(unittest.TestCase):
                         Measurement(8.0, 1, "measurement_20"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         # 1 way comb
                         frozenset({EDP_ONE}):
@@ -1902,7 +1915,7 @@ class TestReport(unittest.TestCase):
                         Measurement(9.95, 1.00, "measurement_20"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         # 1 way comb
                         frozenset({EDP_ONE}):
@@ -1972,7 +1985,7 @@ class TestReport(unittest.TestCase):
                         Measurement(8.0, 1, "measurement_20"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         # 1 way comb
                         frozenset({EDP_ONE}):
@@ -2030,7 +2043,7 @@ class TestReport(unittest.TestCase):
                         Measurement(9.9499, 1.00, "measurement_20"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         # 1 way comb
                         frozenset({EDP_ONE}):
@@ -2236,7 +2249,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -2258,7 +2271,7 @@ class TestReport(unittest.TestCase):
                         Measurement(40.0, 0, "measurement_08")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(40, 0, "measurement_09"),
                     },
@@ -2336,7 +2349,7 @@ class TestReport(unittest.TestCase):
                         Measurement(12502000, 1300, "measurement_01")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(10000000, 0,
                                                           "measurement_04"),
@@ -2422,7 +2435,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 0, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(48, 0, "measurement_03"),
                     },
@@ -2444,7 +2457,7 @@ class TestReport(unittest.TestCase):
                         Measurement(40.0, 0, "measurement_08")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(40, 0, "measurement_09"),
                     },
@@ -2519,7 +2532,7 @@ class TestReport(unittest.TestCase):
                         Measurement(12460000, 1300, "measurement_01")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(10000000, 0,
                                                           "measurement_04"),
@@ -2608,7 +2621,7 @@ class TestReport(unittest.TestCase):
                         Measurement(12502000, 1300, "measurement_01")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(10000000, 0,
                                                           "measurement_04"),
@@ -2691,7 +2704,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 1, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(40, 1, "measurement_03"),
                     },
@@ -2713,7 +2726,7 @@ class TestReport(unittest.TestCase):
                         Measurement(58.0, 1, "measurement_08")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(40, 1, "measurement_09"),
                     },
@@ -2735,7 +2748,7 @@ class TestReport(unittest.TestCase):
                         Measurement(38.0, 1, "measurement_14")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(40, 1, "measurement_15"),
                     },
@@ -2780,7 +2793,7 @@ class TestReport(unittest.TestCase):
                         Measurement(35.844, 1, "measurement_02")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(35.844, 1,
                                                           "measurement_03"),
@@ -2804,7 +2817,7 @@ class TestReport(unittest.TestCase):
                         Measurement(35.844, 1, "measurement_08")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(35.844, 1,
                                                           "measurement_09"),
@@ -2828,7 +2841,7 @@ class TestReport(unittest.TestCase):
                         Measurement(34.599, 1, "measurement_14")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(34.599, 1,
                                                           "measurement_15"),
@@ -2878,7 +2891,7 @@ class TestReport(unittest.TestCase):
                     ],
                     frozenset({EDP_TWO}): [Measurement(1, 1, "measurement_03")],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(1, 1, "measurement_04"),
                         frozenset({EDP_TWO}): Measurement(1, 1, "measurement_05"),
@@ -2939,7 +2952,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 1, "measurement_01")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_TWO}):
                           Measurement(0.7142, 1, "measurement_05"),
@@ -2990,73 +3003,6 @@ class TestReport(unittest.TestCase):
                                            NOISE_CORRECTION_TOLERANCE))
     self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
 
-  def test_report_processor_logs_measurements_with_large_correction(self):
-    report = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(48, 1, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(2, 1, "measurement_04"),
-                    },
-                    k_reach={},
-                    impression={}),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
-
-    corrected, report_post_processor_result = report.get_corrected_report()
-
-    expected = Report(
-        metric_reports={
-            "ami": MetricReport(
-                weekly_cumulative_reaches={
-                    frozenset({EDP_ONE}): [
-                        Measurement(25, 1, "measurement_02")
-                    ],
-                },
-                whole_campaign_measurements=build_measurement_set(
-                    reach={
-                        frozenset({EDP_ONE}): Measurement(25, 1, "measurement_04"),
-                    },
-                    k_reach={},
-                    impression={}),
-                weekly_non_cumulative_measurements={},
-            )
-        },
-        metric_subsets_by_parent={},
-        cumulative_inconsistency_allowed_edp_combinations={},
-    )
-    self.assertEqual(report_post_processor_result.status.status_code,
-                     StatusCode.SOLUTION_FOUND_WITH_HIGHS)
-    self._assertReportsAlmostEqual(expected, corrected, corrected.to_array())
-
-    self.assertCountEqual(
-        report_post_processor_result.large_corrections,
-        [
-            LargeCorrection(
-                metric_title="measurement_04",
-                original_value=2,
-                corrected_value=25,
-                sigma=1.0
-            ),
-            LargeCorrection(
-                metric_title="measurement_02",
-                original_value=48,
-                corrected_value=25,
-                sigma=1.0
-            )
-        ]
-    )
-
-
   def test_get_corrected_reach_only_report_single_metric_multiple_edps(self):
     report = Report(
         metric_reports={
@@ -3070,7 +3016,7 @@ class TestReport(unittest.TestCase):
                     ],
                     frozenset({EDP_TWO}): [Measurement(1, 1, "measurement_03")],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(1, 1, "measurement_04"),
                         frozenset({EDP_TWO}): Measurement(1, 1, "measurement_05"),
@@ -3117,7 +3063,7 @@ class TestReport(unittest.TestCase):
                         Measurement(48.0, 1, "measurement_01")
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_TWO}):
                           Measurement(0.0, 1, "measurement_05"),
@@ -3190,7 +3136,7 @@ class TestReport(unittest.TestCase):
                         for i in range(0, len(ami_time_series))
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(AMI_TOTAL_REACH, 10000,
                                                           "measurement_3")
@@ -3218,7 +3164,7 @@ class TestReport(unittest.TestCase):
                         for i in range(0, len(mrc_time_series))
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(MRC_TOTAL_REACH, 10000,
                                                           "measurement_13")
@@ -3266,7 +3212,7 @@ class TestReport(unittest.TestCase):
                         Measurement(3076447.51, 10000, "measurement_2"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(3076447.51, 10000,
                                                           "measurement_3")
@@ -3294,7 +3240,7 @@ class TestReport(unittest.TestCase):
                         Measurement(2175141.42, 10000, "measurement_12"),
                     ],
                 },
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(2175141.42, 10000,
                                                           "measurement_13")
@@ -3363,7 +3309,7 @@ class TestReport(unittest.TestCase):
         metric_reports={
             "ami": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(AMI_TOTAL_REACH, 10000,
                                                           "measurement_3")
@@ -3385,7 +3331,7 @@ class TestReport(unittest.TestCase):
             ),
             "mrc": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(MRC_TOTAL_REACH, 10000,
                                                           "measurement_13")
@@ -3421,7 +3367,7 @@ class TestReport(unittest.TestCase):
         metric_reports={
             "ami": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(3072650.69, 10000,
                                                           "measurement_3")
@@ -3443,7 +3389,7 @@ class TestReport(unittest.TestCase):
             ),
             "mrc": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={
                         frozenset({EDP_ONE}): Measurement(2169767.78, 10000,
                                                           "measurement_13")
@@ -3483,7 +3429,7 @@ class TestReport(unittest.TestCase):
         metric_reports={
             "ami": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={},
                     k_reach={},
                     impression={
@@ -3494,7 +3440,7 @@ class TestReport(unittest.TestCase):
             ),
             "mrc": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={},
                     k_reach={},
                     impression={
@@ -3516,7 +3462,7 @@ class TestReport(unittest.TestCase):
         metric_reports={
             "ami": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={},
                     k_reach={},
                     impression={
@@ -3527,7 +3473,7 @@ class TestReport(unittest.TestCase):
             ),
             "mrc": MetricReport(
                 weekly_cumulative_reaches={},
-                whole_campaign_measurements=build_measurement_set(
+                whole_campaign_measurements=build_whole_campaign_measurements(
                     reach={},
                     k_reach={},
                     impression={

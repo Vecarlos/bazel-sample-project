@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package wfa.measurement.reporting.v2alpha;
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "org.wfanet.measurement.reporting.v2alpha";
+option java_multiple_files = true;
+
+service DebugService {
+  rpc GetStatus(GetStatusRequest) returns (StatusResponse) {}
+}
+
+message GetStatusRequest {}
+
+message ComponentStatus {
+  StatusResponse.ServingStatus status = 1;
+  string details = 2; 
+}
+
+message StatusResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+
+  ServingStatus overall_status = 1;
+  ComponentStatus database_status = 2;
+  ComponentStatus kingdom_api_status = 3;
+  google.protobuf.Timestamp last_report_timestamp = 4;
+  int32 failed_reports_count = 5;
+}
