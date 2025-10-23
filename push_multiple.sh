@@ -2,7 +2,7 @@
 
 
 COMMIT_BASE_NAME="no array put"
-BRANCH_NAME="buildbuddy"
+BRANCH_NAME="buildbuddy_kt_cov"
 REMOTE_NAME="origin"
 DELAY_SECONDS=80
 WORKFLOW_NAME="build-test.yml"
@@ -17,8 +17,8 @@ do
   sleep $DELAY_SECONDS
 
   echo ">>> $i. Empty commit: (p$i)"
-  # git commit --allow-empty -m "$COMMIT_BASE_NAME p$i" && git push $REMOTE_NAME $BRANCH_NAME
-  gh workflow run "$WORKFLOW_NAME" --ref "$BRANCH_NAME"
+  git commit --allow-empty -m "$COMMIT_BASE_NAME p$i" && git push $REMOTE_NAME $BRANCH_NAME
+  # gh workflow run "$WORKFLOW_NAME" --ref "$BRANCH_NAME"
 done
 echo -e "\nAll process completed"
 
