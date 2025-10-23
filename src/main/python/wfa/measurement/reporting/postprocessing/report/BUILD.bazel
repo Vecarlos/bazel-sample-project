@@ -7,6 +7,6 @@ py_library(
     imports = ["../"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/main/python/wfa/noiseninja",
+        "//src/main/python/wfa/measurement/reporting/postprocessing/noiseninja",
     ],
 )
