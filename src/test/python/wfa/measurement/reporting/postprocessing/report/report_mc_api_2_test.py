@@ -14,17 +14,11 @@
 
 import unittest
 
-
 from report.report import Report
-
-
-
 
 class TestReportMcApi2(unittest.TestCase):
     def aways_true(self):
         return self.assertEqual(1,1)
-
-
 
 if __name__ == "__main__":
     unittest.main()
