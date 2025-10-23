@@ -2,10 +2,11 @@ load("@pip//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_test")
 
 py_test(
-    name = "report_mc_api_2_test",
-    srcs = ["report_mc_api_2_test.py"],
+    name = "solver_test",
+    size = "small",
+    srcs = ["solver_test.py"],
     deps = [
-        "//src/main/python/wfa/measurement/reporting/postprocessing/report",
+        "//src/main/python/wfa/noiseninja",
     ],
     tags = ["no-cache"],
 )
