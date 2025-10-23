@@ -13,7 +13,7 @@ git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
 for i in {2..6}
 do
-  echo -e "\n--- Waiting $DELAY_SECONDS"
+  echo -e "\n--- Waiting $DELAY_SECONDS seconds"
   sleep $DELAY_SECONDS
 
   echo ">>> $i. Empty commit: (p$i)"
