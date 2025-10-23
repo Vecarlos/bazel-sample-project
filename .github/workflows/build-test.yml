@@ -77,7 +77,7 @@ jobs:
           bazel coverage 
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
-          --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
           //src/test/kotlin/...
 
       - name: Bazel output path
