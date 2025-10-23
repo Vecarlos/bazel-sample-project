@@ -16,7 +16,7 @@ import unittest
 from report.report import Report
 
 class TestReport(unittest.TestCase):
-  def allways_true(self):
+  def always_true(self):
     self.assertEqual(True, True)
 
 
