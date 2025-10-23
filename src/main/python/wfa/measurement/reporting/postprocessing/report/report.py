@@ -16,5 +16,5 @@ from noiseninja.solver import Solver
 
 
 class Report:
-  def __init__():
+  def __init__(self):
     pass
