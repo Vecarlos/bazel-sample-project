@@ -3,15 +3,16 @@ load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
     name = "noiseninja",
-    srcs = glob(["*.py"]),
+    # srcs = glob(["*.py"]),
+    srcs = ["solver.py"],
     imports = ["../"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/main/proto/wfa/measurement/reporting/postprocessing/v2alpha:report_post_processor_result_py_pb2",
-        requirement("absl-py"),
-        requirement("highspy"),
+        # "//src/main/proto/wfa/measurement/reporting/postprocessing/v2alpha:report_post_processor_result_py_pb2",
+        # requirement("absl-py"),
+        # requirement("highspy"),
         requirement("numpy"),
-        requirement("osqp"),
-        requirement("qpsolvers"),
+        # requirement("osqp"),
+        # requirement("qpsolvers"),
     ],
 )
