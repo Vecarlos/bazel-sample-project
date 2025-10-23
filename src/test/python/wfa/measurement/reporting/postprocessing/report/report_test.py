@@ -22,7 +22,6 @@ from noiseninja.noised_measurements import SetMeasurementsSpec
 
 from report.report import Report
 
-from report.testing.validate_report import are_overlap_constraints_consistent
 
 from src.main.proto.wfa.measurement.reporting.postprocessing.v2alpha import \
   report_post_processor_result_pb2

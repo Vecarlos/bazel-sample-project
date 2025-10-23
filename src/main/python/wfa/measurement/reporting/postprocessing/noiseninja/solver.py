@@ -47,7 +47,5 @@ class Solver:
 
 
   def _add_eq_term(self, variables: np.array, k: float):
-    self.A.append(variables)
-    self.b.append(k)
-
+    pass
  
