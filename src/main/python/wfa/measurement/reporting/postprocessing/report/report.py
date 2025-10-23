@@ -15,6 +15,6 @@
 from noiseninja.solver import Solver
 
 
-class MetricReport:
+class Report:
   def __init__():
     pass
