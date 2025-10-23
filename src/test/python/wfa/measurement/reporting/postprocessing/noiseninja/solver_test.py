@@ -18,16 +18,8 @@ from noiseninja.solver import Solver
 
 class SolverTest(unittest.TestCase):
   def test_solve_when_highs_solver_fails_to_converge(self):
-    spec = SetMeasurementsSpec()
-    spec.add_subset_relation(1, 2)
-    spec.add_subset_relation(1, 3)
-    spec.add_cover(1, [2, 3])
-    spec.add_equal_relation(1, [4])
-    spec.add_measurement(1, Measurement(50, 1, "measurement_01"))
-    spec.add_measurement(2, Measurement(48, 0, "measurement_02"))
-    spec.add_measurement(3, Measurement(1, 1, "measurement_03"))
-    spec.add_measurement(4, Measurement(51, 1, "measurement_04"))
 
+    spec = [[1, [4]]]
     solver = Solver(spec)
 
    
