@@ -5,7 +5,7 @@ COMMIT_BASE_NAME="no array put"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 DELAY_SECONDS=80
-WORKFLOW_NAME=".github/workflows/build-test.yml"
+WORKFLOW_NAME="build-test.yml"
 
 echo ">>> 1. Add and commit"
 git add .
