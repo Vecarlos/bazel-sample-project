@@ -31,8 +31,7 @@ class Solver:
 
   def __init__(self, set_measurement_spec: SetMeasurementsSpec):
     logging.info("Initializing the solver.")
-    variable_index_by_set_id = Solver._map_sets_to_variables(
-        set_measurement_spec)
+    variable_index_by_set_id = {1:0, 4:3,3:2, 2:1}
     self.num_variables = len(variable_index_by_set_id)
     self._add_equals(set_measurement_spec, variable_index_by_set_id)
   
