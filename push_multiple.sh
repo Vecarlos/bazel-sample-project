@@ -3,13 +3,13 @@
 COMMIT_BASE_NAME="all python files - free-disk-space on"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
-DELAY_SECONDS=950
+DELAY_SECONDS=1000
 
 echo ">>> 1. Add and commit"
 git add .
 git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
 
-for i in {2..7}
+for i in {2..15}
 do
   echo -e "\n--- Waiting $DELAY_SECONDS seconds"
   sleep $DELAY_SECONDS
