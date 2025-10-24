@@ -55,30 +55,30 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      # - name: Run tests with coverage
-      #   id: run-coverage
-      #   env:
-      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-      #   run: >
-      #     bazel coverage 
-      #     --cache_test_results=no
-      #     --experimental_split_coverage_postprocessing 
-      #     --experimental_fetch_all_coverage_outputs 
-      #     --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-      #     //src/test/python/wfa/measurement/reporting/postprocessing/noiseninja:solver_test
-      #     //src/test/python/wfa/measurement/reporting/postprocessing/report:report_mc_api_2_test
-
-
       - name: Run tests with coverage
         id: run-coverage
         env:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
         run: >
           bazel coverage 
+          --cache_test_results=no
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
-          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
-          //src/test/kotlin/...
+          --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+          //src/test/python/wfa/measurement/reporting/postprocessing/noiseninja:solver_test
+          //src/test/python/wfa/measurement/reporting/postprocessing/report:report_mc_api_2_test
+
+
+      # - name: Run tests with coverage
+      #   id: run-coverage
+      #   env:
+      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
+      #   run: >
+      #     bazel coverage 
+      #     --experimental_split_coverage_postprocessing 
+      #     --experimental_fetch_all_coverage_outputs 
+      #     --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
+      #     //src/test/kotlin/...
 
       - name: Bazel output path
         run: |
