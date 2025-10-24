@@ -8,6 +8,7 @@ qdldl~=0.1.7
 qpsolvers~=4.3.3
 tzdata~=2024.1
 six~=1.16.0
+dateutil~=2.9.0
 python-dateutil>=2.8.2
 pytz~=2024.1
 et-xmlfile~=1.1.0
