@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMMIT_BASE_NAME="error refactoring"
+COMMIT_BASE_NAME="combined report"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 DELAY_SECONDS=80

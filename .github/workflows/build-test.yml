@@ -62,6 +62,7 @@ jobs:
         run: >
           bazel coverage 
           --cache_test_results=no
+          --combined_report=lcov
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
