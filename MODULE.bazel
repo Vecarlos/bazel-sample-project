@@ -208,11 +208,7 @@ bazel_dep(
     version = "0.52.0",
     repo_name = "io_bazel_rules_go",
 )
-bazel_dep(
-    name = "cross-media-measurement-api",
-    version = "0.79.0",
-    repo_name = "wfa_measurement_proto",
-)
+
 bazel_dep(
     name = "shell-encryption",
     version = "0.0.0-20241214-b381c4e",
