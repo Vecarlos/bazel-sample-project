@@ -2558,7 +2558,7 @@
           "@@//tools/pytype/pytype_requirements.txt": "15bcbf20213346540cdccea392bd6d889e6386d1f67f0ee33cd5252361025023",
           "@@rules_python~//tools/publish/requirements_linux.txt": "d576e0d8542df61396a9b38deeaa183c24135ed5e8e73bb9622f298f2671811e",
           "@@rules_fuzzing~//fuzzing/requirements.txt": "ab04664be026b632a0d2a2446c4f65982b7654f5b6851d2f9d399a19b7242a5b",
-          "@@//requirements.txt": "55fa11654005743f3cba81bd3c5301a0fd31e4fa69f9798b56a75552998364d9",
+          "@@//requirements.txt": "a18dfe1d7d52424d1fce5e2dbd5056394952feb7ae8a92aed8ca559dd9b59839",
           "@@rules_python~//tools/publish/requirements_windows.txt": "d18538a3982beab378fd5687f4db33162ee1ece69801f9a451661b1b64286b76",
           "@@protobuf~//python/requirements.txt": "983be60d3cec4b319dcab6d48aeb3f5b2f7c3350f26b3a9e97486c37967c73c5",
           "@@rules_python~//tools/publish/requirements_darwin.txt": "095d4a4f3d639dce831cd493367631cd51b53665292ab20194bac2c0c6458fa8"
@@ -2596,7 +2596,7 @@
               "dep_template": "@pip//{name}:{target}",
               "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
               "repo": "pip_311",
-              "requirement": "black\nsetuptools"
+              "requirement": "black~=24.10.0"
             }
           },
           "pip_311_cachetools": {
@@ -3147,6 +3147,16 @@
               "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
               "repo": "pip_311",
               "requirement": "scipy~=1.14.1"
+            }
+          },
+          "pip_311_setuptools": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "setuptools~=75.8.0"
             }
           },
           "pip_311_six": {
@@ -6075,6 +6085,7 @@
                 "requests": "{\"pip_311_requests\":[{\"version\":\"3.11\"}]}",
                 "rsa": "{\"pip_311_rsa\":[{\"version\":\"3.11\"}]}",
                 "scipy": "{\"pip_311_scipy\":[{\"version\":\"3.11\"}]}",
+                "setuptools": "{\"pip_311_setuptools\":[{\"version\":\"3.11\"}]}",
                 "six": "{\"pip_311_six\":[{\"version\":\"3.11\"}]}",
                 "soupsieve": "{\"pip_311_soupsieve\":[{\"version\":\"3.11\"}]}",
                 "sympy": "{\"pip_311_sympy\":[{\"version\":\"3.11\"}]}",
@@ -6144,6 +6155,7 @@
                 "requests",
                 "rsa",
                 "scipy",
+                "setuptools",
                 "six",
                 "soupsieve",
                 "sympy",
