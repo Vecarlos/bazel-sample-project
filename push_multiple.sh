@@ -3,7 +3,7 @@
 COMMIT_BASE_NAME="all python files - no free-disk-space"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
-DELAY_SECONDS=150
+DELAY_SECONDS=200
 
 echo ">>> 1. Add and commit"
 git add .
