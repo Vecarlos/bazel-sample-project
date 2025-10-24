@@ -1,12 +1,14 @@
 absl-py~=2.1.0
 numpy~=2.1.0
 scipy~=1.14.1
+highs~=1.7.2
 highspy~=1.7.2
 osqp~=0.6.3
 qdldl~=0.1.7
 qpsolvers~=4.3.3
 tzdata~=2024.1
 six~=1.16.0
+dateutil~=2.9.0
 python-dateutil>=2.8.2
 pytz~=2024.1
 et-xmlfile~=1.1.0
@@ -34,13 +36,16 @@ urllib3~=2.4.0
 pluggy~=1.5.0
 iniconfig~=2.0.0
 packaging~=24.0
-exceptiongroup~=1.2.0
-tomli~=2.0.1
+exceptiongroup~=1.2.0  # for Python < 3.11 compatibility
+tomli~=2.0.1  # for reading pyproject.toml files
+
+
 protobuf~=5.29.3
 markdownify==0.14.0
 torch==2.5.1
 grpcio==1.73.0
 grpcio-tools==1.73.0
+
 beautifulsoup4==4.13.4
 filelock==3.18.0
 fsspec==2025.5.1
@@ -66,3 +71,8 @@ triton==3.1.0
 typing_extensions==4.14.0
 black
 setuptools
+# Must be compatible with the protobuf version declared with bazel_dep in MODULE.bazel
+# See https://github.com/protocolbuffers/protobuf/blob/v29.3/python/google/protobuf/__init__.py#L10
+# protobuf~=5.29.3
+# six==1.17.0
+
