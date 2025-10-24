@@ -2558,7 +2558,7 @@
           "@@//tools/pytype/pytype_requirements.txt": "15bcbf20213346540cdccea392bd6d889e6386d1f67f0ee33cd5252361025023",
           "@@rules_python~//tools/publish/requirements_linux.txt": "d576e0d8542df61396a9b38deeaa183c24135ed5e8e73bb9622f298f2671811e",
           "@@rules_fuzzing~//fuzzing/requirements.txt": "ab04664be026b632a0d2a2446c4f65982b7654f5b6851d2f9d399a19b7242a5b",
-          "@@//requirements.txt": "a18dfe1d7d52424d1fce5e2dbd5056394952feb7ae8a92aed8ca559dd9b59839",
+          "@@//requirements.txt": "bacc21f4f3512c47670ce95a599fca552fcd7c4018d19445b30506d5e3c6f33b",
           "@@rules_python~//tools/publish/requirements_windows.txt": "d18538a3982beab378fd5687f4db33162ee1ece69801f9a451661b1b64286b76",
           "@@protobuf~//python/requirements.txt": "983be60d3cec4b319dcab6d48aeb3f5b2f7c3350f26b3a9e97486c37967c73c5",
           "@@rules_python~//tools/publish/requirements_darwin.txt": "095d4a4f3d639dce831cd493367631cd51b53665292ab20194bac2c0c6458fa8"
@@ -2627,6 +2627,16 @@
               "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
               "repo": "pip_311",
               "requirement": "charset-normalizer~=3.4.2"
+            }
+          },
+          "pip_311_click": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "click~=8.1.7"
             }
           },
           "pip_311_et_xmlfile": {
@@ -2839,6 +2849,16 @@
               "requirement": "mpmath==1.3.0"
             }
           },
+          "pip_311_mypy_extensions": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "mypy-extensions~=1.0.0"
+            }
+          },
           "pip_311_networkx": {
             "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
             "ruleClassName": "whl_library",
@@ -3017,6 +3037,26 @@
               "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
               "repo": "pip_311",
               "requirement": "pandas~=2.2.2"
+            }
+          },
+          "pip_311_pathspec": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "pathspec~=0.12.1"
+            }
+          },
+          "pip_311_platformdirs": {
+            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "dep_template": "@pip//{name}:{target}",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "repo": "pip_311",
+              "requirement": "platformdirs~=4.2.0"
             }
           },
           "pip_311_pluggy": {
@@ -6033,6 +6073,7 @@
                 "cachetools": "{\"pip_311_cachetools\":[{\"version\":\"3.11\"}]}",
                 "certifi": "{\"pip_311_certifi\":[{\"version\":\"3.11\"}]}",
                 "charset_normalizer": "{\"pip_311_charset_normalizer\":[{\"version\":\"3.11\"}]}",
+                "click": "{\"pip_311_click\":[{\"version\":\"3.11\"}]}",
                 "et_xmlfile": "{\"pip_311_et_xmlfile\":[{\"version\":\"3.11\"}]}",
                 "exceptiongroup": "{\"pip_311_exceptiongroup\":[{\"version\":\"3.11\"}]}",
                 "filelock": "{\"pip_311_filelock\":[{\"version\":\"3.11\"}]}",
@@ -6054,6 +6095,7 @@
                 "markdownify": "{\"pip_311_markdownify\":[{\"version\":\"3.11\"}]}",
                 "markupsafe": "{\"pip_311_markupsafe\":[{\"version\":\"3.11\"}]}",
                 "mpmath": "{\"pip_311_mpmath\":[{\"version\":\"3.11\"}]}",
+                "mypy_extensions": "{\"pip_311_mypy_extensions\":[{\"version\":\"3.11\"}]}",
                 "networkx": "{\"pip_311_networkx\":[{\"version\":\"3.11\"}]}",
                 "numpy": "{\"pip_311_numpy\":[{\"version\":\"3.11\"}]}",
                 "nvidia_cublas_cu12": "{\"pip_311_nvidia_cublas_cu12\":[{\"version\":\"3.11\"}]}",
@@ -6072,6 +6114,8 @@
                 "osqp": "{\"pip_311_osqp\":[{\"version\":\"3.11\"}]}",
                 "packaging": "{\"pip_311_packaging\":[{\"version\":\"3.11\"}]}",
                 "pandas": "{\"pip_311_pandas\":[{\"version\":\"3.11\"}]}",
+                "pathspec": "{\"pip_311_pathspec\":[{\"version\":\"3.11\"}]}",
+                "platformdirs": "{\"pip_311_platformdirs\":[{\"version\":\"3.11\"}]}",
                 "pluggy": "{\"pip_311_pluggy\":[{\"version\":\"3.11\"}]}",
                 "proto_plus": "{\"pip_311_proto_plus\":[{\"version\":\"3.11\"}]}",
                 "protobuf": "{\"pip_311_protobuf\":[{\"version\":\"3.11\"}]}",
@@ -6103,6 +6147,7 @@
                 "cachetools",
                 "certifi",
                 "charset_normalizer",
+                "click",
                 "et_xmlfile",
                 "exceptiongroup",
                 "filelock",
@@ -6124,6 +6169,7 @@
                 "markdownify",
                 "markupsafe",
                 "mpmath",
+                "mypy_extensions",
                 "networkx",
                 "numpy",
                 "nvidia_cublas_cu12",
@@ -6142,6 +6188,8 @@
                 "osqp",
                 "packaging",
                 "pandas",
+                "pathspec",
+                "platformdirs",
                 "pluggy",
                 "proto_plus",
                 "protobuf",
