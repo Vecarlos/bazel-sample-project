@@ -3,7 +3,7 @@
 COMMIT_BASE_NAME="yaml"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
-DELAY_SECONDS=80
+DELAY_SECONDS=150
 
 echo ">>> 1. Add and commit"
 git add .
