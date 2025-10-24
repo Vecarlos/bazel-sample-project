@@ -42,6 +42,8 @@ proto_library(
     deps = [
         ":encrypted_dek_proto",
         "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+        "@com_google_googleapis//google/type:interval_proto",
     ],
 )
 
@@ -157,4 +159,15 @@ proto_library(
 kt_jvm_grpc_proto_library(
     name = "requisition_metadata_service_kt_jvm_grpc_proto",
     deps = [":requisition_metadata_service_proto"],
+)
+
+proto_library(
+    name = "encryption_key_proto",
+    srcs = ["encryption_key.proto"],
+    strip_import_prefix = _IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "encryption_key_kt_jvm_proto",
+    deps = [":encryption_key_proto"],
 )

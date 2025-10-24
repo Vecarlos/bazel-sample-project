@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMMIT_BASE_NAME="yaml"
+COMMIT_BASE_NAME="all python files"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 DELAY_SECONDS=900

@@ -47,7 +47,6 @@ proto_library(
         ":impression_metadata_proto",
         ":impression_metadata_state_proto",
         "@com_google_googleapis//google/type:interval_proto",
-        "@com_google_protobuf//:empty_proto",
         "@com_google_protobuf//:timestamp_proto",
     ],
 )
@@ -100,15 +99,9 @@ kt_jvm_grpc_proto_library(
 )
 
 proto_descriptor_set(
-    name = "impression_state_descriptor_set",
+    name = "descriptor_set",
     deps = [
         ":impression_metadata_state_proto",
-    ],
-)
-
-proto_descriptor_set(
-    name = "requisition_state_descriptor_set",
-    deps = [
         ":requisition_metadata_state_proto",
     ],
 )
