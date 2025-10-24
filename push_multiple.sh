@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMMIT_BASE_NAME="combined report"
+COMMIT_BASE_NAME="bazelrc"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
 DELAY_SECONDS=80
