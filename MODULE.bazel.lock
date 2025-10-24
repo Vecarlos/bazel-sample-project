@@ -2558,7 +2558,7 @@
           "@@//tools/pytype/pytype_requirements.txt": "15bcbf20213346540cdccea392bd6d889e6386d1f67f0ee33cd5252361025023",
           "@@rules_python~//tools/publish/requirements_linux.txt": "d576e0d8542df61396a9b38deeaa183c24135ed5e8e73bb9622f298f2671811e",
           "@@rules_fuzzing~//fuzzing/requirements.txt": "ab04664be026b632a0d2a2446c4f65982b7654f5b6851d2f9d399a19b7242a5b",
-          "@@//requirements.txt": "3f602bd3adab1e32d2d90178f9158896cf5983466615ee4a7b2d5222633334f0",
+          "@@//requirements.txt": "55fa11654005743f3cba81bd3c5301a0fd31e4fa69f9798b56a75552998364d9",
           "@@rules_python~//tools/publish/requirements_windows.txt": "d18538a3982beab378fd5687f4db33162ee1ece69801f9a451661b1b64286b76",
           "@@protobuf~//python/requirements.txt": "983be60d3cec4b319dcab6d48aeb3f5b2f7c3350f26b3a9e97486c37967c73c5",
           "@@rules_python~//tools/publish/requirements_darwin.txt": "095d4a4f3d639dce831cd493367631cd51b53665292ab20194bac2c0c6458fa8"
@@ -2627,16 +2627,6 @@
               "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
               "repo": "pip_311",
               "requirement": "charset-normalizer~=3.4.2"
-            }
-          },
-          "pip_311_dateutil": {
-            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
-            "ruleClassName": "whl_library",
-            "attributes": {
-              "dep_template": "@pip//{name}:{target}",
-              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
-              "repo": "pip_311",
-              "requirement": "dateutil~=2.9.0"
             }
           },
           "pip_311_et_xmlfile": {
@@ -2767,16 +2757,6 @@
               "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
               "repo": "pip_311",
               "requirement": "grpcio-tools==1.73.0"
-            }
-          },
-          "pip_311_highs": {
-            "bzlFile": "@@rules_python~//python/private/pypi:whl_library.bzl",
-            "ruleClassName": "whl_library",
-            "attributes": {
-              "dep_template": "@pip//{name}:{target}",
-              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
-              "repo": "pip_311",
-              "requirement": "highs~=1.7.2"
             }
           },
           "pip_311_highspy": {
@@ -6043,7 +6023,6 @@
                 "cachetools": "{\"pip_311_cachetools\":[{\"version\":\"3.11\"}]}",
                 "certifi": "{\"pip_311_certifi\":[{\"version\":\"3.11\"}]}",
                 "charset_normalizer": "{\"pip_311_charset_normalizer\":[{\"version\":\"3.11\"}]}",
-                "dateutil": "{\"pip_311_dateutil\":[{\"version\":\"3.11\"}]}",
                 "et_xmlfile": "{\"pip_311_et_xmlfile\":[{\"version\":\"3.11\"}]}",
                 "exceptiongroup": "{\"pip_311_exceptiongroup\":[{\"version\":\"3.11\"}]}",
                 "filelock": "{\"pip_311_filelock\":[{\"version\":\"3.11\"}]}",
@@ -6057,7 +6036,6 @@
                 "googleapis_common_protos": "{\"pip_311_googleapis_common_protos\":[{\"version\":\"3.11\"}]}",
                 "grpcio": "{\"pip_311_grpcio\":[{\"version\":\"3.11\"}]}",
                 "grpcio_tools": "{\"pip_311_grpcio_tools\":[{\"version\":\"3.11\"}]}",
-                "highs": "{\"pip_311_highs\":[{\"version\":\"3.11\"}]}",
                 "highspy": "{\"pip_311_highspy\":[{\"version\":\"3.11\"}]}",
                 "idna": "{\"pip_311_idna\":[{\"version\":\"3.11\"}]}",
                 "iniconfig": "{\"pip_311_iniconfig\":[{\"version\":\"3.11\"}]}",
@@ -6114,7 +6092,6 @@
                 "cachetools",
                 "certifi",
                 "charset_normalizer",
-                "dateutil",
                 "et_xmlfile",
                 "exceptiongroup",
                 "filelock",
@@ -6128,7 +6105,6 @@
                 "googleapis_common_protos",
                 "grpcio",
                 "grpcio_tools",
-                "highs",
                 "highspy",
                 "idna",
                 "iniconfig",
