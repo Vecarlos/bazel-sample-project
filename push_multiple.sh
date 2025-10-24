@@ -1,9 +1,9 @@
 #!/bin/bash
 
-COMMIT_BASE_NAME="all python files - no free-disk-space"
+COMMIT_BASE_NAME="all python files - free-disk-space on"
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
-DELAY_SECONDS=200
+DELAY_SECONDS=950
 
 echo ">>> 1. Add and commit"
 git add .
