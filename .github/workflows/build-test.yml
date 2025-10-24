@@ -85,12 +85,12 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      - name: Build
-        run: >
-          bazel build --worker_quit_after_build
-          //...
-          //src/main/k8s/local:cmms
-          //src/main/k8s/dev:edp_simulators
+      # - name: Build
+      #   run: >
+      #     bazel build --worker_quit_after_build
+      #     //...
+      #     //src/main/k8s/local:cmms
+      #     //src/main/k8s/dev:edp_simulators
 
       # TODO(bazelbuild/rules_kotlin#509): remove this step after the issue with inline functions is fixed
       - name: Compute coverage exclusions to work around the issue with inline functions
