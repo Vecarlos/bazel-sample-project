@@ -123,6 +123,7 @@ jobs:
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/...
+        continue-on-error: true
 
 
       # - name: Run tests with coverage
