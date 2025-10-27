@@ -1,0 +1,67 @@
+// Copyright 2024 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "wfa/measurement/internal/kingdom/event_template.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+message EventGroupDetails {
+  reserved 8;
+
+  // Version of the public API for serialized message definitions.
+  string api_version = 1;
+
+  // Serialized `EncryptionPublicKey` message from the public API.
+  bytes measurement_consumer_public_key = 2;
+  bytes measurement_consumer_public_key_signature = 3 [deprecated = true];
+  string measurement_consumer_public_key_signature_algorithm_oid = 7
+      [deprecated = true];
+
+  // The set of VID model lines used to label events in this Event Group.
+  repeated string vid_model_lines = 4;
+
+  // The Event Templates that this Event Group conforms to.
+  repeated EventTemplate event_templates = 5;
+
+  message EventGroupMetadata {
+    // Metadata specific to ad impressions.
+    message AdMetadata {
+      // Metadata that pertains to a campaign.
+      message CampaignMetadata {
+        // The name of the brand for which the campaign is being run.
+        string brand_name = 1;
+        // The name of the campaign.
+        string campaign_name = 2;
+      }
+      // Metadata the pertains to a campaign that is entailed by the EventGroup.
+      CampaignMetadata campaign_metadata = 1;
+    }
+
+    oneof metadata {
+      AdMetadata ad_metadata = 2;
+    }
+  }
+  // Common [EventGroup][] metadata. This is intended to eventually replace
+  // [encrypted_metadata][].
+  EventGroupMetadata metadata = 9;
+
+  // Data Provider-specific encrypted Event Group metadata. This will eventually
+  // be deprecated in favor of [metadata][].
+  bytes encrypted_metadata = 6;
+}

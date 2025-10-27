@@ -1,0 +1,99 @@
+// Copyright 2020 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.duchy.config;
+
+option java_package = "org.wfanet.measurement.internal.duchy.config";
+option java_multiple_files = true;
+
+// A combined setup configuration for all protocols used by the herald.
+// Each newly added protocol should have a field in this config proto.
+message ProtocolsSetupConfig {
+  // LiquidLegionsV2 specific configuration
+  LiquidLegionsV2SetupConfig liquid_legions_v2 = 1;
+
+  // ReachOnlyLiquidLegionsV2 specific configuration
+  LiquidLegionsV2SetupConfig reach_only_liquid_legions_v2 = 2;
+
+  // HonestMajorityShareShuffle specific configuration
+  HonestMajorityShareShuffleSetupConfig honest_majority_share_shuffle = 3;
+
+  // TrusTee specific configuration
+  TrusTeeSetupConfig trus_tee = 4;
+}
+
+// Role in Computations assigned to Duchies.
+enum RoleInComputation {
+  // Never set intentionally
+  ROLE_IN_COMPUTATION_UNSPECIFIED = 0;
+
+  // The aggregator duchy for the computation.
+  //
+  // Both LiquidLegionsV2 protocols and HonestMajorityShareShuffle protocol have
+  // the aggregator to compute the result.
+  // TrusTEE protocol always uses aggregator role.
+  AGGREGATOR = 1;
+
+  // A non-aggregator duchy for the computation of LLv2.
+  //
+  // For LiquidLegionsV2 protocols only. This duchy has to do many crypto
+  // operations, but is not responsible for joining sketch positions together,
+  // nor computing the final results.
+  NON_AGGREGATOR = 2;
+
+  // The first non-aggregator duchy for the computation of HMSS.
+  //
+  // For HonestMajorityShareShuffle only. This duchy exchanges seeds,
+  // adds noise, and shuffles. It receives the signal from the Kingdom to start
+  // computing.
+  FIRST_NON_AGGREGATOR = 3;
+
+  // The second non-aggregator duchy for the computation of HMSS.
+  //
+  // For HonestMajorityShareShuffle only. This duchy exchanges seeds,
+  // adds noise, and shuffles. The computing is triggered by the first
+  // non-aggregator.
+  SECOND_NON_AGGREGATOR = 4;
+}
+
+// LiquidLegionsV2 protocols specific configuration. Also used for reach-only
+// llv2.
+message LiquidLegionsV2SetupConfig {
+  // Role of duchy in Computations.
+  RoleInComputation role = 1;
+
+  // The external id of the aggregator duchy.
+  string external_aggregator_duchy_id = 2;
+}
+
+message HonestMajorityShareShuffleSetupConfig {
+  // Role of duchy in Computations.
+  RoleInComputation role = 1;
+
+  // The external id of the first non-aggregator duchy.
+  string first_non_aggregator_duchy_id = 2;
+
+  // The external id of the second non-aggregator duchy.
+  string second_non_aggregator_duchy_id = 3;
+
+  // The external id of the aggregator duchy.
+  string aggregator_duchy_id = 4;
+}
+
+message TrusTeeSetupConfig {
+  // Role of duchy in Computations.
+  RoleInComputation role = 1;
+}

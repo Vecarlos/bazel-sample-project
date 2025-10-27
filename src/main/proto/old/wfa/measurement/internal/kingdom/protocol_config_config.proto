@@ -1,0 +1,55 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "wfa/measurement/internal/kingdom/duchy_protocol_config.proto";
+import "wfa/measurement/internal/kingdom/protocol_config.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// The kingdom local config proto used to initialize the `ProtocolConfig` and
+// `DuchyProtocolConfig` for the Liquid Legions v2 protocols.
+message Llv2ProtocolConfigConfig {
+  ProtocolConfig.LiquidLegionsV2 protocol_config = 1;
+  DuchyProtocolConfig.LiquidLegionsV2 duchy_protocol_config = 2;
+  // List of required duchies for this protocol. E.g. aggregator.
+  repeated string required_external_duchy_ids = 3;
+  int32 minimum_duchy_participant_count = 4;
+}
+
+// The kingdom local config proto used to initialize the `ProtocolConfig` for
+// the Honest Majority Share Shuffle protocol.
+message HmssProtocolConfigConfig {
+  // The HonestMajorityShareShuffle protocol Config.
+  ProtocolConfig.HonestMajorityShareShuffle protocol_config = 1;
+  // The duchy id of the first non-aggregator.
+  string first_non_aggregator_duchy_id = 2;
+  // The duchy id of the second non-aggregator.
+  string second_non_aggregator_duchy_id = 3;
+  // The duchy id of the aggregator.
+  string aggregator_duchy_id = 4;
+}
+
+// The kingdom local config proto used to initialize the `ProtocolConfig` for
+// the TrusTEE protocol.
+message TrusTeeProtocolConfigConfig {
+  // The TrusTee protocol Config.
+  ProtocolConfig.TrusTee protocol_config = 1;
+  // The id of the duchy executing the computation.
+  string duchy_id = 2;
+}

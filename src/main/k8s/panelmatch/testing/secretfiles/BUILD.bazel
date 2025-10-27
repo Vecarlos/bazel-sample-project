@@ -1,0 +1,101 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@rules_pkg//pkg:pkg.bzl", "pkg_tar")
+load("//build/k8s:defs.bzl", "k8s_apply", "kustomization_dir")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        "//src/main/k8s:__subpackages__",
+        "//src/test/kotlin/org/wfanet/panelmatch/integration:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "root_certs",
+    srcs = glob(["*_root.pem"]),
+)
+
+filegroup(
+    name = "edp_trusted_certs",
+    srcs = [
+        "edp1_root.pem",
+        "kingdom_root.pem",
+    ],
+)
+
+filegroup(
+    name = "mp_trusted_certs",
+    srcs = [
+        "kingdom_root.pem",
+        "mp1_root.pem",
+    ],
+)
+
+genrule(
+    name = "gen_trusted_certs",
+    srcs = [":root_certs"],
+    outs = ["trusted_certs.pem"],
+    cmd = "cat $(SRCS) > $@",
+)
+
+genrule(
+    name = "gen_edp_trusted_certs",
+    srcs = [":edp_trusted_certs"],
+    outs = ["edp_trusted_certs.pem"],
+    cmd = "cat $(SRCS) > $@",
+)
+
+genrule(
+    name = "gen_mp_trusted_certs",
+    srcs = [":mp_trusted_certs"],
+    outs = ["mp_trusted_certs.pem"],
+    cmd = "cat $(SRCS) > $@",
+)
+
+SECRET_FILES = [
+    "edp1_tls.key",
+    "edp1_tls.pem",
+    "edp1_root.pem",
+    "mp1_tls.key",
+    "mp1_tls.pem",
+    "trusted_certs.pem",
+    "edp_trusted_certs.pem",
+    "mp_trusted_certs.pem",
+]
+
+filegroup(
+    name = "secret_files",
+    srcs = SECRET_FILES,
+)
+
+write_file(
+    name = "gen_kustomization",
+    out = "kustomization.yaml",
+    content = [
+        "secretGenerator:",
+        "- name: certs-and-configs",
+        "  files:",
+    ] + ["  - " + file for file in SECRET_FILES],
+)
+
+pkg_tar(
+    name = "pkg_secretfiles",
+    srcs = [
+        ":kustomization.yaml",
+        ":secret_files",
+    ],
+    out = "secretfiles.tar",
+)
+
+kustomization_dir(
+    name = "kustomization",
+    srcs = [
+        ":kustomization.yaml",
+        ":secret_files",
+    ],
+)
+
+k8s_apply(
+    name = "apply_kustomization",
+    srcs = [":kustomization"],
+)

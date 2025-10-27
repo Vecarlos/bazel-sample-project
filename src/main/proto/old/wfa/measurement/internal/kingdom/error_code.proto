@@ -1,0 +1,130 @@
+// Copyright 2022 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+enum ErrorCode {
+  UNKNOWN_ERROR = 0;
+
+  /** A required field was not set. */
+  REQUIRED_FIELD_NOT_SET = 45;
+  /** Field has invalid value. */
+  INVALID_FIELD_VALUE = 46;
+  /** MeasurementConsumer resource queried could not be found. */
+  MEASUREMENT_CONSUMER_NOT_FOUND = 1;
+  /** DataProvider resource queried could not be found. */
+  DATA_PROVIDER_NOT_FOUND = 2;
+  /** ModelProvider resource queried could not be found. */
+  MODEL_PROVIDER_NOT_FOUND = 3;
+  /** Duchy resource queried could not be found. */
+  DUCHY_NOT_FOUND = 4;
+  /** Measurement resource queried could not be found. */
+  MEASUREMENT_NOT_FOUND = 5;
+  /** Measurement is in an illegal state for the operation. */
+  MEASUREMENT_STATE_ILLEGAL = 6;
+  /** Certificate with the same subject key identifier (SKID) already exists.
+   */
+  CERT_SUBJECT_KEY_ID_ALREADY_EXISTS = 7;
+  /** Certificate resource queried could not be found. */
+  CERTIFICATE_NOT_FOUND = 8;
+  /** Certificate is in an illegal revocation state for the operation. */
+  CERTIFICATE_REVOCATION_STATE_ILLEGAL = 9;
+  /** Certificate is invalid and cannot be used in the creation of entities.
+   */
+  CERTIFICATE_IS_INVALID = 10;
+  /** Computation Participant should have been in another state. */
+  COMPUTATION_PARTICIPANT_STATE_ILLEGAL = 11;
+  /** Computation Participant resource queried could not be found. */
+  COMPUTATION_PARTICIPANT_NOT_FOUND = 12;
+  /** ComputationParticipant etag from request does not match actual etag. */
+  COMPUTATION_PARTICIPANT_ETAG_MISMATCH = 44;
+  /** Requisition entity could not be found. */
+  REQUISITION_NOT_FOUND = 13;
+  /** Requisition is in an illegal state for the operation. */
+  REQUISITION_STATE_ILLEGAL = 14;
+  /** Requisition etag requested does not match actual Requisition etag. */
+  REQUISITION_ETAG_MISMATCH = 47;
+  /** Account resource queried could not be found. */
+  ACCOUNT_NOT_FOUND = 15;
+  /** Account already exists with the identity. */
+  DUPLICATE_ACCOUNT_IDENTITY = 16;
+  /** Account activation state is in an illegal state for the operation. */
+  ACCOUNT_ACTIVATION_STATE_ILLEGAL = 17;
+  /** Permission is not given for the operation. */
+  PERMISSION_DENIED = 18;
+  /** Api Key resource queried could not be found. */
+  API_KEY_NOT_FOUND = 19;
+  /** EventGroup could not be found. */
+  EVENT_GROUP_NOT_FOUND = 20;
+  /** EventGroup modification args are invalid. */
+  EVENT_GROUP_INVALID_ARGS = 21;
+  /** EventGroupMetadataDescriptor could not be found. */
+  EVENT_GROUP_METADATA_DESCRIPTOR_NOT_FOUND = 22;
+  // An EventGroupMetadataDescriptor already exists with the same protobuf type.
+  EVENT_GROUP_METADATA_DESCRIPTOR_ALREADY_EXISTS_WITH_TYPE = 43;
+  /** RecurringExchange could not be found. */
+  RECURRING_EXCHANGE_NOT_FOUND = 23;
+  /** ExchangeStepAttempt could not be found. */
+  EXCHANGE_STEP_ATTEMPT_NOT_FOUND = 24;
+  /** ExchangeStep could not be found. */
+  EXCHANGE_STEP_NOT_FOUND = 25;
+  /** EventGroup state is in an illegal state for the operation. */
+  EVENT_GROUP_STATE_ILLEGAL = 26;
+  /** Required duchies are inactive */
+  DUCHY_NOT_ACTIVE = 27;
+  /** Measurement etag requested does not match actual Measurement etag. */
+  MEASUREMENT_ETAG_MISMATCH = 28;
+  /** ModelSuite resource queried could not be found. */
+  MODEL_SUITE_NOT_FOUND = 29;
+  /** ModelLine resource queried could not be found. */
+  MODEL_LINE_NOT_FOUND = 30;
+  /** ModelLine type is in an illegal state for the operation. */
+  MODEL_LINE_TYPE_ILLEGAL = 31;
+  /** ModelLine active time args are invalid. */
+  MODEL_LINE_INVALID_ARGS = 32;
+  /** ModelLine is not active within the required time interval. */
+  MODEL_LINE_NOT_ACTIVE = 51;
+  /** ModelOutage could not be found. */
+  MODEL_OUTAGE_NOT_FOUND = 33;
+  /** ModelOutage state is in an illegal state for the operation. */
+  MODEL_OUTAGE_STATE_ILLEGAL = 34;
+  /** ModelOutage outage interval args are invalid. */
+  MODEL_OUTAGE_INVALID_ARGS = 35;
+  /** ModelShard resource queried could not be found. */
+  MODEL_SHARD_NOT_FOUND = 36;
+  /** ModelRelease resource queried could not be found. */
+  MODEL_RELEASE_NOT_FOUND = 37;
+  /** ModelRollout period is older than previous ModelRollout for the same
+   * ModelLine. */
+  MODEL_ROLLOUT_OLDER_THAN_PREVIOUS = 38;
+  /** ModelRollout resource queried could not be found. */
+  MODEL_ROLLOUT_NOT_FOUND = 39;
+  /** ModelRollout has already started. */
+  MODEL_ROLLOUT_ALREADY_STARTED = 48;
+  /** ModelRollout freeze has been scheduled. */
+  MODEL_ROLLOUT_FREEZE_SCHEDULED = 49;
+  /** ModelRollout freeze time is not within the rollout period. */
+  MODEL_ROLLOUT_FREEZE_TIME_OUT_OF_RANGE = 50;
+  /** Exchange could not be found. */
+  EXCHANGE_NOT_FOUND = 40;
+  /** ModelShard args are invalid. */
+  MODEL_SHARD_INVALID_ARGS = 41;
+  /** Population could not be found. */
+  POPULATION_NOT_FOUND = 42;
+}

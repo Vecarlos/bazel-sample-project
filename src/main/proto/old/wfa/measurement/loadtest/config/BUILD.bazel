@@ -1,0 +1,22 @@
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+IMPORT_PREFIX = "/src/main/proto"
+
+proto_library(
+    name = "loadtest_event_proto",
+    srcs = ["loadtest_event.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "@wfa_measurement_proto//src/main/proto/wfa/measurement/api/v2alpha:event_annotations_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "loadtest_event_kt_jvm_proto",
+    deps = [":loadtest_event_proto"],
+)

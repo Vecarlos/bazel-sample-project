@@ -1,0 +1,71 @@
+# TODO(@SanjayVas): Move this to common-jvm.
+
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:public"])
+
+kt_jvm_library(
+    name = "context",
+    srcs = ["Context.kt"],
+    deps = ["@wfa_common_jvm//imports/java/io/grpc:context"],
+)
+
+kt_jvm_library(
+    name = "error_info",
+    srcs = ["ErrorInfo.kt"],
+    deps = [
+        "//src/main/proto/google/rpc:error_details_kt_jvm_proto",
+        "//src/main/proto/google/rpc:status_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/io/grpc/protobuf",
+    ],
+)
+
+kt_jvm_library(
+    name = "interceptors",
+    srcs = ["Interceptors.kt"],
+    deps = [
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)
+
+kt_jvm_library(
+    name = "service_flags",
+    srcs = ["ServiceFlags.kt"],
+    deps = [
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)
+
+kt_jvm_library(
+    name = "rate_limiting_server_interceptor",
+    srcs = ["RateLimitingServerInterceptor.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/common/ratelimit:rate_limiter",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+    ],
+)
+
+kt_jvm_library(
+    name = "rate_limiter_provider",
+    srcs = ["RateLimiterProvider.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/common/ratelimit:token_bucket",
+        "//src/main/proto/wfa/measurement/config:rate_limit_config_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/io/grpc:context",
+    ],
+)
+
+kt_jvm_library(
+    name = "api_change_metrics_interceptor",
+    srcs = ["ApiChangeMetricsInterceptor.kt"],
+    deps = [
+        ":interceptors",
+        "//src/main/proto/wfa/measurement/type:future_disposition_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/io/opentelemetry/api",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)

@@ -1,0 +1,87 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.duchy;
+
+option java_package = "org.wfanet.measurement.internal.duchy";
+option java_multiple_files = true;
+
+// The details of requisition used in a computation.
+message RequisitionDetails {
+  // SHA-256 hash of nonce value for Requisition. Required. Immutable.
+  bytes nonce_hash = 1;
+
+  // External ID of the duchy where this requisition is fulfilled.
+  string external_fulfilling_duchy_id = 2;
+
+  // Nonce value for a fulfilled Requisition.
+  fixed64 nonce = 3;
+
+  // Public api version of the fulfillment.
+  string public_api_version = 4;
+
+  // Protocol specific details in the Requisition.
+  message RequisitionProtocol {
+    // HonestMajorityShareShuffle protocol specific details.
+    message HonestMajorityShareShuffle {
+      // The ciphertext of the EncryptedMessage of a secret seed.
+      bytes secret_seed_ciphertext = 1;
+
+      // The number of registers in the sketch.
+      int64 register_count = 2;
+
+      // Resource name of the `Certificate` belonging to the parent
+      // `DataProvider` used to verify the secret_seed signature.
+      string data_provider_certificate = 3;
+    }
+    // TrusTEE protocol specific details.
+    message TrusTee {
+      // The ciphertext of the EncryptionKey of the Data Encryption Key (DEK).
+      bytes encrypted_dek_ciphertext = 1;
+      // The URI of the Key Encryption Key (KEK) in a KMS that is used to
+      // decrypt `encrypted_dek_ciphertext`.
+      string kms_kek_uri = 2;
+      // Resource name of the workload identity provider to impersonate the
+      // service account with KEK access.
+      string workload_identity_provider = 3;
+      // The service account to impersonate to get an access token for the
+      // KEK.
+      string impersonated_service_account = 4;
+      // The FarmHash fingerprint of the PopulationSpec.
+      int64 population_spec_fingerprint = 5;
+    }
+
+    oneof protocol {
+      HonestMajorityShareShuffle honest_majority_share_shuffle = 1;
+
+      TrusTee trus_tee = 2;
+    }
+  }
+  RequisitionProtocol protocol = 5;
+}
+
+// Lookup key for Requisition by external ID.
+message ExternalRequisitionKey {
+  // External id of the requisition. Assigned by the kingdom.
+  string external_requisition_id = 1;
+  // Requisition fingerprint. Computed using data from Kingdom.
+  bytes requisition_fingerprint = 2;
+}
+
+message RequisitionEntry {
+  ExternalRequisitionKey key = 1;
+  RequisitionDetails value = 2;
+}

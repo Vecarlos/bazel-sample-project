@@ -1,0 +1,110 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "wfa/measurement/internal/kingdom/computation_participant.proto";
+import "wfa/measurement/internal/kingdom/duchy_measurement_log_entry_stage_attempt.proto";
+import "wfa/measurement/internal/kingdom/measurement_log_entry_error.proto";
+import "wfa/measurement/internal/kingdom/participant_requisition_params.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+service ComputationParticipants {
+  // Retrieves a `ComputationParticipant` by key.
+  rpc GetComputationParticipant(GetComputationParticipantRequest)
+      returns (ComputationParticipant);
+
+  // Sets the requisition params of a ComputationParticipant.
+  //
+  // This transitions the ComputationParticipant from the CREATED state to the
+  // REQUISITION_PARAMS_SET state.
+  rpc SetParticipantRequisitionParams(SetParticipantRequisitionParamsRequest)
+      returns (ComputationParticipant);
+
+  // Transitions a ComputationParticipant to the FAILED state.
+  rpc FailComputationParticipant(FailComputationParticipantRequest)
+      returns (ComputationParticipant);
+
+  // Transitions a ComputationParticipant to the READY state.
+  rpc ConfirmComputationParticipant(ConfirmComputationParticipantRequest)
+      returns (ComputationParticipant);
+}
+
+message GetComputationParticipantRequest {
+  fixed64 external_computation_id = 1;
+  string external_duchy_id = 2;
+}
+
+message SetParticipantRequisitionParamsRequest {
+  fixed64 external_computation_id = 1;
+  string external_duchy_id = 2;
+
+  fixed64 external_duchy_certificate_id = 3;
+
+  oneof protocol {
+    LiquidLegionsV2Params liquid_legions_v2 = 4;
+
+    LiquidLegionsV2Params reach_only_liquid_legions_v2 = 5;
+
+    HonestMajorityShareShuffleParams honest_majority_share_shuffle = 6;
+
+    TrusTeeParams trus_tee = 8;
+  }
+
+  // `etag` of the `ComputationParticipant`.
+  //
+  // If specified and the value does not match the current `etag`, this method
+  // will result in an ABORTED status.
+  string etag = 7;
+}
+
+message FailComputationParticipantRequest {
+  fixed64 external_computation_id = 1;
+  string external_duchy_id = 2;
+
+  // Human-readable log message. This should not include any sensitive info.
+  string log_message = 3;
+
+  // Details about an error.
+  MeasurementLogEntryError error = 4;
+
+  // ID of some child of the Duchy from an external system.
+  //
+  // For example, this may identify a specific job or task.
+  string duchy_child_reference_id = 5;
+
+  // Details about the computation stage during which the error occurred.
+  DuchyMeasurementLogEntryStageAttempt stage_attempt = 6;
+
+  // `etag` of the `ComputationParticipant`.
+  //
+  // If specified and the value does not match the current `etag`, this method
+  // will result in an ABORTED status.
+  string etag = 7;
+}
+
+message ConfirmComputationParticipantRequest {
+  fixed64 external_computation_id = 1;
+  string external_duchy_id = 2;
+
+  // `etag` of the `ComputationParticipant`.
+  //
+  // If specified and the value does not match the current `etag`, this method
+  // will result in an ABORTED status.
+  string etag = 3;
+}

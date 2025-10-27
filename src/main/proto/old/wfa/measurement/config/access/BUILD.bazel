@@ -1,0 +1,33 @@
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load(
+    "@wfa_rules_kotlin_jvm//kotlin:defs.bzl",
+    "kt_jvm_proto_library",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+IMPORT_PREFIX = "/src/main/proto"
+
+proto_library(
+    name = "permissions_config_proto",
+    srcs = ["permissions_config.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "permissions_config_kt_jvm_proto",
+    deps = [":permissions_config_proto"],
+)
+
+proto_library(
+    name = "open_id_providers_config_proto",
+    srcs = ["open_id_providers_config.proto"],
+    deps = [
+        "@com_google_protobuf//:struct_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "open_id_providers_config_kt_jvm_proto",
+    deps = [":open_id_providers_config_proto"],
+)
