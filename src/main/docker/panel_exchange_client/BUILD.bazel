@@ -4,7 +4,7 @@ load(
     "container_push_all",
 )
 load("//build:variables.bzl", "IMAGE_REPOSITORY_SETTINGS")
-load("//build/cosign:macros.bzl", "sign_all")
+load("//build:cosign/macros.bzl", "sign_all")
 load(
     "//src/main/docker/panel_exchange_client:images.bzl",
     "AWS_IMAGES",
