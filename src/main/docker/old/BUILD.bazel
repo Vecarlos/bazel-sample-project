@@ -1,0 +1,19 @@
+load("@wfa_common_jvm//build/rules_oci:defs.bzl", "container_push")
+load(":images.bzl", "COMMON_IMAGES")
+
+package(default_visibility = ["//visibility:public"])
+
+[
+    container_push(
+        name = "push_" + image_spec.name,
+        image = image_spec.image,
+        registry = "localhost:5001",
+        repository = image_spec.repository,
+        tag = "v5",
+        tags = [
+            "manual",
+            "no-remote",
+        ],
+    )
+    for image_spec in COMMON_IMAGES
+]

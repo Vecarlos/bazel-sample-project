@@ -1,0 +1,218 @@
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load(
+    "@wfa_rules_kotlin_jvm//kotlin:defs.bzl",
+    "kt_jvm_grpc_proto_library",
+    "kt_jvm_proto_library",
+)
+
+IMPORT_PREFIX = "/src/main/proto"
+
+# Resources and shared message types.
+
+proto_library(
+    name = "computation_proto",
+    srcs = ["computation.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_participant_proto",
+        ":differential_privacy_proto",
+        ":requisition_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_proto"],
+)
+
+proto_library(
+    name = "stage_attempt_proto",
+    srcs = ["stage_attempt.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "stage_attempt_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":stage_attempt_proto"],
+)
+
+proto_library(
+    name = "computation_participant_proto",
+    srcs = ["computation_participant.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":stage_attempt_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_participant_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_participant_proto"],
+)
+
+proto_library(
+    name = "computation_stage_proto",
+    srcs = ["computation_stage.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "@com_google_googleapis//google/api:annotations_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_stage_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_stage_proto"],
+)
+
+proto_library(
+    name = "differential_privacy_proto",
+    srcs = ["differential_privacy.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "differential_privacy_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":differential_privacy_proto"],
+)
+
+proto_library(
+    name = "computation_log_entry_proto",
+    srcs = ["computation_log_entry.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":stage_attempt_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "computation_log_entry_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_log_entry_proto"],
+)
+
+proto_library(
+    name = "requisition_proto",
+    srcs = ["requisition.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_proto_library(
+    name = "requisition_kt_jvm_proto",
+    visibility = ["//visibility:public"],
+    deps = [":requisition_proto"],
+)
+
+# Services.
+
+proto_library(
+    name = "computations_service_proto",
+    srcs = ["computations_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_proto",
+        "@com_google_googleapis//google/api:client_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "computations_service_kt_jvm_grpc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computations_service_proto"],
+)
+
+proto_library(
+    name = "requisitions_service_proto",
+    srcs = ["requisitions_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":requisition_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "requisitions_service_kt_jvm_grpc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":requisitions_service_proto"],
+)
+
+proto_library(
+    name = "computation_participants_service_proto",
+    srcs = ["computation_participants_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_participant_proto",
+        "@com_google_googleapis//google/api:client_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "computation_participants_service_kt_jvm_grpc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_participants_service_proto"],
+)
+
+proto_library(
+    name = "computation_log_entries_service_proto",
+    srcs = ["computation_log_entries_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_log_entry_proto",
+        "@com_google_googleapis//google/api:client_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "computation_log_entries_service_kt_jvm_grpc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_log_entries_service_proto"],
+)
+
+proto_library(
+    name = "computation_control_service_proto",
+    srcs = ["computation_control_service.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+    deps = [
+        ":computation_stage_proto",
+        "@com_google_googleapis//google/api:client_proto",
+        "@com_google_googleapis//google/api:field_behavior_proto",
+        "@com_google_googleapis//google/api:resource_proto",
+    ],
+)
+
+kt_jvm_grpc_proto_library(
+    name = "computation_control_service_kt_jvm_grpc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":computation_control_service_proto"],
+)

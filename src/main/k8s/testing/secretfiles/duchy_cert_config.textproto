@@ -1,0 +1,17 @@
+# proto-file: src/main/proto/wfa/measurement/config/duchy_cert_config.proto
+# proto-message: DuchyCertConfig
+duchies {
+  duchy_id: "aggregator"
+  computation_control_service_cert_host: "localhost"
+  root_certificate_skid: "\x47\xAD\x57\x91\x2C\xCD\x3D\x7B\x94\xB5\x45\xD2\xBE\x1F\xED\x5E\x76\x6A\xDC\x39"
+}
+duchies {
+  duchy_id: "worker1"
+  computation_control_service_cert_host: "localhost"
+  root_certificate_skid: "\x10\x59\x0B\xB2\x66\x13\x4D\xC6\xD5\xCE\xF8\x49\x15\xC9\xD7\x56\x35\x79\xA2\xE9"
+}
+duchies {
+  duchy_id: "worker2"
+  computation_control_service_cert_host: "localhost"
+  root_certificate_skid: "\xAF\x69\x49\x08\x7C\x07\xA4\x39\xF7\xC7\x46\x3A\x98\x93\xBE\xF5\x25\xD7\xA3\xBB"
+}

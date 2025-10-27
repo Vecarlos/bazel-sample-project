@@ -1,0 +1,222 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.system.v1alpha;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "wfa/measurement/system/v1alpha/computation_participant.proto";
+import "wfa/measurement/system/v1alpha/differential_privacy.proto";
+import "wfa/measurement/system/v1alpha/requisition.proto";
+
+option java_package = "org.wfanet.measurement.system.v1alpha";
+option java_multiple_files = true;
+option java_outer_classname = "ComputationProto";
+
+// Resource representing a single computation.
+message Computation {
+  option (google.api.resource) = {
+    type: "halo-system.wfanet.org/Computation"
+    pattern: "computations/{computation}"
+    singular: "computation"
+    plural: "computations"
+  };
+
+  // Resource name.
+  string name = 1;
+
+  // Public API version for serialized messages.
+  string public_api_version = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
+  // Serialized `MeasurementSpec` from public API. Required.
+  bytes measurement_spec = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
+  // State of a `Computation`.
+  enum State {
+    // Default value if state is omitted.
+    STATE_UNSPECIFIED = 0;
+
+    // Awaiting the necessary parameters from computation participants (Duchies)
+    // before Requisitions may be made available in the public API.
+    PENDING_REQUISITION_PARAMS = 1;
+
+    // Awaiting fulfillment of all Requisitions by Data Providers.
+    //
+    // Requisitions are available in the public API at this state.
+    PENDING_REQUISITION_FULFILLMENT = 2;
+
+    // Awaiting confirmation from computation participants (Duchies).
+    //
+    // Requisitions are all fulfilled at this state.
+    PENDING_PARTICIPANT_CONFIRMATION = 3;
+
+    // Awaiting completion of computation by participants (Duchies).
+    //
+    // Requisitions are all fulfilled at this state.
+    PENDING_COMPUTATION = 4;
+
+    // Completed successfully (has a result). Terminal state.
+    SUCCEEDED = 5;
+
+    // Completed unsuccessfully. Terminal state.
+    FAILED = 6;
+
+    // Cancelled by Measurement Consumer. Terminal state.
+    CANCELLED = 7;
+  }
+  // State of this `Computation`.
+  State state = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Resource name of a `Certificate` belonging to the aggregator `Duchy`. Must
+  // be set if `state` is `SUCCEEDED`.
+  string aggregator_certificate = 7
+      [(google.api.resource_reference).type = "halo.wfanet.org/Certificate"];
+
+  // Encrypted `SignedData` message from the public API containing a serialized
+  // `Result` message from the public API, which can be verified using
+  // `aggregator_certificate`. Must be set if `state` is `SUCCEEDED`.
+  bytes encrypted_result = 8;
+
+  // Denormalized child `ComputationParticipant` resources.
+  //
+  // (-- api-linter: core::0122::embedded-resource=disabled
+  //     aip.dev/not-precedent: Denormalized resource field. --)
+  repeated ComputationParticipant computation_participants = 9
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Denormalized child `Requisition` resources.
+  //
+  // (-- api-linter: core::0122::embedded-resource=disabled
+  //     aip.dev/not-precedent: Denormalized resource field. --)
+  repeated Requisition requisitions = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // MPC Protocol configuration that need to be known by Duchies.
+  message MpcProtocolConfig {
+    // The mechanism used to generate noise in computations.
+    enum NoiseMechanism {
+      // Default value if state is omitted.
+      NOISE_MECHANISM_UNSPECIFIED = 0;
+      // Geometric.
+      GEOMETRIC = 1;
+      // Discrete Gaussian.
+      DISCRETE_GAUSSIAN = 2;
+      // Continuous Gaussian.
+      CONTINUOUS_GAUSSIAN = 3;
+    }
+
+    // Configuration for the Liquid Legions v2 R/F protocol.
+    message LiquidLegionsV2 {
+      // Parameters for a Liquid Legions sketch.
+      message LiquidLegionsSketchParams {
+        // The decay rate of the Liquid Legions sketch.
+        double decay_rate = 1 [(google.api.field_behavior) = REQUIRED];
+
+        // The maximum size of the Liquid Legions sketch.
+        int64 max_size = 2 [(google.api.field_behavior) = REQUIRED];
+      }
+      // Parameters for the sketch.
+      LiquidLegionsSketchParams sketch_params = 1
+          [(google.api.field_behavior) = REQUIRED];
+
+      // Configuration for noises added by the MPC workers to protect
+      // intermediate results. These noises don't affect the final output.
+      message MpcNoise {
+        // DP params for the blind histogram noise register.
+        // Each of these registers contains a random register id, the same
+        // constant key indicating that the register is destroyed, and an
+        // arbitrary count value.
+        DifferentialPrivacyParams blinded_histogram_noise = 1
+            [(google.api.field_behavior) = REQUIRED];
+        // DP params for the noise for the publisher noise registers.
+        // Each of these registers contains a well-known constant register id,
+        // and arbitrary key and count values.
+        DifferentialPrivacyParams publisher_noise = 2
+            [(google.api.field_behavior) = REQUIRED];
+      }
+      // MPC noise configuration.
+      MpcNoise mpc_noise = 2 [(google.api.field_behavior) = REQUIRED];
+
+      // ID of the OpenSSL built-in elliptic curve. For example, 415 for the
+      // prime256v1 curve.
+      int32 elliptic_curve_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+      // The maximum frequency to reveal in the histogram. For reach-only liquid
+      // legions protocol, this field should be ignored.
+      //
+      // Deprecated: Specified in MeasurementSpec instead except for legacy
+      // Computations.
+      int32 maximum_frequency = 4 [deprecated = true];
+
+      // The mechanism to generate noise during computation.
+      NoiseMechanism noise_mechanism = 5
+          [(google.api.field_behavior) = REQUIRED];
+    }
+
+    // Configuration for the Honest Majority Share Shuffle protocol.
+    message HonestMajorityShareShuffle {
+      // The modulus used in the MPC protocol for ReachAndFrequency Measurement.
+      int32 reach_and_frequency_ring_modulus = 1
+          [(google.api.field_behavior) = REQUIRED];
+      // The modulus used in the MPC protocol for Reach Measurement.
+      int32 reach_ring_modulus = 2 [(google.api.field_behavior) = REQUIRED];
+      // The mechanism to generate noise during computation.
+      NoiseMechanism noise_mechanism = 3
+          [(google.api.field_behavior) = REQUIRED];
+    }
+
+    // Configuration for the TrusTEE protocol.
+    message TrusTee {
+      // The mechanism to generate noise during computation.
+      NoiseMechanism noise_mechanism = 1
+          [(google.api.field_behavior) = REQUIRED];
+    }
+
+    // Configuration for the specific protocol. Required.
+    oneof protocol {
+      // Liquid Legions v2 config.
+      //
+      // May only be set when the measurement type is REACH_AND_FREQUENCY.
+      LiquidLegionsV2 liquid_legions_v2 = 1;
+
+      // Reach-only Liquid Legions v2 config.
+      //
+      // Must only be set when the measurement type is REACH.
+      LiquidLegionsV2 reach_only_liquid_legions_v2 = 2;
+
+      // Honest Majority Share Shuffle config.
+      //
+      // Set for both REACH_AND_FREQUENCY and REACH.
+      HonestMajorityShareShuffle honest_majority_share_shuffle = 3;
+
+      // TrusTEE config.
+      //
+      // Set for both REACH_AND_FREQUENCY and REACH.
+      TrusTee trus_tee = 4;
+    }
+  }
+  // MPC protocol configuration that need to be known by Duchies.
+  MpcProtocolConfig mpc_protocol_config = 11 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+}

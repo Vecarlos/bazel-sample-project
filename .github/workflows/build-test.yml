@@ -122,7 +122,7 @@ jobs:
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/python/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-          //src/test/python/...
+          //src/test/...
 
 
       # - name: Run tests with coverage

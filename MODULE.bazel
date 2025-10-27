@@ -15,7 +15,7 @@ bazel_dep(
 
 bazel_dep(
     name = "rules_kotlin_jvm",
-    version = "0.6.0",
+    version = "0.9.0",
     repo_name = "wfa_rules_kotlin_jvm",
 )
 
@@ -27,7 +27,7 @@ bazel_dep(
 
 bazel_dep(
     name = "common-jvm",
-    version = "0.110.0",
+    version = "0.124.2",
     repo_name = "wfa_common_jvm",
 )
 # --- Bazel Central Registry modules. ---
@@ -216,6 +216,11 @@ bazel_dep(
 )
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.artifact(
+    artifact = "beam-runners-google-cloud-dataflow-java",
+    exclusions = ["org.apache.beam:beam-sdks-java-io-kafka"],
+    group = "org.apache.beam",
+)
+maven.artifact(
     testonly = True,
     artifact = "mockito-core",
     group = "org.mockito",
@@ -245,20 +250,35 @@ maven.artifact(
     exclusions = [
         # Prevent netty-tcnative being used instead of Conscrypt.
         "io.netty:netty-tcnative-boringssl-static",
+        "junit:junit",
     ],
     group = "org.apache.beam",
 )
 maven.install(
     artifacts = [
-        "io.grpc:grpc-netty-shaded:1.62.2",
-        "io.grpc:grpc-okhttp:1.62.2",
-        "io.grpc:grpc-kotlin-stub:1.4.1",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
-        "io.netty:netty-handler:4.1.91.Final",
+        "com.google.privacy.differentialprivacy:differentialprivacy:4.0.0",
+        "it.unimi.dsi:fastutil:8.5.12",
+
+
+        # TODO(googleapis/java-cloud-bom#5279): Remove when managed by BOM.
+        "com.google.cloud:google-cloud-secretmanager",
+
+
+        # Bouncy Castle
+
+        # These dependencies should come from rules_kotlin_jvm: https://github.com/world-federation-of-advertisers/rules_kotlin_jvm/blob/main/MODULE.bazel#L60
+        # However, rules_jvm_external 6.8 seems to prioritize BOMs over explicitly declared versions only for the root module: https://github.com/bazel-contrib/rules_jvm_external/pull/1373
+        # Without these declarations, the versions are resolved to the ones explicitly declared in bazel_worker_java: https://github.com/bazelbuild/bazel-worker-api/blob/v0.0.5/java/MODULE.bazel#L17
+        "com.google.protobuf:protobuf-java",
+        "com.google.protobuf:protobuf-java-util",
+
+
+
 
         "com.google.crypto.tink:tink-awskms:1.9.1",
         "com.google.crypto.tink:tink-gcpkms:1.9.0",
-        "com.squareup.okhttp3:okhttp:4.12.0",
+        "com.squareup.okhttp3:okhttp",
+        "com.squareup.okhttp3:okhttp-tls",
         "io.opentelemetry.semconv:opentelemetry-semconv:1.22.0-alpha",
         "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
         "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
@@ -290,11 +310,20 @@ maven.install(
         "org.bouncycastle:bcpkix-jdk18on:1.79",
     ],
     boms = [
+        "com.squareup.okhttp3:okhttp-bom:4.12.0",
         "org.apache.beam:beam-sdks-java-bom:" + APACHE_BEAM_VERSION,
         "org.projectnessie.cel:cel-bom:0.5.0",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,  # For IDE integration.
+    known_contributing_modules = [
+        "any-sketch-java",
+        "bazel_worker_java",
+        "common-jvm",
+        "cross-media-measurement-system",
+        "rules_kotlin_jvm",
+        "virtual-people-common",
+    ],
     lock_file = "//:maven_install.json",
     resolver = "maven",
     strict_visibility = True,

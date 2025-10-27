@@ -1,0 +1,20 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:private"])
+
+kt_jvm_library(
+    name = "validation",
+    srcs = [
+        "EventFilterValidationException.kt",
+        "EventFilterValidator.kt",
+    ],
+    visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/eventfiltration:__pkg__",
+        "//src/test/kotlin/org/wfanet/measurement/eventdataprovider/eventfiltration/validation:__pkg__",
+    ],
+    deps = [
+        "//imports/java/com/google:cel-generated-pb",
+        "//imports/java/org/projectnessie/cel",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)

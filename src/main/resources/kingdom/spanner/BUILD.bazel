@@ -9,4 +9,10 @@ filegroup(
         "*.yaml",
         "*.sql",
     ]),
+    visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing:__pkg__",
+        
+        # Probablemente también lo necesiten los tests
+        "//src/test/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing:__pkg__", 
+    ],
 )

@@ -1,0 +1,20 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+kt_jvm_library(
+    name = "client",
+    srcs = [
+        "JsonPatchOperation.kt",
+        "KubernetesClient.kt",
+        "Names.kt",
+    ],
+    deps = [
+        "//imports/java/io/kubernetes/client",
+        "//imports/java/io/kubernetes/client/extended",
+        "@wfa_common_jvm//imports/java/org/jetbrains/annotations",
+        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
+    ],
+)
