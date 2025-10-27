@@ -3,7 +3,7 @@
 COMMIT_BASE_NAME="all python and kotlin test - free-disk-space off."
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
-DELAY_SECONDS=630
+DELAY_SECONDS=700
 
 echo ">>> 1. Add and commit"
 git add .
