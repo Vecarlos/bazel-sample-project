@@ -117,7 +117,6 @@ jobs:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
         run: >
           bazel coverage 
-          --cache_test_results=no
           --combined_report=lcov
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
