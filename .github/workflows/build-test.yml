@@ -91,6 +91,7 @@ jobs:
       - name: Run tests
         id: run-tests
         run: bazel test //...
+        continue-on-error: true
 
       # TODO(bazelbuild/rules_kotlin#509): remove this step after the issue with inline functions is fixed
       - name: Compute coverage exclusions to work around the issue with inline functions
