@@ -3,7 +3,7 @@
 COMMIT_BASE_NAME="all python test."
 BRANCH_NAME="buildbuddy"
 REMOTE_NAME="origin"
-DELAY_SECONDS=1050
+DELAY_SECONDS=1200
 
 echo ">>> 1. Add and commit"
 git add .
