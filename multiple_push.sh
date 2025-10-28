@@ -4,7 +4,7 @@ POLLUTER_BRANCH="buildbuddy"
 VICTIM_BRANCH="buildbuddy_kt_cov"
 
 REMOTE_NAME="origin"
-CI_WAIT_TIME_SECONDS=900
+CI_WAIT_TIME_SECONDS=1700
 
 TOTAL_RUNS=6
 
@@ -16,9 +16,6 @@ do
   git checkout $POLLUTER_BRANCH
   git commit --allow-empty -m "$POLLUTER_BRANCH $i"
   git push $REMOTE_NAME $POLLUTER_BRANCH
-
-  echo -e "\n~ Waiting $CI_WAIT_TIME_SECONDS seconds..."
-  sleep $CI_WAIT_TIME_SECONDS
 
   echo "Running $VICTIM_BRANCH"
   git checkout $VICTIM_BRANCH
