@@ -1,8 +1,6 @@
-load("@wfa_rules_cue//cue:defs.bzl", "cue_library")
-load("//build/k8s:defs.bzl", "kustomization_dir")
-load("//src/main/k8s:macros.bzl", "cue_dump")
+load("@wfa_rules_cue//cue:defs.bzl", "cue_library", "cue_string_field")
 
-package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//src/main/k8s:__subpackages__"])
 
 cue_library(
     name = "base",
@@ -10,38 +8,136 @@ cue_library(
 )
 
 cue_library(
-    name = "server_cue",
-    srcs = [
-        "server.cue",
-        "service.cue",
-        "server_main.cue",
-    ],
+    name = "config",
+    srcs = ["config.cue"],
+)
+
+cue_library(
+    name = "open_telemetry",
+    srcs = ["open_telemetry.cue"],
     deps = [":base"],
 )
 
 cue_library(
-    name = "client_cue",
-    srcs = ["client.cue"],
+    name = "grafana",
+    srcs = ["grafana.cue"],
     deps = [":base"],
 )
 
-cue_dump(
-    name = "server",
-    tags = ["manual"],
-    deps = [":server_cue"],
+cue_library(
+    name = "spanner",
+    srcs = ["spanner.cue"],
 )
 
-cue_dump(
-    name = "client",
-    tags = ["manual"],
-    deps = [":client_cue"],
-)
-
-kustomization_dir(
-    name = "cmms",
-    srcs = [
-        ":client",
-        ":server",
+cue_library(
+    name = "kingdom",
+    srcs = ["kingdom.cue"],
+    deps = [
+        ":base",
+        ":config",
+        ":spanner",
     ],
-    generate_kustomization = True,
+)
+
+cue_library(
+    name = "duchy",
+    srcs = ["duchy.cue"],
+    deps = [
+        ":base",
+        ":config",
+    ],
+)
+
+cue_library(
+    name = "measurement_system_prober",
+    srcs = ["measurement_system_prober.cue"],
+    deps = [
+        ":base",
+        ":config",
+    ],
+)
+
+cue_library(
+    name = "spanner_duchy",
+    srcs = ["spanner_duchy.cue"],
+    deps = [
+        ":duchy",
+    ],
+)
+
+cue_library(
+    name = "postgres_duchy",
+    srcs = ["postgres_duchy.cue"],
+    deps = [
+        ":duchy",
+    ],
+)
+
+cue_library(
+    name = "edp_simulator",
+    srcs = ["edp_simulator.cue"],
+    deps = [
+        ":base",
+        ":config",
+    ],
+)
+
+cue_library(
+    name = "postgres",
+    srcs = ["postgres.cue"],
+)
+
+cue_string_field(
+    name = "permissions_config_cue",
+    srcs = ["//src/main/proto/wfa/measurement/reporting/v2alpha:permissions_config.textproto"],
+    identifier = "#PermissionsConfig",
+    package = "k8s",
+    visibility = ["//visibility:private"],
+)
+
+cue_library(
+    name = "permissions_config",
+    srcs = [":permissions_config_cue"],
+    visibility = ["//visibility:private"],
+)
+
+cue_library(
+    name = "reporting_v2",
+    srcs = ["reporting_v2.cue"],
+    deps = [
+        ":base",
+        ":config",
+        ":permissions_config",
+        ":postgres",
+        ":spanner",
+    ],
+)
+
+cue_library(
+    name = "population_requisition_fulfiller",
+    srcs = ["population_requisition_fulfiller.cue"],
+    deps = [
+        ":base",
+        ":config",
+    ],
+)
+
+cue_library(
+    name = "secure_computation",
+    srcs = ["secure_computation.cue"],
+    deps = [
+        ":base",
+        ":config",
+        ":spanner",
+    ],
+)
+
+cue_library(
+    name = "edp_aggregator",
+    srcs = ["edp_aggregator.cue"],
+    deps = [
+        ":base",
+        ":config",
+        ":spanner",
+    ],
 )
