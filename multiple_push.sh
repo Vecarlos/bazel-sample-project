@@ -4,9 +4,9 @@ POLLUTER_BRANCH="buildbuddy"
 VICTIM_BRANCH="buildbuddy_kt_cov"
 
 REMOTE_NAME="origin"
-CI_WAIT_TIME_SECONDS=1000
+CI_WAIT_TIME_SECONDS=700
 
-TOTAL_RUNS=4
+TOTAL_RUNS=6
 
 for i in $(seq 1 $TOTAL_RUNS)
 do
