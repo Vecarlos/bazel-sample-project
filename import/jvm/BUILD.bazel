@@ -1,7 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-alias(
-    name = "grpc_netty_shaded_wrapper",
-    actual = "@maven//:io_grpc_grpc_netty_shaded",
-    visibility = ["//visibility:public"],
-)
