@@ -1,9 +1,9 @@
 #!/bin/bash
 
 COMMIT_BASE_NAME="all python test."
-BRANCH_NAME="buildbuddy"
+BRANCH_NAME="buildbuddy_kt_cov"
 REMOTE_NAME="origin"
-DELAY_SECONDS=1200
+DELAY_SECONDS=1100
 
 echo ">>> 1. Add and commit"
 git add .
