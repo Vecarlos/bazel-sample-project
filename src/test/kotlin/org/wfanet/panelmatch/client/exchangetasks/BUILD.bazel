@@ -1,39 +1,39 @@
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
 
-# kt_jvm_test(
-#     name = "AssignJoinKeyIdsTaskTest",
-#     timeout = "short",
-#     srcs = ["AssignJoinKeyIdsTaskTest.kt"],
-#     test_class = "org.wfanet.panelmatch.client.exchangetasks.AssignJoinKeyIdsTaskTest",
-#     deps = [
-#         "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks",
-#         "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks/testing",
-#         "@wfa_common_jvm//imports/java/com/google/common/truth/extensions/proto",
-#         "@wfa_common_jvm//imports/java/com/google/protobuf",
-#         "@wfa_common_jvm//imports/java/org/junit",
-#         "@wfa_common_jvm//imports/kotlin/com/google/protobuf/kotlin",
-#         "@wfa_common_jvm//imports/kotlin/kotlin/test",
-#     ],
-# )
+kt_jvm_test(
+    name = "AssignJoinKeyIdsTaskTest",
+    timeout = "short",
+    srcs = ["AssignJoinKeyIdsTaskTest.kt"],
+    test_class = "org.wfanet.panelmatch.client.exchangetasks.AssignJoinKeyIdsTaskTest",
+    deps = [
+        "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks/testing",
+        "@wfa_common_jvm//imports/java/com/google/common/truth/extensions/proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/com/google/protobuf/kotlin",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
 
-# kt_jvm_test(
-#     name = "DeterministicCommutativeCipherTaskTest",
-#     timeout = "short",
-#     srcs = ["DeterministicCommutativeCipherTaskTest.kt"],
-#     test_class = "org.wfanet.panelmatch.client.exchangetasks.DeterministicCommutativeCipherTaskTest",
-#     deps = [
-#         "//src/main/kotlin/org/wfanet/panelmatch/client/common",
-#         "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks",
-#         "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks/testing",
-#         "//src/main/kotlin/org/wfanet/panelmatch/client/storage/testing",
-#         "//src/main/kotlin/org/wfanet/panelmatch/common/crypto/testing",
-#         "@wfa_common_jvm//imports/java/com/google/common/truth",
-#         "@wfa_common_jvm//imports/java/com/google/common/truth/extensions/proto",
-#         "@wfa_common_jvm//imports/java/org/junit",
-#         "@wfa_common_jvm//imports/kotlin/com/google/protobuf/kotlin",
-#         "@wfa_common_jvm//imports/kotlin/kotlin/test",
-#     ],
-# )
+kt_jvm_test(
+    name = "DeterministicCommutativeCipherTaskTest",
+    timeout = "short",
+    srcs = ["DeterministicCommutativeCipherTaskTest.kt"],
+    test_class = "org.wfanet.panelmatch.client.exchangetasks.DeterministicCommutativeCipherTaskTest",
+    deps = [
+        "//src/main/kotlin/org/wfanet/panelmatch/client/common",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/storage/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/crypto/testing",
+        "@wfa_common_jvm//imports/java/com/google/common/truth",
+        "@wfa_common_jvm//imports/java/com/google/common/truth/extensions/proto",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//imports/kotlin/com/google/protobuf/kotlin",
+        "@wfa_common_jvm//imports/kotlin/kotlin/test",
+    ],
+)
 
 kt_jvm_test(
     name = "ExchangeTaskFailedExceptionTest",
