@@ -4,7 +4,7 @@ POLLUTER_BRANCH="buildbuddy_kt_cov"
 VICTIM_BRANCH="buildbuddy_kt_cov_2"
 
 REMOTE_NAME="origin"
-CI_WAIT_TIME_SECONDS=1700
+CI_WAIT_TIME_SECONDS=900
 
 TOTAL_RUNS=6
 
