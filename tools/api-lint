@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Copyright 2023 The Cross-Media Measurement Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Run api-linter with appropriate dependencies.
+#
+# Usage: api-lint PATH [OPTION]...
+# Params:
+#   PATH  Path relative to PROTO_PATH under which to find *.proto files.
+
+set -eu -o pipefail
+
+readonly BAZEL="${BAZEL:-bazel}"
+readonly PROTO_PATH='src/main/proto'
+
+get_proto_library_deps() {
+  "$BAZEL" query "${deps_query}"
+}
+
+get_descriptor_sets() {
+  "$BAZEL" cquery "${deps_query}" --output=files
+}
+
+get_proto_files() {
+  find "$PROTO_PATH" \
+    -path "$PROTO_PATH/${path}/*" \
+    -name '*.proto' \
+    -printf '%P\0'
+}
+
+build() {
+  get_proto_library_deps | xargs "$BAZEL" build
+}
+
+lint() {
+  declare -a api_linter_args=(
+    '--set-exit-status'
+    "--proto-path=$PROTO_PATH"
+    "--config=$PROTO_PATH/api-linter.yaml"
+  )
+  for descriptor_set in $(get_descriptor_sets); do
+    api_linter_args+=( "--descriptor-set-in=${descriptor_set}" )
+  done
+
+  get_proto_files | xargs -0 api-linter "${api_linter_args[@]}" "$@"
+}
+
+main() {
+  readonly path="$1"
+  shift 1
+  
+  readonly target="//$PROTO_PATH/${path}/..."
+  readonly deps_query="kind('^proto_library rule', deps(${target}))"
+  
+  build
+  lint "$@"
+}
+
+main "$@"

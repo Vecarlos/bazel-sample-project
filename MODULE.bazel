@@ -1,231 +1,59 @@
-# module(
-#     name = "bazel-sample-project",
-#     repo_name = "vecarlos",
-# )
 module(
     name = "cross-media-measurement-system",
     repo_name = "wfa_measurement_system",
 )
 
-bazel_dep(
-    name = "cross-media-measurement-api",
-    version = "0.86.0",
-    repo_name = "wfa_measurement_proto",
-)
+BORINGSSL_VERSION = "0.20241209.0"
 
+# Version of Apache Beam.
+#
+# Version compatibility info:
+# * https://cloud.google.com/dataflow/docs/guides/installing-beam-sdk
+# * https://cloud.google.com/dataflow/docs/support/sdk-version-support-status#apache-beam-2.x-sdks
+# * https://beam.apache.org/documentation/runners/flink/#flink-version-compatibility
+# * https://docs.aws.amazon.com/kinesisanalytics/latest/java/earlier.html
+APACHE_BEAM_VERSION = "2.45.0"
+
+K8S_CLIENT_VERSION = "21.0.1"
+
+#  --- WFA registry modules. ---
+
+# Must come before rules_kotlin due to toolchain resolution precedence.
+# See https://github.com/bazelbuild/bazel/discussions/23075.
 bazel_dep(
     name = "rules_kotlin_jvm",
     version = "0.9.0",
     repo_name = "wfa_rules_kotlin_jvm",
 )
 bazel_dep(
-    name = "rules_oci",
-    version = "2.2.1",
-)
-bazel_dep(
-    name = "rules_multirun",
-    version = "0.12.0",
+    name = "rules_swig",
+    version = "0.1.0",
+    repo_name = "wfa_rules_swig",
 )
 bazel_dep(
     name = "rules_cue",
     version = "0.4.1",
     repo_name = "wfa_rules_cue",
 )
-
 bazel_dep(
     name = "common-jvm",
     version = "0.124.2",
     repo_name = "wfa_common_jvm",
 )
-# --- Bazel Central Registry modules. ---
 bazel_dep(
-    name = "bazel_skylib",
-    version = "1.7.1",
-)
-bazel_dep(
-    name = "rules_proto",
-    version = "7.1.0",
-)
-
-bazel_dep(
-    name = "rules_cc",
-    version = "0.1.1",
+    name = "common-cpp",
+    version = "0.13.0",
+    repo_name = "wfa_common_cpp",
 )
 bazel_dep(
-    name = "rules_pkg",
-    version = "1.0.1",
-)
-bazel_dep(
-    name = "rules_java",
-    version = "8.7.1",
-)
-
-bazel_dep(
-    name = "rules_jvm_external",
-    version = "6.6",
-)
-bazel_dep(
-    name = "rules_python",
-    version = "1.1.0",
-)
-
-bazel_dep(
-    name = "protobuf",
-    version = "29.3",
-    repo_name = "com_google_protobuf",
-)
-
-bazel_dep(
-    name = "googletest",
-    version = "1.15.2",
-    repo_name = "com_google_googletest",
-)
-
-bazel_dep(
-    name = "googleapis",
-    version = "0.0.0-20250120-318818b.bzlmod.2",
-    repo_name = "com_google_googleapis",
-)
-
-# maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
-
-# maven.artifact(
-#     testonly = True,
-#     artifact = "mockito-core",
-#     group = "org.mockito",
-#     version = "5.12.0",
-# )
-
-# maven.artifact(
-#     testonly = True,
-#     artifact = "mockito-inline",
-#     group = "org.mockito",
-#     version = "5.2.0",
-# )
-
-# maven.artifact(
-#     testonly = True,
-#     artifact = "mockito-kotlin",
-#     group = "org.mockito.kotlin",
-#     version = "5.4.0",
-# )
-# maven.install(
-#     artifacts = [
-#         "io.grpc:grpc-netty-shaded:1.62.2",
-#         "io.grpc:grpc-okhttp:1.62.2",
-#         "io.grpc:grpc-kotlin-stub:1.4.1",
-#         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
-#         "io.netty:netty-handler:4.1.91.Final",
-#     ],
-#     boms = [],
-#     fail_if_repin_required = True,
-#     fetch_sources = True,
-#     lock_file = "//:maven_install.json",
-#     resolver = "maven",
-#     strict_visibility = True,
-# )
-# use_repo(maven, "maven")
-
-python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(
-    configure_coverage_tool = True,
-    ignore_root_user_error = True,
-    python_version = "3.11",
-)
-
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.parse(
-    hub_name = "pip",
-    python_version = "3.11",
-    requirements_lock = "//:requirements.txt",
-)
-use_repo(pip, "pip")
-pip.parse(
-    hub_name = "pytype_pip",
-    python_version = "3.11",
-    requirements_lock = "//tools/pytype:pytype_requirements.txt",
-)
-use_repo(pip, "pytype_pip")
-
-http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-    name = "ninja_build",
-    build_file_content = """
-filegroup(
-    name = "ninja_binary",
-    srcs = ["ninja"],
-    visibility = ["//visibility:public"],
-)
-    """,
-    sha256 = "b901ba96e486dce377f9a070ed4ef3f79deb45f4ffe2938f8e7ddc69cfb3df77",
-    url = "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip",
-    strip_prefix = "",
-)
-
-http_archive(
-    name = "io_grpc_grpc_proto",
-    sha256 = "464e97a24d7d784d9c94c25fa537ba24127af5aae3edd381007b5b98705a0518",
-    strip_prefix = "grpc-proto-08911e9d585cbda3a55eb1dcc4b99c89aebccff8",
-    urls = ["https://github.com/grpc/grpc-proto/archive/08911e9d585cbda3a55eb1dcc4b99c89aebccff8.zip"],
-)
-
-oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
-oci.pull(
-    name = "go_image_base",
-    # Digest of `nonroot` tag.
-    digest = "sha256:97d15218016debb9b6700a8c1c26893d3291a469852ace8d8f7d15b2f156920f",
-    image = "gcr.io/distroless/base",
-    platforms = ["linux/amd64"],
-)
-oci.pull(
-    name = "py_image_base",
-    # Digest of `nonroot` tag.
-    digest = "sha256:1a7c3d2445f783c51be174c8913624dc5bea2cd7ff1f94b9a229a16f0e40fa34",
-    image = "gcr.io/distroless/python3-debian12",
-    platforms = ["linux/amd64"],
-)
-
-# TODO(world-federation-of-advertisers/cross-media-measurement#2729): Remove root Java image when Confidential Spaces properly supports nonroot images.
-oci.pull(
-    name = "java_image_base_root",
-    # Digest of latest tag.
-    digest = "sha256:58b716f89428587db33656f3fc6444b6dd4fd567e549c4b3657db75838f39950",
-    image = "gcr.io/distroless/java17-debian12",
-    platforms = ["linux/amd64"],
-)
-use_repo(
-    oci,
-    "go_image_base",
-    "go_image_base_linux_amd64",
-    "java_image_base_root",
-    "java_image_base_root_linux_amd64",
-    "py_image_base",
-    "py_image_base_linux_amd64",
-)
-
-
-APACHE_BEAM_VERSION = "2.45.0"
-
-K8S_CLIENT_VERSION = "21.0.1"
-BORINGSSL_VERSION = "0.20241209.0"
-bazel_dep(
-    name = "rules_swig",
-    version = "0.1.0",
-    repo_name = "wfa_rules_swig",
+    name = "cross-media-measurement-api",
+    version = "0.86.0",
+    repo_name = "wfa_measurement_proto",
 )
 bazel_dep(
     name = "consent-signaling-client",
     version = "0.22.0",
     repo_name = "wfa_consent_signaling_client",
-)
-bazel_dep(
-    name = "virtual-people-common",
-    version = "0.5.0",
-    repo_name = "wfa_virtual_people_common",
-)
-bazel_dep(
-    name = "boringssl",
-    version = BORINGSSL_VERSION,
 )
 bazel_dep(
     name = "any-sketch",
@@ -238,50 +66,161 @@ bazel_dep(
     repo_name = "any_sketch_java",
 )
 bazel_dep(
+    name = "googleapis",
+    version = "0.0.0-20250120-318818b.bzlmod.2",
+    repo_name = "com_google_googleapis",
+)
+bazel_dep(
+    name = "private-join-and-compute",
+    version = "0.0.0-20230417-e028e59",
+    repo_name = "com_google_private_join_and_compute",
+)
+bazel_dep(
+    name = "virtual-people-common",
+    version = "0.5.0",
+    repo_name = "wfa_virtual_people_common",
+)
+bazel_dep(
     name = "grpc_ecosystem_grpc_gateway",
     version = "2.26.0.bzlmod.1",
 )
 bazel_dep(
-    name = "bazel_jar_jar",
-    version = "0.1.7",
+    name = "cloud-spanner-emulator-bin",
+    version = "1.5.37.libcxx.1",
+    repo_name = "cloud_spanner_emulator",
+)
+bazel_dep(
+    name = "shell-encryption",
+    version = "0.0.0-20241214-b381c4e",
+    repo_name = "com_github_google_shell",
+)
+
+# --- Bazel Central Registry modules. ---
+
+# TODO(bazelbuild/bazel-worker-api#10): Remove this once rules_kotlin stops using version 0.0.4
+bazel_dep(
+    name = "bazel_worker_java",
+    version = "0.0.5",
+)
+bazel_dep(
+    name = "platforms",
+    version = "1.0.0",
+)
+bazel_dep(
+    name = "bazel_skylib",
+    version = "1.7.1",
+)
+bazel_dep(
+    name = "rules_proto",
+    version = "7.1.0",
+)
+bazel_dep(
+    name = "rules_cc",
+    version = "0.1.1",
+)
+bazel_dep(
+    name = "rules_pkg",
+    version = "1.0.1",
 )
 bazel_dep(
     name = "rules_go",
     version = "0.52.0",
     repo_name = "io_bazel_rules_go",
 )
+bazel_dep(
+    name = "gazelle",
+    version = "0.41.0",
+    repo_name = "bazel_gazelle",
+)
+bazel_dep(
+    name = "rules_java",
+    version = "8.15.2",
+)
+bazel_dep(
+    name = "rules_jvm_external",
+    version = "6.8",
+)
+bazel_dep(
+    name = "rules_python",
+    version = "1.1.0",
+)
+
+# Must be compatible with the protobuf version declared in requirements.txt
+bazel_dep(
+    name = "protobuf",
+    version = "29.5",
+    repo_name = "com_google_protobuf",
+)
+bazel_dep(
+    name = "aspect_rules_ts",
+    version = "3.1.0",
+)
+bazel_dep(
+    name = "aspect_rules_js",
+    version = "2.0.0",
+)
+bazel_dep(
+    name = "aspect_rules_webpack",
+    version = "0.16.0",
+)
+bazel_dep(
+    name = "aspect_rules_jest",
+    version = "0.22.0",
+)
+bazel_dep(
+    name = "aspect_bazel_lib",
+    version = "2.7.7",
+)
+bazel_dep(
+    name = "abseil-cpp",
+    version = "20240722.0.bcr.2",
+    repo_name = "com_google_absl",
+)
+bazel_dep(
+    name = "googletest",
+    version = "1.15.2",
+    repo_name = "com_google_googletest",
+)
+bazel_dep(
+    name = "glog",
+    version = "0.7.1",
+    repo_name = "com_github_google_glog",
+)
+bazel_dep(
+    name = "boringssl",
+    version = BORINGSSL_VERSION,
+)
+bazel_dep(
+    name = "bazel_jar_jar",
+    version = "0.1.7",
+)
+bazel_dep(
+    name = "riegeli",
+    version = "0.0.0-20240606-973b6f0",
+    repo_name = "com_google_riegeli",
+)
+bazel_dep(
+    name = "tink_cc",
+    version = "2.1.3",
+)
+bazel_dep(
+    name = "rules_oci",
+    version = "2.2.1",
+)
+single_version_override(
+    module_name = "rules_oci",
+    patch_strip = 1,
+    patches = [
+        "//build/cosign/patches:sign_dot_bzl.patch",
+    ],
+)
 
 bazel_dep(
-    name = "shell-encryption",
-    version = "0.0.0-20241214-b381c4e",
-    repo_name = "com_github_google_shell",
+    name = "rules_multirun",
+    version = "0.12.0",
 )
+
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
-maven.artifact(
-    artifact = "beam-runners-google-cloud-dataflow-java",
-    exclusions = ["org.apache.beam:beam-sdks-java-io-kafka"],
-    group = "org.apache.beam",
-)
-maven.artifact(
-    testonly = True,
-    artifact = "mockito-core",
-    group = "org.mockito",
-    version = "5.12.0",
-)
-
-maven.artifact(
-    testonly = True,
-    artifact = "mockito-inline",
-    group = "org.mockito",
-    version = "5.2.0",
-)
-
-maven.artifact(
-    testonly = True,
-    artifact = "mockito-kotlin",
-    group = "org.mockito.kotlin",
-    version = "5.4.0",
-)
 maven.artifact(
     artifact = "beam-runners-google-cloud-dataflow-java",
     exclusions = ["org.apache.beam:beam-sdks-java-io-kafka"],
@@ -292,40 +231,23 @@ maven.artifact(
     exclusions = [
         # Prevent netty-tcnative being used instead of Conscrypt.
         "io.netty:netty-tcnative-boringssl-static",
-        "junit:junit",
     ],
     group = "org.apache.beam",
 )
 maven.install(
     artifacts = [
-        "com.google.privacy.differentialprivacy:differentialprivacy:4.0.0",
-        "it.unimi.dsi:fastutil:8.5.12",
-
-
-        # TODO(googleapis/java-cloud-bom#5279): Remove when managed by BOM.
-        "com.google.cloud:google-cloud-secretmanager",
-
-
-        # Bouncy Castle
-
-        # These dependencies should come from rules_kotlin_jvm: https://github.com/world-federation-of-advertisers/rules_kotlin_jvm/blob/main/MODULE.bazel#L60
-        # However, rules_jvm_external 6.8 seems to prioritize BOMs over explicitly declared versions only for the root module: https://github.com/bazel-contrib/rules_jvm_external/pull/1373
-        # Without these declarations, the versions are resolved to the ones explicitly declared in bazel_worker_java: https://github.com/bazelbuild/bazel-worker-api/blob/v0.0.5/java/MODULE.bazel#L17
-        "com.google.protobuf:protobuf-java",
-        "com.google.protobuf:protobuf-java-util",
-
-
-
-
-        "com.google.crypto.tink:tink-awskms:1.9.1",
+        "com.google.crypto.tink:tink-awskms:1.11.0",
         "com.google.crypto.tink:tink-gcpkms:1.9.0",
         "com.squareup.okhttp3:okhttp",
         "com.squareup.okhttp3:okhttp-tls",
+        "com.google.privacy.differentialprivacy:differentialprivacy:4.0.0",
         "io.opentelemetry.semconv:opentelemetry-semconv:1.22.0-alpha",
+        "com.google.privacy.differentialprivacy:differentialprivacy:4.0.0",
         "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
         "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
         "joda-time:joda-time:2.10.10",
         "org.slf4j:slf4j-simple:1.7.32",
+        "it.unimi.dsi:fastutil:8.5.12",
 
         # Google Cloud
         "com.google.cloud:google-cloud-bigquerystorage",
@@ -333,8 +255,7 @@ maven.install(
         # TODO(googleapis/java-cloud-bom#5279): Remove when managed by BOM.
         "com.google.apis:google-api-services-storage:v1-rev20240706-2.0.0",
         "com.google.cloud.functions.invoker:java-function-invoker:1.4.0",
-        "com.google.auth:google-auth-library-credentials",
-        "com.google.auth:google-auth-library-oauth2-http",
+        "com.google.cloud:google-cloud-secretmanager",
 
         # AWS
         "software.amazon.awssdk:acmpca",
@@ -350,6 +271,12 @@ maven.install(
 
         # Bouncy Castle
         "org.bouncycastle:bcpkix-jdk18on:1.79",
+
+        # These dependencies should come from rules_kotlin_jvm: https://github.com/world-federation-of-advertisers/rules_kotlin_jvm/blob/main/MODULE.bazel#L60
+        # However, rules_jvm_external 6.8 seems to prioritize BOMs over explicitly declared versions only for the root module: https://github.com/bazel-contrib/rules_jvm_external/pull/1373
+        # Without these declarations, the versions are resolved to the ones explicitly declared in bazel_worker_java: https://github.com/bazelbuild/bazel-worker-api/blob/v0.0.5/java/MODULE.bazel#L17
+        "com.google.protobuf:protobuf-java",
+        "com.google.protobuf:protobuf-java-util",
     ],
     boms = [
         "com.squareup.okhttp3:okhttp-bom:4.12.0",
@@ -372,65 +299,14 @@ maven.install(
 )
 use_repo(maven, "maven")
 
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+use_repo(npm, "npm")
 
-http_archive(
-    name = "uk_pilot_event_templates",
-    sha256 = "e5d9cb0f6087b6286f5bfeb053a968870c88c27fa7a5dc40055ae7681dad9b2c",
-    strip_prefix = "uk-pilot-event-templates-0.2.0",
-    url = "https://github.com/world-federation-of-advertisers/uk-pilot-event-templates/archive/refs/tags/v0.2.0.tar.gz",
-)
-
-http_archive(
-    name = "private_membership",
-    sha256 = "b1e0e7f74f4da09a6011c6fa91d7b968cdff6bb571712490dae427704b2af14c",
-    strip_prefix = "private-membership-84e45669f7357bffcdafbc1b0cc26e72512808ce",
-    url = "https://github.com/google/private-membership/archive/84e45669f7357bffcdafbc1b0cc26e72512808ce.zip",
-)
-
-single_version_override(
-    module_name = "boringssl",
-    version = BORINGSSL_VERSION,
-)
-
-bazel_dep(
-    name = "gazelle",
-    version = "0.41.0",
-    repo_name = "bazel_gazelle",
-)
-bazel_dep(
-    name = "tink_cc",
-    version = "2.1.3",
-)
-bazel_dep(
-    name = "cloud-spanner-emulator-bin",
-    version = "1.5.32",
-    repo_name = "cloud_spanner_emulator",
-)
-bazel_dep(
-    name = "abseil-cpp",
-    version = "20240722.0.bcr.2",
-    repo_name = "com_google_absl",
-)
-bazel_dep(
-    name = "common-cpp",
-    version = "0.13.0",
-    repo_name = "wfa_common_cpp",
-)
-bazel_dep(
-    name = "glog",
-    version = "0.7.1",
-    repo_name = "com_github_google_glog",
-)
-bazel_dep(
-    name = "riegeli",
-    version = "0.0.0-20240606-973b6f0",
-    repo_name = "com_google_riegeli",
-)
-bazel_dep(
-    name = "private-join-and-compute",
-    version = "0.0.0-20230417-e028e59",
-    repo_name = "com_google_private_join_and_compute",
-)
 GO_GENPROTO_VERSION = "v0.0.0-20250115164207-1a7da9e5054f"
 
 go_deps = use_extension("@bazel_gazelle//:extensions.bzl", "go_deps")
@@ -472,4 +348,83 @@ use_repo(
     "org_golang_google_genproto_googleapis_api",
     "org_golang_google_genproto_googleapis_rpc",
     "org_golang_google_grpc",
+)
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    configure_coverage_tool = True,
+    # Allow containerized builds using rootless Docker.
+    # See https://github.com/bazelbuild/rules_python/pull/713#issuecomment-1885628496
+    ignore_root_user_error = True,
+    python_version = "3.11",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pip",
+    python_version = "3.11",
+    requirements_lock = "//:requirements.txt",
+)
+use_repo(pip, "pip")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "go_image_base",
+    # Digest of `nonroot` tag.
+    digest = "sha256:97d15218016debb9b6700a8c1c26893d3291a469852ace8d8f7d15b2f156920f",
+    image = "gcr.io/distroless/base",
+    platforms = ["linux/amd64"],
+)
+oci.pull(
+    name = "py_image_base",
+    # Digest of `nonroot` tag.
+    digest = "sha256:1a7c3d2445f783c51be174c8913624dc5bea2cd7ff1f94b9a229a16f0e40fa34",
+    image = "gcr.io/distroless/python3-debian12",
+    platforms = ["linux/amd64"],
+)
+
+# TODO(world-federation-of-advertisers/cross-media-measurement#2729): Remove root Java image when Confidential Spaces properly supports nonroot images.
+oci.pull(
+    name = "java_image_base_root",
+    # Digest of latest tag.
+    digest = "sha256:58b716f89428587db33656f3fc6444b6dd4fd567e549c4b3657db75838f39950",
+    image = "gcr.io/distroless/java17-debian12",
+    platforms = ["linux/amd64"],
+)
+use_repo(
+    oci,
+    "go_image_base",
+    "go_image_base_linux_amd64",
+    "java_image_base_root",
+    "java_image_base_root_linux_amd64",
+    "py_image_base",
+    "py_image_base_linux_amd64",
+)
+
+# TODO(bazel-contrib/rules_oci#235): Replace this custom extension once rules_oci adds blzmod support for cosign.
+cosign = use_extension("//build/cosign:extensions.bzl", "cosign")
+use_repo(cosign, "oci_cosign_toolchains")
+
+register_toolchains("@oci_cosign_toolchains//:all")
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "private_membership",
+    sha256 = "b1e0e7f74f4da09a6011c6fa91d7b968cdff6bb571712490dae427704b2af14c",
+    strip_prefix = "private-membership-84e45669f7357bffcdafbc1b0cc26e72512808ce",
+    url = "https://github.com/google/private-membership/archive/84e45669f7357bffcdafbc1b0cc26e72512808ce.zip",
+)
+
+http_archive(
+    name = "uk_pilot_event_templates",
+    sha256 = "e5d9cb0f6087b6286f5bfeb053a968870c88c27fa7a5dc40055ae7681dad9b2c",
+    strip_prefix = "uk-pilot-event-templates-0.2.0",
+    url = "https://github.com/world-federation-of-advertisers/uk-pilot-event-templates/archive/refs/tags/v0.2.0.tar.gz",
+)
+
+# Force use of newer version of boringssl.
+single_version_override(
+    module_name = "boringssl",
+    version = BORINGSSL_VERSION,
 )
