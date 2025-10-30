@@ -10,6 +10,7 @@ REFRESH_SECONDS=10
 # git checkout -b ${BRANCH_NAME}
 
 wait_for_workflow_completion() {
+  sleep ${REFRESH_SECONDS}
   local branch_to_check="$1"
   local active_runs=$(gh run list --json status,headBranch --jq 'map(select(.headBranch == "'${branch_to_check}'" and (.status == "in_progress" or .status == "queued"))) | length')
 
