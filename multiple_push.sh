@@ -36,8 +36,6 @@ do
   git commit --allow-empty -m "$VICTIM_BRANCH $i"
   git push $REMOTE_NAME $VICTIM_BRANCH
   wait_for_workflow_completion $VICTIM_BRANCH
-
-
 done
 
 echo -e "\n==========================================================="
