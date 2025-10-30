@@ -3,11 +3,11 @@
 
 SLEEP_SECONDS=30 
 COMMIT_BASE_NAME="Fluctuation test commit"
-BRANCH_NAME="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)"
+BRANCH_NAME="buildbuddy_kt_cov_2"
 REMOTE_NAME="origin"
 REFRESH_SECONDS=10 
 
-git checkout -b ${BRANCH_NAME}
+# git checkout -b ${BRANCH_NAME}
 
 wait_for_workflow_completion() {
   local branch_to_check="$1"
