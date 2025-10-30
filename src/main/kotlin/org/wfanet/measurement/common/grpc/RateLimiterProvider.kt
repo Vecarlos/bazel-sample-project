@@ -92,17 +92,3 @@ class RateLimiterProvider(
     }
   }
 }
-
-
-fun funcionNuevaNoTesteada() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
-fun funcionNuevaNoTesteada2() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
-fun funcionNuevaNoTesteada3() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
