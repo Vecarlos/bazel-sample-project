@@ -94,17 +94,3 @@ private fun getErrorInfo(status: Status, trailers: Metadata?): ErrorInfo? {
     }
   return errorInfoPacked?.unpack(ErrorInfo::class.java)
 }
-
-
-fun funcionNuevaNoTesteada() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
-fun funcionNuevaNoTesteada2() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
-fun funcionNuevaNoTesteada3() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
