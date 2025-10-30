@@ -1,20 +1,29 @@
 #!/bin/bash
 
-COMMIT_BASE_NAME="all python test."
-BRANCH_NAME="buildbuddy_kt_cov"
+
+SLEEP_SECONDS=30 
+COMMIT_BASE_NAME="Fluctuation test commit"
+BRANCH_NAME="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)"
 REMOTE_NAME="origin"
-DELAY_SECONDS=1100
+REFRESH_SECONDS=10 
 
-echo ">>> 1. Add and commit"
-git add .
-git commit -m "$COMMIT_BASE_NAME" && git push $REMOTE_NAME $BRANCH_NAME
+git checkout -b ${BRANCH_NAME}
 
-for i in {2..15}
+wait_for_workflow_completion() {
+  local branch_to_check="$1"
+  local active_runs=$(gh run list --json status,headBranch --jq 'map(select(.headBranch == "'${branch_to_check}'" and (.status == "in_progress" or .status == "queued"))) | length')
+
+  while [[ "$active_runs" -gt 0 ]]; do
+    echo "--- Workflow activo en '$branch_to_check'. Esperando ${POLL_SECONDS}s..."
+    sleep ${POLL_SECONDS}
+    active_runs=$(gh run list --json status,headBranch --jq 'map(select(.headBranch == "'${branch_to_check}'" and (.status == "in_progress" or .status == "queued"))) | length')
+  done
+}
+
+for i in {1..6}
 do
-  echo -e "\n--- Waiting $DELAY_SECONDS seconds"
-  sleep $DELAY_SECONDS
-
+  wait_for_workflow_completion
   echo ">>> $i. Empty commit: (p$i)"
-  git commit --allow-empty -m "$COMMIT_BASE_NAME p$i" && git push $REMOTE_NAME $BRANCH_NAME
+  git commit --allow-empty -m "${COMMIT_BASE_NAME} p$i" && git push ${REMOTE_NAME} ${BRANCH_NAME}
 done
 echo -e "\nAll process completed"
