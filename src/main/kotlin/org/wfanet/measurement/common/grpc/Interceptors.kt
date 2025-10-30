@@ -110,16 +110,3 @@ fun BindableService.withInterceptor(interceptor: ServerInterceptor): ServerServi
 fun BindableService.withInterceptors(
   vararg interceptors: ServerInterceptor
 ): ServerServiceDefinition = ServerInterceptors.intercept(this, *interceptors)
-
-fun funcionNuevaNoTesteada() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
-fun funcionNuevaNoTesteada2() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
-fun funcionNuevaNoTesteada3() {
-  println("Este código no está cubierto por tests")
-  // Dejala vacía o con un log
-}
