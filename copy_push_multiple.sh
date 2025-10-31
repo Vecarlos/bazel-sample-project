@@ -46,9 +46,9 @@ do
 
   if [ $(($i % 2)) -eq 1 ]; then
     echo "Comentando RateLimiterProviderTest..."
-    sed -E -i '/^[[:space:]]*kt_jvm_test[[:space:]]*\(/,/^[[:space:]]*\)[[:space:]]*,?$/ {
-    /name[[:space:]]*=[[:space:]]*"RateLimiterProviderTest"/,/^[[:space:]]*\)[[:space:]]*,?$/ s/^/#/
-  }'  "$BUILD_FILE"
+    sed -i '/^kt_jvm_test(/,/^)$/ {
+    /name = "RateLimiterProviderTest"/,/^)$/ s/^/# /
+  }' "$BUILD_FILE"
     commit_msg="Comentar RateLimiterProviderTest"
   else
     echo "Descomentando RateLimiterProviderTest..."
