@@ -15,7 +15,6 @@ wait_for_workflow_completion() {
   local active_runs=$(gh run list --json status,headBranch --jq 'map(select(.headBranch == "'${branch_to_check}'" and (.status == "in_progress" or .status == "queued"))) | length')
 
   while [[ "$active_runs" -gt 0 ]]; do
-    echo "--- Running '$branch_to_check'. Waiting ${POLL_SECONDS}s..."
     sleep ${POLL_SECONDS}
     active_runs=$(gh run list --json status,headBranch --jq 'map(select(.headBranch == "'${branch_to_check}'" and (.status == "in_progress" or .status == "queued"))) | length')
   done
