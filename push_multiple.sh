@@ -3,7 +3,7 @@
 
 SLEEP_SECONDS=30 
 COMMIT_BASE_NAME="Fluctuation test commit"
-BRANCH_NAME="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)"
+BRANCH_NAME="buildbuddy_kt_cov"
 REMOTE_NAME="origin"
 REFRESH_SECONDS=10 
 
