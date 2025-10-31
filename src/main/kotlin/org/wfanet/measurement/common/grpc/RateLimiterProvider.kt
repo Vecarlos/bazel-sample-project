@@ -92,3 +92,9 @@ class RateLimiterProvider(
     }
   }
 }
+
+// --- INJECTED FOR CACHE TEST ---
+fun injectedFunction1() {}
+fun injectedFunction2() {}
+fun injectedFunction3() {}
+// --- END INJECTED ---
