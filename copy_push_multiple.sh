@@ -45,13 +45,13 @@ do
   commit_msg=""
 
   if [ $(($i % 2)) -eq 1 ]; then
-      echo "Cycle $i (ODD): Commenting RateLimiterProviderTest in $BUILD_FILE..."
-      sed -i '/kt_jvm_test(/{:a;N;/^[[:space:]]*)$/!ba;/name = "RateLimiterProviderTest"/s/\n/\n#/g;s/^/#/}' "$BUILD_FILE" || true
-      commit_msg="BRANCH A $i: Commented RateLimiterProviderTest"
+    echo "Comentando RateLimiterProviderTest..."
+    sed -i '/kt_jvm_test(/,/)/ { /name = "RateLimiterProviderTest"/,/)/ s/^/#/ }' "$BUILD_FILE"
+    commit_msg="Comentar RateLimiterProviderTest"
   else
-      echo "Cycle $i (EVEN): Uncommenting RateLimiterProviderTest in $BUILD_FILE..."
-      sed -i '/#kt_jvm_test(/{:a;N;/^#[[:space:]]*)$/!ba;/name = "RateLimiterProviderTest"/s/\n#/\n/g;s/^#//}' "$BUILD_FILE" || true
-      commit_msg="BRANCH A $i: Uncommented RateLimiterProviderTest"
+    echo "Descomentando RateLimiterProviderTest..."
+    sed -i '/kt_jvm_test(/,/)/ { /name = "RateLimiterProviderTest"/,/)/ s/^#// }' "$BUILD_FILE"
+    commit_msg="Descomentar RateLimiterProviderTest"
   fi
 
   git add .
