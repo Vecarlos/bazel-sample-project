@@ -12,7 +12,7 @@ TOTAL_RUNS=6
 
 TEST_BUILD_CONTENT="test_build.txt"
 CODE_1_CONTENT="FillableTemplateTest_file.txt.txt"
-CODE_2_CONTENT="SortedListTest_file.txt"
+CODE_2_CONTENT="SortedListsTest_file.txt"
 
 DEST_TEST_DIR="src/test/kotlin/org/wfanet/measurement/common"
 
