@@ -46,11 +46,11 @@ do
 
   if [ $(($i % 2)) -eq 1 ]; then
       echo "Cycle $i (ODD): Commenting RateLimiterProviderTest in $BUILD_FILE..."
-      sed -i '/kt_jvm_test(/{:a;N;/^)$/!ba;/name = "RateLimiterProviderTest"/s/\n/\n#/g;s/^/#/}' "$BUILD_FILE" || true
+      sed -i '/kt_jvm_test(/{:a;N;/^[[:space:]]*)$/!ba;/name = "RateLimiterProviderTest"/s/\n/\n#/g;s/^/#/}' "$BUILD_FILE" || true
       commit_msg="BRANCH A $i: Commented RateLimiterProviderTest"
   else
       echo "Cycle $i (EVEN): Uncommenting RateLimiterProviderTest in $BUILD_FILE..."
-      sed -i '/#kt_jvm_test(/{:a;N;/^#)$/!ba;/name = "RateLimiterProviderTest"/s/\n#/\n/g;s/^#//}' "$BUILD_FILE" || true
+      sed -i '/#kt_jvm_test(/{:a;N;/^#[[:space:]]*)$/!ba;/name = "RateLimiterProviderTest"/s/\n#/\n/g;s/^#//}' "$BUILD_FILE" || true
       commit_msg="BRANCH A $i: Uncommented RateLimiterProviderTest"
   fi
 
