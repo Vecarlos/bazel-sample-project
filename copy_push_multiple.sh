@@ -27,9 +27,15 @@ VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/RateLimiterProvi
 INJECTED_CONTENT=$(cat <<EOF
 
 // --- INJECTED FOR CACHE TEST ---
-fun injectedFunction1() {}
-fun injectedFunction2() {}
-fun injectedFunction3() {}
+fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction2() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction3() {
+    println("Injected function 3 executed")
+}
 // --- END INJECTED ---
 EOF
 )
