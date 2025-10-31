@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-POLLUTER_BRANCH="buildbuddy_kt_cov"
-VICTIM_BRANCH="buildbuddy_kt_cov_2"
+BRANCH_A_BRANCH="buildbuddy_kt_cov"
+BRANCH_B_BRANCH="buildbuddy_kt_cov_2"
 
 REMOTE_NAME="origin"
 POLL_SECONDS=15
@@ -21,6 +21,19 @@ CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
 TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 
+VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/RateLimiterProvider.kt"
+
+
+INJECTED_CONTENT=$(cat <<EOF
+
+// --- INJECTED FOR CACHE TEST ---
+fun injectedFunction1() {}
+fun injectedFunction2() {}
+fun injectedFunction3() {}
+// --- END INJECTED ---
+EOF
+)
+
 wait_for_workflow_completion() {
   sleep ${REFRESH_SECONDS}
   local branch_to_check="$1"
@@ -37,14 +50,26 @@ wait_for_workflow_completion() {
 for i in $(seq 1 $TOTAL_RUNS)
 do
   echo -e "\n================ Cycle $i / $TOTAL_RUNS ==================="
-  echo "Running $POLLUTER_BRANCH"
-  git checkout $POLLUTER_BRANCH
-  git commit --allow-empty -m "POLLUTER $i"
-  git push $REMOTE_NAME $POLLUTER_BRANCH
-  wait_for_workflow_completion $POLLUTER_BRANCH
+  echo "Running $BRANCH_A_BRANCH"
+  git checkout $BRANCH_A_BRANCH
 
-  echo "Running $VICTIM_BRANCH"
-  git checkout $VICTIM_BRANCH
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
+  if [ $(($i % 2)) -eq 1 ]; then
+    echo "Cycle $i (ODD): Removing functions from $VICTIM_FILE..."
+    commit_msg="BRANCH A $i: Removed injected functions"
+  else
+    echo "Cycle $i (EVEN): Adding functions to $VICTIM_FILE..."
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE"
+    commit_msg="BRANCH A $i: Added injected functions"
+  fi
+
+  git add .
+  git commit --allow-empty -m "$commit_msg"
+  git push $REMOTE_NAME $BRANCH_A_BRANCH
+  wait_for_workflow_completion $BRANCH_A_BRANCH
+
+  echo "Running $BRANCH_B_BRANCH"
+  git checkout $BRANCH_B_BRANCH
   commit_msg=""
 
   if [ $(($i % 2)) -eq 1 ]; then
@@ -65,8 +90,8 @@ do
 
   git add .
   git commit --allow-empty -m "$commit_msg"
-  git push $REMOTE_NAME $VICTIM_BRANCH
-  wait_for_workflow_completion $VICTIM_BRANCH
+  git push $REMOTE_NAME $BRANCH_B_BRANCH
+  wait_for_workflow_completion $BRANCH_B_BRANCH
 done
 
 echo -e "\n==========================================================="
