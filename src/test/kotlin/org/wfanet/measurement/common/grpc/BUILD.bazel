@@ -18,14 +18,14 @@ kt_jvm_test(
     ],
 )
 
-# kt_jvm_test(
-##     name = "RateLimiterProviderTest",
-##     srcs = ["RateLimiterProviderTest.kt"],
-##     test_class = "org.wfanet.measurement.common.grpc.RateLimiterProviderTest",
-##     deps = [
-##         "//src/main/kotlin/org/wfanet/measurement/common/grpc:rate_limiter_provider",
-##         "@wfa_common_jvm//imports/java/com/google/common/truth",
-##         "@wfa_common_jvm//imports/java/io/grpc:api",
-##         "@wfa_common_jvm//imports/java/org/junit",
-##     ],
-## )
+kt_jvm_test(
+#    name = "RateLimiterProviderTest",
+#    srcs = ["RateLimiterProviderTest.kt"],
+#    test_class = "org.wfanet.measurement.common.grpc.RateLimiterProviderTest",
+#    deps = [
+#        "//src/main/kotlin/org/wfanet/measurement/common/grpc:rate_limiter_provider",
+#        "@wfa_common_jvm//imports/java/com/google/common/truth",
+#        "@wfa_common_jvm//imports/java/io/grpc:api",
+#        "@wfa_common_jvm//imports/java/org/junit",
+#    ],
+#)
