@@ -64,7 +64,7 @@ do
   git add .
   git commit --allow-empty -m "$commit_msg - $i"
   git push $REMOTE_NAME $BRANCH_A_BRANCH
-  wait_for_workflow_completion $BRANCH_A_BRANCH
+  # wait_for_workflow_completion $BRANCH_A_BRANCH
 
   echo "Running $BRANCH_B_BRANCH"
   git checkout $BRANCH_B_BRANCH
