@@ -22,7 +22,7 @@ TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 
 BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
-
+VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/interceptors.kt"
 
 wait_for_workflow_completion() {
   sleep ${REFRESH_SECONDS}
@@ -36,6 +36,22 @@ wait_for_workflow_completion() {
   done
 }
 
+INJECTED_CONTENT=$(cat <<EOF
+
+// --- INJECTED FOR CACHE TEST ---
+fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction2() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction3() {
+    println("Injected function 3 executed")
+}
+// --- END INJECTED ---
+EOF
+)
+
 
 for i in $(seq 1 $TOTAL_RUNS)
 do
@@ -43,9 +59,9 @@ do
   echo "Running $BRANCH_A_BRANCH"
   git checkout $BRANCH_A_BRANCH
   commit_msg=""
-
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
   if [ $(($i % 2)) -eq 1 ]; then
-    echo "Comentando RateLimiterProviderTest..."
+    echo "Comment RateLimiterProviderTest and add functions"
     awk -v name='RateLimiterProviderTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
@@ -78,9 +94,10 @@ do
         print
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
-    commit_msg="Comentar RateLimiterProviderTest"
+    commit_msg="Comment RateLimiterProviderTest and add functions"
   else
-    echo "Descomentando RateLimiterProviderTest..."
+    echo "Discomment RateLimiterProviderTest and delete functions"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE"
     awk -v name='RateLimiterProviderTest' -v mode='uncomment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
@@ -116,12 +133,11 @@ do
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
 
-
-    commit_msg="Descomentar RateLimiterProviderTest"
+    commit_msg="Discomment RateLimiterProviderTest and add functions"
   fi
 
   git add .
-  git commit --allow-empty -m "$commit_msg"
+  git commit --allow-empty -m "$commit_msg - $i"
   git push $REMOTE_NAME $BRANCH_A_BRANCH
   wait_for_workflow_completion $BRANCH_A_BRANCH
 
