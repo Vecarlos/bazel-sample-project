@@ -46,7 +46,20 @@ do
 
   if [ $(($i % 2)) -eq 1 ]; then
     echo "Comentando RateLimiterProviderTest..."
-    sed -i '/kt_jvm_test(/,/^)/ {x;/RateLimiterProviderTest/!{x;d;};x;s/^/#/}' "$BUILD_FILE"
+    awk '
+      /^kt_jvm_test\(/ {in_block=1; block=""; match_found=0}
+      in_block {block = block $0 ORS; if ($0 ~ /name = "RateLimiterProviderTest"/) match_found=1}
+      in_block && /^\)/ {
+        if (match_found) {
+          split(block, lines, ORS)
+          for (i in lines) print "#" lines[i]
+        } else {
+          printf "%s", block
+        }
+        in_block=0; block=""; next
+      }
+      !in_block && !(/^\)/ && match_found) {print}
+      ' "$BUILD_FILE" > "$BUILD_FILE.tmp" && mv "$BUILD_FILE.tmp" "$BUILD_FILE"
     commit_msg="Comentar RateLimiterProviderTest"
   else
     echo "Descomentando RateLimiterProviderTest..."
