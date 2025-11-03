@@ -44,7 +44,7 @@ do
   git checkout $BRANCH_A_BRANCH
   commit_msg=""
 
-  if [ $(($i % 2)) -eq 1 ]; then
+  if [ $(($i % 2)) -eq 0 ]; then
     echo "Comentando RateLimiterProviderTest..."
     awk -v name='RateLimiterProviderTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
@@ -81,7 +81,42 @@ do
     commit_msg="Comentar RateLimiterProviderTest"
   else
     echo "Descomentando RateLimiterProviderTest..."
-    sed -i '/kt_jvm_test(/,/^)/ {x;/RateLimiterProviderTest/!{x;d;};x;s/^#//}' "$BUILD_FILE"
+    awk -v name='RateLimiterProviderTest' -v mode='uncomment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
+        }
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          if (depth==0) {
+            block_has_name=0
+            for(i=1;i<=n;i++) {
+              # chequear con/ sin # si contiene name
+              tmp=buf[i]; gsub(/^[[:space:]]*#/,"",tmp)
+              if (tmp ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
+            }
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                line=buf[i]
+                sub(/^[[:space:]]*#/,"",line)   # quitar un solo '#' inicial si existe
+                print line
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
+      }
+      ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
+
+
     commit_msg="Descomentar RateLimiterProviderTest"
   fi
 
