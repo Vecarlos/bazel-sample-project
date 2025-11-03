@@ -22,7 +22,7 @@ TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 
 BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
-VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/interceptors.kt"
+VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/Interceptors.kt"
 
 wait_for_workflow_completion() {
   sleep ${REFRESH_SECONDS}
