@@ -58,7 +58,17 @@ do
   echo -e "\n================ Cycle $i / $TOTAL_RUNS ==================="
   echo "Running $BRANCH_A_BRANCH"
   git checkout $BRANCH_A_BRANCH
-  commit_msg=""
+  commit_msg="empty"
+
+
+  git add .
+  git commit --allow-empty -m "$commit_msg - $i"
+  git push $REMOTE_NAME $BRANCH_A_BRANCH
+  wait_for_workflow_completion $BRANCH_A_BRANCH
+
+  echo "Running $BRANCH_B_BRANCH"
+  git checkout $BRANCH_B_BRANCH
+
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
   if [ $(($i % 2)) -eq 1 ]; then
     echo "Comment RateLimiterProviderTest and delete functions"
@@ -135,14 +145,6 @@ do
 
     commit_msg="Discomment RateLimiterProviderTest and add functions"
   fi
-
-  git add .
-  git commit --allow-empty -m "$commit_msg - $i"
-  git push $REMOTE_NAME $BRANCH_A_BRANCH
-  wait_for_workflow_completion $BRANCH_A_BRANCH
-
-  echo "Running $BRANCH_B_BRANCH"
-  git checkout $BRANCH_B_BRANCH
 
   if [ $(($i % 2)) -eq 1 ]; then
     echo "Cycle $i (ODD): Deleting victim targets..."
