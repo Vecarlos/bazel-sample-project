@@ -60,8 +60,8 @@ do
   git checkout $BRANCH_A_BRANCH
   commit_msg=""
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
-  if [ $(($i % 2)) -eq 0 ]; then
-    echo "Comment RateLimiterProviderTest and add functions"
+  if [ $(($i % 2)) -eq 1 ]; then
+    echo "Comment RateLimiterProviderTest and delete functions"
     awk -v name='RateLimiterProviderTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
@@ -94,9 +94,9 @@ do
         print
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
-    commit_msg="Comment RateLimiterProviderTest and add functions"
+    commit_msg="Comment RateLimiterProviderTest and delete functions"
   else
-    echo "Discomment RateLimiterProviderTest and delete functions"
+    echo "Discomment RateLimiterProviderTest and add functions"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE"
     awk -v name='RateLimiterProviderTest' -v mode='uncomment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
