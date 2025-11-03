@@ -44,39 +44,44 @@ do
   git checkout $BRANCH_A_BRANCH
   commit_msg=""
 
-  if [ $(($i % 2)) -eq 0 ]; then
+  if [ $(($i % 2)) -eq 1 ]; then
     echo "Comentando RateLimiterProviderTest..."
-    awk '
-      /^kt_jvm_test\(/ {in_block=1; block=""; match_found=0}
-      in_block {block = block $0 ORS; if ($0 ~ /name = "RateLimiterProviderTest"/) match_found=1}
-      in_block && /^\)/ {
-        if (match_found) {
-          split(block, lines, ORS)
-          for (i in lines) print "#" lines[i]
-        } else {
-          printf "%s", block
+    awk -v name='RateLimiterProviderTest' -v mode='comment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        # detectar inicio (puede estar comentado ya con #)
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
         }
-        in_block=0; block=""; next
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          if (depth==0) {
+            # unir y chequear si el bloque tiene name
+            block_has_name=0
+            for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                # si ya estaba comentada, no duplicar #
+                if (buf[i] ~ /^[[:space:]]*#/) print buf[i]
+                else print "#" buf[i]
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
       }
-      !in_block && !(/^\)/ && match_found) {print}
-      ' "$BUILD_FILE" > "$BUILD_FILE.tmp" && mv "$BUILD_FILE.tmp" "$BUILD_FILE"
+      ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
     commit_msg="Comentar RateLimiterProviderTest"
   else
     echo "Descomentando RateLimiterProviderTest..."
-    awk '
-      /^#kt_jvm_test\(/ {in_block=1; block=""; match_found=0}
-      in_block {line=$0; sub(/^#/, "", line); block = block line ORS; if (line ~ /name = "RateLimiterProviderTest"/) match_found=1}
-      in_block && /^#\)/ {
-        if (match_found) {
-          split(block, lines, ORS)
-          for (i in lines) print lines[i]
-        } else {
-          printf "%s", block
-        }
-        in_block=0; block=""; next
-      }
-      !in_block {print}
-      ' "$BUILD_FILE" > "$BUILD_FILE.tmp" && mv "$BUILD_FILE.tmp" "$BUILD_FILE"
+    sed -i '/kt_jvm_test(/,/^)/ {x;/RateLimiterProviderTest/!{x;d;};x;s/^#//}' "$BUILD_FILE"
     commit_msg="Descomentar RateLimiterProviderTest"
   fi
 
