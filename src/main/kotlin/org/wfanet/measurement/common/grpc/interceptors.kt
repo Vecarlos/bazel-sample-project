@@ -1,4 +1,5 @@
 
+
 // --- INJECTED FOR CACHE TEST ---
 fun injectedFunction1() {
     println("Injected function 1 executed")
