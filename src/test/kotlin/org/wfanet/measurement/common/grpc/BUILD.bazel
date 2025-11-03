@@ -2,7 +2,7 @@ load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_test")
 
 package(default_testonly = True)
 
-# # # # # # # # # # kt_jvm_test(
+kt_jvm_test(
     name = "RateLimitingServerInterceptorTest",
     srcs = ["RateLimitingServerInterceptorTest.kt"],
     test_class = "org.wfanet.measurement.common.grpc.RateLimitingServerInterceptorTest",
