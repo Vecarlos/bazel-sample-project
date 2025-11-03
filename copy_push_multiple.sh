@@ -44,7 +44,7 @@ do
   git checkout $BRANCH_A_BRANCH
   commit_msg=""
 
-  if [ $(($i % 2)) -eq 1 ]; then
+  if [ $(($i % 2)) -eq 0 ]; then
     echo "Comentando RateLimiterProviderTest..."
     awk '
       /^kt_jvm_test\(/ {in_block=1; block=""; match_found=0}
@@ -63,7 +63,20 @@ do
     commit_msg="Comentar RateLimiterProviderTest"
   else
     echo "Descomentando RateLimiterProviderTest..."
-    sed -i '/kt_jvm_test(/,/^)/ {x;/RateLimiterProviderTest/!{x;d;};x;s/^#//}' "$BUILD_FILE"
+    awk '
+      /^#kt_jvm_test\(/ {in_block=1; block=""; match_found=0}
+      in_block {line=$0; sub(/^#/, "", line); block = block line ORS; if (line ~ /name = "RateLimiterProviderTest"/) match_found=1}
+      in_block && /^#\)/ {
+        if (match_found) {
+          split(block, lines, ORS)
+          for (i in lines) print lines[i]
+        } else {
+          printf "%s", block
+        }
+        in_block=0; block=""; next
+      }
+      !in_block {print}
+      ' "$BUILD_FILE" > "$BUILD_FILE.tmp" && mv "$BUILD_FILE.tmp" "$BUILD_FILE"
     commit_msg="Descomentar RateLimiterProviderTest"
   fi
 

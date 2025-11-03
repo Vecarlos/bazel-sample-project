@@ -25,8 +25,3 @@ kt_jvm_test(
 #    deps = [
 #    name = "RateLimiterProviderTest",
 #)
-#kt_jvm_test(
-#    test_class = "org.wfanet.measurement.common.grpc.RateLimiterProviderTest",
-#
-#        "@wfa_common_jvm//imports/java/org/junit",
-#        "@wfa_common_jvm//imports/java/com/google/common/truth",
