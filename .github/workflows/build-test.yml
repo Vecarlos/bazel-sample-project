@@ -117,7 +117,7 @@ jobs:
         env:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
-        run: >
+        run: |
           bazel clean --expunge
           bazel coverage 
           --cache_test_results=yes
