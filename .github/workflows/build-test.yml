@@ -117,8 +117,7 @@ jobs:
         env:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
-        run: |
-          bazel clean --expunge
+        run: >
           bazel coverage 
           --cache_test_results=yes
           --experimental_split_coverage_postprocessing 
@@ -145,9 +144,6 @@ jobs:
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
-
-      - name: Get bazel-testlogs path
-        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
