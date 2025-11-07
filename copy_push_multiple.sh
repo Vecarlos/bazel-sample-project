@@ -152,14 +152,6 @@ do
     commit_msg="VICTIM $i: Deleted test targets"
   fi
 
-  git add .
-  git commit --allow-empty -m "$commit_msg"
-  git push $REMOTE_NAME $BRANCH_B_BRANCH
-  wait_for_workflow_completion $BRANCH_A_BRANCH
-  wait_for_workflow_completion $BRANCH_B_BRANCH
-done
-
-
 
   git add .
   git commit --allow-empty -m "$commit_msg - $i"
