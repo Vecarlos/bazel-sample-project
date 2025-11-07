@@ -56,13 +56,14 @@ fun injectedFunction5() {
 }
 fun injectedFunction6() {
     println("Injected function 3 executed")
-}fun injectedFunction1() {
-    println("Injected function 1 executed")
 }
 fun injectedFunction7() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction8()) {
     println("Injected function 2 executed")
 }
-fun injectedFunction8() {
+fun injectedFunction9() {
     println("Injected function 3 executed")
 }
 // --- END INJECTED ---
