@@ -110,3 +110,31 @@ fun BindableService.withInterceptor(interceptor: ServerInterceptor): ServerServi
 fun BindableService.withInterceptors(
   vararg interceptors: ServerInterceptor
 ): ServerServiceDefinition = ServerInterceptors.intercept(this, *interceptors)
+// --- INJECTED FOR CACHE TEST ---
+fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction2() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction3() {
+    println("Injected function 3 executed")
+}
+fun injectedFunction4() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction5() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction6() {
+    println("Injected function 3 executed")
+}fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction7() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction8() {
+    println("Injected function 3 executed")
+}
+// --- END INJECTED ---
