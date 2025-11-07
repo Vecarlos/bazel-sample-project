@@ -23,6 +23,7 @@ TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 
 BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
+BUILD_FILE_2="src/test/kotlin/org/wfanet/panelmatch/common/BUILD.bazel"
 VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/Interceptors.kt"
 
 wait_for_workflow_completion() {
@@ -118,6 +119,42 @@ do
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
 
+    awk -v name='BlockingIteratorTest' -v mode='uncomment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
+        }
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          if (depth==0) {
+            block_has_name=0
+            for(i=1;i<=n;i++) {
+              # chequear con/ sin # si contiene name
+              tmp=buf[i]; gsub(/^[[:space:]]*#/,"",tmp)
+              if (tmp ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
+            }
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                line=buf[i]
+                sub(/^[[:space:]]*#/,"",line)   # quitar un solo '#' inicial si existe
+                print line
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
+      }
+      ' "$BUILD_FILE_2" > "$BUILD_FILE_2".tmp && mv "$BUILD_FILE_2".tmp "$BUILD_FILE_2"
+
+
     commit_msg="Discomment RateLimiterProviderTest and add functions"
   else
     echo "Comment RateLimiterProviderTest and delete functions"
@@ -153,6 +190,41 @@ do
         print
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
+
+    awk -v name='BlockingIteratorTest' -v mode='comment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        # detectar inicio (puede estar comentado ya con #)
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
+        }
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          if (depth==0) {
+            # unir y chequear si el bloque tiene name
+            block_has_name=0
+            for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                # si ya estaba comentada, no duplicar #
+                if (buf[i] ~ /^[[:space:]]*#/) print buf[i]
+                else print "#" buf[i]
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
+      }
+      ' "$BUILD_FILE_2" > "$BUILD_FILE_2".tmp && mv "$BUILD_FILE_2".tmp "$BUILD_FILE_2"
+
+
     commit_msg="Comment RateLimiterProviderTest and delete functions"
   fi
 
@@ -215,6 +287,40 @@ do
         print
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
+    awk -v name='BlockingIteratorTest' -v mode='comment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        # detectar inicio (puede estar comentado ya con #)
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
+        }
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          if (depth==0) {
+            # unir y chequear si el bloque tiene name
+            block_has_name=0
+            for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                # si ya estaba comentada, no duplicar #
+                if (buf[i] ~ /^[[:space:]]*#/) print buf[i]
+                else print "#" buf[i]
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
+      }
+      ' "$BUILD_FILE_2" > "$BUILD_FILE_2".tmp && mv "$BUILD_FILE_2".tmp "$BUILD_FILE_2"
+
+
     commit_msg="Comment RateLimiterProviderTest and delete functions"
   else
     echo "Discomment RateLimiterProviderTest and add functions"
@@ -253,6 +359,43 @@ do
         print
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
+
+    awk -v name='BlockingIteratorTest' -v mode='uncomment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
+        }
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          if (depth==0) {
+            block_has_name=0
+            for(i=1;i<=n;i++) {
+              # chequear con/ sin # si contiene name
+              tmp=buf[i]; gsub(/^[[:space:]]*#/,"",tmp)
+              if (tmp ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
+            }
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                line=buf[i]
+                sub(/^[[:space:]]*#/,"",line)   # quitar un solo '#' inicial si existe
+                print line
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
+      }
+      ' "$BUILD_FILE_2" > "$BUILD_FILE_2".tmp && mv "$BUILD_FILE_2".tmp "$BUILD_FILE_2"
+
+
 
     commit_msg="Discomment RateLimiterProviderTest and add functions"
   fi
