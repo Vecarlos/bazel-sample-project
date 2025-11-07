@@ -3,7 +3,7 @@ set -euo pipefail
 
 BRANCH_A_BRANCH="buildbuddy_kt_cov"
 BRANCH_B_BRANCH="buildbuddy_kt_cov_3"
-BRANCH_C_BRANCH="buildbuddy_kt_cov_3"
+BRANCH_C_BRANCH="buildbuddy_kt_cov_2"
 
 REMOTE_NAME="origin"
 POLL_SECONDS=15
