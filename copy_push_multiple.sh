@@ -48,6 +48,23 @@ fun injectedFunction2() {
 fun injectedFunction3() {
     println("Injected function 3 executed")
 }
+fun injectedFunction4() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction5() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction6() {
+    println("Injected function 3 executed")
+}fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction7() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction8() {
+    println("Injected function 3 executed")
+}
 // --- END INJECTED ---
 EOF
 )
@@ -259,108 +276,9 @@ do
   git commit --allow-empty -m "$commit_msg"
   git push $REMOTE_NAME $BRANCH_B_BRANCH
 
-  echo "Running $BRANCH_C_BRANCH"
-  git checkout $BRANCH_C_BRANCH
-
-  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
-  if [ $(($i % 2)) -eq 0 ]; then
-    echo "Comment RateLimiterProviderTest and delete functions"
-    awk -v name='RateLimiterProviderTest' -v mode='comment' '
-      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
-      {
-        line=$0
-        # detectar inicio (puede estar comentado ya con #)
-        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
-          in_block=1; n=0; depth = cnt_paren(line)
-          buf[++n]=line; next
-        }
-        if (in_block) {
-          buf[++n]=line
-          depth += cnt_paren(line)
-          if (depth==0) {
-            # unir y chequear si el bloque tiene name
-            block_has_name=0
-            for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
-            if (block_has_name) {
-              for(i=1;i<=n;i++) {
-                # si ya estaba comentada, no duplicar #
-                if (buf[i] ~ /^[[:space:]]*#/) print buf[i]
-                else print "#" buf[i]
-              }
-            } else {
-              for(i=1;i<=n;i++) print buf[i]
-            }
-            in_block=0; n=0; next
-          }
-          next
-        }
-        print
-      }
-      ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
-    commit_msg="Comment RateLimiterProviderTest and delete functions"
-  else
-    echo "Discomment RateLimiterProviderTest and add functions"
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE"
-    awk -v name='RateLimiterProviderTest' -v mode='uncomment' '
-      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
-      {
-        line=$0
-        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
-          in_block=1; n=0; depth = cnt_paren(line)
-          buf[++n]=line; next
-        }
-        if (in_block) {
-          buf[++n]=line
-          depth += cnt_paren(line)
-          if (depth==0) {
-            block_has_name=0
-            for(i=1;i<=n;i++) {
-              # chequear con/ sin # si contiene name
-              tmp=buf[i]; gsub(/^[[:space:]]*#/,"",tmp)
-              if (tmp ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
-            }
-            if (block_has_name) {
-              for(i=1;i<=n;i++) {
-                line=buf[i]
-                sub(/^[[:space:]]*#/,"",line)   # quitar un solo '#' inicial si existe
-                print line
-              }
-            } else {
-              for(i=1;i<=n;i++) print buf[i]
-            }
-            in_block=0; n=0; next
-          }
-          next
-        }
-        print
-      }
-      ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
-
-    commit_msg="Discomment RateLimiterProviderTest and add functions"
-  fi
-
-  if [ $(($i % 2)) -eq 0 ]; then
-    echo "Cycle $i (ODD): Deleting victim targets..."
-    rm -rf "$CODE_1_CONTENT_FILE"
-    rm -rf "$CODE_2_CONTENT_FILE"
-    rm -rf "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="C $i: Deleted test targets"
-  else
-    echo "Cycle $i (EVEN): Creating victim targets..."
-    mkdir -p "$DEST_TEST_DIR"
-    
-    cp "$CODE_1_CONTENT" "$CODE_1_CONTENT_FILE"
-    cp "$CODE_2_CONTENT" "$CODE_2_CONTENT_FILE"
-    cp "$TEST_BUILD_CONTENT" "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="C $i: Created test targets"
-  fi
-
-  git add .
-  git commit --allow-empty -m "$commit_msg"
-  git push $REMOTE_NAME $BRANCH_C_BRANCH
+ 
   wait_for_workflow_completion $BRANCH_A_BRANCH
   wait_for_workflow_completion $BRANCH_B_BRANCH
-  wait_for_workflow_completion $BRANCH_C_BRANCH
 done
 
 echo -e "\n==========================================================="
