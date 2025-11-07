@@ -82,4 +82,3 @@ class SortedListsTest {
     assertThat(index1).isEqualTo(sortedList.size)
   }
 }
-

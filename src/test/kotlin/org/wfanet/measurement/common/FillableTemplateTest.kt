@@ -70,4 +70,3 @@ class FillableTemplateTest {
     assertThat(exception).hasMessageThat().contains("2")
   }
 }
-
