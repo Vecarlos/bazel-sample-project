@@ -21,9 +21,8 @@ CODE_1_CONTENT_FILE="$DEST_TEST_DIR/FillableTemplateTest.kt"
 CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
 TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
-
 BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
-BUILD_FILE_2="src/test/kotlin/org/wfanet/panelmatch/common/BUILD.bazel"
+BUILD_FILE_2="src/test/kotlin/org/wfanet/measurement/computation/BUILD.bazel"
 VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/Interceptors.kt"
 
 wait_for_workflow_completion() {
@@ -119,7 +118,7 @@ do
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
 
-    awk -v name='BlockingIteratorTest' -v mode='uncomment' '
+    awk -v name='ReachAndFrequencyComputationsTest' -v mode='uncomment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
@@ -191,7 +190,7 @@ do
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
 
-    awk -v name='BlockingIteratorTest' -v mode='comment' '
+    awk -v name='ReachAndFrequencyComputationsTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
@@ -287,7 +286,7 @@ do
         print
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
-    awk -v name='BlockingIteratorTest' -v mode='comment' '
+    awk -v name='ReachAndFrequencyComputationsTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
@@ -360,7 +359,7 @@ do
       }
       ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
 
-    awk -v name='BlockingIteratorTest' -v mode='uncomment' '
+    awk -v name='ReachAndFrequencyComputationsTest' -v mode='uncomment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
