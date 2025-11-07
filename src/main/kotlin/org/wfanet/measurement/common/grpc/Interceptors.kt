@@ -132,7 +132,7 @@ fun injectedFunction6() {
 fun injectedFunction7() {
     println("Injected function 1 executed")
 }
-fun injectedFunction8()) {
+fun injectedFunction8() {
     println("Injected function 2 executed")
 }
 fun injectedFunction9() {
