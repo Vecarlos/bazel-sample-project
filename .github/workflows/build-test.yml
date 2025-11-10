@@ -19,75 +19,75 @@ concurrency:
 jobs:
   build-test:
     name: Build, test and coverage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04@20251014.106
     permissions:
       contents: read
     env:
       CLUSTER_LOGS_PATH: cluster-logs
     steps:
 
-      - name: ‼️ Forzar instalación de Git 2.51.1
-        run: |
-          git --version
+      # - name: ‼️ Forzar instalación de Git 2.51.1
+      #   run: |
+      #     git --version
 
-          sudo apt-get update
-          sudo apt-get install -y libz-dev libssl-dev libcurl4-openssl-dev libexpat1-dev gettext autoconf
+      #     sudo apt-get update
+      #     sudo apt-get install -y libz-dev libssl-dev libcurl4-openssl-dev libexpat1-dev gettext autoconf
 
-          cd /tmp
-          wget https://github.com/git/git/archive/refs/tags/v2.51.1.tar.gz -O git.tar.gz
-          tar -xzf git.tar.gz
-          cd git-2.51.1
+      #     cd /tmp
+      #     wget https://github.com/git/git/archive/refs/tags/v2.51.1.tar.gz -O git.tar.gz
+      #     tar -xzf git.tar.gz
+      #     cd git-2.51.1
 
-          make configure
-          ./configure --prefix=/usr
-          make -j$(nproc)
+      #     make configure
+      #     ./configure --prefix=/usr
+      #     make -j$(nproc)
           
-          sudo make install
+      #     sudo make install
           
-          echo "Versión de Git después de instalar:"
-          git --version | grep "git version 2.51.1"
+      #     echo "Versión de Git después de instalar:"
+      #     git --version | grep "git version 2.51.1"
 
       - name: Check out revision
         uses: actions/checkout@v4
 
-      - name: Setup Miniconda 25.7.0 (Python 3.11) — installer-url
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          installer-url: "https://repo.anaconda.com/miniconda/Miniconda3-py311_25.7.0-2-Linux-x86_64.sh"
-          python-version: 3.11
-          activate-environment: test
-          auto-activate-base: true
-          auto-update-conda: false
-          conda-solver: libmamba
+      # - name: Setup Miniconda 25.7.0 (Python 3.11) — installer-url
+      #   uses: conda-incubator/setup-miniconda@v3
+      #   with:
+      #     installer-url: "https://repo.anaconda.com/miniconda/Miniconda3-py311_25.7.0-2-Linux-x86_64.sh"
+      #     python-version: 3.11
+      #     activate-environment: test
+      #     auto-activate-base: true
+      #     auto-update-conda: false
+      #     conda-solver: libmamba
 
-      - name: Setup Gradle 9.1
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 9.1.0
+      # - name: Setup Gradle 9.1
+      #   uses: gradle/actions/setup-gradle@v3
+      #   with:
+      #     gradle-version: 9.1.0
 
-      - name: Setup Kotlin 2.2.20
-        run: |
-          curl -sSL https://github.com/JetBrains/kotlin/releases/download/v2.2.20/kotlin-compiler-2.2.20.zip -o kotlin.zip
-          unzip kotlin.zip -d $HOME/kotlin
-          echo "$HOME/kotlin/kotlinc/bin" >> $GITHUB_PATH
-          kotlinc -version
+      # - name: Setup Kotlin 2.2.20
+      #   run: |
+      #     curl -sSL https://github.com/JetBrains/kotlin/releases/download/v2.2.20/kotlin-compiler-2.2.20.zip -o kotlin.zip
+      #     unzip kotlin.zip -d $HOME/kotlin
+      #     echo "$HOME/kotlin/kotlinc/bin" >> $GITHUB_PATH
+      #     kotlinc -version
 
-      - name: Setup vcpkg (commit 6353ece09f)
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          git checkout 6353ece09f
-          ./bootstrap-vcpkg.sh
-          ./vcpkg version
+      # - name: Setup vcpkg (commit 6353ece09f)
+      #   run: |
+      #     git clone https://github.com/microsoft/vcpkg.git
+      #     cd vcpkg
+      #     git checkout 6353ece09f
+      #     ./bootstrap-vcpkg.sh
+      #     ./vcpkg version
 
-      - name: Print summary
-        run: |
-          echo "===== Final Tool Versions ====="
-          git --version
-          gradle --version
-          conda --version
-          kotlinc -version
-          ./vcpkg/vcpkg version
+      # - name: Print summary
+      #   run: |
+      #     echo "===== Final Tool Versions ====="
+      #     git --version
+      #     gradle --version
+      #     conda --version
+      #     kotlinc -version
+      #     ./vcpkg/vcpkg version
 
       # - uses: ./.github/actions/free-disk-space
 
