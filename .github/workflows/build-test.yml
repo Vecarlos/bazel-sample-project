@@ -55,27 +55,42 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
-      - name: Install Kotlin compiler (2.2.20)
+      - name: Install Kotlin 2.2.20
         run: |
-          curl -s https://get.sdkman.io | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          sdk install kotlin 2.2.20
-          kotlin -version
+          curl -sSL https://github.com/JetBrains/kotlin/releases/download/v2.2.20/kotlin-compiler-2.2.20.zip -o kotlin.zip
+          unzip -q kotlin.zip -d $HOME/kotlinc
+          echo "$HOME/kotlinc/kotlinc/bin" >> $GITHUB_PATH
 
-      - name: Setup Miniconda (force 25.7.0)
+      # 🐍 Miniconda 25.7.0
+      - name: Setup Miniconda 25.7.0
         uses: conda-incubator/setup-miniconda@v3
         with:
-          installer-url: "https://repo.anaconda.com/miniconda/Miniconda3-py311_25.7.0-2-Linux-x86_64.sh"
-          python-version: 3.11
+          miniconda-version: 25.7.0
+          auto-update-conda: false
+          activate-environment: base
 
-      - name: Clone vcpkg at specific commit
+      # 📦 vcpkg commit fijo
+      - name: Clone vcpkg at commit 6353ece09f
         run: |
           git clone https://github.com/microsoft/vcpkg.git vcpkg
           cd vcpkg
           git checkout 6353ece09f
-          
-      - name: Bootstrap vcpkg
-        run: ./vcpkg/bootstrap-vcpkg.sh
+          ./bootstrap-vcpkg.sh
+          ./vcpkg version
+
+      # 🔧 Gradle 9.1.0
+      - name: Setup Gradle 9.1.0
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 9.1.0
+
+      - name: Show versions
+        run: |
+          echo "===== Tool versions ====="
+          kotlinc -version
+          conda --version
+          ./vcpkg/vcpkg version
+          gradle --version
 
 
       - name: Show tool versions
