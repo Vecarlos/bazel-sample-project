@@ -50,12 +50,15 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
-
-      - name: Setup Miniconda 25.7.0 (Python 3.11)
+      - name: Setup Miniconda 25.7.0 (Python 3.11) — installer-url
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniconda-version: 'py311_25.7.0-2'
+          installer-url: "https://repo.anaconda.com/miniconda/Miniconda3-py311_25.7.0-2-Linux-x86_64.sh"
           python-version: 3.11
+          activate-environment: test
+          auto-activate-base: true
+          auto-update-conda: false
+          conda-solver: libmamba
 
       - name: Setup Gradle 9.1
         uses: gradle/actions/setup-gradle@v3
