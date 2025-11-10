@@ -56,16 +56,16 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
-    # 2. FORZAR VERSIÓN DE KOTLIN
+      # 2. FORZAR VERSIÓN DE KOTLIN (¡CORREGIDO!)
       # Fija la versión de Kotlin a 2.2.20.
+      # La acción correcta es 'kotlin/setup-kotlin-action'.
       - name: Setup Kotlin (force 2.2.20)
-        uses: actions/setup-kotlin@v2
+        uses: kotlin/setup-kotlin-action@v1
         with:
           kotlin-version: '2.2.20'
 
       # 3. FORZAR VERSIÓN DE MINICONDA (PYTHON)
       # Fija Miniconda a 25.7.0.
-      # Puedes ajustar 'python-version' si usas una específica.
       - name: Setup Miniconda (force 25.7.0)
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -84,8 +84,6 @@ jobs:
       # Inicializa esta versión específica de vcpkg
       - name: Bootstrap vcpkg
         run: ./vcpkg/bootstrap-vcpkg.sh
-        # Nota: Asegúrate de que tus pasos de build y test
-        # usen esta instancia de vcpkg en el path ./vcpkg
 
 
       # - uses: ./.github/actions/free-disk-space
