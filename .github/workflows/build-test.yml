@@ -62,10 +62,11 @@ jobs:
           sdk install kotlin 2.2.20
           kotlin -version
 
+
       - name: Setup Miniconda (force 25.7.0)
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniconda-version: '25.7.0'
+          miniconda-version: 'py311_25.7.0-2'
           python-version: 3.11
 
       - name: Checkout vcpkg (force commit 6353ece09f)
@@ -77,6 +78,29 @@ jobs:
       
       - name: Bootstrap vcpkg
         run: ./vcpkg/bootstrap-vcpkg.sh
+
+
+      - name: Show tool versions
+        run: |
+          echo "===== Tool versions ====="
+          echo "Kotlin:"
+          kotlinc -version || echo "Kotlin not found"
+
+          echo
+          echo "Python:"
+          python --version || echo "Python not found"
+
+          echo
+          echo "Conda:"
+          conda --version || echo "Conda not found"
+
+          echo
+          echo "Vcpkg:"
+          ./vcpkg/vcpkg version || echo "Vcpkg not found"
+
+          echo
+          echo "Java:"
+          java -version || echo "Java not found"
 
       # - uses: ./.github/actions/free-disk-space
 
