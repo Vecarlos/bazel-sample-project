@@ -19,7 +19,9 @@ concurrency:
 jobs:
   build-test:
     name: Build, test and coverage
-    runs-on: ubuntu-22.04@20251014.106
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/actions/runner-images/ubuntu22:20251014.106
     permissions:
       contents: read
     env:
