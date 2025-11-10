@@ -55,10 +55,12 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
-      - name: Setup Kotlin (force 2.2.20)
-        uses: setup-kotlin/setup-kotlin-action@v1
-        with:
-          kotlin-version: '2.2.20'
+      - name: Install Kotlin compiler (2.2.20)
+        run: |
+          curl -s https://get.sdkman.io | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install kotlin 2.2.20
+          kotlin -version
 
       - name: Setup Miniconda (force 25.7.0)
         uses: conda-incubator/setup-miniconda@v3
