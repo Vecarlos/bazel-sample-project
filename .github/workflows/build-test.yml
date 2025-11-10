@@ -51,9 +51,6 @@ jobs:
           
           echo "Versión de Git después de instalar:"
           git --version | grep "git version 2.51.1"
-      - name: Check out revision
-        uses: actions/checkout@v4
-
 
     # 2. FORZAR VERSIÓN DE KOTLIN
       # Fija la versión de Kotlin a 2.2.20.
@@ -87,6 +84,9 @@ jobs:
         # usen esta instancia de vcpkg en el path ./vcpkg
 
       # - uses: ./.github/actions/free-disk-space
+
+      - name: Check out revision
+        uses: actions/checkout@v4
 
       - name: Write auth.bazelrc
         env:
