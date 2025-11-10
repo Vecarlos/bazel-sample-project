@@ -79,7 +79,6 @@ jobs:
           gradle --version
           conda --version
           kotlinc -version
-          ./vcpkg/vcpkg version
 
       # - uses: ./.github/actions/free-disk-space
 
