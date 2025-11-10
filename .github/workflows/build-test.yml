@@ -26,87 +26,50 @@ jobs:
       CLUSTER_LOGS_PATH: cluster-logs
     steps:
 
-      - name: ‼️ Forzar instalación de Git 2.51.1
-        run: |
-          echo "La versión de Git actual es:"
-          git --version
-
-          # 1. Instalar dependencias para compilar Git
-          sudo apt-get update
-          sudo apt-get install -y libz-dev libssl-dev libcurl4-openssl-dev libexpat1-dev gettext autoconf
-
-          # 2. Descargar y compilar Git 2.51.1
-          cd /tmp
-          wget https://github.com/git/git/archive/refs/tags/v2.51.1.tar.gz -O git.tar.gz
-          tar -xzf git.tar.gz
-          cd git-2.51.1
-
-          # 3. Configurar, compilar e instalar
-          make configure
-          ./configure --prefix=/usr
-          make -j$(nproc)
-          
-          # 4. Reemplazar el Git del sistema
-          sudo make install
-          
-          echo "Versión de Git después de instalar:"
-          git --version | grep "git version 2.51.1"
-
       - name: Check out revision
         uses: actions/checkout@v4
 
-      - name: Install Kotlin 2.2.20
+      - name: Force Git 2.51.1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git=1:2.51.1-*
+          git --version
+
+      - name: Setup Miniconda 25.7.0 (Python 3.11)
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniconda-version: 'py311_25.7.0-2'
+          python-version: 3.11
+
+      - name: Setup Gradle 9.1
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 9.1.0
+
+      - name: Setup Kotlin 2.2.20
         run: |
           curl -sSL https://github.com/JetBrains/kotlin/releases/download/v2.2.20/kotlin-compiler-2.2.20.zip -o kotlin.zip
-          unzip -q kotlin.zip -d $HOME/kotlinc
-          echo "$HOME/kotlinc/kotlinc/bin" >> $GITHUB_PATH
+          unzip kotlin.zip -d $HOME/kotlin
+          echo "$HOME/kotlin/kotlinc/bin" >> $GITHUB_PATH
+          kotlinc -version
 
-
-      # 📦 vcpkg commit fijo
-      - name: Clone vcpkg at commit 6353ece09f
+      - name: Setup vcpkg (commit 6353ece09f)
         run: |
-          git clone https://github.com/microsoft/vcpkg.git vcpkg
+          git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
           git checkout 6353ece09f
           ./bootstrap-vcpkg.sh
           ./vcpkg version
 
-      # 🔧 Gradle 9.1.0
-      - name: Setup Gradle 9.1.0
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 9.1.0
-
-      - name: Show versions
+      - name: Print summary
         run: |
-          echo "===== Tool versions ====="
-          kotlinc -version
-          conda --version
-          ./vcpkg/vcpkg version
+          echo "===== Final Tool Versions ====="
+          git --version
           gradle --version
+          conda --version
+          kotlinc -version
+          ./vcpkg/vcpkg version
 
-
-      - name: Show tool versions
-        run: |
-          echo "===== Tool versions ====="
-          echo "Kotlin:"
-          kotlinc -version || echo "Kotlin not found"
-
-          echo
-          echo "Python:"
-          python --version || echo "Python not found"
-
-          echo
-          echo "Conda:"
-          conda --version || echo "Conda not found"
-
-          echo
-          echo "Vcpkg:"
-          ./vcpkg/vcpkg version || echo "Vcpkg not found"
-
-          echo
-          echo "Java:"
-          java -version || echo "Java not found"
 
       # - uses: ./.github/actions/free-disk-space
 
