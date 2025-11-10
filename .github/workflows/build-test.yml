@@ -26,6 +26,32 @@ jobs:
     env:
       CLUSTER_LOGS_PATH: cluster-logs
     steps:
+      - name: ‼️ Forzar instalación de Git 2.51.1
+        run: |
+          echo "La versión de Git actual es:"
+          git --version
+
+          # 1. Instalar dependencias para compilar Git
+          sudo apt-get update
+          sudo apt-get install -y libz-dev libssl-dev libcurl4-openssl-dev libexpat1-dev gettext autoconf
+
+          # 2. Descargar y compilar Git 2.51.1
+          cd /tmp
+          wget https://github.com/git/git/archive/refs/tags/v2.51.1.tar.gz -O git.tar.gz
+          tar -xzf git.tar.gz
+          cd git-2.51.1
+
+          # 3. Configurar, compilar e instalar
+          make configure
+          ./configure --prefix=/usr
+          make -j$(nproc)
+          
+          # 4. Reemplazar el Git del sistema
+          sudo make install
+          
+          echo "Versión de Git después de instalar:"
+          git --version | grep "git version 2.51.1"
+
       - name: Check out revision
         uses: actions/checkout@v4
 
