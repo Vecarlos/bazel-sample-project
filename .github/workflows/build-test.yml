@@ -72,14 +72,6 @@ jobs:
           echo "$HOME/kotlin/kotlinc/bin" >> $GITHUB_PATH
           kotlinc -version
 
-      - name: Setup vcpkg (commit 6353ece09f)
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          git checkout 6353ece09f
-          ./bootstrap-vcpkg.sh
-          ./vcpkg version
-
       - name: Print summary
         run: |
           echo "===== Final Tool Versions ====="
