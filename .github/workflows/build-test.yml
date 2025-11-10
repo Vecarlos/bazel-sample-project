@@ -19,7 +19,8 @@ concurrency:
 jobs:
   build-test:
     name: Build, test and coverage
-    runs-on: ubuntu-22.04
+    # runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-20251102.1
     permissions:
       contents: read
     env:
