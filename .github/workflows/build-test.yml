@@ -52,12 +52,11 @@ jobs:
           echo "Versión de Git después de instalar:"
           git --version | grep "git version 2.51.1"
 
-
       - name: Check out revision
         uses: actions/checkout@v4
 
       - name: Setup Kotlin (force 2.2.20)
-        uses: setup-kotlin/setup-kotlin@v2
+        uses: setup-kotlin/setup-kotlin@v1
         with:
           kotlin-version: '2.2.20'
 
@@ -76,7 +75,6 @@ jobs:
       
       - name: Bootstrap vcpkg
         run: ./vcpkg/bootstrap-vcpkg.sh
-
 
       # - uses: ./.github/actions/free-disk-space
 
