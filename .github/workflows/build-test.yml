@@ -71,10 +71,11 @@ jobs:
       - name: Checkout vcpkg (force commit 6353ece09f)
         uses: actions/checkout@v4
         with:
-          repository: 'microsoft/vcpkg'
-          path: 'vcpkg'
-          ref: '6353ece09f'
-      
+          repository: microsoft/vcpkg
+          ref: 6353ece09f
+          path: vcpkg
+          fetch-depth: 0
+          
       - name: Bootstrap vcpkg
         run: ./vcpkg/bootstrap-vcpkg.sh
 
