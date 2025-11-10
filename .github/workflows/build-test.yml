@@ -29,10 +29,16 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
-      - name: Force Git 2.51.1
+      - name: Install Git 2.51.1 manually
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git=1:2.51.1-*
+          sudo apt remove -y git
+          sudo apt update
+          sudo apt install -y wget
+          wget https://github.com/git/git/archive/refs/tags/v2.51.1.tar.gz -O git.tar.gz
+          tar -xzf git.tar.gz
+          cd git-2.51.1
+          make prefix=/usr/local all
+          sudo make prefix=/usr/local install
           git --version
 
       - name: Setup Miniconda 25.7.0 (Python 3.11)
