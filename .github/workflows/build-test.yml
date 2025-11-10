@@ -26,20 +26,30 @@ jobs:
       CLUSTER_LOGS_PATH: cluster-logs
     steps:
 
-      - name: Check out revision
-        uses: actions/checkout@v4
-
-      - name: Install Git 2.51.1 manually
+      - name: ‼️ Forzar instalación de Git 2.51.1
         run: |
-          sudo apt remove -y git
-          sudo apt update
-          sudo apt install -y wget
+          git --version
+
+          sudo apt-get update
+          sudo apt-get install -y libz-dev libssl-dev libcurl4-openssl-dev libexpat1-dev gettext autoconf
+
+          cd /tmp
           wget https://github.com/git/git/archive/refs/tags/v2.51.1.tar.gz -O git.tar.gz
           tar -xzf git.tar.gz
           cd git-2.51.1
-          make prefix=/usr/local all
-          sudo make prefix=/usr/local install
-          git --version
+
+          make configure
+          ./configure --prefix=/usr
+          make -j$(nproc)
+          
+          sudo make install
+          
+          echo "Versión de Git después de instalar:"
+          git --version | grep "git version 2.51.1"
+
+      - name: Check out revision
+        uses: actions/checkout@v4
+
 
       - name: Setup Miniconda 25.7.0 (Python 3.11)
         uses: conda-incubator/setup-miniconda@v3
@@ -75,7 +85,6 @@ jobs:
           conda --version
           kotlinc -version
           ./vcpkg/vcpkg version
-
 
       # - uses: ./.github/actions/free-disk-space
 
