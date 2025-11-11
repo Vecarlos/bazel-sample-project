@@ -69,7 +69,7 @@ do
   git checkout $ACTIVE_BRANCH
   commit_msg=""
 
-  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$ACTIVE_BRANCH" || true
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RateLimiterProviderTest and delete functions"
     awk -v name='RateLimiterProviderTest' -v mode='comment' '
@@ -169,49 +169,3 @@ done
 echo -e "\n==========================================================="
 echo "Done"
 
-
-
-
-
-for i in $(seq 1 $TOTAL_RUNS)
-do
-  echo -e "\n================ Cycle $i / $TOTAL_RUNS ==================="
-  echo "Running $BRANCH_A_BRANCH"
-  git checkout $BRANCH_A_BRANCH
-  commit_msg="empty"
-
-
-
-  if [ $(($i % 2)) -eq 0 ]; then
-
-  else
-
-  fi
-
-  if [ $(($i % 2)) -eq 0 ]; then
-    echo "Cycle $i (ODD): Deleting victim targets..."
-    rm -rf "$CODE_1_CONTENT_FILE"
-    rm -rf "$CODE_2_CONTENT_FILE"
-    rm -rf "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="B $i: Deleted test targets"
-  else
-    echo "Cycle $i (EVEN): Creating victim targets..."
-    mkdir -p "$DEST_TEST_DIR"
-    
-    cp "$CODE_1_CONTENT" "$CODE_1_CONTENT_FILE"
-    cp "$CODE_2_CONTENT" "$CODE_2_CONTENT_FILE"
-    cp "$TEST_BUILD_CONTENT" "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="B $i: Created test targets"
-  fi
-
-  git add .
-  git commit --allow-empty -m "$commit_msg"
-  git push $REMOTE_NAME $BRANCH_B_BRANCH
-
- 
-  wait_for_workflow_completion $BRANCH_A_BRANCH
-  wait_for_workflow_completion $BRANCH_B_BRANCH
-done
-
-echo -e "\n==========================================================="
-echo "Done"
