@@ -23,7 +23,7 @@ wait_for_workflow_completion() {
 
 for i in {1..6}
 do
-  wait_for_workflow_completion
+  wait_for_workflow_completion $BRANCH_NAME
   echo ">>> $i. Empty commit: (p$i)"
   git commit --allow-empty -m "${COMMIT_BASE_NAME} p$i" && git push ${REMOTE_NAME} ${BRANCH_NAME}
 done
