@@ -61,7 +61,7 @@ do
   echo -e "\n================ Cycle $i / $TOTAL_RUNS ==================="
   echo "Running $DORMAND_BRANCH"
   git checkout $DORMAND_BRANCH
-  git commit --allow-empty -m "POLLUTER $i"
+  git commit --allow-empty -m "Dormand $i"
   git push $REMOTE_NAME $DORMAND_BRANCH
   wait_for_workflow_completion $DORMAND_BRANCH
 
