@@ -146,25 +146,28 @@ jobs:
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
+      - name: Get bazel-testlogs path
+        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
-
-
-      # - name: Upload all coverage.dat files to Codecov
+      # - name: Upload coverage reports to Codecov
       #   uses: codecov/codecov-action@v5
       #   with:
       #     fail_ci_if_error: true
       #     token: ${{ secrets.CODECOV_TOKEN }}
       #     slug: vecarlos/bazel-sample-project
-      #     directory: ${{ env.BAZEL_TESTLOGS_PATH }}
+      #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+
+
+      - name: Upload all coverage.dat files to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          directory: ${{ env.BAZEL_TESTLOGS_PATH }}
