@@ -63,6 +63,7 @@ do
   git checkout $DORMAND_BRANCH
   git commit --allow-empty -m "Dormand $i"
   git push $REMOTE_NAME $DORMAND_BRANCH
+  wait_for_workflow_completion $DORMAND_BRANCH
 
   echo "Running $ACTIVE_BRANCH"
   git checkout $ACTIVE_BRANCH
@@ -160,7 +161,6 @@ do
   git add .
   git commit --allow-empty -m "$commit_msg"
   git push $REMOTE_NAME $ACTIVE_BRANCH
-  wait_for_workflow_completion $DORMAND_BRANCH
   wait_for_workflow_completion $ACTIVE_BRANCH
 
 done
