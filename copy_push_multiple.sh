@@ -75,9 +75,10 @@ do
     awk -v name='RequisitionMetadataServiceTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
+      
         line=$0
         # detectar inicio (puede estar comentado ya con #)
-        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*[a-zA-Z0-9_]+_test[[:space:]]*\(/) {
           in_block=1; n=0; depth = cnt_paren(line)
           buf[++n]=line; next
         }
@@ -118,7 +119,7 @@ do
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
-        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*[a-zA-Z0-9_]+_test[[:space:]]*\(/) {
           in_block=1; n=0; depth = cnt_paren(line)
           buf[++n]=line; next
         }
