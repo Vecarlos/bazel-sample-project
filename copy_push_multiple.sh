@@ -76,7 +76,6 @@ do
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
-        # detectar inicio (puede estar comentado ya con #)
         if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*kt_jvm_test[[:space:]]*\(/) {
           in_block=1; n=0; depth = cnt_paren(line)
           buf[++n]=line; next
@@ -85,7 +84,6 @@ do
           buf[++n]=line
           depth += cnt_paren(line)
           if (depth==0) {
-            # unir y chequear si el bloque tiene name
             block_has_name=0
             for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
             if (block_has_name) {
@@ -162,7 +160,6 @@ do
   git commit --allow-empty -m "$commit_msg"
   git push $REMOTE_NAME $ACTIVE_BRANCH
   wait_for_workflow_completion $DORMAND_BRANCH
-
   wait_for_workflow_completion $ACTIVE_BRANCH
 
 done
