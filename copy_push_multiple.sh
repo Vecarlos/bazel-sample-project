@@ -1,6 +1,47 @@
 #!/bin/bash
 set -euo pipefail
 
+
+comment_bazel_target() {
+    local target_name="$1"
+    local file_path="$2"  
+
+    echo "🔧 Comentando target '$target_name' en '$file_path'..."
+
+    awk -v name="$target_name" -v mode='comment' '
+      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
+      {
+        line=$0
+        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*[a-zA-Z0-9_]+_test[[:space:]]*\(/) {
+          in_block=1; n=0; depth = cnt_paren(line)
+          buf[++n]=line; next
+        }
+        if (in_block) {
+          buf[++n]=line
+          depth += cnt_paren(line)
+          
+          if (depth==0) {
+            block_has_name=0
+            for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=[[:space:]]*\"" name "\"") block_has_name=1
+            
+            if (block_has_name) {
+              for(i=1;i<=n;i++) {
+                # si ya estaba comentada, no duplicar #
+                if (buf[i] ~ /^[[:space:]]*#/) print buf[i]
+                else print "#" buf[i]
+              }
+            } else {
+              for(i=1;i<=n;i++) print buf[i]
+            }
+            in_block=0; n=0; next
+          }
+          next
+        }
+        print
+      }
+      ' "$file_path" > "${file_path}.tmp" && mv "${file_path}.tmp" "$file_path"
+}
+
 DORMAND_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_dormand"
 ACTIVE_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_active"
 
@@ -27,7 +68,7 @@ TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 # BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
 BUILD_FILE="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
 VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
-
+TARGET_1="RequisitionMetadataServiceTest"
 INJECTED_CONTENT=$(cat <<EOF
 // --- INJECTED FOR CACHE TEST ---
 fun injectedFunction1() {
@@ -72,40 +113,7 @@ do
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
-    awk -v name='RequisitionMetadataServiceTest' -v mode='comment' '
-      function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
-      {
-      
-        line=$0
-        # detectar inicio (puede estar comentado ya con #)
-        if (!in_block && line ~ /^[[:space:]]*#?[[:space:]]*[a-zA-Z0-9_]+_test[[:space:]]*\(/) {
-          in_block=1; n=0; depth = cnt_paren(line)
-          buf[++n]=line; next
-        }
-        if (in_block) {
-          buf[++n]=line
-          depth += cnt_paren(line)
-          if (depth==0) {
-            # unir y chequear si el bloque tiene name
-            block_has_name=0
-            for(i=1;i<=n;i++) if (buf[i] ~ "name[[:space:]]*=.*\"" name "\"") block_has_name=1
-            if (block_has_name) {
-              for(i=1;i<=n;i++) {
-                # si ya estaba comentada, no duplicar #
-                if (buf[i] ~ /^[[:space:]]*#/) print buf[i]
-                else print "#" buf[i]
-              }
-            } else {
-              for(i=1;i<=n;i++) print buf[i]
-            }
-            in_block=0; n=0; next
-          }
-          next
-        }
-        print
-      }
-      ' "$BUILD_FILE" > "$BUILD_FILE".tmp && mv "$BUILD_FILE".tmp "$BUILD_FILE"
-
+    comment_bazel_target $TARGET_1 $BUILD_FILE
     
     echo "Cycle $i (ODD): Deleting victim targets..."
     rm -rf "$CODE_1_CONTENT_FILE"
