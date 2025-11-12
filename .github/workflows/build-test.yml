@@ -142,12 +142,23 @@ jobs:
       #     //src/test/kotlin/...
       #   continue-on-error: true
 
+
+
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
       - name: Get bazel-testlogs path
         run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
+
+      - name: List coverage outputs
+        run: |
+          echo "BAZEL_OUTPUT_PATH=$BAZEL_OUTPUT_PATH"
+          echo "BAZEL_TESTLOGS_PATH=$BAZEL_TESTLOGS_PATH"
+          echo "Listing candidate coverage files under output and testlogs:"
+          find "$BAZEL_OUTPUT_PATH" -type f \( -name '*coverage*' -o -name '*.dat' -o -name '*.exec' -o -name '*.info' -o -name '*.xml' \) -print || true
+          find "$BAZEL_TESTLOGS_PATH" -type f \( -name '*coverage*' -o -name '*.dat' -o -name '*.exec' -o -name '*.info' -o -name '*.xml' \) -print || true
+
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
