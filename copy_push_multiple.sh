@@ -117,7 +117,7 @@ CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
 TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 # BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
-VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
+# VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
 VICTIM_FILE_2="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/FrequencyVectorBuilder.kt"
 VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
 
