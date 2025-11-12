@@ -117,7 +117,12 @@ CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
 TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 # BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
-VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
+VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
+VICTIM_FILE_2="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/FrequencyVectorBuilder.kt"
+VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
+
+
+
 BUILD_FILE_1="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
 TARGET_1="RequisitionMetadataServiceTest"
 
@@ -168,21 +173,25 @@ do
   git checkout $ACTIVE_BRANCH
   commit_msg=""
 
-  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_1" || true
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_2" || true
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
     comment_bazel_target $TARGET_1 $BUILD_FILE_1
     comment_bazel_target $TARGET_2 $BUILD_FILE_2
     comment_bazel_target $TARGET_3 $BUILD_FILE_3
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
 
     echo "Cycle $i (ODD): Deleting victim targets..."
     # rm -rf "$CODE_1_CONTENT_FILE"
     # rm -rf "$CODE_2_CONTENT_FILE"
     # rm -rf "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="ACTIVE $i: Comment test and delete empty functions"
+    commit_msg="ACTIVE $i: Comment test and add empty functions in 2 files and delete in one"
   else
     echo "Uncomment RequisitionMetadataServiceTest and add functions"
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
 
     uncomment_bazel_target $TARGET_1 $BUILD_FILE_1
     uncomment_bazel_target $TARGET_2 $BUILD_FILE_2
@@ -194,7 +203,7 @@ do
     # cp "$CODE_1_CONTENT" "$CODE_1_CONTENT_FILE"
     # cp "$CODE_2_CONTENT" "$CODE_2_CONTENT_FILE"
     # cp "$TEST_BUILD_CONTENT" "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="ACTIVE $i: Uncomment test and add empty functions"
+    commit_msg="ACTIVE $i: Uncomment test and delete empty functions in 2 files and add in one"
   fi
 
   git add .
