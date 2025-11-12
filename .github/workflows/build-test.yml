@@ -154,8 +154,8 @@ jobs:
 
       - name: Preview LCOV header
         run: |
-          echo "First 10 lines of normalized report:"
-          head -10 "${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat"
+          grep -A5 "CelEnvProvider" bazel-out/_coverage/_coverage_report.dat
+
 
 
       - name: Upload coverage report as artifact
