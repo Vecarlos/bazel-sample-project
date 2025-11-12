@@ -160,6 +160,19 @@ jobs:
           find "$BAZEL_OUTPUT_PATH" -type f \( -name '*coverage*' -o -name '*.dat' -o -name '*.exec' -o -name '*.info' -o -name '*.xml' \) -print || true
           find "$BAZEL_TESTLOGS_PATH" -type f \( -name '*coverage*' -o -name '*.dat' -o -name '*.exec' -o -name '*.info' -o -name '*.xml' \) -print || true
 
+      - name: Convert coverage to LCOV
+        if: always()
+        run: |
+          set -euo pipefail
+          OUTPUT_PATH="${{ env.BAZEL_OUTPUT_PATH }}/_coverage"
+          if file "$OUTPUT_PATH/_coverage_report.dat" | grep -q text; then
+            echo "Already LCOV, no conversion needed"
+          else
+            echo "Converting Bazel coverage to LCOV format..."
+            bazel coverage --combined_report=lcov //src/test/cc/... //src/test/kotlin/... //src/test/python/...
+            cp bazel-out/_coverage/_coverage_report.dat "$OUTPUT_PATH/_coverage_report.info"
+          fi
+
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
