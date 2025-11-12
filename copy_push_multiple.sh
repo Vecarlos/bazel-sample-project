@@ -93,6 +93,27 @@ uncomment_bazel_target() {
 }
 
 
+
+TEST_BUILD_CONTENT="test_build.txt"
+CODE_1_CONTENT="FillableTemplateTest_file.txt"
+CODE_2_CONTENT="SortedListsTest_file.txt"
+
+DEST_TEST_DIR="src/test/kotlin/org/wfanet/measurement/common"
+
+CODE_1_CONTENT_FILE="$DEST_TEST_DIR/FillableTemplateTest.kt"
+CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
+TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
+
+
+BUILD_FILE_1="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
+TARGET_1="RequisitionMetadataServiceTest"
+
+BUILD_FILE_2="src/test/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/BUILD.bazel"
+TARGET_2="FrequencyVectorBuilderTest"
+
+BUILD_FILE_3="src/test/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/BUILD.bazel"
+TARGET_3="EventGroupMetadataDescriptorsServiceTest"
+
 DORMAND_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_dormand"
 ACTIVE_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_active"
 
@@ -106,15 +127,6 @@ REFRESH_SECONDS=15
 TOTAL_RUNS=10
 
 
-TEST_BUILD_CONTENT="test_build.txt"
-CODE_1_CONTENT="FillableTemplateTest_file.txt"
-CODE_2_CONTENT="SortedListsTest_file.txt"
-
-DEST_TEST_DIR="src/test/kotlin/org/wfanet/measurement/common"
-
-CODE_1_CONTENT_FILE="$DEST_TEST_DIR/FillableTemplateTest.kt"
-CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
-TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 # BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
 # VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
@@ -123,14 +135,6 @@ VICTIM_FILE_2="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisit
 VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
 VICTIM_FILE_4="src/main/kotlin/org/wfanet/measurement/reporting/service/api/CelEnvProvider.kt"
 
-BUILD_FILE_1="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
-TARGET_1="RequisitionMetadataServiceTest"
-
-BUILD_FILE_2="src/test/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/BUILD.bazel"
-TARGET_2="FrequencyVectorBuilderTest"
-
-BUILD_FILE_3="src/test/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/BUILD.bazel"
-TARGET_3="EventGroupMetadataDescriptorsServiceTest"
 
 INJECTED_CONTENT=$(cat <<EOF
 // --- INJECTED FOR CACHE TEST ---
@@ -179,16 +183,6 @@ do
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_4" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
-    # comment_bazel_target $TARGET_1 $BUILD_FILE_1
-    # comment_bazel_target $TARGET_2 $BUILD_FILE_2
-    # comment_bazel_target $TARGET_3 $BUILD_FILE_3
-    
-
-
-    echo "Cycle $i (ODD): Deleting victim targets..."
-    # rm -rf "$CODE_1_CONTENT_FILE"
-    # rm -rf "$CODE_2_CONTENT_FILE"
-    # rm -rf "$TEST_BUILD_CONTENT_FILE"
     commit_msg="ACTIVE $i: Comment test and add empty functions"
   else
     echo "Uncomment RequisitionMetadataServiceTest and add functions"
@@ -196,16 +190,6 @@ do
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
-    # uncomment_bazel_target $TARGET_1 $BUILD_FILE_1
-    # uncomment_bazel_target $TARGET_2 $BUILD_FILE_2
-    # uncomment_bazel_target $TARGET_3 $BUILD_FILE_3
-
-
-    echo "Cycle $i (EVEN): Creating victim targets..."
-    # mkdir -p "$DEST_TEST_DIR"
-    # cp "$CODE_1_CONTENT" "$CODE_1_CONTENT_FILE"
-    # cp "$CODE_2_CONTENT" "$CODE_2_CONTENT_FILE"
-    # cp "$TEST_BUILD_CONTENT" "$TEST_BUILD_CONTENT_FILE"
     commit_msg="ACTIVE $i: Uncomment test and delete empty functions"
   fi
 
@@ -213,7 +197,6 @@ do
   git commit --allow-empty -m "$commit_msg"
   git push $REMOTE_NAME $ACTIVE_BRANCH
   wait_for_workflow_completion $DORMAND_BRANCH
-
   wait_for_workflow_completion $ACTIVE_BRANCH
 
 done
