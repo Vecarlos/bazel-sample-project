@@ -118,10 +118,10 @@ TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 # BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
 # VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
+VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/eventgroups/EventGroupSync.kt"
 VICTIM_FILE_2="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/FrequencyVectorBuilder.kt"
 VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
-
-
+VICTIM_FILE_4="src/main/kotlin/org/wfanet/measurement/reporting/service/api/CelEnvProvider.kt"
 
 BUILD_FILE_1="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
 TARGET_1="RequisitionMetadataServiceTest"
@@ -176,6 +176,7 @@ do
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_1" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_2" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_4" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
     # comment_bazel_target $TARGET_1 $BUILD_FILE_1
@@ -194,6 +195,7 @@ do
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
     # uncomment_bazel_target $TARGET_1 $BUILD_FILE_1
     # uncomment_bazel_target $TARGET_2 $BUILD_FILE_2
     # uncomment_bazel_target $TARGET_3 $BUILD_FILE_3
