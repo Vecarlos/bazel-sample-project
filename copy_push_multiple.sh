@@ -178,24 +178,25 @@ do
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
-    comment_bazel_target $TARGET_1 $BUILD_FILE_1
-    comment_bazel_target $TARGET_2 $BUILD_FILE_2
-    comment_bazel_target $TARGET_3 $BUILD_FILE_3
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
+    # comment_bazel_target $TARGET_1 $BUILD_FILE_1
+    # comment_bazel_target $TARGET_2 $BUILD_FILE_2
+    # comment_bazel_target $TARGET_3 $BUILD_FILE_3
+    
+
 
     echo "Cycle $i (ODD): Deleting victim targets..."
     # rm -rf "$CODE_1_CONTENT_FILE"
     # rm -rf "$CODE_2_CONTENT_FILE"
     # rm -rf "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="ACTIVE $i: Comment test and add empty functions in 2 files and delete in one"
+    commit_msg="ACTIVE $i: Comment test and add empty functions"
   else
     echo "Uncomment RequisitionMetadataServiceTest and add functions"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
-
-    uncomment_bazel_target $TARGET_1 $BUILD_FILE_1
-    uncomment_bazel_target $TARGET_2 $BUILD_FILE_2
-    uncomment_bazel_target $TARGET_3 $BUILD_FILE_3
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
+    # uncomment_bazel_target $TARGET_1 $BUILD_FILE_1
+    # uncomment_bazel_target $TARGET_2 $BUILD_FILE_2
+    # uncomment_bazel_target $TARGET_3 $BUILD_FILE_3
 
 
     echo "Cycle $i (EVEN): Creating victim targets..."
@@ -203,7 +204,7 @@ do
     # cp "$CODE_1_CONTENT" "$CODE_1_CONTENT_FILE"
     # cp "$CODE_2_CONTENT" "$CODE_2_CONTENT_FILE"
     # cp "$TEST_BUILD_CONTENT" "$TEST_BUILD_CONTENT_FILE"
-    commit_msg="ACTIVE $i: Uncomment test and delete empty functions in 2 files and add in one"
+    commit_msg="ACTIVE $i: Uncomment test and delete empty functions"
   fi
 
   git add .
