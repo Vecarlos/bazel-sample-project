@@ -24,7 +24,8 @@ CODE_1_CONTENT_FILE="$DEST_TEST_DIR/FillableTemplateTest.kt"
 CODE_2_CONTENT_FILE="$DEST_TEST_DIR/SortedListsTest.kt"
 TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
-BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
+# BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
+BUILD_FILE="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
 VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/Interceptors.kt"
 
 INJECTED_CONTENT=$(cat <<EOF
@@ -70,8 +71,8 @@ do
 
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE" || true
   if [ $(($i % 2)) -eq 0 ]; then
-    echo "Comment RateLimiterProviderTest and delete functions"
-    awk -v name='RateLimiterProviderTest' -v mode='comment' '
+    echo "Comment RequisitionMetadataServiceTest and delete functions"
+    awk -v name='RequisitionMetadataServiceTest' -v mode='comment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
@@ -111,9 +112,9 @@ do
     rm -rf "$TEST_BUILD_CONTENT_FILE"
     commit_msg="ACTIVE $i: Deleted test targets, comment test and delete empty functions"
   else
-    echo "Discomment RateLimiterProviderTest and add functions"
+    echo "Discomment RequisitionMetadataServiceTest and add functions"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE"
-    awk -v name='RateLimiterProviderTest' -v mode='uncomment' '
+    awk -v name='RequisitionMetadataServiceTest' -v mode='uncomment' '
       function cnt_paren(s,   tmp,o,c){ tmp=s; o=gsub(/\(/,"(",tmp); c=gsub(/\)/,")",tmp); return o-c }
       {
         line=$0
