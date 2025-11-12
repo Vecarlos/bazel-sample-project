@@ -173,7 +173,7 @@ do
   git checkout $ACTIVE_BRANCH
   commit_msg=""
 
-  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_1" || true
+  # sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_1" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_2" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
   if [ $(($i % 2)) -eq 0 ]; then
@@ -191,7 +191,7 @@ do
     commit_msg="ACTIVE $i: Comment test and add empty functions"
   else
     echo "Uncomment RequisitionMetadataServiceTest and add functions"
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
+    # echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
     # uncomment_bazel_target $TARGET_1 $BUILD_FILE_1
