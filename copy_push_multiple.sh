@@ -26,7 +26,7 @@ TEST_BUILD_CONTENT_FILE="$DEST_TEST_DIR/BUILD.bazel"
 
 # BUILD_FILE="src/test/kotlin/org/wfanet/measurement/common/grpc/BUILD.bazel"
 BUILD_FILE="src/test/kotlin/org/wfanet/measurement/edpaggregator/service/v1alpha/BUILD.bazel"
-VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/common/grpc/Interceptors.kt"
+VICTIM_FILE="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
 
 INJECTED_CONTENT=$(cat <<EOF
 // --- INJECTED FOR CACHE TEST ---
