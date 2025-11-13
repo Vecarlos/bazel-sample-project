@@ -153,7 +153,7 @@ jobs:
 
       - name: Preview LCOV header
         run: |
-          grep -A5 "ProtoConversions" bazel-out/_coverage/_coverage_report.dat
+          grep -A5 "FrequencyVectorBuilder" bazel-out/_coverage/_coverage_report.dat
 
 
 
