@@ -153,6 +153,7 @@ jobs:
 
       - name: Preview LCOV header
         run: |
+          sort $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat | md5sum
           grep -A5 "PrincipalIdentity" $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat
 
 

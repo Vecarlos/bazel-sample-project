@@ -114,11 +114,12 @@ TARGET_2="FrequencyVectorBuilderTest"
 BUILD_FILE_3="src/test/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/BUILD.bazel"
 TARGET_3="EventGroupMetadataDescriptorsServiceTest"
 
-DORMAND_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_dormand"
-ACTIVE_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_active"
+# DORMAND_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_dormand"
+# ACTIVE_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_active"
+ACTIVE_BRANCH="buildbuddy_kt_cov_2 "
 
-git checkout -b ${DORMAND_BRANCH}
-git checkout -b ${ACTIVE_BRANCH}
+# git checkout -b ${DORMAND_BRANCH}
+# git checkout -b ${ACTIVE_BRANCH}
 
 
 REMOTE_NAME="origin"
@@ -168,10 +169,10 @@ wait_for_workflow_completion() {
 for i in $(seq 1 $TOTAL_RUNS)
 do
   echo -e "\n================ Cycle $i / $TOTAL_RUNS ==================="
-  echo "Running $DORMAND_BRANCH"
-  git checkout $DORMAND_BRANCH
-  git commit --allow-empty -m "Dormand $i"
-  git push $REMOTE_NAME $DORMAND_BRANCH
+  # echo "Running $DORMAND_BRANCH"
+  # git checkout $DORMAND_BRANCH
+  # git commit --allow-empty -m "Dormand $i"
+  # git push $REMOTE_NAME $DORMAND_BRANCH
 
   echo "Running $ACTIVE_BRANCH"
   git checkout $ACTIVE_BRANCH
@@ -196,7 +197,7 @@ do
   git add .
   git commit --allow-empty -m "$commit_msg"
   git push $REMOTE_NAME $ACTIVE_BRANCH
-  wait_for_workflow_completion $DORMAND_BRANCH
+  # wait_for_workflow_completion $DORMAND_BRANCH
   wait_for_workflow_completion $ACTIVE_BRANCH
 
 done
