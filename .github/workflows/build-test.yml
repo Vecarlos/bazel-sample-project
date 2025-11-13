@@ -163,13 +163,13 @@ jobs:
           name: coverage-report
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: vecarlos/bazel-sample-project
+      #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
       # - name: Upload all coverage.dat files to Codecov
@@ -179,3 +179,15 @@ jobs:
       #     token: ${{ secrets.CODECOV_TOKEN }}
       #     slug: vecarlos/bazel-sample-project
       #     directory: ${{ env.BAZEL_TESTLOGS_PATH }}
+
+      - name: Upload Kotlin coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          directory: ${{ env.BAZEL_TESTLOGS_PATH }}
+          flags: kotlin
+          name: kotlin-coverage
+          # Solo archivos de Kotlin
+          files: '**/coverage.dat'
+          path_filter: 'src/main/kotlin/**/*.kt'
