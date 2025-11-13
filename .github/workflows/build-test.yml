@@ -120,6 +120,7 @@ jobs:
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
         run: >
           bazel coverage 
+          --cache_test_results=no
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
@@ -171,22 +172,22 @@ jobs:
       #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
-      # - name: Upload all coverage.dat files to Codecov
-      #   uses: codecov/codecov-action@v5
-      #   with:
-      #     fail_ci_if_error: true
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     slug: vecarlos/bazel-sample-project
-      #     directory: ${{ env.BAZEL_TESTLOGS_PATH }}
-
-      - name: Upload Kotlin coverage to Codecov
+      - name: Upload all coverage.dat files to Codecov
         uses: codecov/codecov-action@v5
         with:
+          fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
           directory: ${{ env.BAZEL_TESTLOGS_PATH }}
-          flags: kotlin
-          name: kotlin-coverage
-          # Solo archivos de Kotlin
-          files: '**/coverage.dat'
-          path_filter: 'src/main/kotlin/**/*.kt'
+
+      # - name: Upload Kotlin coverage to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: vecarlos/bazel-sample-project
+      #     directory: ${{ env.BAZEL_TESTLOGS_PATH }}
+      #     flags: kotlin
+      #     name: kotlin-coverage
+      #     # Solo archivos de Kotlin
+      #     files: '**/coverage.dat'
+      #     path_filter: 'src/main/kotlin/**/*.kt'
