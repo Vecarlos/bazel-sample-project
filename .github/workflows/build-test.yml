@@ -120,7 +120,6 @@ jobs:
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
         run: >
           bazel coverage 
-          --combined_report=lcov
           --cache_test_results=${USE_CACHE}
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
@@ -154,7 +153,7 @@ jobs:
 
       - name: Preview LCOV header
         run: |
-          grep -A5 "CelEnvProvider" bazel-out/_coverage/_coverage_report.dat
+          grep -A5 "ProtoConversions" bazel-out/_coverage/_coverage_report.dat
 
 
 
