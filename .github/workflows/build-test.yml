@@ -120,7 +120,7 @@ jobs:
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
         run: >
           bazel coverage 
-          --cache_test_results=no
+          --cache_test_results=yes
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
@@ -153,8 +153,7 @@ jobs:
 
       - name: Preview LCOV header
         run: |
-          grep -A5 "FrequencyVectorBuilder" bazel-out/_coverage/_coverage_report.dat
-
+          grep -A5 "RequisitionFetcher" $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat
 
 
       - name: Upload coverage report as artifact
