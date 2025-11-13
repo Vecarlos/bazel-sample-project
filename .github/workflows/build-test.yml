@@ -153,7 +153,7 @@ jobs:
 
       - name: Preview LCOV header
         run: |
-          grep -A5 "RequisitionFetcher" $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat
+          grep -A5 "PrincipalIdentity" $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat
 
 
       - name: Upload coverage report as artifact
