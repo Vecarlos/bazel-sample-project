@@ -168,8 +168,6 @@ jobs:
         run: |
           mkdir -p merged_cov
           OUTPUT=merged_cov/coverage_merged.dat
-
-          # Extrae las líneas relevantes SF/FN/FNDA de cada coverage.dat
           find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
             | xargs -0 cat \
             | grep -E "^(SF:|FN:|FNDA:|DA:)" \
