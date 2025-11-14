@@ -166,6 +166,31 @@ jobs:
           name: coverage-report
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
+      - name: Merge deterministic coverage
+        run: |
+          mkdir -p merged_cov
+          OUTPUT=merged_cov/coverage_merged.dat
+
+          # Extrae las líneas relevantes SF/FN/FNDA de cada coverage.dat
+          find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
+            | xargs -0 cat \
+            | grep -E "^(SF:|FN:|FNDA:|DA:)" \
+            | sort \
+            | uniq \
+            > "$OUTPUT"
+
+          echo "Merged coverage saved to $OUTPUT"
+
+      - name: Upload merged coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: merged_cov/coverage_merged.dat
+          name: deterministic-coverage
+
+
       # - name: Upload coverage reports to Codecov
       #   uses: codecov/codecov-action@v5
       #   with:
@@ -175,13 +200,13 @@ jobs:
       #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
-      - name: Upload all coverage.dat files to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          directory: ${{ env.BAZEL_TESTLOGS_PATH }}
+      # - name: Upload all coverage.dat files to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: vecarlos/bazel-sample-project
+      #     directory: ${{ env.BAZEL_TESTLOGS_PATH }}
 
       # - name: Upload Kotlin coverage to Codecov
       #   uses: codecov/codecov-action@v5
