@@ -171,19 +171,18 @@ jobs:
           TMP=merged_cov/tmp
 
           rm -f "$OUTPUT"
+          rm -rf "$TMP"
           mkdir -p "$TMP"
 
           # Extraer y agrupar por archivo
           find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
             | xargs -0 cat \
             | awk -v TMP="$TMP" '
-                # Cuando aparece SF:...
                 /^SF:/ {
                     file=$0
                     sub("^SF:", "", file)
                     current=file
 
-                    # Crear directorios
                     out = TMP "/" current ".tmp"
                     dir = out
                     sub("/[^/]+\.tmp$", "", dir)
@@ -192,26 +191,56 @@ jobs:
                     next
                 }
 
-                # Extraer FN, FNDA, DA
+                # Aceptamos solo DA/FN/FNDA
                 current && ( /^FN:/ || /^FNDA:/ || /^DA:/ ) {
                     out = TMP "/" current ".tmp"
                     print $0 >> out
                 }
             '
 
-          # Generar LCOV determinístico final
+          # 🔥 FILTRO DE MÉTODOS GENERADOS POR KOTLIN
+          function should_skip_method() {
+            local line="$1"
+
+            # excluir anónimos: $1, $2, $3...
+            [[ "$line" =~ \$[0-9]+ ]] && return 0
+
+            # excluir synthetic
+            [[ "$line" =~ access\$ ]] && return 0
+
+            # excluir inline defaults
+            [[ "$line" =~ \$default ]] && return 0
+
+            return 1
+          }
+
+          export -f should_skip_method
+
+          # Generar LCOV normalizado
           for f in $(find "$TMP" -name "*.tmp"); do
             file=$(echo "$f" | sed "s|$TMP/||; s|\.tmp$||")
 
-            {
-              echo "SF:$file"
+            echo "SF:$file" >> "$OUTPUT"
 
-              grep '^FN:' "$f" 2>/dev/null | sort -u
-              grep '^FNDA:' "$f" 2>/dev/null | sort -u
-              grep '^DA:' "$f" 2>/dev/null | sort -u
+            # FN (métodos definidos)
+            grep '^FN:' "$f" 2>/dev/null \
+              | while read -r line; do
+                  should_skip_method "$line" || echo "$line"
+                done \
+              | sort -u >> "$OUTPUT"
 
-              echo "end_of_record"
-            } >> "$OUTPUT"
+            # FNDA (conteo por método)
+            grep '^FNDA:' "$f" 2>/dev/null \
+              | while read -r line; do
+                  should_skip_method "$line" || echo "$line"
+                done \
+              | sort -u >> "$OUTPUT"
+
+            # DA (linhas ejecutables)
+            grep '^DA:' "$f" 2>/dev/null \
+              | sort -t: -k2,2n -u >> "$OUTPUT"
+
+            echo "end_of_record" >> "$OUTPUT"
           done
 
           echo "Generated deterministic LCOV: $OUTPUT"
