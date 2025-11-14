@@ -1,0 +1,355 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - _coverage_report3.dat - edpaggregator/eventgroups/EventGroupSync.kt</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">edpaggregator/eventgroups</a> - EventGroupSync.kt<span style="font-size: 80%;"> (source / <a href="EventGroupSync.kt.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">_coverage_report3.dat</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">123</td>
+            <td class="headerCovTableEntry">125</td>
+            <td class="headerCovTableEntryHi">98.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-11-14 09:17:42</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<a name="2"><span class="lineNum">       2 </span>            :  * Copyright 2025 The Cross-Media Measurement Authors</a>
+<a name="3"><span class="lineNum">       3 </span>            :  *</a>
+<a name="4"><span class="lineNum">       4 </span>            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</a>
+<a name="5"><span class="lineNum">       5 </span>            :  * you may not use this file except in compliance with the License.</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * You may obtain a copy of the License at</a>
+<a name="7"><span class="lineNum">       7 </span>            :  *</a>
+<a name="8"><span class="lineNum">       8 </span>            :  *     http://www.apache.org/licenses/LICENSE-2.0</a>
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<a name="10"><span class="lineNum">      10 </span>            :  * Unless required by applicable law or agreed to in writing, software</a>
+<a name="11"><span class="lineNum">      11 </span>            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</a>
+<a name="13"><span class="lineNum">      13 </span>            :  * See the License for the specific language governing permissions and</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * limitations under the License.</a>
+<a name="15"><span class="lineNum">      15 </span>            :  */</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : package org.wfanet.measurement.edpaggregator.eventgroups</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : import io.grpc.StatusException</a>
+<a name="20"><span class="lineNum">      20 </span>            : import io.opentelemetry.api.GlobalOpenTelemetry</a>
+<a name="21"><span class="lineNum">      21 </span>            : import io.opentelemetry.api.common.AttributeKey</a>
+<a name="22"><span class="lineNum">      22 </span>            : import io.opentelemetry.api.common.Attributes</a>
+<a name="23"><span class="lineNum">      23 </span>            : import io.opentelemetry.api.trace.Tracer</a>
+<a name="24"><span class="lineNum">      24 </span>            : import java.util.logging.Logger</a>
+<a name="25"><span class="lineNum">      25 </span>            : import kotlin.time.TimeSource</a>
+<a name="26"><span class="lineNum">      26 </span>            : import kotlinx.coroutines.CancellationException</a>
+<a name="27"><span class="lineNum">      27 </span>            : import kotlinx.coroutines.ExperimentalCoroutinesApi</a>
+<a name="28"><span class="lineNum">      28 </span>            : import kotlinx.coroutines.flow.Flow</a>
+<a name="29"><span class="lineNum">      29 </span>            : import kotlinx.coroutines.flow.flow</a>
+<a name="30"><span class="lineNum">      30 </span>            : import kotlinx.coroutines.flow.map</a>
+<a name="31"><span class="lineNum">      31 </span>            : import kotlinx.coroutines.flow.toList</a>
+<a name="32"><span class="lineNum">      32 </span>            : import org.wfanet.measurement.api.v2alpha.EventGroup as CmmsEventGroup</a>
+<a name="33"><span class="lineNum">      33 </span>            : import org.wfanet.measurement.api.v2alpha.EventGroupMetadataKt as CmmsEventGroupMetadataKt</a>
+<a name="34"><span class="lineNum">      34 </span>            : import org.wfanet.measurement.api.v2alpha.EventGroupMetadataKt.AdMetadataKt as CmmsAdMetadataKt</a>
+<a name="35"><span class="lineNum">      35 </span>            : import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub</a>
+<a name="36"><span class="lineNum">      36 </span>            : import org.wfanet.measurement.api.v2alpha.MediaType as CmmsMediaType</a>
+<a name="37"><span class="lineNum">      37 </span>            : import org.wfanet.measurement.api.v2alpha.copy</a>
+<a name="38"><span class="lineNum">      38 </span>            : import org.wfanet.measurement.api.v2alpha.createEventGroupRequest</a>
+<a name="39"><span class="lineNum">      39 </span>            : import org.wfanet.measurement.api.v2alpha.eventGroup as cmmsEventGroup</a>
+<a name="40"><span class="lineNum">      40 </span>            : import org.wfanet.measurement.api.v2alpha.eventGroupMetadata as cmmsEventGroupMetadata</a>
+<a name="41"><span class="lineNum">      41 </span>            : import org.wfanet.measurement.api.v2alpha.listEventGroupsRequest</a>
+<a name="42"><span class="lineNum">      42 </span>            : import org.wfanet.measurement.api.v2alpha.updateEventGroupRequest</a>
+<a name="43"><span class="lineNum">      43 </span>            : import org.wfanet.measurement.common.Instrumentation</a>
+<a name="44"><span class="lineNum">      44 </span>            : import org.wfanet.measurement.common.api.grpc.ResourceList</a>
+<a name="45"><span class="lineNum">      45 </span>            : import org.wfanet.measurement.common.api.grpc.flattenConcat</a>
+<a name="46"><span class="lineNum">      46 </span>            : import org.wfanet.measurement.common.api.grpc.listResources</a>
+<a name="47"><span class="lineNum">      47 </span>            : import org.wfanet.measurement.common.throttler.Throttler</a>
+<a name="48"><span class="lineNum">      48 </span>            : import org.wfanet.measurement.edpaggregator.eventgroups.v1alpha.EventGroup</a>
+<a name="49"><span class="lineNum">      49 </span>            : import org.wfanet.measurement.edpaggregator.eventgroups.v1alpha.EventGroup.MediaType</a>
+<a name="50"><span class="lineNum">      50 </span>            : import org.wfanet.measurement.edpaggregator.eventgroups.v1alpha.MappedEventGroup</a>
+<a name="51"><span class="lineNum">      51 </span>            : import org.wfanet.measurement.edpaggregator.eventgroups.v1alpha.mappedEventGroup</a>
+<a name="52"><span class="lineNum">      52 </span>            : import org.wfanet.measurement.edpaggregator.telemetry.withSpan</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            : /*</a>
+<a name="55"><span class="lineNum">      55 </span>            :  * Syncs event groups with the CMMS Public API.</a>
+<a name="56"><span class="lineNum">      56 </span>            :  * 1. Registers any unregistered event groups</a>
+<a name="57"><span class="lineNum">      57 </span>            :  * 2. Updates any existing event groups if data has changed</a>
+<a name="58"><span class="lineNum">      58 </span>            :  * 2. Returns a flow of event_group_reference_id to EventGroup</a>
+<a name="59"><span class="lineNum">      59 </span>            :  */</a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">          2 : class EventGroupSync(</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          2 :   private val edpName: String,</span></a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">          2 :   private val eventGroupsStub: EventGroupsCoroutineStub,</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">          2 :   private val eventGroups: Flow&lt;EventGroup&gt;,</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">          2 :   private val throttler: Throttler,</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          2 :   private val tracer: Tracer = GlobalOpenTelemetry.getTracer(&quot;wfa.edpa&quot;),</span></a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">          2 : ) {</span></a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">          2 :   private val metrics = EventGroupSyncMetrics(Instrumentation.meter)</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            :   /** Creates metric attributes with data provider name. */</a>
+<a name="70"><span class="lineNum">      70 </span>            :   private fun metricAttributes() =</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">          2 :     Attributes.of(AttributeKey.stringKey(&quot;data_provider_name&quot;), edpName)</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">          2 :   suspend fun sync(): Flow&lt;MappedEventGroup&gt; = flow {</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">          2 :     withSpan(</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">          2 :       tracer,</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">          2 :       &quot;EventGroupSync&quot;,</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">          2 :       Attributes.of(</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">          2 :         AttributeKey.stringKey(&quot;data_provider_name&quot;),</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">          2 :         edpName,</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">          2 :         AttributeKey.stringKey(&quot;source&quot;),</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">          2 :         &quot;kingdom&quot;,</span></a>
+<a name="82"><span class="lineNum">      82 </span>            :       ),</a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">          2 :       errorMessage = &quot;EventGroupSync failed&quot;,</span></a>
+<a name="84"><span class="lineNum">      84 </span>            :     ) { _ -&gt;</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">          2 :       val syncedEventGroups: Map&lt;String, CmmsEventGroup&gt; =</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">          2 :         fetchEventGroups().toList().associateBy { it.eventGroupReferenceId }</span></a>
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">          2 :       eventGroups.collect { eventGroup: EventGroup -&gt;</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">          2 :         syncEventGroupItem(eventGroup, syncedEventGroups)?.let { emit(it) }</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">          2 :       }</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">          2 :     }</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">          2 :   }</span></a>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<a name="94"><span class="lineNum">      94 </span>            :   /**</a>
+<a name="95"><span class="lineNum">      95 </span>            :    * Syncs a single event group item.</a>
+<a name="96"><span class="lineNum">      96 </span>            :    *</a>
+<a name="97"><span class="lineNum">      97 </span>            :    * @param eventGroup The event group to sync</a>
+<a name="98"><span class="lineNum">      98 </span>            :    * @param syncedEventGroups A map of event group reference IDs to CmmsEventGroups</a>
+<a name="99"><span class="lineNum">      99 </span>            :    * @return MappedEventGroup if sync succeeds, null if sync fails</a>
+<a name="100"><span class="lineNum">     100 </span>            :    */</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          2 :   private suspend fun syncEventGroupItem(</span></a>
+<a name="102"><span class="lineNum">     102 </span>            :     eventGroup: EventGroup,</a>
+<a name="103"><span class="lineNum">     103 </span>            :     syncedEventGroups: Map&lt;String, CmmsEventGroup&gt;,</a>
+<a name="104"><span class="lineNum">     104 </span>            :   ): MappedEventGroup? {</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          2 :     val eventGroupRefId = eventGroup.eventGroupReferenceId</span></a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">          2 :     return try {</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">          2 :       withSpan(</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">          2 :         tracer,</span></a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">          2 :         &quot;EventGroupSync.Item&quot;,</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">          2 :         Attributes.of(</span></a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">          2 :           AttributeKey.stringKey(&quot;event_group_reference_id&quot;),</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          2 :           eventGroupRefId,</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">          2 :           AttributeKey.stringKey(&quot;data_provider_name&quot;),</span></a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">          2 :           edpName,</span></a>
+<a name="116"><span class="lineNum">     116 </span>            :         ),</a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          2 :         errorMessage = &quot;Event Group sync failed&quot;,</span></a>
+<a name="118"><span class="lineNum">     118 </span>            :       ) { _ -&gt;</a>
+<a name="119"><span class="lineNum">     119 </span>            :         // Start timing for sync latency</a>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">          2 :         val syncStartTime = TimeSource.Monotonic.markNow()</span></a>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<a name="122"><span class="lineNum">     122 </span>            :         // Record sync attempt</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">          2 :         metrics.syncAttempts.add(1, metricAttributes())</span></a>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          2 :         validateEventGroup(eventGroup)</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">          2 :         val syncedEventGroup: CmmsEventGroup =</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">          2 :           if (eventGroup.eventGroupReferenceId in syncedEventGroups) {</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">          1 :             val existingEventGroup: CmmsEventGroup =</span></a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">          1 :               syncedEventGroups.getValue(eventGroup.eventGroupReferenceId)</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">          1 :             val updatedEventGroup: CmmsEventGroup = updateEventGroup(existingEventGroup, eventGroup)</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">          1 :             if (updatedEventGroup != existingEventGroup) {</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">          1 :               updateCmmsEventGroup(updatedEventGroup)</span></a>
+<a name="133"><span class="lineNum">     133 </span>            :             } else {</a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">          1 :               existingEventGroup</span></a>
+<a name="135"><span class="lineNum">     135 </span>            :             }</a>
+<a name="136"><span class="lineNum">     136 </span>            :           } else {</a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">          2 :             createCmmsEventGroup(edpName, eventGroup)</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :           }</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            :         // Record sync success and latency</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">          2 :         metrics.syncSuccess.add(1, metricAttributes())</span></a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">          2 :         val syncLatency = syncStartTime.elapsedNow().inWholeMilliseconds / 1000.0</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">          2 :         metrics.syncLatency.record(syncLatency, metricAttributes())</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">          2 :         mappedEventGroup {</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">          2 :           eventGroupReferenceId = syncedEventGroup.eventGroupReferenceId</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          2 :           eventGroupResource = syncedEventGroup.name</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">          2 :         }</span></a>
+<a name="150"><span class="lineNum">     150 </span>            :       }</a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">          1 :     } catch (e: Exception) {</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">          1 :       if (e is CancellationException) throw e</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : </a>
+<a name="154"><span class="lineNum">     154 </span>            :       // Record sync failure</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">          1 :       metrics.syncFailure.add(1, metricAttributes())</span></a>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          1 :       logger.severe(</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">          1 :         &quot;Unable to process Event Group ${eventGroup.eventGroupReferenceId}: ${e.message}&quot;</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :       )</a>
+<a name="160"><span class="lineNum">     160 </span>            :       // Note: sync attempt was already recorded, but no success/latency on failure</a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          2 :       null</span></a>
+<a name="162"><span class="lineNum">     162 </span>            :     }</a>
+<a name="163"><span class="lineNum">     163 </span>            :   }</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span>            :   /*</a>
+<a name="166"><span class="lineNum">     166 </span>            :    * Updates the Cmms Public API with a [CmmsEventGroup].</a>
+<a name="167"><span class="lineNum">     167 </span>            :    */</a>
+<a name="168"><span class="lineNum">     168 </span>            :   private suspend fun updateCmmsEventGroup(eventGroup: CmmsEventGroup): CmmsEventGroup {</a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          1 :     return throttler.onReady {</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">          1 :       eventGroupsStub.updateEventGroup(updateEventGroupRequest { this.eventGroup = eventGroup })</span></a>
+<a name="171"><span class="lineNum">     171 </span>            :     }</a>
+<a name="172"><span class="lineNum">     172 </span>            :   }</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            :   /*</a>
+<a name="175"><span class="lineNum">     175 </span>            :    * Calls the Cmms Public API to create a [CmmsEventGroup] from an [EventGroup].</a>
+<a name="176"><span class="lineNum">     176 </span>            :    */</a>
+<a name="177"><span class="lineNum">     177 </span>            :   private suspend fun createCmmsEventGroup(</a>
+<a name="178"><span class="lineNum">     178 </span>            :     edpName: String,</a>
+<a name="179"><span class="lineNum">     179 </span>            :     eventGroup: EventGroup,</a>
+<a name="180"><span class="lineNum">     180 </span>            :   ): CmmsEventGroup {</a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">          2 :     val request = createEventGroupRequest {</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">          2 :       parent = edpName</span></a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineCov">          2 :       this.eventGroup = cmmsEventGroup {</span></a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">          2 :         measurementConsumer = eventGroup.measurementConsumer</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          2 :         eventGroupReferenceId = eventGroup.eventGroupReferenceId</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">          2 :         this.eventGroupMetadata = cmmsEventGroupMetadata {</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">          2 :           this.adMetadata =</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">          2 :             CmmsEventGroupMetadataKt.adMetadata {</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">          2 :               this.campaignMetadata =</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">          2 :                 CmmsAdMetadataKt.campaignMetadata {</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">          2 :                   brandName = eventGroup.eventGroupMetadata.adMetadata.campaignMetadata.brand</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">          2 :                   campaignName = eventGroup.eventGroupMetadata.adMetadata.campaignMetadata.campaign</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">          2 :                 }</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">          2 :             }</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">          2 :         }</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">          2 :         mediaTypes += eventGroup.mediaTypesList.map { it.toCmmsMediaType() }</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">          2 :         dataAvailabilityInterval = eventGroup.dataAvailabilityInterval</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineCov">          2 :       }</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">          2 :     }</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">          2 :     return throttler.onReady { eventGroupsStub.createEventGroup(request) }</span></a>
+<a name="201"><span class="lineNum">     201 </span>            :   }</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            :   /*</a>
+<a name="204"><span class="lineNum">     204 </span>            :    * Returns a copy of a [CmmsEventGroup] with information from an [EventGroup].</a>
+<a name="205"><span class="lineNum">     205 </span>            :    * Used to determine if a CmmsEventGroup needs updating.</a>
+<a name="206"><span class="lineNum">     206 </span>            :    */</a>
+<a name="207"><span class="lineNum">     207 </span>            :   private fun updateEventGroup(</a>
+<a name="208"><span class="lineNum">     208 </span>            :     existingEventGroup: CmmsEventGroup,</a>
+<a name="209"><span class="lineNum">     209 </span>            :     eventGroup: EventGroup,</a>
+<a name="210"><span class="lineNum">     210 </span>            :   ): CmmsEventGroup {</a>
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">          1 :     return existingEventGroup.copy {</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">          1 :       measurementConsumer = eventGroup.measurementConsumer</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">          1 :       eventGroupReferenceId = eventGroup.eventGroupReferenceId</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">          1 :       this.eventGroupMetadata = cmmsEventGroupMetadata {</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">          1 :         this.adMetadata =</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineCov">          1 :           CmmsEventGroupMetadataKt.adMetadata {</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">          1 :             this.campaignMetadata =</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineCov">          1 :               CmmsAdMetadataKt.campaignMetadata {</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineCov">          1 :                 brandName = eventGroup.eventGroupMetadata.adMetadata.campaignMetadata.brand</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineCov">          1 :                 campaignName = eventGroup.eventGroupMetadata.adMetadata.campaignMetadata.campaign</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">          1 :               }</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineCov">          1 :           }</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">          1 :       }</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineCov">          1 :       mediaTypes.clear()</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">          1 :       mediaTypes += eventGroup.mediaTypesList.map { it.toCmmsMediaType() }</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">          1 :       dataAvailabilityInterval = eventGroup.dataAvailabilityInterval</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">          1 :     }</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :   }</a>
+<a name="229"><span class="lineNum">     229 </span>            : </a>
+<a name="230"><span class="lineNum">     230 </span>            :   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.</a>
+<a name="231"><span class="lineNum">     231 </span>            :   private fun fetchEventGroups(): Flow&lt;CmmsEventGroup&gt; {</a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">          2 :     return eventGroupsStub</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">          2 :       .listResources { pageToken: String -&gt;</span></a>
+<a name="234"><span class="lineNum">     234 </span>            :         val response =</a>
+<a name="235"><span class="lineNum">     235 </span>            :           try {</a>
+<a name="236"><span class="lineNum">     236 </span>            :             throttler.onReady {</a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">          2 :               eventGroupsStub.listEventGroups(</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">          2 :                 listEventGroupsRequest {</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">          2 :                   parent = edpName</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">          2 :                   this.pageToken = pageToken</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">          2 :                 }</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">          2 :               )</span></a>
+<a name="243"><span class="lineNum">     243 </span>            :             }</a>
+<a name="244"><span class="lineNum">     244 </span>            :           } catch (e: StatusException) {</a>
+<a name="245"><span class="lineNum">     245 </span>            :             throw Exception(&quot;Error listing EventGroups&quot;, e)</a>
+<a name="246"><span class="lineNum">     246 </span>            :           }</a>
+<a name="247"><span class="lineNum">     247 </span>            :         ResourceList(response.eventGroupsList, response.nextPageToken)</a>
+<a name="248"><span class="lineNum">     248 </span>            :       }</a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">          2 :       .flattenConcat()</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :   }</a>
+<a name="251"><span class="lineNum">     251 </span>            : </a>
+<a name="252"><span class="lineNum">     252 </span>            :   private fun MediaType.toCmmsMediaType(): CmmsMediaType {</a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">          2 :     return when (this) {</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :       MediaType.MEDIA_TYPE_UNSPECIFIED -&gt; error(&quot;Media type must be set&quot;)</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">          2 :       MediaType.VIDEO -&gt; CmmsMediaType.VIDEO</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">          1 :       MediaType.DISPLAY -&gt; CmmsMediaType.DISPLAY</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">          1 :       MediaType.OTHER -&gt; CmmsMediaType.OTHER</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :       MediaType.UNRECOGNIZED -&gt; error(&quot;Not a real media type&quot;)</span></a>
+<a name="259"><span class="lineNum">     259 </span>            :     }</a>
+<a name="260"><span class="lineNum">     260 </span>            :   }</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span>            :   companion object {</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">          2 :     private val logger: Logger = Logger.getLogger(this::class.java.name)</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            :     /*</a>
+<a name="266"><span class="lineNum">     266 </span>            :      * Validates that event groups fields are populated</a>
+<a name="267"><span class="lineNum">     267 </span>            :      * Throws exceptions for any invalid fields.</a>
+<a name="268"><span class="lineNum">     268 </span>            :      */</a>
+<a name="269"><span class="lineNum">     269 </span>            :     fun validateEventGroup(eventGroup: EventGroup) {</a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">          2 :       check(eventGroup.mediaTypesList.size &gt; 0) { &quot;At least one media type must be set&quot; }</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">          2 :       check(eventGroup.hasDataAvailabilityInterval()) { &quot;Data availability must be set&quot; }</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">          2 :       check(eventGroup.hasEventGroupMetadata()) { &quot;Event Group Metadata must be set&quot; }</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">          2 :       check(eventGroup.eventGroupReferenceId.isNotBlank()) {</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">          1 :         &quot;Event Group Reference Id must be set&quot;</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :       }</a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">          2 :       check(eventGroup.measurementConsumer.isNotBlank()) { &quot;Measurement Consumer must be set&quot; }</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">          2 :     }</span></a>
+<a name="278"><span class="lineNum">     278 </span>            :   }</a>
+<a name="279"><span class="lineNum">     279 </span>            : }</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
