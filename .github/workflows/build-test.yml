@@ -75,8 +75,10 @@ jobs:
           build --define pdp_cert_name=dataProviders/foodp1/certificates/bar1
           build --define google_cloud_project=example-project
           build --define basic_reports_enabled=true
-          build --nostamp 
-          build --incompatible_strict_action_env
+          build --experimental_strict_action_env
+          build --verbose_failures
+          build --features=deterministic_archive
+          build --action_env=SOURCE_DATE_EPOCH=1
           EOF
 
       - name: Set TCP keepalive
