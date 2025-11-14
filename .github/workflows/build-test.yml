@@ -75,7 +75,6 @@ jobs:
           build --define pdp_cert_name=dataProviders/foodp1/certificates/bar1
           build --define google_cloud_project=example-project
           build --define basic_reports_enabled=true
-          build --experimental_zip_kinetic_sort 
           build --nostamp 
           build --incompatible_strict_action_env
           EOF
