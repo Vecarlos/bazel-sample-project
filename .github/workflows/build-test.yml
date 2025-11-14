@@ -125,9 +125,7 @@ jobs:
           --experimental_split_coverage_postprocessing 
           --experimental_fetch_all_coverage_outputs 
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
-          //src/test/python/...
           //src/test/kotlin/...
-          //src/test/cc/...
         continue-on-error: true
 
 
@@ -164,105 +162,102 @@ jobs:
           name: coverage-report
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Merge deterministic coverage
-        run: |
-          mkdir -p merged_cov
-          OUTPUT=merged_cov/coverage_merged.dat
-          TMP=merged_cov/tmp
+      # - name: Merge deterministic coverage
+      #   run: |
+      #     mkdir -p merged_cov
+      #     OUTPUT=merged_cov/coverage_merged.dat
+      #     TMP=merged_cov/tmp
 
-          rm -f "$OUTPUT"
-          rm -rf "$TMP"
-          mkdir -p "$TMP"
+      #     rm -f "$OUTPUT"
+      #     rm -rf "$TMP"
+      #     mkdir -p "$TMP"
 
-          # Extraer y agrupar por archivo
-          find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
-            | xargs -0 cat \
-            | awk -v TMP="$TMP" '
-                /^SF:/ {
-                    file=$0
-                    sub("^SF:", "", file)
-                    current=file
+      #     # Extraer y agrupar por archivo
+      #     find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
+      #       | xargs -0 cat \
+      #       | awk -v TMP="$TMP" '
+      #           /^SF:/ {
+      #               file=$0
+      #               sub("^SF:", "", file)
+      #               current=file
 
-                    out = TMP "/" current ".tmp"
-                    dir = out
-                    sub("/[^/]+\.tmp$", "", dir)
-                    system("mkdir -p \"" dir "\"")
+      #               out = TMP "/" current ".tmp"
+      #               dir = out
+      #               sub("/[^/]+\.tmp$", "", dir)
+      #               system("mkdir -p \"" dir "\"")
 
-                    next
-                }
+      #               next
+      #           }
 
-                # Aceptamos solo DA/FN/FNDA
-                current && ( /^FN:/ || /^FNDA:/ || /^DA:/ ) {
-                    out = TMP "/" current ".tmp"
-                    print $0 >> out
-                }
-            '
+      #           # Aceptamos solo DA/FN/FNDA
+      #           current && ( /^FN:/ || /^FNDA:/ || /^DA:/ ) {
+      #               out = TMP "/" current ".tmp"
+      #               print $0 >> out
+      #           }
+      #       '
 
-          # 🔥 FILTRO DE MÉTODOS GENERADOS POR KOTLIN
-          function should_skip_method() {
-            local line="$1"
+      #     # 🔥 FILTRO DE MÉTODOS GENERADOS POR KOTLIN
+      #     function should_skip_method() {
+      #       local line="$1"
 
-            # excluir anónimos: $1, $2, $3...
-            [[ "$line" =~ \$[0-9]+ ]] && return 0
+      #       # excluir anónimos: $1, $2, $3...
+      #       [[ "$line" =~ \$[0-9]+ ]] && return 0
 
-            # excluir synthetic
-            [[ "$line" =~ access\$ ]] && return 0
+      #       # excluir synthetic
+      #       [[ "$line" =~ access\$ ]] && return 0
 
-            # excluir inline defaults
-            [[ "$line" =~ \$default ]] && return 0
+      #       return 1
+      #     }
 
-            return 1
-          }
+      #     export -f should_skip_method
 
-          export -f should_skip_method
+      #     # Generar LCOV normalizado
+      #     for f in $(find "$TMP" -name "*.tmp"); do
+      #       file=$(echo "$f" | sed "s|$TMP/||; s|\.tmp$||")
 
-          # Generar LCOV normalizado
-          for f in $(find "$TMP" -name "*.tmp"); do
-            file=$(echo "$f" | sed "s|$TMP/||; s|\.tmp$||")
+      #       echo "SF:$file" >> "$OUTPUT"
 
-            echo "SF:$file" >> "$OUTPUT"
+      #       # FN (métodos definidos)
+      #       grep '^FN:' "$f" 2>/dev/null \
+      #         | while read -r line; do
+      #             should_skip_method "$line" || echo "$line"
+      #           done \
+      #         | sort -u >> "$OUTPUT"
 
-            # FN (métodos definidos)
-            grep '^FN:' "$f" 2>/dev/null \
-              | while read -r line; do
-                  should_skip_method "$line" || echo "$line"
-                done \
-              | sort -u >> "$OUTPUT"
+      #       # FNDA (conteo por método)
+      #       grep '^FNDA:' "$f" 2>/dev/null \
+      #         | while read -r line; do
+      #             should_skip_method "$line" || echo "$line"
+      #           done \
+      #         | sort -u >> "$OUTPUT"
 
-            # FNDA (conteo por método)
-            grep '^FNDA:' "$f" 2>/dev/null \
-              | while read -r line; do
-                  should_skip_method "$line" || echo "$line"
-                done \
-              | sort -u >> "$OUTPUT"
+      #       # DA (linhas ejecutables)
+      #       grep '^DA:' "$f" 2>/dev/null \
+      #         | sort -t: -k2,2n -u >> "$OUTPUT"
 
-            # DA (linhas ejecutables)
-            grep '^DA:' "$f" 2>/dev/null \
-              | sort -t: -k2,2n -u >> "$OUTPUT"
+      #       echo "end_of_record" >> "$OUTPUT"
+      #     done
 
-            echo "end_of_record" >> "$OUTPUT"
-          done
-
-          echo "Generated deterministic LCOV: $OUTPUT"
+      #     echo "Generated deterministic LCOV: $OUTPUT"
 
 
-      - name: Upload merged coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: merged_cov/coverage_merged.dat
-          name: deterministic-coverage
-
-
-      # - name: Upload coverage reports to Codecov
+      # - name: Upload merged coverage to Codecov
       #   uses: codecov/codecov-action@v5
       #   with:
       #     fail_ci_if_error: true
       #     token: ${{ secrets.CODECOV_TOKEN }}
       #     slug: vecarlos/bazel-sample-project
-      #     files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+      #     files: merged_cov/coverage_merged.dat
+      #     name: deterministic-coverage
+
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
       # - name: Upload all coverage.dat files to Codecov
