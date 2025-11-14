@@ -176,16 +176,32 @@ jobs:
           # Extraer y agrupar por archivo
           find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
             | xargs -0 cat \
-            | awk '
-                /^SF:/ { file=$0; sub("^SF:", "", file); current=file; next }
+            | awk -v TMP="$TMP" '
+                # Cuando aparece SF:...
+                /^SF:/ {
+                    file=$0
+                    sub("^SF:", "", file)
+                    current=file
+
+                    # Crear directorios
+                    out = TMP "/" current ".tmp"
+                    dir = out
+                    sub("/[^/]+\.tmp$", "", dir)
+                    system("mkdir -p \"" dir "\"")
+
+                    next
+                }
+
+                # Extraer FN, FNDA, DA
                 current && ( /^FN:/ || /^FNDA:/ || /^DA:/ ) {
-                    print $0 >> ("'"$TMP"'/" current ".tmp")
+                    out = TMP "/" current ".tmp"
+                    print $0 >> out
                 }
             '
 
-          # Generar LCOV determinístico
-          for f in "$TMP"/*.tmp; do
-            file=$(basename "$f" .tmp)
+          # Generar LCOV determinístico final
+          for f in $(find "$TMP" -name "*.tmp"); do
+            file=$(echo "$f" | sed "s|$TMP/||; s|\.tmp$||")
 
             {
               echo "SF:$file"
