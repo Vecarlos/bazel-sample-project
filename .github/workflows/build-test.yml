@@ -168,14 +168,38 @@ jobs:
         run: |
           mkdir -p merged_cov
           OUTPUT=merged_cov/coverage_merged.dat
+          TMP=merged_cov/tmp
+
+          rm -f "$OUTPUT"
+          mkdir -p "$TMP"
+
+          # Extraer y agrupar por archivo
           find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
             | xargs -0 cat \
-            | grep -E "^(SF:|FN:|FNDA:|DA:)" \
-            | sort \
-            | uniq \
-            > "$OUTPUT"
+            | awk '
+                /^SF:/ { file=$0; sub("^SF:", "", file); current=file; next }
+                current && ( /^FN:/ || /^FNDA:/ || /^DA:/ ) {
+                    print $0 >> ("'"$TMP"'/" current ".tmp")
+                }
+            '
 
-          echo "Merged coverage saved to $OUTPUT"
+          # Generar LCOV determinístico
+          for f in "$TMP"/*.tmp; do
+            file=$(basename "$f" .tmp)
+
+            {
+              echo "SF:$file"
+
+              grep '^FN:' "$f" 2>/dev/null | sort -u
+              grep '^FNDA:' "$f" 2>/dev/null | sort -u
+              grep '^DA:' "$f" 2>/dev/null | sort -u
+
+              echo "end_of_record"
+            } >> "$OUTPUT"
+          done
+
+          echo "Generated deterministic LCOV: $OUTPUT"
+
 
       - name: Upload merged coverage to Codecov
         uses: codecov/codecov-action@v5
