@@ -1,0 +1,16 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+
+filegroup(
+    name = "jacoco_cli",
+    srcs = [
+        "@maven//:org_jacoco_org_jacoco_cli",  # JaCoCo CLI desde rules_jvm_external
+    ],
+)
+
+sh_binary(
+    name = "jacoco_report",
+    srcs = ["jacoco_report.sh"],
+    data = [
+        ":jacoco_cli",
+    ],
+)
