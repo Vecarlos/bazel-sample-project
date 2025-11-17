@@ -157,6 +157,27 @@ jobs:
       #     sort $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat | md5sum
       #     grep -A5 "PrincipalIdentity" $BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat
 
+      - name: Remove unstable file from LCOV
+        run: |
+          INPUT="$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat"
+          OUTPUT="$BAZEL_OUTPUT_PATH/_coverage/_coverage_report_filtered.dat"
+
+          # Archivo a remover
+          VICTIM="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/FrequencyVectorBuilder.kt"
+
+          # Generar LCOV sin ese archivo
+          awk -v victim="$VICTIM" '
+            /^SF:/ {
+              current = $0
+              sub(/^SF:/, "", current)
+              skip = (current == victim)
+            }
+            skip == 0 { print $0 }
+          ' "$INPUT" > "$OUTPUT"
+
+          echo "Filtered LCOV generated: $OUTPUT"
+
+
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
@@ -259,7 +280,9 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report_filtered.dat
+
+          # files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
 
       # - name: Upload all coverage.dat files to Codecov
