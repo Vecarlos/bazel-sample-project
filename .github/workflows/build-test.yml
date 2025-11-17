@@ -142,9 +142,12 @@ jobs:
             --experimental_fetch_all_coverage_outputs \
             --java_runtime_version=remotejdk_17 \
             --collect_code_coverage \
+            --experimental_java_coverage \
+            --java_coverage_tool=@bazel_tools//tools/jdk:jacoco_coverage_runner \
             --coverage_report_generator=//tools:jacoco_report \
             --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}" \
             //src/test/kotlin/...
+
         continue-on-error: true
 
       # - name: Run tests with coverage
