@@ -116,7 +116,6 @@ jobs:
       #   continue-on-error: true
 
 
-
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
