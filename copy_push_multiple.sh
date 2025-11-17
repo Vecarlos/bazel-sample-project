@@ -133,8 +133,8 @@ TOTAL_RUNS=10
 # VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
 # VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/eventgroups/EventGroupSync.kt"
 # VICTIM_FILE_2="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common/FrequencyVectorBuilder.kt"
-VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
-# VICTIM_FILE_4="src/main/kotlin/org/wfanet/measurement/reporting/service/api/CelEnvProvider.kt"
+# VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
+VICTIM_FILE_4="src/main/kotlin/org/wfanet/measurement/reporting/service/api/CelEnvProvider.kt"
 
 
 INJECTED_CONTENT=$(cat <<EOF
@@ -180,8 +180,8 @@ do
 
   # sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_1" || true
   # sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_2" || true
-  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
-  # sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_4" || true
+  # sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_4" || true
   if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
     commit_msg="ACTIVE $i: Comment test and add empty functions"
@@ -189,8 +189,8 @@ do
     echo "Uncomment RequisitionMetadataServiceTest and add functions"
     # echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
     # echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
-    # echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
+    # echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
     commit_msg="ACTIVE $i: Uncomment test and delete empty functions"
   fi
 
