@@ -183,7 +183,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report_filtered.dat
+          # path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
       # - name: Merge deterministic coverage
       #   run: |
