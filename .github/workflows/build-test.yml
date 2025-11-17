@@ -114,39 +114,22 @@ jobs:
           exclusion_filter=$(bazel query --noimplicit_deps "${query}" --output label | sed 's/^/-/' | paste -sd,)
           echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
-      # - name: Run tests with coverage
-      #   id: run-coverage
-      #   env:
-      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-      #     USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
-      #   run: >
-      #     bazel coverage 
-      #     --cache_test_results=yes
-      #     --experimental_split_coverage_postprocessing 
-      #     --experimental_fetch_all_coverage_outputs 
-      #     --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
-      #     //src/test/python/...
-      #     //src/test/kotlin/...
-      #     //src/test/cc/...
-      #   continue-on-error: true
-
-
       - name: Run tests with coverage
         id: run-coverage
         env:
           COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-        run: |
-          bazel coverage \
-            --cache_test_results=yes \
-            --experimental_split_coverage_postprocessing \
-            --experimental_fetch_all_coverage_outputs \
-            --java_runtime_version=remotejdk_17 \
-            --collect_code_coverage \
-            --java_coverage_tool=@bazel_tools//tools/jdk:jacoco_coverage_runner \
-            --coverage_report_generator=//tools:jacoco_report \
-            --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}" \
-            //src/test/kotlin/...
+          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
+        run: >
+          bazel coverage 
+          --cache_test_results=yes
+          --experimental_split_coverage_postprocessing 
+          --experimental_fetch_all_coverage_outputs 
+          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
+          //src/test/python/...
+          //src/test/kotlin/...
+          //src/test/cc/...
         continue-on-error: true
+
 
       # - name: Run tests with coverage
       #   id: run-coverage

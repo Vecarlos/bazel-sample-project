@@ -234,12 +234,8 @@ maven.artifact(
     ],
     group = "org.apache.beam",
 )
-
-
 maven.install(
     artifacts = [
-        "org.jacoco:org.jacoco.cli:0.8.10",
-
         "com.google.crypto.tink:tink-awskms:1.11.0",
         "com.google.crypto.tink:tink-gcpkms:1.9.0",
         "com.squareup.okhttp3:okhttp",
@@ -313,9 +309,6 @@ maven.install(
         "cross-media-measurement-system",
         "rules_kotlin_jvm",
         "virtual-people-common",
-    ],
-    repositories = [
-        "https://repo.maven.apache.org/maven2",
     ],
     lock_file = "//:maven_install.json",
     resolver = "maven",
@@ -453,4 +446,3 @@ single_version_override(
     module_name = "boringssl",
     version = BORINGSSL_VERSION,
 )
-
