@@ -213,6 +213,7 @@ class RequisitionFetcher(
 
         requisitions
       } catch (e: Exception) {
+        println("🔥🔥🔥 EXCEPCIÓN CAPTURADA EN EL TEST: ${e.message}")
         Span.current()
           .addEvent(
             EVENT_FETCH_FAILED,
@@ -248,6 +249,7 @@ class RequisitionFetcher(
         try {
           block()
         } catch (e: Exception) {
+          println("🔥🔥🔥 EXCEPCIÓN CAPTURADA EN EL TEST: ${e.message}")
           Span.current()
             .addEvent(
               EVENT_STORE_FAILED,
