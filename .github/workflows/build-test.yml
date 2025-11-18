@@ -84,36 +84,36 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      - name: Build
-        run: >
-          bazel build --worker_quit_after_build
-          //...
-          //src/main/k8s/local:cmms
-          //src/main/k8s/dev:edp_simulators
+      # - name: Build
+      #   run: >
+      #     bazel build --worker_quit_after_build
+      #     //...
+      #     //src/main/k8s/local:cmms
+      #     //src/main/k8s/dev:edp_simulators
 
       # - name: Run tests
       #   id: run-tests
       #   run: bazel test //...
       #   continue-on-error: true
 
-      # TODO(bazelbuild/rules_kotlin#509): remove this step after the issue with inline functions is fixed
-      # - name: Compute coverage exclusions to work around the issue with inline functions
-      #   id: compute-coverage-exclusions
-      #   run: |
-      #     set -euo pipefail
+      TODO(bazelbuild/rules_kotlin#509): remove this step after the issue with inline functions is fixed
+      - name: Compute coverage exclusions to work around the issue with inline functions
+        id: compute-coverage-exclusions
+        run: |
+          set -euo pipefail
 
-      #     readarray -t kt_files_with_inline_fun < <(grep -rl --include '*.kt' "inline fun" src/main/kotlin/*)
+          readarray -t kt_files_with_inline_fun < <(grep -rl --include '*.kt' "inline fun" src/main/kotlin/*)
 
-      #     files_as_labels=()
-      #     for f in "${kt_files_with_inline_fun[@]}"; do
-      #       pkg="${f%/*}"
-      #       name="${f##*/}"
-      #       files_as_labels+=("//${pkg}:${name}")
-      #     done
+          files_as_labels=()
+          for f in "${kt_files_with_inline_fun[@]}"; do
+            pkg="${f%/*}"
+            name="${f##*/}"
+            files_as_labels+=("//${pkg}:${name}")
+          done
 
-      #     query="kind(rule, rdeps(//..., set(${files_as_labels[*]}), 1))"
-      #     exclusion_filter=$(bazel query --noimplicit_deps "${query}" --output label | sed 's/^/-/' | paste -sd,)
-      #     echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
+          query="kind(rule, rdeps(//..., set(${files_as_labels[*]}), 1))"
+          exclusion_filter=$(bazel query --noimplicit_deps "${query}" --output label | sed 's/^/-/' | paste -sd,)
+          echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
       # - name: Run tests with coverage
       #   id: run-coverage
@@ -131,14 +131,18 @@ jobs:
       #     //src/test/cc/...
       #   continue-on-error: true
 
-
       - name: Run tests with coverage
         id: run-coverage
         env:
+          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
         run: >
-          bazel coverage --cache_test_results=yes --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*" //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
-
+          bazel coverage 
+          --cache_test_results=yes
+          --experimental_split_coverage_postprocessing 
+          --experimental_fetch_all_coverage_outputs 
+          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
+          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
 
 
 
