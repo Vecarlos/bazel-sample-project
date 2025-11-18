@@ -84,12 +84,12 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      # - name: Build
-      #   run: >
-      #     bazel build --worker_quit_after_build
-      #     //...
-      #     //src/main/k8s/local:cmms
-      #     //src/main/k8s/dev:edp_simulators
+      - name: Build
+        run: >
+          bazel build --worker_quit_after_build
+          //...
+          //src/main/k8s/local:cmms
+          //src/main/k8s/dev:edp_simulators
 
       # - name: Run tests
       #   id: run-tests
@@ -137,12 +137,8 @@ jobs:
         env:
           USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
         run: >
-          bazel coverage 
-          --cache_test_results=yes
-          --experimental_split_coverage_postprocessing 
-          --experimental_fetch_all_coverage_outputs 
-          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*"          
-          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+          bazel coverage --cache_test_results=yes --experimental_split_coverage_postprocessing --experimental_fetch_all_coverage_outputs --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*" //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+
 
 
 
