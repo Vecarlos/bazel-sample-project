@@ -313,7 +313,7 @@ class InProcessEdpAggregatorComponents(
       backgroundScope.launch {
         while (true) {
           logger.info("En el look de delay")
-          delay(1000)
+          delay(1200)
           requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
