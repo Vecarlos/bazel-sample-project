@@ -313,7 +313,7 @@ class InProcessEdpAggregatorComponents(
       backgroundScope.launch {
         while (true) {
           logger.info("En el look de delay")
-          delay(1500)
+          delay(1200)
           requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
@@ -356,7 +356,7 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { 
-      delay(300)
+      delay(100)
       try {
         resultFulfillerApp.run()
       } catch (e: kotlinx.coroutines.CancellationException) {
