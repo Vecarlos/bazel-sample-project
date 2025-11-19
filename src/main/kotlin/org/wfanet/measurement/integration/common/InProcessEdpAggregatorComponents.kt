@@ -312,20 +312,9 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          try {
-            // Este delay es funcional (polling cada 1s), NO es un hack.
-            // Si se cancela durante el delay, entra al catch de abajo.
-            delay(1000) 
-            requisitionFetcher.fetchAndStoreRequisitions()
-          } catch (e: kotlinx.coroutines.CancellationException) {
-            // 🛡️ ESCUDO 1:
-            // Capturamos la cancelación para salir del while limpiamente.
-            logger.info("🛑 RequisitionFetcher detenido limpiamente por el test.")
-            break // ¡Importante! Romper el bucle para que la corrutina termine.
-          } catch (e: Exception) {
-            // Errores reales de lógica (red, base de datos, etc)
-            logger.log(Level.SEVERE, "Error inesperado en RequisitionFetcher", e)
-          }
+          logger.info("En el look de delay")
+          delay(1200)
+          requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
@@ -367,6 +356,7 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { 
+      delay(100)
       try {
         resultFulfillerApp.run()
       } catch (e: kotlinx.coroutines.CancellationException) {
