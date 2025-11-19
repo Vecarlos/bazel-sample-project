@@ -356,6 +356,7 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { 
+      delay(100)
       try {
         resultFulfillerApp.run()
       } catch (e: kotlinx.coroutines.CancellationException) {
