@@ -357,7 +357,13 @@ class InProcessEdpAggregatorComponents(
     }
     backgroundScope.launch { 
       delay(100)
-      resultFulfillerApp.run() 
+      try {
+        resultFulfillerApp.run()
+      } catch (e: kotlinx.coroutines.CancellationException) {
+        logger.info("ResultFulfillerApp detenido limpiamente.")
+      } catch (e: Exception) {
+        logger.log(Level.SEVERE, "Error inesperado en ResultFulfillerApp", e)
+      }
     }
   }
 
