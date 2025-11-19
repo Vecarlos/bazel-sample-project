@@ -312,10 +312,17 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          logger.info("En el look de delay")
-          delay(1200)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          try {
+            delay(1000) 
+            requisitionFetcher.fetchAndStoreRequisitions()
+          } catch (e: kotlinx.coroutines.CancellationException) {
+            logger.info("🛑 RequisitionFetcher detenido limpiamente por el test.")
+            break
+          } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error inesperado en RequisitionFetcher", e)
+          }
         }
+      }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
@@ -356,7 +363,6 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { 
-      delay(100)
       try {
         resultFulfillerApp.run()
       } catch (e: kotlinx.coroutines.CancellationException) {
