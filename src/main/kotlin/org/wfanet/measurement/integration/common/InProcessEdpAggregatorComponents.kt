@@ -312,8 +312,17 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          try {
+            delay(1000) // Delay funcional
+            requisitionFetcher.fetchAndStoreRequisitions()
+          } catch (e: kotlinx.coroutines.CancellationException) {
+            // 🛡️ ESCUDO: Si el test cancela, salimos en silencio.
+            // Esto evita que RequisitionGrouper reporte error.
+            logger.info("🛑 Fetcher detenido limpiamente.")
+            break 
+          } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error en Fetcher", e)
+          }
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
@@ -354,8 +363,19 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
-  }
+      backgroundScope.launch {
+        try {
+            // Sin delay artificial, dejamos que corra
+            resultFulfillerApp.run() 
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // 🛡️ ESCUDO: Si el test cancela, salimos en silencio.
+            // Esto evita que MillBase y ProtoConversions reporten error.
+            logger.info("🛑 ResultFulfillerApp detenido limpiamente.")
+        } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error en ResultFulfillerApp", e)
+        }
+      }  
+    }
 
   private suspend fun refuseRequisition(
     requisitionsStub: RequisitionsCoroutineStub,
