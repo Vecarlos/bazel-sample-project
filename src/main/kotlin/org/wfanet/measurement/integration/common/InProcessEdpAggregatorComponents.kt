@@ -310,13 +310,12 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        while (true) {
-          logger.info("En el look de delay")
-          delay(1200)
-          requisitionFetcher.fetchAndStoreRequisitions()
-        }
-      }
+      // backgroundScope.launch {
+      //   while (true) {
+      //     delay(1000)
+      //     requisitionFetcher.fetchAndStoreRequisitions()
+      //   }
+      // }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
@@ -355,16 +354,7 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { 
-      delay(100)
-      try {
-        resultFulfillerApp.run()
-      } catch (e: kotlinx.coroutines.CancellationException) {
-        logger.info("ResultFulfillerApp detenido limpiamente.")
-      } catch (e: Exception) {
-        logger.log(Level.SEVERE, "Error inesperado en ResultFulfillerApp", e)
-      }
-    }
+    // backgroundScope.launch { resultFulfillerApp.run() }
   }
 
   private suspend fun refuseRequisition(
