@@ -72,7 +72,7 @@ class RequisitionFetcher(
    * @throws Exception if there is an error while listing requisitions.
    */
   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
-  suspend fun fetchAndStoreRequisitions() {
+  suspend fun fetchAndStoreRequisitions(): Int {
     logger.info("Executing requisitionFetchingWorkflow for $dataProviderName...")
 
     val startMark = TimeSource.Monotonic.markNow()
@@ -86,6 +86,7 @@ class RequisitionFetcher(
       "$storedRequisitions unfulfilled grouped requisitions have been persisted to storage for " +
         dataProviderName
     )
+    return storedRequisitions
   }
 
   /**

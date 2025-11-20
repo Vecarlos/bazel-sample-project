@@ -312,8 +312,28 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          try {
+            // Llama a la función
+            val processedCount = requisitionFetcher.fetchAndStoreRequisitions()
+            
+            // LÓGICA INTELIGENTE:
+            if (processedCount == 0) {
+               // Si no hubo trabajo, descansamos un rato.
+               delay(1000) 
+            } else {
+               // Si hubo trabajo, NO esperamos. 
+               // Volvemos a ejecutar inmediatamente para vaciar la cola rápido.
+               // Usamos yield() para ser amables con otras corrutinas.
+               kotlinx.coroutines.yield() 
+            }
+
+          } catch (e: kotlinx.coroutines.CancellationException) {
+            logger.info("🛑 Fetcher detenido.")
+            break 
+          } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error en Fetcher", e)
+            delay(5000) // Si hay error, Backoff (esperar más) para no saturar logs
+          }
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
