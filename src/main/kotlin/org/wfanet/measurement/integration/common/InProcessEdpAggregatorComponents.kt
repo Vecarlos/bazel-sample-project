@@ -312,20 +312,10 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-        try {
-          // El delay es funcional, no un parche.
-          delay(1000) 
+          logger.info("En el look de delay")
+          delay(1200)
           requisitionFetcher.fetchAndStoreRequisitions()
-        } catch (e: kotlinx.coroutines.CancellationException) {
-          // 🛡️ ESCUDO ACTIVADO
-          // Al capturar la cancelación aquí y romper el bucle,
-          // evitamos que RequisitionGrouper procese el error de interrupción.
-          logger.info("🛑 RequisitionFetcher detenido limpiamente.")
-          break // IMPORTANTE: Romper el while para salir
-        } catch (e: Exception) {
-          logger.log(Level.SEVERE, "Error inesperado en Fetcher", e)
         }
-      }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
