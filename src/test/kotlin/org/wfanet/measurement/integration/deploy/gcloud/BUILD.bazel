@@ -58,7 +58,7 @@ kt_jvm_library(
 # TODO(bazelbuild/rules_kotlin#1088): Use kt_jvm_test when fixed.
 java_test(
     name = "GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest",
-    size = "enormous",
+    size = "large",
     # TODO(world-federation-of-advertisers/cross-media-measurement#827): Remove when flakiness is resolved.
     flaky = True,
     tags = [
