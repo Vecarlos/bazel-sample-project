@@ -213,7 +213,6 @@ class RequisitionFetcher(
 
         requisitions
       } catch (e: Exception) {
-        if (e is kotlinx.coroutines.CancellationException) throw e
         println("🔥🔥🔥 EXCEPCIÓN CAPTURADA EN EL TEST: ${e.message}")
         Span.current()
           .addEvent(
@@ -250,8 +249,6 @@ class RequisitionFetcher(
         try {
           block()
         } catch (e: Exception) {
-
-          if (e is kotlinx.coroutines.CancellationException) throw e
           println("🔥🔥🔥 EXCEPCIÓN CAPTURADA EN EL TEST: ${e.message}")
           Span.current()
             .addEvent(
