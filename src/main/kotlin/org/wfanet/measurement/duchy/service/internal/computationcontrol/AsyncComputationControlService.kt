@@ -61,16 +61,33 @@ class AsyncComputationControlService(
     while (coroutineContext.isActive) {
       try {
         return advanceComputationInternal(request)
-      } catch (e: RetryableException) {
-        if (attempt < maxAdvanceAttempts) {
-          logger.log(Level.WARNING, e) {
-            "[id=$globalComputationId]: advanceComputation attempt #$attempt failed; retrying"
-          }
-          delay(advanceRetryBackoff.durationForAttempt(attempt))
-          attempt++
-          continue
-        }
-        throw e
+      } catch (e: Exception) {
+         // 🛡️ ESCUDO: Si se cancela, salimos inmediatamente.
+         // Verificamos si es CancellationException o si la causa lo es.
+         if (e is kotlinx.coroutines.CancellationException || 
+             e.cause is kotlinx.coroutines.CancellationException) {
+             throw e 
+         }
+         
+         // También verificamos si gRPC nos dice que fue CANCELLED
+         if (e is StatusException && e.status.code == Status.Code.CANCELLED) {
+             throw e
+         }
+
+         // Si no fue cancelación, vemos si es retryable
+         if (e is RetryableException) {
+            if (attempt < maxAdvanceAttempts) {
+              logger.log(Level.WARNING, e) {
+                "[id=$globalComputationId]: advanceComputation attempt #$attempt failed; retrying"
+              }
+              delay(advanceRetryBackoff.durationForAttempt(attempt))
+              attempt++
+              continue
+            }
+            throw e
+         }
+         // Si es otro error no controlado, lo dejamos subir
+         throw e
       }
     }
 
@@ -159,6 +176,7 @@ class AsyncComputationControlService(
             }
           )
         } catch (e: StatusException) {
+          if (e.status.code == Status.Code.CANCELLED) throw e
           throw when (e.status.code) {
             Status.Code.UNAVAILABLE,
             Status.Code.ABORTED -> RetryableException(e)
@@ -179,6 +197,7 @@ class AsyncComputationControlService(
           stage = stages.nextStage(token.computationStage, role),
         )
       } catch (e: StatusException) {
+        if (e.status.code == Status.Code.CANCELLED) throw e
         throw when (e.status.code) {
           Status.Code.UNAVAILABLE,
           Status.Code.ABORTED -> RetryableException(e)
