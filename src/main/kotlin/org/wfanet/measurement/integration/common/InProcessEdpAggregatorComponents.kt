@@ -312,17 +312,8 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          try {
-            delay(1000) // Delay funcional
-            requisitionFetcher.fetchAndStoreRequisitions()
-          } catch (e: kotlinx.coroutines.CancellationException) {
-            // 🛡️ ESCUDO: Si el test cancela, salimos en silencio.
-            // Esto evita que RequisitionGrouper reporte error.
-            logger.info("🛑 Fetcher detenido limpiamente.")
-            break 
-          } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error en Fetcher", e)
-          }
+          delay(1000)
+          requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
@@ -363,19 +354,8 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-      backgroundScope.launch {
-        try {
-            // Sin delay artificial, dejamos que corra
-            resultFulfillerApp.run() 
-        } catch (e: kotlinx.coroutines.CancellationException) {
-            // 🛡️ ESCUDO: Si el test cancela, salimos en silencio.
-            // Esto evita que MillBase y ProtoConversions reporten error.
-            logger.info("🛑 ResultFulfillerApp detenido limpiamente.")
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error en ResultFulfillerApp", e)
-        }
-      }  
-    }
+    backgroundScope.launch { resultFulfillerApp.run() }
+  }
 
   private suspend fun refuseRequisition(
     requisitionsStub: RequisitionsCoroutineStub,
@@ -533,12 +513,7 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    runBlocking {
-        logger.info("🛑 Apagando demonios...")
-        backgroundJob.cancel() // Mandamos la señal de apagado
-        backgroundJob.join()   // ⏳ ESPERAMOS a que los try-catch de arriba terminen
-        logger.info("✅ Demonios apagados. Ahora es seguro cerrar Spanner.")
-    }
+    backgroundJob.cancel()
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
