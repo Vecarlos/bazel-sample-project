@@ -310,12 +310,12 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      // backgroundScope.launch {
-      //   while (true) {
-      //     delay(1000)
-      //     requisitionFetcher.fetchAndStoreRequisitions()
-      //   }
-      // }
+      backgroundScope.launch {
+        while (true) {
+          delay(1000)
+          requisitionFetcher.fetchAndStoreRequisitions()
+        }
+      }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
@@ -354,7 +354,7 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    // backgroundScope.launch { resultFulfillerApp.run() }
+    backgroundScope.launch { resultFulfillerApp.run() }
   }
 
   private suspend fun refuseRequisition(
@@ -513,7 +513,12 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    backgroundJob.cancel()
+    runBlocking {
+        logger.info("🛑 Apagando demonios...")
+        backgroundJob.cancel() // Mandamos la señal de apagado
+        backgroundJob.join()   // ⏳ ESPERAMOS a que los try-catch de arriba terminen
+        logger.info("✅ Demonios apagados. Ahora es seguro cerrar Spanner.")
+    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
