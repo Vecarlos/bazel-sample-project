@@ -215,24 +215,11 @@ abstract class MillBase(
       try {
         dataClients.computationsClient.claimWork(claimWorkRequest)
       } catch (e: StatusException) {
-        // 🛡️ ESCUDO 1: Si falla la llamada gRPC por cancelación
-        if (e.status.code == Status.Code.CANCELLED) {
-             logger.info("claimWork cancelado limpiamente.")
-             return false 
-        }
-
         if (!computationsServerReady && e.status.code == Status.Code.UNAVAILABLE) {
           logger.info("Computations server not ready")
           return false
         }
         throw Exception("Error claiming work", e)
-      } catch (e: Exception) {
-         // 🛡️ ESCUDO 2: Si falla por cancelación general de corrutina
-         if (e is kotlinx.coroutines.CancellationException) {
-             logger.info("claimAndProcessWork cancelado limpiamente.")
-             throw e // Relanzar para que el bucle superior (si existe) lo maneje, pero ya protegimos el try interno
-         }
-         throw e
       }
     computationsServerReady = true
 
@@ -250,7 +237,7 @@ abstract class MillBase(
     return true
   }
 
-/** Process the computation according to its protocol and status. */
+  /** Process the computation according to its protocol and status. */
   private suspend fun processComputation(token: ComputationToken) {
     if (token.attempt > maximumAttempts) {
       failComputation(token, "Failing computation due to too many failed ComputationStageAttempts.")
@@ -270,15 +257,6 @@ abstract class MillBase(
     try {
       processComputationImpl(token)
     } catch (e: Exception) {
-      // 🛡️ ESCUDO ANTI-VARIACIÓN 🛡️
-      // Si el proceso se cancela (por ejemplo, al apagar el test),
-      // detectamos la CancellationException y salimos inmediatamente.
-      // ESTO EVITA ejecutar 'handleExceptions', que es lo que ensucia el reporte de cobertura.
-      if (e is kotlinx.coroutines.CancellationException) {
-        logger.info("$globalId@$millId: Procesamiento cancelado limpiamente.")
-        throw e
-      }
-      
       handleExceptions(token, e)
     }
     logger.info("$globalId@$millId: Processed computation ")
