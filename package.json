@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@openai/codex": "^0.61.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^6.13.0",
@@ -66,5 +67,23 @@
     "lint": "gts lint",
     "clean": "gts clean",
     "fix": "gts fix"
-  }
+  },
+  "name": "bazel-sample-project",
+  "description": "**Table of Contents**",
+  "version": "1.0.0",
+  "main": ".prettierrc.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vecarlos/bazel-sample-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vecarlos/bazel-sample-project/issues"
+  },
+  "homepage": "https://github.com/Vecarlos/bazel-sample-project#readme"
 }
