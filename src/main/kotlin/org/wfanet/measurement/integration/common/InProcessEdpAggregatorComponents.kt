@@ -362,11 +362,7 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch {
-      workMutex.withLock {
-        resultFulfillerApp.run()
-      }
-    }
+    backgroundScope.launch { resultFulfillerApp.run() }
   }
 
   private suspend fun refuseRequisition(
