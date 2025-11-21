@@ -319,7 +319,9 @@ class InProcessEdpAggregatorComponents(
       backgroundScope.launch {
         while (true) {
           delay(1000)
+          workMutex.withLock {
             requisitionFetcher.fetchAndStoreRequisitions()
+          }
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
