@@ -14,9 +14,6 @@
 
 package org.wfanet.measurement.duchy.mill
 
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
-
 import com.google.protobuf.ByteString
 import com.google.protobuf.util.Durations
 import io.grpc.Status
@@ -257,12 +254,10 @@ abstract class MillBase(
     val globalId = token.globalComputationId
     logger.info("$globalId@$millId: Processing computation, stage $stage")
 
-    withContext(NonCancellable) {
-      try {
-        processComputationImpl(token)
-      } catch (e: Exception) {
-        handleExceptions(token, e)
-      }
+    try {
+      processComputationImpl(token)
+    } catch (e: Exception) {
+      handleExceptions(token, e)
     }
     logger.info("$globalId@$millId: Processed computation ")
 
