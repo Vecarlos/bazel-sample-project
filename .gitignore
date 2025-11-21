@@ -27,3 +27,5 @@ genhtml/
 
 # VS code settings
 .vscode/
+
+codex.js
