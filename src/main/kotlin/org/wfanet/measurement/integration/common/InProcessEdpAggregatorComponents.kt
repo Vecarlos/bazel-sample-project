@@ -112,6 +112,9 @@ import org.wfanet.measurement.securecomputation.service.internal.QueueMapping
 import org.wfanet.measurement.storage.StorageClient
 import org.wfanet.measurement.storage.filesystem.FileSystemStorageClient
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
 class InProcessEdpAggregatorComponents(
   secureComputationDatabaseAdmin: SpannerDatabaseAdmin,
   private val storagePath: Path,
@@ -120,6 +123,9 @@ class InProcessEdpAggregatorComponents(
   private val syntheticEventGroupMap: Map<String, SyntheticEventGroupSpec>,
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
 ) : TestRule {
+
+
+  private val workMutex = Mutex() // 🔒 EL CANDADO
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
@@ -313,7 +319,9 @@ class InProcessEdpAggregatorComponents(
       backgroundScope.launch {
         while (true) {
           delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          workMutex.withLock {
+            requisitionFetcher.fetchAndStoreRequisitions()
+          }
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
