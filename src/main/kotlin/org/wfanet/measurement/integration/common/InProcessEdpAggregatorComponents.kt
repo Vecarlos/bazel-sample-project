@@ -125,7 +125,10 @@ class InProcessEdpAggregatorComponents(
 ) : TestRule {
 
 
-  private val workMutex = Mutex() // 🔒 EL CANDADO
+  private val workMutex = Mutex()
+  private val daemonJob = Job()
+  private val daemonScope = CoroutineScope(Dispatchers.Default + daemonJob)
+
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
@@ -362,7 +365,17 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+    // backgroundScope.launch { resultFulfillerApp.run() }
+    // 2. RESULT FULFILLER (Usamos daemonScope)
+    daemonScope.launch {
+      try {
+        resultFulfillerApp.run()
+      } catch (e: kotlinx.coroutines.CancellationException) {
+        logger.info("🛑 ResultFulfillerApp detenido limpiamente.")
+      } catch (e: Exception) {
+        logger.log(Level.SEVERE, "Error en ResultFulfillerApp", e)
+      }
+    }
   }
 
   private suspend fun refuseRequisition(
