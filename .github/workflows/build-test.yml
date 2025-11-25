@@ -115,22 +115,6 @@ jobs:
           exclusion_filter=$(bazel query --noimplicit_deps "${query}" --output label | sed 's/^/-/' | paste -sd,)
           echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
-      # - name: Run tests with coverage
-      #   id: run-coverage
-      #   env:
-      #     COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-      #     USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
-      #   run: >
-      #     bazel coverage 
-      #     --cache_test_results=yes
-      #     --experimental_split_coverage_postprocessing 
-      #     --experimental_fetch_all_coverage_outputs 
-      #     --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
-      #     //src/test/python/...
-      #     //src/test/kotlin/...
-      #     //src/test/cc/...
-      #   continue-on-error: true
-
       - name: Run tests with coverage
         id: run-coverage
         env:
@@ -139,14 +123,31 @@ jobs:
         run: >
           bazel coverage 
           --cache_test_results=yes
-          --test_output=all
-          --experimental_ui_max_stdouterr_bytes=10485760
           --experimental_split_coverage_postprocessing 
+          --experimental_ui_max_stdouterr_bytes=10485760
           --experimental_fetch_all_coverage_outputs 
-          --test_timeout=1200
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"          
-          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+          //src/test/python/...
+          //src/test/kotlin/...
+          //src/test/cc/...
+        continue-on-error: true
 
+#      - name: Run tests with coverage
+#        id: run-coverage
+#        env:
+#          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
+#          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
+#        run: >
+#          bazel coverage
+#          --cache_test_results=yes
+#          --test_output=all
+#          --experimental_ui_max_stdouterr_bytes=10485760
+#          --experimental_split_coverage_postprocessing
+#          --experimental_fetch_all_coverage_outputs
+#          --test_timeout=1200
+#          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+#
 
 
 
@@ -185,83 +186,7 @@ jobs:
           name: coverage-report
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      # - name: Merge deterministic coverage
-      #   run: |
-      #     mkdir -p merged_cov
-      #     OUTPUT=merged_cov/coverage_merged.dat
-      #     TMP=merged_cov/tmp
 
-      #     rm -f "$OUTPUT"
-      #     rm -rf "$TMP"
-      #     mkdir -p "$TMP"
-
-      #     # Extraer y agrupar por archivo
-      #     find "${BAZEL_TESTLOGS_PATH}" -name "coverage.dat" -print0 \
-      #       | xargs -0 cat \
-      #       | awk -v TMP="$TMP" '
-      #           /^SF:/ {
-      #               file=$0
-      #               sub("^SF:", "", file)
-      #               current=file
-
-      #               out = TMP "/" current ".tmp"
-      #               dir = out
-      #               sub("/[^/]+\.tmp$", "", dir)
-      #               system("mkdir -p \"" dir "\"")
-
-      #               next
-      #           }
-
-      #           # Aceptamos solo DA/FN/FNDA
-      #           current && ( /^FN:/ || /^FNDA:/ || /^DA:/ ) {
-      #               out = TMP "/" current ".tmp"
-      #               print $0 >> out
-      #           }
-      #       '
-
-      #     # 🔥 FILTRO DE MÉTODOS GENERADOS POR KOTLIN
-      #     function should_skip_method() {
-      #       local line="$1"
-
-      #       # excluir anónimos: $1, $2, $3...
-      #       [[ "$line" =~ \$[0-9]+ ]] && return 0
-
-      #       # excluir synthetic
-      #       [[ "$line" =~ access\$ ]] && return 0
-
-      #       return 1
-      #     }
-
-      #     export -f should_skip_method
-
-      #     # Generar LCOV normalizado
-      #     for f in $(find "$TMP" -name "*.tmp"); do
-      #       file=$(echo "$f" | sed "s|$TMP/||; s|\.tmp$||")
-
-      #       echo "SF:$file" >> "$OUTPUT"
-
-      #       # FN (métodos definidos)
-      #       grep '^FN:' "$f" 2>/dev/null \
-      #         | while read -r line; do
-      #             should_skip_method "$line" || echo "$line"
-      #           done \
-      #         | sort -u >> "$OUTPUT"
-
-      #       # FNDA (conteo por método)
-      #       grep '^FNDA:' "$f" 2>/dev/null \
-      #         | while read -r line; do
-      #             should_skip_method "$line" || echo "$line"
-      #           done \
-      #         | sort -u >> "$OUTPUT"
-
-      #       # DA (linhas ejecutables)
-      #       grep '^DA:' "$f" 2>/dev/null \
-      #         | sort -t: -k2,2n -u >> "$OUTPUT"
-
-      #       echo "end_of_record" >> "$OUTPUT"
-      #     done
-
-      #     echo "Generated deterministic LCOV: $OUTPUT"
 
 
       # - name: Upload merged coverage to Codecov
