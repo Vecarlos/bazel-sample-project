@@ -110,4 +110,3 @@ fun BindableService.withInterceptor(interceptor: ServerInterceptor): ServerServi
 fun BindableService.withInterceptors(
   vararg interceptors: ServerInterceptor
 ): ServerServiceDefinition = ServerInterceptors.intercept(this, *interceptors)
-
