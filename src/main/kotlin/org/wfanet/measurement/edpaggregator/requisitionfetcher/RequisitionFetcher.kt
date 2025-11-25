@@ -134,29 +134,28 @@ class RequisitionFetcher(
 
       // Always return the grouped requisitions and counts so that withStoreTelemetry can emit
       // consistent metrics and logs before any exception is rethrown.
-      groupedRequisitions.forEach { groupedRequisition: GroupedRequisitions ->
-        if (groupedRequisition.requisitionsList.isNotEmpty()) {
-          storeGroupedRequisition(groupedRequisition)
-          storedGroupedRequisitions += 1
+      try {
+        groupedRequisitions.forEach { groupedRequisition: GroupedRequisitions ->
+          if (groupedRequisition.requisitionsList.isNotEmpty()) {
+            storeGroupedRequisition(groupedRequisition)
+            storedGroupedRequisitions += 1
+          }
         }
-      }
 
-      StoreTelemetryResult(
-        groupedRequisitions = groupedRequisitions,
-        storedCount = storedGroupedRequisitions,
-      )
-//      try {
-//
-//      } catch (e: Exception) {
-//        val failedGroupedRequisitions = totalToStore - storedGroupedRequisitions
-//        // Attach failure metadata so the telemetry layer can log/record before surfacing the error.
-//        StoreTelemetryResult(
-//          groupedRequisitions = groupedRequisitions,
-//          storedCount = storedGroupedRequisitions,
-//          failedCount = failedGroupedRequisitions,
-//          exception = e,
-//        )
-//      }
+        StoreTelemetryResult(
+          groupedRequisitions = groupedRequisitions,
+          storedCount = storedGroupedRequisitions,
+        )
+      } catch (e: Exception) {
+        val failedGroupedRequisitions = totalToStore - storedGroupedRequisitions
+        // Attach failure metadata so the telemetry layer can log/record before surfacing the error.
+        StoreTelemetryResult(
+          groupedRequisitions = groupedRequisitions,
+          storedCount = storedGroupedRequisitions,
+          failedCount = failedGroupedRequisitions,
+          exception = e,
+        )
+      }
     }
 
   /**
