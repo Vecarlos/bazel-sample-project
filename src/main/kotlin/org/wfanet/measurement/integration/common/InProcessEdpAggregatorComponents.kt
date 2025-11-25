@@ -125,6 +125,9 @@ class InProcessEdpAggregatorComponents(
 
   private lateinit var edpResourceNameMap: Map<String, String>
 
+  private val daemonJob = Job()
+  private val daemonScope = CoroutineScope(Dispatchers.Default + daemonJob)
+
   private lateinit var publicApiChannel: Channel
 
   private lateinit var duchyChannelMap: Map<String, Channel>
@@ -310,10 +313,18 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
+      daemonScope.launch {
         while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          try {
+            delay(1000)
+            requisitionFetcher.fetchAndStoreRequisitions()
+          } catch (e: kotlinx.coroutines.CancellationException) {
+            // 🛡️ Escudo: Salida limpia
+            logger.info("🛑 Fetcher detenido limpiamente.")
+            break
+          } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error en Fetcher", e)
+          }
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
@@ -354,7 +365,16 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+    daemonScope.launch {
+      try {
+        resultFulfillerApp.run()
+      } catch (e: kotlinx.coroutines.CancellationException) {
+        // 🛡️ Escudo: Salida limpia (Evita errores en MillBase y Spanner)
+        logger.info("🛑 ResultFulfillerApp detenido limpiamente.")
+      } catch (e: Exception) {
+        logger.log(Level.SEVERE, "Error en ResultFulfillerApp", e)
+      }
+    }
   }
 
   private suspend fun refuseRequisition(
@@ -513,6 +533,21 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
+    // 🛑 BLOQUEO: El test NO puede terminar hasta que esto acabe.
+    runBlocking {
+      logger.info("🛑 Iniciando apagado controlado...")
+
+      // 1. Mandamos la orden de apagado a NUESTRO scope
+      daemonJob.cancel()
+
+      // 2. ESPERAMOS (join) a que los try-catch de arriba terminen.
+      // Mientras esperamos aquí, Spanner sigue vivo.
+      daemonJob.join()
+
+      logger.info("✅ Demonios apagados. Ahora es seguro cerrar Spanner.")
+    }
+
+    // Limpieza final del scope original por si acaso
     backgroundJob.cancel()
   }
 
