@@ -77,15 +77,15 @@ class RequisitionFetcher(
 
     val startMark = TimeSource.Monotonic.markNow()
     val requisitions = fetchRequisitions()
-    val storedRequisitions: Int = storeRequisitions(requisitions)
+    //val storedRequisitions: Int = storeRequisitions(requisitions)
 
     val latencySeconds = startMark.elapsedNow().inWholeMilliseconds / 1000.0
     recordFetchMetrics(latencySeconds)
 
-    logger.info(
-      "$storedRequisitions unfulfilled grouped requisitions have been persisted to storage for " +
-        dataProviderName
-    )
+    //logger.info(
+    //  "$storedRequisitions unfulfilled grouped requisitions have been persisted to storage for " +
+    //    dataProviderName
+    //)
   }
 
   /**
