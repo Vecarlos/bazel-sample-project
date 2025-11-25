@@ -39,12 +39,6 @@ class GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest :
    */
   @get:Rule val timeout: Timeout = Timeout.seconds(500)
 
-  @After
-  fun tearDown() {
-    // Llamamos al método stopDaemons que ya arreglaste con runBlocking/join
-    edpAggregatorComponents.stopDaemons()
-  }
-
   companion object {
     @get:ClassRule @JvmStatic val spannerEmulator = SpannerEmulatorRule()
   }
