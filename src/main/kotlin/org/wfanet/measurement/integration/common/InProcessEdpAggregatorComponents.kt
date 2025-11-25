@@ -520,9 +520,28 @@ class InProcessEdpAggregatorComponents(
     }
   }
 
+  //fun stopDaemons() {
+  //  backgroundJob.cancel()
+  //}
+
   fun stopDaemons() {
-    backgroundJob.cancel()
+    runBlocking {
+      logger.info("🛑 Iniciando apagado de demonios...")
+
+      // Matamos al Fulfiller primero y ESPERAMOS (join)
+      // Esto asegura que deje de hablar con Spanner antes de seguir.
+      fulfillerJob?.cancel()
+      fulfillerJob?.join()
+      logger.info("💀 Fulfiller muerto.")
+
+      // Matamos al resto
+      backgroundJob.cancel()
+      backgroundJob.join()
+
+      logger.info("✅ Todos muertos. Spanner seguro.")
+    }
   }
+
 
   override fun apply(statement: Statement, description: Description): Statement {
     return ruleChain.apply(statement, description)
