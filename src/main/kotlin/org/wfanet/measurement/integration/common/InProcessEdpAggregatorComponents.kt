@@ -120,6 +120,7 @@ class InProcessEdpAggregatorComponents(
   private val syntheticEventGroupMap: Map<String, SyntheticEventGroupSpec>,
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
 ) : TestRule {
+  private val launchedJobs = mutableListOf<Job>()
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
@@ -310,12 +311,26 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+//      backgroundScope.launch {
+//        while (true) {
+//          delay(1000)
+//          requisitionFetcher.fetchAndStoreRequisitions()
+//        }
+//      }
+
+      val fetcherJob = backgroundScope.launch {
+        try {
+          while (true) {
+            delay(1000)
+            requisitionFetcher.fetchAndStoreRequisitions()
+          }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+          logger.info("🛑 Fetcher stopped cleanly for $edpResourceName")
+        } catch (e: Exception) {
+          logger.log(Level.SEVERE, "Error in Fetcher for $edpResourceName", e)
         }
       }
+      launchedJobs.add(fetcherJob)
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
@@ -354,7 +369,17 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+//    backgroundScope.launch { resultFulfillerApp.run() }
+    val fulfillerJob = backgroundScope.launch {
+      try {
+        resultFulfillerApp.run()
+      } catch (e: kotlinx.coroutines.CancellationException) {
+        logger.info("🛑 ResultFulfillerApp stopped cleanly")
+      } catch (e: Exception) {
+        logger.log(Level.SEVERE, "Error in ResultFulfillerApp", e)
+      }
+    }
+    launchedJobs.add(fulfillerJob)
   }
 
   private suspend fun refuseRequisition(
@@ -513,7 +538,27 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    backgroundJob.cancel()
+    // 🔑 SOLUCIÓN: Esperar a que TODAS las coroutines terminen
+    runBlocking {
+      logger.info("🛑 Stopping all daemons...")
+
+      // 1. Cancelar el scope padre
+      backgroundJob.cancel()
+
+      // 2. Esperar a que TODOS los jobs hijos terminen
+      launchedJobs.forEach { job ->
+        try {
+          job.join()
+        } catch (e: Exception) {
+          logger.log(Level.WARNING, "Error waiting for job to finish", e)
+        }
+      }
+
+      // 3. Esperar al job padre
+      backgroundJob.join()
+
+      logger.info("✅ All daemons stopped cleanly")
+    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
