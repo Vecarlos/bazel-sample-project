@@ -112,9 +112,6 @@ import org.wfanet.measurement.securecomputation.service.internal.QueueMapping
 import org.wfanet.measurement.storage.StorageClient
 import org.wfanet.measurement.storage.filesystem.FileSystemStorageClient
 
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-
 class InProcessEdpAggregatorComponents(
   secureComputationDatabaseAdmin: SpannerDatabaseAdmin,
   private val storagePath: Path,
@@ -124,9 +121,6 @@ class InProcessEdpAggregatorComponents(
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
 ) : TestRule {
 
-
-  private val workMutex = Mutex() // 🔒 EL CANDADO
-  private var fulfillerJob: Job? = null
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
   private lateinit var edpResourceNameMap: Map<String, String>
@@ -319,9 +313,7 @@ class InProcessEdpAggregatorComponents(
       backgroundScope.launch {
         while (true) {
           delay(1000)
-          workMutex.withLock {
-            requisitionFetcher.fetchAndStoreRequisitions()
-          }
+          requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
@@ -520,28 +512,9 @@ class InProcessEdpAggregatorComponents(
     }
   }
 
-  //fun stopDaemons() {
-  //  backgroundJob.cancel()
-  //}
-
   fun stopDaemons() {
-    runBlocking {
-      logger.info("🛑 Iniciando apagado de demonios...")
-
-      // Matamos al Fulfiller primero y ESPERAMOS (join)
-      // Esto asegura que deje de hablar con Spanner antes de seguir.
-      fulfillerJob?.cancel()
-      fulfillerJob?.join()
-      logger.info("💀 Fulfiller muerto.")
-
-      // Matamos al resto
-      backgroundJob.cancel()
-      backgroundJob.join()
-
-      logger.info("✅ Todos muertos. Spanner seguro.")
-    }
+    backgroundJob.cancel()
   }
-
 
   override fun apply(statement: Statement, description: Description): Statement {
     return ruleChain.apply(statement, description)
