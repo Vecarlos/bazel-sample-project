@@ -126,7 +126,7 @@ class InProcessEdpAggregatorComponents(
 
 
   private val workMutex = Mutex() // 🔒 EL CANDADO
-
+  private var fulfillerJob: Job? = null
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
   private lateinit var edpResourceNameMap: Map<String, String>
