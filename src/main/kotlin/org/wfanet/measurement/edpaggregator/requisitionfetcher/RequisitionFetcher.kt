@@ -77,15 +77,15 @@ class RequisitionFetcher(
 
     val startMark = TimeSource.Monotonic.markNow()
     val requisitions = fetchRequisitions()
-    //val storedRequisitions: Int = storeRequisitions(requisitions)
+    val storedRequisitions: Int = storeRequisitions(requisitions)
 
     val latencySeconds = startMark.elapsedNow().inWholeMilliseconds / 1000.0
     recordFetchMetrics(latencySeconds)
 
-    //logger.info(
-    //  "$storedRequisitions unfulfilled grouped requisitions have been persisted to storage for " +
-    //    dataProviderName
-    //)
+    logger.info(
+      "$storedRequisitions unfulfilled grouped requisitions have been persisted to storage for " +
+        dataProviderName
+    )
   }
 
   /**
@@ -134,28 +134,29 @@ class RequisitionFetcher(
 
       // Always return the grouped requisitions and counts so that withStoreTelemetry can emit
       // consistent metrics and logs before any exception is rethrown.
-      try {
-        groupedRequisitions.forEach { groupedRequisition: GroupedRequisitions ->
-          if (groupedRequisition.requisitionsList.isNotEmpty()) {
-            storeGroupedRequisition(groupedRequisition)
-            storedGroupedRequisitions += 1
-          }
+      groupedRequisitions.forEach { groupedRequisition: GroupedRequisitions ->
+        if (groupedRequisition.requisitionsList.isNotEmpty()) {
+          storeGroupedRequisition(groupedRequisition)
+          storedGroupedRequisitions += 1
         }
-
-        StoreTelemetryResult(
-          groupedRequisitions = groupedRequisitions,
-          storedCount = storedGroupedRequisitions,
-        )
-      } catch (e: Exception) {
-        val failedGroupedRequisitions = totalToStore - storedGroupedRequisitions
-        // Attach failure metadata so the telemetry layer can log/record before surfacing the error.
-        StoreTelemetryResult(
-          groupedRequisitions = groupedRequisitions,
-          storedCount = storedGroupedRequisitions,
-          failedCount = failedGroupedRequisitions,
-          exception = e,
-        )
       }
+
+      StoreTelemetryResult(
+        groupedRequisitions = groupedRequisitions,
+        storedCount = storedGroupedRequisitions,
+      )
+//      try {
+//
+//      } catch (e: Exception) {
+//        val failedGroupedRequisitions = totalToStore - storedGroupedRequisitions
+//        // Attach failure metadata so the telemetry layer can log/record before surfacing the error.
+//        StoreTelemetryResult(
+//          groupedRequisitions = groupedRequisitions,
+//          storedCount = storedGroupedRequisitions,
+//          failedCount = failedGroupedRequisitions,
+//          exception = e,
+//        )
+//      }
     }
 
   /**
