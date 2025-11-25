@@ -281,6 +281,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
           files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+          
+          flags: unit
+          disable_file_fixes: true
+          disable_search: true
+          unpack: false
+          override_branch: develop
+          ignore_internal_changes: true
 
 
       # - name: Upload all coverage.dat files to Codecov
