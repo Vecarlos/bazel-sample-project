@@ -96,11 +96,6 @@ bazel_dep(
 )
 
 # --- Bazel Central Registry modules. ---
-bazel_dep(name = "aspect_rules_ts", version = "3.1.0")
-bazel_dep(name = "aspect_rules_js", version = "2.0.0")
-bazel_dep(name = "aspect_rules_webpack", version = "0.16.0")
-bazel_dep(name = "aspect_rules_jest", version = "0.22.0")
-bazel_dep(name = "aspect_bazel_lib", version = "2.7.7")
 
 # TODO(bazelbuild/bazel-worker-api#10): Remove this once rules_kotlin stops using version 0.0.4
 bazel_dep(
