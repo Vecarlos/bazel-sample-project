@@ -238,7 +238,7 @@ class InProcessEdpAggregatorComponents(
     )
 
 
-  private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
+  private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ZERO)
 
   fun startDaemons(
     kingdomChannel: Channel,
