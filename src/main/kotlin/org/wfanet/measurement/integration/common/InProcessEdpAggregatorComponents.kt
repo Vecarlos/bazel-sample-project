@@ -41,6 +41,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
@@ -317,12 +318,23 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
+//      backgroundScope.launch {
+//        while (true) {
+//          delay(1000)
+//          requisitionFetcher.fetchAndStoreRequisitions()
+//        }
+//      }
+
       backgroundScope.launch {
         while (true) {
           delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          repeat(5) {  // Fixed iterations for deterministic coverage; adjust number if needed
+            requisitionFetcher.fetchAndStoreRequisitions()
+          }
         }
       }
+
+
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
@@ -361,10 +373,7 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch {
-      delay(1000)
-      resultFulfillerApp.run()
-    }
+    backgroundScope.launch { resultFulfillerApp.run() }
   }
 
   private suspend fun refuseRequisition(
@@ -523,8 +532,14 @@ class InProcessEdpAggregatorComponents(
     }
   }
 
+//  fun stopDaemons() {
+//    backgroundJob.cancel()
+//  }
+
   fun stopDaemons() {
-    backgroundJob.cancel()
+    runBlocking {
+      backgroundJob.cancelAndJoin()
+    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
