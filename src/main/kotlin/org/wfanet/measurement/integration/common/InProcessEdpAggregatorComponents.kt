@@ -220,10 +220,21 @@ class InProcessEdpAggregatorComponents(
 
   private val loggingName = javaClass.simpleName
   private val backgroundJob = Job()
+//  private val backgroundScope =
+//    CoroutineScope(
+//      backgroundJob +
+//        Dispatchers.Default +
+//        CoroutineName(loggingName) +
+//        CoroutineExceptionHandler { _, e ->
+//          logger.log(Level.SEVERE, e) { "Error in $loggingName" }
+//        }
+//    )
+
+
   private val backgroundScope =
     CoroutineScope(
       backgroundJob +
-        Dispatchers.Default +
+        Dispatchers.Default.limitedParallelism(1) +  // Add this for single-threaded execution
         CoroutineName(loggingName) +
         CoroutineExceptionHandler { _, e ->
           logger.log(Level.SEVERE, e) { "Error in $loggingName" }
