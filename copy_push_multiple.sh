@@ -187,10 +187,10 @@ do
     commit_msg="ACTIVE $i: Comment test and add empty functions"
   else
     echo "Uncomment RequisitionMetadataServiceTest and add functions"
-    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
-     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
+#    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_1"
+#     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_2"
      echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
-     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
+    # echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
     commit_msg="ACTIVE $i: Uncomment test and delete empty functions"
   fi
 
