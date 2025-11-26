@@ -162,9 +162,14 @@ jobs:
           --experimental_split_coverage_postprocessing
           --experimental_fetch_all_coverage_outputs
           --test_timeout=1200
+          --test_strategy=exclusive
+          --local_test_jobs=1
+          --runs_per_test=1
+          --flaky_test_attempts=1
+          --nocache_test_results
+          --test_env=JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -Djava.util.concurrent.ForkJoinPool.common.parallelism=1"
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
-
 
 
 # - name: Run tests with coverage
