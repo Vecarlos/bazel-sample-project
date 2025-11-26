@@ -218,27 +218,17 @@ class InProcessEdpAggregatorComponents(
 
   private val loggingName = javaClass.simpleName
   private val backgroundJob = Job()
-//  private val backgroundScope =
-//    CoroutineScope(
-//      backgroundJob +
-//        Dispatchers.Default +
-//        CoroutineName(loggingName) +
-//        CoroutineExceptionHandler { _, e ->
-//          logger.log(Level.SEVERE, e) { "Error in $loggingName" }
-//        }
-//    )
   private val backgroundScope =
     CoroutineScope(
       backgroundJob +
-        Dispatchers.Default.limitedParallelism(1) +  // Add this for single-threaded execution
+        Dispatchers.Default +
         CoroutineName(loggingName) +
         CoroutineExceptionHandler { _, e ->
           logger.log(Level.SEVERE, e) { "Error in $loggingName" }
         }
     )
 
-
-  private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ZERO)
+  private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
 
   fun startDaemons(
     kingdomChannel: Channel,
@@ -371,7 +361,10 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+    backgroundScope.launch {
+      delay(1000)
+      resultFulfillerApp.run()
+    }
   }
 
   private suspend fun refuseRequisition(

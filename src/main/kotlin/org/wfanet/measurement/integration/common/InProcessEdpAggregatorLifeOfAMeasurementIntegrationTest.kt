@@ -51,7 +51,6 @@ import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurem
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
-import kotlinx.coroutines.delay
 
 /**
  * Test that everything is wired up properly.
@@ -193,7 +192,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
-      delay(5000)
     }
 
   @Test
@@ -202,7 +200,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
-      delay(5000)
     }
 
   @Test
@@ -211,7 +208,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // Use frontend simulator to create N incremental direct reach and frequency measurements and
       // verify its result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
-      delay(5000)
     }
 
   @Test
@@ -219,7 +215,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create an impression measurement and verify its result.
       mcSimulator.testImpression("1234")
-      delay(5000)
     }
 
   @Test
@@ -230,7 +225,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         "1234",
         DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
       )
-      delay(5000)
     }
 
   @Test
@@ -241,7 +235,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         "1234",
         DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
       )
-      delay(5000)
     }
 
   companion object {
