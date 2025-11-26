@@ -16,8 +16,6 @@
 
 package org.wfanet.measurement.integration.common
 
-import kotlinx.coroutines.cancelAndJoin
-
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.KeysetHandle
@@ -229,8 +227,6 @@ class InProcessEdpAggregatorComponents(
 //          logger.log(Level.SEVERE, e) { "Error in $loggingName" }
 //        }
 //    )
-
-
   private val backgroundScope =
     CoroutineScope(
       backgroundJob +
@@ -240,6 +236,7 @@ class InProcessEdpAggregatorComponents(
           logger.log(Level.SEVERE, e) { "Error in $loggingName" }
         }
     )
+
 
   private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
 
@@ -332,7 +329,7 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          delay(800)
+          delay(1000)
           requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
@@ -534,11 +531,8 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    runBlocking {
-      // cancelAndJoin espera a que la corrutina realmente muera antes de permitir
-      // que el test continúe con el resto del tearDown.
-      backgroundJob.cancelAndJoin()
-    }  }
+    backgroundJob.cancel()
+  }
 
   override fun apply(statement: Statement, description: Description): Statement {
     return ruleChain.apply(statement, description)
