@@ -319,7 +319,7 @@ class InProcessEdpAggregatorComponents(
         )
       backgroundScope.launch {
         while (true) {
-          delay(1000)
+          delay(800)
           requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
