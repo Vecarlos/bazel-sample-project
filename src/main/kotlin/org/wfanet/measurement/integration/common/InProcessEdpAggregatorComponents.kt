@@ -16,6 +16,8 @@
 
 package org.wfanet.measurement.integration.common
 
+import kotlinx.coroutines.cancelAndJoin
+
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.KeysetHandle
@@ -521,8 +523,11 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    backgroundJob.cancel()
-  }
+    runBlocking {
+      // cancelAndJoin espera a que la corrutina realmente muera antes de permitir
+      // que el test continúe con el resto del tearDown.
+      backgroundJob.cancelAndJoin()
+    }  }
 
   override fun apply(statement: Statement, description: Description): Statement {
     return ruleChain.apply(statement, description)
