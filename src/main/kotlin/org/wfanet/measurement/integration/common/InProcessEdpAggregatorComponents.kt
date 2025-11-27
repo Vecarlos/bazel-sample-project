@@ -230,6 +230,8 @@ class InProcessEdpAggregatorComponents(
         }
     )
 
+
+
   private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
 
   fun startDaemons(
@@ -365,10 +367,10 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+//    backgroundScope.launch { resultFulfillerApp.run() }
   }
 
-  suspend fun triggerRequisitionFetch() {
+  suspend fun runAllRequisitionFetchOnce() {
     requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
   }
   suspend fun runResultFulfillerOnce() {

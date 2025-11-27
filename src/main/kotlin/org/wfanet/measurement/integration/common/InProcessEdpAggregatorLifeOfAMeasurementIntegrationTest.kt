@@ -202,22 +202,17 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
    * y asegura que el coverage sea determinista.
    */
   private fun runWithManualTrigger(block: suspend () -> Unit) = runBlocking {
-    // 1. Lanzamos la simulación (el test) en un hilo paralelo hijo
     val simulationJob = launch {
       block()
     }
 
-    // 2. Mientras la simulación siga activa, ejecutamos el fetcher manualmente
     while (simulationJob.isActive) {
-      // Llamamos a la función pública que creamos en el paso anterior
-      inProcessEdpAggregatorComponents.triggerRequisitionFetch()
+      inProcessEdpAggregatorComponents.runAllRequisitionFetchOnce()
 
-      // Esperamos un poco para no saturar CPU, pero esto ya NO afecta el coverage
-      // porque controlamos exactamente cuándo ocurre la ejecución.
+      inProcessEdpAggregatorComponents.runResultFulfillerOnce()
       delay(200)
     }
 
-    // 3. Esperamos a que termine limpiamente
     simulationJob.join()
   }
 
