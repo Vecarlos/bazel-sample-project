@@ -255,7 +255,7 @@ class InProcessEdpAggregatorComponents(
     }
 
 
-    logger.info("------------------------------------Start Deamons------------------------------------")
+    logger.info("------------------------------------Start Deamons")
 
     val watchedPaths: List<WatchedPath> = run {
       val resultsFulfillerParamsMap: Map<String, ResultsFulfillerParams> =
@@ -324,15 +324,15 @@ class InProcessEdpAggregatorComponents(
 
       backgroundScope.launch {
         var i : Int = 0
-        logger.info("------------------------------------While enter------------------------------------")
+        logger.info("------------------------------------While enter")
         while (true) {
           delay(1000)
           i++
           requisitionFetcher.fetchAndStoreRequisitions()
-          logger.info("------------------------------------i=$i------------------------------------")
+          logger.info("_________________________________________i=$i")
 
         }
-        logger.info("------------------------------------While exit------------------------------------")
+        logger.info("------------------------------------While exit")
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
@@ -532,7 +532,7 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    logger.info("------------------------------------Stop Deamons------------------------------------")
+    logger.info("------------------------------------Stop Deamons")
     backgroundJob.cancel()
   }
 

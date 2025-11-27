@@ -111,7 +111,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
     }
-    logger.info("------------------------------------Setup Deamons------------------------------------")
+    logger.info("------------------------------------Setup Deamons")
 
     inProcessCmmsComponents.startDaemons()
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
@@ -179,7 +179,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    logger.info("------------------------------------Teardown Deamons------------------------------------")
+    logger.info("------------------------------------Teardown Deamons")
 
     inProcessCmmsComponents.stopDuchyDaemons()
     inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
