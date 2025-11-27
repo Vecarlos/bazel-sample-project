@@ -198,7 +198,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
   }
 
-\
+
   private fun runWithManualTrigger(block: suspend () -> Unit) = runBlocking {
     val simulationJob = launch {
       block()
