@@ -322,31 +322,17 @@ class InProcessEdpAggregatorComponents(
           requisitionGrouper,
         )
 
-//      backgroundScope.launch {
-//        var i : Int = 0
-//        logger.info("------------------------------------While enter")
-//        while (true) {
-//          delay(1000)
-//          i++
-//          requisitionFetcher.fetchAndStoreRequisitions()
-//          logger.info("_________________________________________i=$i")
-//
-//        }
-//        logger.info("------------------------------------While exit")
-//      }
-
       backgroundScope.launch {
-        var i = 0
+        var i : Int = 0
         logger.info("------------------------------------While enter")
-        while (i < 6) {
-          delay(1000)
+        while (i < 5000) {
           i++
           requisitionFetcher.fetchAndStoreRequisitions()
           logger.info("_________________________________________i=$i")
+
         }
         logger.info("------------------------------------While exit")
       }
-
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
