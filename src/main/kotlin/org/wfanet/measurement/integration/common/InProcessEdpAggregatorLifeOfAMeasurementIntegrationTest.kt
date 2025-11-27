@@ -184,15 +184,19 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    inProcessCmmsComponents.stopDuchyDaemons()
-    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    // 1) Detener primero los daemons que hacen RPC hacia el reino/duchies
     inProcessEdpAggregatorComponents.stopDaemons()
+
+    // 2) Luego detener el resto (population fulfiller y duchy daemons)
+    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    inProcessCmmsComponents.stopDuchyDaemons()
+
+    // 3) Finalmente limpiar PUB/SUB
     runBlocking {
       pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
     }
   }
-
 
 // Agrega esto dentro de InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest
 

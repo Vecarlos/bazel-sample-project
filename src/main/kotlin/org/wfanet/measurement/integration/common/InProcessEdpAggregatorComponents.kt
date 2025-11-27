@@ -534,7 +534,17 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
+    // Cancela el job que controla el scope
     backgroundJob.cancel()
+
+    // Espera a que las coroutines terminen para evitar RPCs "en el aire".
+    runBlocking {
+      try {
+        backgroundJob.join()
+      } catch (e: Exception) {
+        logger.log(Level.WARNING, "Error waiting for backgroundJob to join", e)
+      }
+    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
