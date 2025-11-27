@@ -254,10 +254,6 @@ class InProcessEdpAggregatorComponents(
       )
     }
 
-    if (backgroundJob.isActive) {
-      logger.info("------------------------------------Deleting Deamons------------------------------------")
-      backgroundJob.cancel()
-    }
 
     logger.info("------------------------------------Start Deamons------------------------------------")
 
