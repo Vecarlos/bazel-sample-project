@@ -253,6 +253,12 @@ class InProcessEdpAggregatorComponents(
         }
       )
     }
+
+    if (backgroundJob.isActive) {
+      logger.info("------------------------------------Deleting Deamons------------------------------------")
+      backgroundJob.cancel()
+    }
+
     logger.info("------------------------------------Start Deamons------------------------------------")
 
     val watchedPaths: List<WatchedPath> = run {
@@ -530,7 +536,7 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    logger.info("Stop Daemons")
+    logger.info("------------------------------------Stop Deamons------------------------------------")
     backgroundJob.cancel()
   }
 
