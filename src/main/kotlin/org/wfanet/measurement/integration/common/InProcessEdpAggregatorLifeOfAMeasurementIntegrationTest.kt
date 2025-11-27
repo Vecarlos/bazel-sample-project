@@ -311,10 +311,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       InProcessCmmsComponents.initConfig()
     }
 
-//    @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
-// Agregar esto junto a los otros @get:Rule del test (no en companion object)
-    @get:Rule
-    val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
-
+    @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
   }
 }
