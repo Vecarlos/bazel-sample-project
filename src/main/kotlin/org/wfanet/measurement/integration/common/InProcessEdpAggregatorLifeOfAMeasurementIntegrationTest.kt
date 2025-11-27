@@ -17,6 +17,8 @@ package org.wfanet.measurement.integration.common
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -51,6 +53,11 @@ import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurem
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
+
+
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+
 
 /**
  * Test that everything is wired up properly.
@@ -186,9 +193,37 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
   }
 
+
+// Agrega esto dentro de InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest
+
+  /**
+   * Ejecuta una simulación mientras "empuja" manualmente el RequisitionFetcher
+   * en intervalos regulares. Esto reemplaza el while(true) background thread
+   * y asegura que el coverage sea determinista.
+   */
+  private fun runWithManualTrigger(block: suspend () -> Unit) = runBlocking {
+    // 1. Lanzamos la simulación (el test) en un hilo paralelo hijo
+    val simulationJob = launch {
+      block()
+    }
+
+    // 2. Mientras la simulación siga activa, ejecutamos el fetcher manualmente
+    while (simulationJob.isActive) {
+      // Llamamos a la función pública que creamos en el paso anterior
+      inProcessEdpAggregatorComponents.triggerRequisitionFetch()
+
+      // Esperamos un poco para no saturar CPU, pero esto ya NO afecta el coverage
+      // porque controlamos exactamente cuándo ocurre la ejecución.
+      delay(200)
+    }
+
+    // 3. Esperamos a que termine limpiamente
+    simulationJob.join()
+  }
+
   @Test
   fun `create a direct RF measurement and check the result is equal to the expected result`() =
-    runBlocking {
+    runWithManualTrigger {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
@@ -196,7 +231,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Test
   fun `create a direct reach only measurement and check the result is equal to the expected result`() =
-    runBlocking {
+    runWithManualTrigger {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
@@ -204,7 +239,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Test
   fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
-    runBlocking {
+    runWithManualTrigger {
       // Use frontend simulator to create N incremental direct reach and frequency measurements and
       // verify its result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
@@ -219,7 +254,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //
   @Test
   fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-    runBlocking {
+  runWithManualTrigger {
       // Use frontend simulator to create a reach and frequency measurement and verify its result.
       mcSimulator.testReachOnly(
         "1234",
@@ -229,7 +264,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Test
   fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
-    runBlocking {
+    runWithManualTrigger {
       // Use frontend simulator to create a reach and frequency measurement and verify its result.
       mcSimulator.testReachAndFrequency(
         "1234",
@@ -314,3 +349,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
   }
 }
+
+
+

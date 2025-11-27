@@ -121,6 +121,8 @@ class InProcessEdpAggregatorComponents(
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
 ) : TestRule {
 
+  private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
+
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
   private lateinit var edpResourceNameMap: Map<String, String>
@@ -317,12 +319,14 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
-        }
-      }
+//      backgroundScope.launch {
+//        while (true) {
+//          delay(1000)
+//          requisitionFetcher.fetchAndStoreRequisitions()
+//        }
+//      }
+      requisitionFetchers.add(requisitionFetcher)
+
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
@@ -362,6 +366,11 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
+  }
+  
+  suspend fun triggerRequisitionFetch() {
+    // Ejecuta todos los fetchers registrados (uno por cada EDP)
+    requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
   }
 
   private suspend fun refuseRequisition(
