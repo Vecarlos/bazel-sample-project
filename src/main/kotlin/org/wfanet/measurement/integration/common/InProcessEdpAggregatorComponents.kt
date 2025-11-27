@@ -367,10 +367,12 @@ class InProcessEdpAggregatorComponents(
     }
     backgroundScope.launch { resultFulfillerApp.run() }
   }
-  
+
   suspend fun triggerRequisitionFetch() {
-    // Ejecuta todos los fetchers registrados (uno por cada EDP)
     requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
+  }
+  suspend fun runResultFulfillerOnce() {
+    resultFulfillerApp.run()
   }
 
   private suspend fun refuseRequisition(
