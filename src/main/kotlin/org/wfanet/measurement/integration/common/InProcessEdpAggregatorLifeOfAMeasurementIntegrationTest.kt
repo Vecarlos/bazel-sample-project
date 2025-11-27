@@ -198,13 +198,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
   }
 
-// Agrega esto dentro de InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest
-
-  /**
-   * Ejecuta una simulación mientras "empuja" manualmente el RequisitionFetcher
-   * en intervalos regulares. Esto reemplaza el while(true) background thread
-   * y asegura que el coverage sea determinista.
-   */
+\
   private fun runWithManualTrigger(block: suspend () -> Unit) = runBlocking {
     val simulationJob = launch {
       block()
