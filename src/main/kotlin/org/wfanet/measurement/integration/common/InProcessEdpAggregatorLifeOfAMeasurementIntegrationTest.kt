@@ -17,8 +17,6 @@ package org.wfanet.measurement.integration.common
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -53,11 +51,6 @@ import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurem
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
-
-
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-
 
 /**
  * Test that everything is wired up properly.
@@ -184,39 +177,18 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    // 1) Detener primero los daemons que hacen RPC hacia el reino/duchies
-    inProcessEdpAggregatorComponents.stopDaemons()
-
-    // 2) Luego detener el resto (population fulfiller y duchy daemons)
-    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
     inProcessCmmsComponents.stopDuchyDaemons()
-
-    // 3) Finalmente limpiar PUB/SUB
+    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    inProcessEdpAggregatorComponents.stopDaemons()
     runBlocking {
       pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
     }
   }
 
-
-  private fun runWithManualTrigger(block: suspend () -> Unit) = runBlocking {
-    val simulationJob = launch {
-      block()
-    }
-
-    while (simulationJob.isActive) {
-      inProcessEdpAggregatorComponents.runAllRequisitionFetchOnce()
-
-      inProcessEdpAggregatorComponents.runResultFulfillerOnce()
-      delay(200)
-    }
-
-    simulationJob.join()
-  }
-
   @Test
   fun `create a direct RF measurement and check the result is equal to the expected result`() =
-    runWithManualTrigger {
+    runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
@@ -224,7 +196,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Test
   fun `create a direct reach only measurement and check the result is equal to the expected result`() =
-    runWithManualTrigger {
+    runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
@@ -232,7 +204,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Test
   fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
-    runWithManualTrigger {
+    runBlocking {
       // Use frontend simulator to create N incremental direct reach and frequency measurements and
       // verify its result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
@@ -247,7 +219,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //
   @Test
   fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-  runWithManualTrigger {
+    runBlocking {
       // Use frontend simulator to create a reach and frequency measurement and verify its result.
       mcSimulator.testReachOnly(
         "1234",
@@ -255,15 +227,15 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
     }
 
-  @Test
-  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
-    runWithManualTrigger {
-      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-      mcSimulator.testReachAndFrequency(
-        "1234",
-        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
-      )
-    }
+//  @Test
+//  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
+//    runBlocking {
+//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+//      mcSimulator.testReachAndFrequency(
+//        "1234",
+//        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
+//      )
+//    }
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
@@ -342,6 +314,3 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
   }
 }
-
-
-

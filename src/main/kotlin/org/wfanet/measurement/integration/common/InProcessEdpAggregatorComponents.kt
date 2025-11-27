@@ -121,8 +121,6 @@ class InProcessEdpAggregatorComponents(
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
 ) : TestRule {
 
-  private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
-
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
   private lateinit var edpResourceNameMap: Map<String, String>
@@ -230,8 +228,6 @@ class InProcessEdpAggregatorComponents(
         }
     )
 
-
-
   private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
 
   fun startDaemons(
@@ -321,14 +317,12 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-//      backgroundScope.launch {
-//        while (true) {
-//          delay(1000)
-//          requisitionFetcher.fetchAndStoreRequisitions()
-//        }
-//      }
-      requisitionFetchers.add(requisitionFetcher)
-
+      backgroundScope.launch {
+        while (true) {
+          delay(1000)
+          requisitionFetcher.fetchAndStoreRequisitions()
+        }
+      }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
@@ -367,14 +361,7 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-//    backgroundScope.launch { resultFulfillerApp.run() }
-  }
-
-  suspend fun runAllRequisitionFetchOnce() {
-    requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
-  }
-  suspend fun runResultFulfillerOnce() {
-    resultFulfillerApp.run()
+    backgroundScope.launch { resultFulfillerApp.run() }
   }
 
   private suspend fun refuseRequisition(
@@ -534,17 +521,7 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    // Cancela el job que controla el scope
     backgroundJob.cancel()
-
-    // Espera a que las coroutines terminen para evitar RPCs "en el aire".
-    runBlocking {
-      try {
-        backgroundJob.join()
-      } catch (e: Exception) {
-        logger.log(Level.WARNING, "Error waiting for backgroundJob to join", e)
-      }
-    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
