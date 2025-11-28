@@ -51,7 +51,7 @@ import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurem
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
-
+import io.grpc.Channel
 /**
  * Test that everything is wired up properly.
  *
@@ -117,8 +117,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
     val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-    val duchyMap =
-      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+//    val duchyMap =
+//      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+    val duchyMap = emptyMap<String, Channel>()
+
     inProcessEdpAggregatorComponents.startDaemons(
       kingdomChannel,
       measurementConsumerData,
