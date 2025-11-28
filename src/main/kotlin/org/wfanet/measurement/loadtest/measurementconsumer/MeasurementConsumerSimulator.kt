@@ -382,24 +382,24 @@ abstract class MeasurementConsumerSimulator(
         throw IllegalStateException("Expected result cannot be less than tolerance")
       }
 
-//      assertThat(reachAndFrequencyResult)
-//        .reachValue()
-//        .isWithin(reachTolerance)
-//        .of(expectedResult.reach.value)
-//
-//      val frequencyTolerance: Map<Long, Double> =
-//        computeRelativeFrequencyTolerance(
-//          reachAndFrequencyResult,
-//          reachVariance,
-//          measurementInfo.measurementSpec,
-//          protocol,
-//        )
-//
-//      assertThat(reachAndFrequencyResult)
-//        .frequencyDistribution()
-//        .isWithin(frequencyTolerance)
-//        .of(expectedResult.frequency.relativeFrequencyDistributionMap)
-        assert(true)
+      assertThat(reachAndFrequencyResult)
+        .reachValue()
+        .isWithin(reachTolerance)
+        .of(expectedResult.reach.value)
+
+      val frequencyTolerance: Map<Long, Double> =
+        computeRelativeFrequencyTolerance(
+          reachAndFrequencyResult,
+          reachVariance,
+          measurementInfo.measurementSpec,
+          protocol,
+        )
+
+      assertThat(reachAndFrequencyResult)
+        .frequencyDistribution()
+        .isWithin(frequencyTolerance)
+        .of(expectedResult.frequency.relativeFrequencyDistributionMap)
+
       logger.info(
         "Direct reach and frequency result is equal to the expected result for measurement: $measurementNumber"
       )
@@ -460,11 +460,11 @@ abstract class MeasurementConsumerSimulator(
         throw IllegalStateException("Expected result cannot be less than tolerance")
       }
 
-//      assertThat(reachResult).reachValue().isWithin(reachTolerance).of(expectedResult.reach.value)
-//      assertThat(reachResult.reach.hasDeterministicCountDistinct()).isTrue()
-//      assertThat(reachResult.reach.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
-//      assertThat(reachResult.hasFrequency()).isFalse()
-        assert(true)
+      assertThat(reachResult).reachValue().isWithin(reachTolerance).of(expectedResult.reach.value)
+      assertThat(reachResult.reach.hasDeterministicCountDistinct()).isTrue()
+      assertThat(reachResult.reach.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
+      assertThat(reachResult.hasFrequency()).isFalse()
+
       logger.info(
         "Direct reach result is equal to the expected result for measurement: $measurementNumber"
       )
@@ -575,26 +575,24 @@ abstract class MeasurementConsumerSimulator(
       throw IllegalStateException("Expected result cannot be less than tolerance")
     }
 
-//    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
-//      assertThat(protocol.protocolCase)
-//        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE)
-//    } else {
-//      assertThat(protocol.protocolCase)
-//        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.REACH_ONLY_LIQUID_LEGIONS_V2)
-//    }
-//    assertThat(result.actualResult)
-//      .reachValue()
-//      .isWithin(reachTolerance)
-//      .of(result.expectedResult.reach.value)
-//    logger.info("Actual result: ${result.actualResult}")
-//    logger.info("Expected result: ${result.expectedResult}")
-//
-//    assertThat(result.actualResult)
-//      .reachValue()
-//      .isWithin(reachTolerance)
-//      .of(result.expectedResult.reach.value)
+    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
+      assertThat(protocol.protocolCase)
+        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE)
+    } else {
+      assertThat(protocol.protocolCase)
+        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.REACH_ONLY_LIQUID_LEGIONS_V2)
+    }
+    assertThat(result.actualResult)
+      .reachValue()
+      .isWithin(reachTolerance)
+      .of(result.expectedResult.reach.value)
+    logger.info("Actual result: ${result.actualResult}")
+    logger.info("Expected result: ${result.expectedResult}")
 
-    assert(true)
+    assertThat(result.actualResult)
+      .reachValue()
+      .isWithin(reachTolerance)
+      .of(result.expectedResult.reach.value)
     logger.info("Reach-only result is equal to the expected result. Correctness Test passes.")
   }
 
@@ -636,10 +634,9 @@ abstract class MeasurementConsumerSimulator(
       if (expectedResult.impression.value.toDouble() < tolerance) {
         throw IllegalStateException("Expected impressions cannot be less than tolerance")
       }
-//      assertThat(result.impression.hasDeterministicCount()).isTrue()
-//      assertThat(result.impression.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
-//      assertThat(result).impressionValue().isWithin(tolerance).of(expectedResult.impression.value)
-      assert(true)
+      assertThat(result.impression.hasDeterministicCount()).isTrue()
+      assertThat(result.impression.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
+      assertThat(result).impressionValue().isWithin(tolerance).of(expectedResult.impression.value)
     }
     logger.info("Impression result is equal to the expected result")
   }
