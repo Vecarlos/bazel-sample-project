@@ -325,7 +325,7 @@ class InProcessEdpAggregatorComponents(
       backgroundScope.launch {
         var i : Int = 0
         logger.info("------------------------------------While enter")
-        while (i < 5000) {
+        while (true) {
           i++
           requisitionFetcher.fetchAndStoreRequisitions()
           logger.info("_________________________________________i=$i")

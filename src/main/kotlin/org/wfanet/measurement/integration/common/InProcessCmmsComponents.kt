@@ -61,6 +61,7 @@ import org.wfanet.measurement.loadtest.resourcesetup.EntityContent
 import org.wfanet.measurement.loadtest.resourcesetup.ResourceSetup
 import org.wfanet.measurement.loadtest.resourcesetup.Resources
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
+import java.util.logging.Logger
 
 class InProcessCmmsComponents(
   private val kingdomDataServicesRule: ProviderRule<DataServices>,
@@ -197,6 +198,7 @@ class InProcessCmmsComponents(
 
   val modelProviderResourceName: String
     get() = modelProviderResource.name
+  private val logger = Logger.getLogger(InProcessCmmsComponents::class.java.name)
 
   private suspend fun createAllResources() {
     val resourceSetup =
@@ -320,6 +322,7 @@ class InProcessCmmsComponents(
   }
 
   fun stopPopulationRequisitionFulfillerDaemon() = runBlocking {
+    logger.info("------------------------------------stopPopulationRequisitionFulfillerDaemon")
     populationRequisitionFulfiller.stop()
   }
 
