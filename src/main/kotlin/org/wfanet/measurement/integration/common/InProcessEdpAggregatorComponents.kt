@@ -372,6 +372,7 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
+    delay(5000)
   }
 
   private suspend fun refuseRequisition(
