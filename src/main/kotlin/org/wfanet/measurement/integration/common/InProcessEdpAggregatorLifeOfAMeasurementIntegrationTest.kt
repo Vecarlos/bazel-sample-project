@@ -117,9 +117,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
     val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-    val duchyMap =
-      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-//    val duchyMap = emptyMap<String, Channel>()
+//    val duchyMap =
+//      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+    val duchyMap = emptyMap<String, Channel>()
 
     inProcessEdpAggregatorComponents.startDaemons(
       kingdomChannel,
@@ -192,96 +192,46 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
   }
 
-//  @Test
-//  fun `create a direct RF measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a direct reach and frequency measurement and verify its
-//      // result.
-//      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
-//    }
+  @Test
+  fun `create a direct RF measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a direct reach and frequency measurement and verify its
+      // result.
+      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
+    }
 
   @Test
-  fun `sanity check always true`() = runBlocking {
-    Thread.sleep(5000)
-    assert(true)
-  }
+  fun `create a direct reach only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a direct reach and frequency measurement and verify its
+      // result.
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
+    }
 
   @Test
-  fun `sanity check always true 2`() = runBlocking {
-    Thread.sleep(5000)
-    assert(true)
-  }
+  fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create N incremental direct reach and frequency measurements and
+      // verify its result.
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
+    }
 
   @Test
-  fun `sanity check always true 3`() = runBlocking {
-    Thread.sleep(5000)
-    assert(true)
-  }
-
-
-  @Test
-  fun `deterministic math test`() = runBlocking {
-    Thread.sleep(5000)
-    val x = 2 + 3
-    assert(x == 5)
-  }
+  fun `create an impression measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create an impression measurement and verify its result.
+      mcSimulator.testImpression("1234")
+    }
 
   @Test
-  fun `string equality test`() = runBlocking {
-    Thread.sleep(5000)
-    val message = "hello"
-    assert(message.uppercase() == "HELLO")
-  }
-
-  @Test
-  fun `list contains element test`() = runBlocking {
-    Thread.sleep(5000)
-    val list = listOf(1, 2, 3)
-    assert(2 in list)
-  }
-
-  @Test
-  fun `fake mc simulator run always succeeds`() = runBlocking {
-    Thread.sleep(5000)
-    // fake result that always matches
-    val expected = 42
-    val actual = 42
-    assert(actual == expected)
-  }
-
-
-//  @Test
-//  fun `create a direct reach only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a direct reach and frequency measurement and verify its
-//      // result.
-//      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
-//    }
-//
-//  @Test
-//  fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create N incremental direct reach and frequency measurements and
-//      // verify its result.
-//      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
-//    }
-//
-//  @Test
-//  fun `create an impression measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create an impression measurement and verify its result.
-//      mcSimulator.testImpression("1234")
-//    }
-//
-//  @Test
-//  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachOnly(
-//        "1234",
-//        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
-//      )
-//    }
+  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachOnly(
+        "1234",
+        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
+      )
+    }
 
 //  @Test
 //  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
