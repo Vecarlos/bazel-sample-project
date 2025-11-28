@@ -204,13 +204,14 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   fun `sanity check always true`() = runBlocking {
     assert(true)
   }
+
   @Test
   fun `sanity check always true 2`() = runBlocking {
     assert(true)
   }
 
   @Test
-  fun `sanity check always true 2`() = runBlocking {
+  fun `sanity check always true 3`() = runBlocking {
     assert(true)
   }
 
