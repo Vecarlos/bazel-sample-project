@@ -207,20 +207,20 @@ abstract class MeasurementConsumerSimulator(
   ) {
     logger.info { "Creating reach and frequency Measurement..." }
     // Create a new measurement on behalf of the measurement consumer.
-    val measurementConsumer = getMeasurementConsumer(measurementConsumerData.name)
-    val measurementInfo: MeasurementInfo =
-      createMeasurement(
-        measurementConsumer,
-        runId,
-        ::newReachAndFrequencyMeasurementSpec,
-        requiredCapabilities,
-        vidSamplingInterval = vidSamplingInterval,
-        eventGroupFilter = eventGroupFilter,
-      )
-    val measurementName = measurementInfo.measurement.name
-    logger.info { "Created reach and frequency Measurement $measurementName" }
-
-    onMeasurementsCreated?.invoke()
+//    val measurementConsumer = getMeasurementConsumer(measurementConsumerData.name)
+//    val measurementInfo: MeasurementInfo =
+//      createMeasurement(
+//        measurementConsumer,
+//        runId,
+//        ::newReachAndFrequencyMeasurementSpec,
+//        requiredCapabilities,
+//        vidSamplingInterval = vidSamplingInterval,
+//        eventGroupFilter = eventGroupFilter,
+//      )
+//    val measurementName = measurementInfo.measurement.name
+//    logger.info { "Created reach and frequency Measurement $measurementName" }
+//
+//    onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
 //    val reachAndFrequencyResult: Result = pollForResult {
