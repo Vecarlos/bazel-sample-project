@@ -62,7 +62,6 @@ import org.wfanet.measurement.loadtest.resourcesetup.ResourceSetup
 import org.wfanet.measurement.loadtest.resourcesetup.Resources
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
 import java.util.logging.Logger
-import kotlinx.coroutines.delay
 
 class InProcessCmmsComponents(
   private val kingdomDataServicesRule: ProviderRule<DataServices>,
@@ -311,7 +310,6 @@ class InProcessCmmsComponents(
       it.startMill(duchyCertMap)
     }
     populationRequisitionFulfiller.start()
-    delay(5000)
   }
 
   fun stopEdpSimulators() = runBlocking { edpSimulators.forEach { it.stop() } }
