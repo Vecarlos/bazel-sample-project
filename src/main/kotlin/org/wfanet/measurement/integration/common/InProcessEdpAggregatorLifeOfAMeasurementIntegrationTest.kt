@@ -223,15 +223,15 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //      mcSimulator.testImpression("1234")
 //    }
 
-//  @Test
-//  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachOnly(
-//        "1234",
-//        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
-//      )
-//    }
+  @Test
+  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachOnly(
+        "1234",
+        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
+      )
+    }
 
   @Test
   fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
