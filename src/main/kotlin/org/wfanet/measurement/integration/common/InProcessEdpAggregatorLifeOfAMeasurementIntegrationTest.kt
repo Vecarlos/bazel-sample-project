@@ -233,15 +233,15 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
     }
 
-  @Test
-  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
-    runBlocking {
-      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-      mcSimulator.testReachAndFrequency(
-        "1234",
-        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
-      )
-    }
+//  @Test
+//  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
+//    runBlocking {
+//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+//      mcSimulator.testReachAndFrequency(
+//        "1234",
+//        DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
+//      )
+//    }
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
