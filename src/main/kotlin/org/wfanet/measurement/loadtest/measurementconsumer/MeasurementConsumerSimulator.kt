@@ -499,12 +499,12 @@ abstract class MeasurementConsumerSimulator(
     var attemptCount = 0
     while (reachOnlyResult == null && (attemptCount < 6)) {
       attemptCount++
-      logger.info { "################# STILL INSIDE THE POOL FOR RESULT" }
+      logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
       logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
       delay(Duration.ofSeconds(30))
       reachOnlyResult = getReachResult(measurementName)
     }
-    logger.info { "################# OUT OF THE POOL FOR RESULT" }
+    logger.info { "################# OUT OF THE POOL FOR RESULT R" }
 
     checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
 
@@ -1420,11 +1420,11 @@ abstract class MeasurementConsumerSimulator(
     var attempt = 1
     while (true) {
       val result = getResult()
-      logger.info { "################# STILL INSIDE THE POOL FOR RESULT" }
+      logger.info { "################# STILL INSIDE THE POOL FOR RESULT RyF" }
       if (done(result)) {
         return result
       }
-      logger.info { "################# OUT OF THE POOL FOR RESULT" }
+      logger.info { "################# OUT OF THE POOL FOR RESULT RyF" }
 
       val resultPollingDelay =
         backoff.durationForAttempt(attempt).coerceAtMost(maximumResultPollingDelay)
