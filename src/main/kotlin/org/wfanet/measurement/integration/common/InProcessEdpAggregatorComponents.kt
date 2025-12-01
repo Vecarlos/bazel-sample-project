@@ -326,6 +326,7 @@ class InProcessEdpAggregatorComponents(
         var i : Int = 0
         logger.info("------------------------------------While enter")
         while (true) {
+          delay(1000)
           i++
           requisitionFetcher.fetchAndStoreRequisitions()
           logger.info("_________________________________________i=$i")
@@ -372,7 +373,6 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
-    delay(5000)
   }
 
   private suspend fun refuseRequisition(
