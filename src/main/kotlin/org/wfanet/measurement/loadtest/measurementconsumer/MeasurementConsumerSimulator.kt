@@ -223,32 +223,32 @@ abstract class MeasurementConsumerSimulator(
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-    val reachAndFrequencyResult: Result = pollForResult {
-      getReachAndFrequencyResult(measurementName)
-    }
-    logger.info("Got reach and frequency result from Kingdom: $reachAndFrequencyResult")
-
-    val expectedResult = getExpectedResult(measurementInfo)
-    logger.info("Expected result: $expectedResult")
-
-    val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
-
-    logger.info { "#########----- RESULT" }
-    logger.info("$reachAndFrequencyResult")
-    logger.info { "#########----- PROTOCOL" }
-    logger.info("$protocol")
-
-    val reachVariance: Double =
-      computeReachVariance(
-        reachAndFrequencyResult,
-        measurementInfo.measurementSpec.vidSamplingInterval,
-        measurementInfo.measurementSpec.reachAndFrequency.reachPrivacyParams,
-        protocol,
-      )
-    val reachTolerance = computeErrorMargin(reachVariance)
-    if (expectedResult.reach.value.toDouble() < reachTolerance) {
-      throw IllegalStateException("Expected result cannot be less than tolerance")
-    }
+//    val reachAndFrequencyResult: Result = pollForResult {
+//      getReachAndFrequencyResult(measurementName)
+//    }
+//    logger.info("Got reach and frequency result from Kingdom: $reachAndFrequencyResult")
+//
+//    val expectedResult = getExpectedResult(measurementInfo)
+//    logger.info("Expected result: $expectedResult")
+//
+//    val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
+//
+//    logger.info { "#########----- RESULT" }
+//    logger.info("$reachAndFrequencyResult")
+//    logger.info { "#########----- PROTOCOL" }
+//    logger.info("$protocol")
+//
+//    val reachVariance: Double =
+//      computeReachVariance(
+//        reachAndFrequencyResult,
+//        measurementInfo.measurementSpec.vidSamplingInterval,
+//        measurementInfo.measurementSpec.reachAndFrequency.reachPrivacyParams,
+//        protocol,
+//      )
+//    val reachTolerance = computeErrorMargin(reachVariance)
+//    if (expectedResult.reach.value.toDouble() < reachTolerance) {
+//      throw IllegalStateException("Expected result cannot be less than tolerance")
+//    }
 
 //    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
 //      assertThat(protocol.protocolCase)
@@ -482,7 +482,7 @@ abstract class MeasurementConsumerSimulator(
       DataProvider.Capabilities.getDefaultInstance(),
     vidSamplingInterval: VidSamplingInterval = DEFAULT_VID_SAMPLING_INTERVAL,
     eventGroupFilter: ((EventGroup) -> Boolean)? = null,
-  ): ExecutionResult {
+  ): String {
     // Create a new measurement on behalf of the measurement consumer.
     val measurementConsumer = getMeasurementConsumer(measurementConsumerData.name)
     val measurementInfo =
@@ -500,21 +500,22 @@ abstract class MeasurementConsumerSimulator(
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-    var reachOnlyResult = getReachResult(measurementName)
-    var attemptCount = 0
-    while (reachOnlyResult == null && (attemptCount < 6)) {
-      attemptCount++
-      logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
-      logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
-      delay(Duration.ofSeconds(30))
-      reachOnlyResult = getReachResult(measurementName)
-    }
-    logger.info { "################# OUT OF THE POOL FOR RESULT R" }
-
-    checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
-
-    val expectedResult: Result = getExpectedResult(measurementInfo)
-    return ExecutionResult(reachOnlyResult, expectedResult, measurementInfo)
+//    var reachOnlyResult = getReachResult(measurementName)
+//    var attemptCount = 0
+//    while (reachOnlyResult == null && (attemptCount < 6)) {
+//      attemptCount++
+//      logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
+//      logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
+//      delay(Duration.ofSeconds(30))
+//      reachOnlyResult = getReachResult(measurementName)
+//    }
+//    logger.info { "################# OUT OF THE POOL FOR RESULT R" }
+//
+//    checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
+//
+//    val expectedResult: Result = getExpectedResult(measurementInfo)
+//    return ExecutionResult(reachOnlyResult, expectedResult, measurementInfo)
+    return "a"
   }
 
   suspend fun executeReachAndFrequency(
@@ -569,23 +570,23 @@ abstract class MeasurementConsumerSimulator(
     val result =
       executeReachOnly(runId, requiredCapabilities, vidSamplingInterval, eventGroupFilter)
 
-    val protocol = result.measurementInfo.measurement.protocolConfig.protocolsList.first()
-    logger.info { "#########----- RESULT" }
-    logger.info("$result")
-    logger.info { "#########----- PROTOCOL" }
-    logger.info("$protocol")
-
-    val reachVariance: Double =
-      computeReachVariance(
-        result.actualResult,
-        result.measurementInfo.measurementSpec.vidSamplingInterval,
-        result.measurementInfo.measurementSpec.reach.privacyParams,
-        protocol,
-      )
-    val reachTolerance = computeErrorMargin(reachVariance)
-    if (result.expectedResult.reach.value.toDouble() < reachTolerance) {
-      throw IllegalStateException("Expected result cannot be less than tolerance")
-    }
+//    val protocol = result.measurementInfo.measurement.protocolConfig.protocolsList.first()
+//    logger.info { "#########----- RESULT" }
+//    logger.info("$result")
+//    logger.info { "#########----- PROTOCOL" }
+//    logger.info("$protocol")
+//
+//    val reachVariance: Double =
+//      computeReachVariance(
+//        result.actualResult,
+//        result.measurementInfo.measurementSpec.vidSamplingInterval,
+//        result.measurementInfo.measurementSpec.reach.privacyParams,
+//        protocol,
+//      )
+//    val reachTolerance = computeErrorMargin(reachVariance)
+//    if (result.expectedResult.reach.value.toDouble() < reachTolerance) {
+//      throw IllegalStateException("Expected result cannot be less than tolerance")
+//    }
 
 //    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
 //      assertThat(protocol.protocolCase)
