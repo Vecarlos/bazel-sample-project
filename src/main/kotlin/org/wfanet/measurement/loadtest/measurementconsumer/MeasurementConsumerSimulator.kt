@@ -482,7 +482,7 @@ abstract class MeasurementConsumerSimulator(
       DataProvider.Capabilities.getDefaultInstance(),
     vidSamplingInterval: VidSamplingInterval = DEFAULT_VID_SAMPLING_INTERVAL,
     eventGroupFilter: ((EventGroup) -> Boolean)? = null,
-  ): String {
+  ): ExecutionResult {
     // Create a new measurement on behalf of the measurement consumer.
     val measurementConsumer = getMeasurementConsumer(measurementConsumerData.name)
     val measurementInfo =
@@ -500,22 +500,21 @@ abstract class MeasurementConsumerSimulator(
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-//    var reachOnlyResult = getReachResult(measurementName)
-//    var attemptCount = 0
-//    while (reachOnlyResult == null && (attemptCount < 6)) {
-//      attemptCount++
-//      logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
-//      logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
-//      delay(Duration.ofSeconds(30))
-//      reachOnlyResult = getReachResult(measurementName)
-//    }
-//    logger.info { "################# OUT OF THE POOL FOR RESULT R" }
-//
-//    checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
-//
-//    val expectedResult: Result = getExpectedResult(measurementInfo)
-//    return ExecutionResult(reachOnlyResult, expectedResult, measurementInfo)
-    return "a"
+    var reachOnlyResult = getReachResult(measurementName)
+    var attemptCount = 0
+    while (reachOnlyResult == null && (attemptCount < 6)) {
+      attemptCount++
+      logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
+      logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
+      delay(Duration.ofSeconds(30))
+      reachOnlyResult = getReachResult(measurementName)
+    }
+    logger.info { "################# OUT OF THE POOL FOR RESULT R" }
+
+    checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
+
+    val expectedResult: Result = getExpectedResult(measurementInfo)
+    return ExecutionResult(reachOnlyResult, expectedResult, measurementInfo)
   }
 
   suspend fun executeReachAndFrequency(
