@@ -117,9 +117,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
     val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-    val duchyMap =
-      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-//    val duchyMap = emptyMap<String, Channel>()
+//    val duchyMap =
+//      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+    val duchyMap = emptyMap<String, Channel>()
 
     inProcessEdpAggregatorComponents.startDaemons(
       kingdomChannel,
