@@ -233,6 +233,11 @@ abstract class MeasurementConsumerSimulator(
 
     val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
 
+    logger.info { "#########----- RESULT" }
+    logger.info("$reachAndFrequencyResult")
+    logger.info { "#########----- PROTOCOL" }
+    logger.info("$protocol")
+
     val reachVariance: Double =
       computeReachVariance(
         reachAndFrequencyResult,
@@ -565,6 +570,10 @@ abstract class MeasurementConsumerSimulator(
       executeReachOnly(runId, requiredCapabilities, vidSamplingInterval, eventGroupFilter)
 
     val protocol = result.measurementInfo.measurement.protocolConfig.protocolsList.first()
+    logger.info { "#########----- RESULT" }
+    logger.info("$result")
+    logger.info { "#########----- PROTOCOL" }
+    logger.info("$protocol")
 
     val reachVariance: Double =
       computeReachVariance(
