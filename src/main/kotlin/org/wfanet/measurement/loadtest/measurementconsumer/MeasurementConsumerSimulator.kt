@@ -1417,9 +1417,11 @@ abstract class MeasurementConsumerSimulator(
     var attempt = 1
     while (true) {
       val result = getResult()
+      logger.info { "################# STILL INSIDE THE POOL FOR RESULT" }
       if (done(result)) {
         return result
       }
+      logger.info { "################# OUT OF THE POOL FOR RESULT" }
 
       val resultPollingDelay =
         backoff.durationForAttempt(attempt).coerceAtMost(maximumResultPollingDelay)
