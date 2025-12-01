@@ -38,6 +38,7 @@ import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoro
 import org.wfanet.measurement.internal.duchy.GetOutputBlobMetadataRequest
 import org.wfanet.measurement.internal.duchy.getComputationTokenRequest
 import org.wfanet.measurement.internal.duchy.recordOutputBlobPathRequest
+import java.time.Duration
 
 /** Implementation of the internal Async Computation Control Service. */
 class AsyncComputationControlService(
@@ -67,7 +68,8 @@ class AsyncComputationControlService(
             "[id=$globalComputationId]: advanceComputation attempt #$attempt failed; retrying"
           }
           logger.info("iiiiiiiiiiiiiiiiiiiiiiiiiiiii t = $advanceRetryBackoff.durationForAttempt(attempt)")
-          delay(5000)
+          delay(Duration.ofSeconds(5))
+
           attempt++
           continue
         }
