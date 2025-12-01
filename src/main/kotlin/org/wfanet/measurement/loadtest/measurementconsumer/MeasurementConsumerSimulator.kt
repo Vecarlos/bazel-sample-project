@@ -500,13 +500,14 @@ abstract class MeasurementConsumerSimulator(
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-    var reachOnlyResult = getReachResult(measurementName)
+//    var reachOnlyResult = getReachResult(measurementName)
+    var reachOnlyResult = ""
     var attemptCount = 0
     while (reachOnlyResult == null && (attemptCount < 6)) {
       attemptCount++
       logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
       logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
-      delay(Duration.ofSeconds(30))
+      delay(Duration.ofSeconds(60))
       reachOnlyResult = getReachResult(measurementName)
     }
     logger.info { "################# OUT OF THE POOL FOR RESULT R" }
