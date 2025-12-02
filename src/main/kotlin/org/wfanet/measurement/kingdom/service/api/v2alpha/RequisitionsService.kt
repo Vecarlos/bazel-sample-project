@@ -20,10 +20,12 @@ import com.google.protobuf.any
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.time.delay
 import org.wfanet.measurement.api.Version
 import org.wfanet.measurement.api.v2alpha.CanonicalRequisitionKey
 import org.wfanet.measurement.api.v2alpha.DataProviderCertificateKey
@@ -163,6 +165,8 @@ class RequisitionsService(
 
     val internalRequest =
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
+    delay(Duration.ofSeconds(5))
+
     val internalRequisitions: List<InternalRequisition> =
       try {
         internalRequisitionStub.streamRequisitions(internalRequest).toList()
