@@ -220,13 +220,13 @@ abstract class MeasurementConsumerSimulator(
     val measurementName = measurementInfo.measurement.name
     logger.info { "Created reach and frequency Measurement $measurementName" }
 //
-//    onMeasurementsCreated?.invoke()
+    onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-//    val reachAndFrequencyResult: Result = pollForResult {
-//      getReachAndFrequencyResult(measurementName)
-//    }
-//    logger.info("Got reach and frequency result from Kingdom: $reachAndFrequencyResult")
+    val reachAndFrequencyResult: Result = pollForResult {
+      getReachAndFrequencyResult(measurementName)
+    }
+    logger.info("Got reach and frequency result from Kingdom: $reachAndFrequencyResult")
 //
 //    val expectedResult = getExpectedResult(measurementInfo)
 //    logger.info("Expected result: $expectedResult")
