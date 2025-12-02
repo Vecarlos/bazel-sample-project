@@ -321,7 +321,7 @@ class InProcessEdpAggregatorComponents(
         )
 
       backgroundScope.launch {
-        
+
         logger.info("While enter")
         while (true) {
           delay(1000)
