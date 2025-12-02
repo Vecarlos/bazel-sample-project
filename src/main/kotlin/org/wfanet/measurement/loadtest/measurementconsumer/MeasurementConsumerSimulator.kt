@@ -219,7 +219,7 @@ abstract class MeasurementConsumerSimulator(
       )
     val measurementName = measurementInfo.measurement.name
     logger.info { "Created reach and frequency Measurement $measurementName" }
-//
+
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
@@ -227,53 +227,48 @@ abstract class MeasurementConsumerSimulator(
       getReachAndFrequencyResult(measurementName)
     }
     logger.info("Got reach and frequency result from Kingdom: $reachAndFrequencyResult")
-//
+
     val expectedResult = getExpectedResult(measurementInfo)
     logger.info("Expected result: $expectedResult")
-//
-    val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
-//
-//    logger.info { "#########----- RESULT" }
-//    logger.info("$reachAndFrequencyResult")
-//    logger.info { "#########----- PROTOCOL" }
-//    logger.info("$protocol")
-//
-//    val reachVariance: Double =
-//      computeReachVariance(
-//        reachAndFrequencyResult,
-//        measurementInfo.measurementSpec.vidSamplingInterval,
-//        measurementInfo.measurementSpec.reachAndFrequency.reachPrivacyParams,
-//        protocol,
-//      )
-//    val reachTolerance = computeErrorMargin(reachVariance)
-//    if (expectedResult.reach.value.toDouble() < reachTolerance) {
-//      throw IllegalStateException("Expected result cannot be less than tolerance")
-//    }
 
-//    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
-//      assertThat(protocol.protocolCase)
-//        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE)
-//    } else {
-//      assertThat(protocol.protocolCase)
-//        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.LIQUID_LEGIONS_V2)
-//    }
-//    assertThat(reachAndFrequencyResult)
-//      .reachValue()
-//      .isWithin(reachTolerance)
-//      .of(expectedResult.reach.value)
-//
-//    val frequencyTolerance: Map<Long, Double> =
-//      computeRelativeFrequencyTolerance(
-//        reachAndFrequencyResult,
-//        reachVariance,
-//        measurementInfo.measurementSpec,
-//        protocol,
-//      )
-//    assertThat(reachAndFrequencyResult)
-//      .frequencyDistribution()
-//      .isWithin(frequencyTolerance)
-//      .of(expectedResult.frequency.relativeFrequencyDistributionMap)
-    assert(true)
+    val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
+
+    val reachVariance: Double =
+      computeReachVariance(
+        reachAndFrequencyResult,
+        measurementInfo.measurementSpec.vidSamplingInterval,
+        measurementInfo.measurementSpec.reachAndFrequency.reachPrivacyParams,
+        protocol,
+      )
+    val reachTolerance = computeErrorMargin(reachVariance)
+    if (expectedResult.reach.value.toDouble() < reachTolerance) {
+      throw IllegalStateException("Expected result cannot be less than tolerance")
+    }
+
+    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
+      assertThat(protocol.protocolCase)
+        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE)
+    } else {
+      assertThat(protocol.protocolCase)
+        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.LIQUID_LEGIONS_V2)
+    }
+    assertThat(reachAndFrequencyResult)
+      .reachValue()
+      .isWithin(reachTolerance)
+      .of(expectedResult.reach.value)
+
+    val frequencyTolerance: Map<Long, Double> =
+      computeRelativeFrequencyTolerance(
+        reachAndFrequencyResult,
+        reachVariance,
+        measurementInfo.measurementSpec,
+        protocol,
+      )
+    assertThat(reachAndFrequencyResult)
+      .frequencyDistribution()
+      .isWithin(frequencyTolerance)
+      .of(expectedResult.frequency.relativeFrequencyDistributionMap)
+
     logger.info("Reach and frequency result is equal to the expected result")
   }
 
@@ -366,12 +361,12 @@ abstract class MeasurementConsumerSimulator(
 
       val expectedResult = getExpectedResult(measurementInfo)
       logger.info("Expected result: $expectedResult")
-//      assertThat(reachAndFrequencyResult.reach.hasDeterministicCountDistinct()).isTrue()
-//      assertThat(reachAndFrequencyResult.reach.noiseMechanism)
-//        .isEqualTo(expectedDirectNoiseMechanism)
-//      assertThat(reachAndFrequencyResult.frequency.hasDeterministicDistribution()).isTrue()
-//      assertThat(reachAndFrequencyResult.frequency.noiseMechanism)
-//        .isEqualTo(expectedDirectNoiseMechanism)
+      assertThat(reachAndFrequencyResult.reach.hasDeterministicCountDistinct()).isTrue()
+      assertThat(reachAndFrequencyResult.reach.noiseMechanism)
+        .isEqualTo(expectedDirectNoiseMechanism)
+      assertThat(reachAndFrequencyResult.frequency.hasDeterministicDistribution()).isTrue()
+      assertThat(reachAndFrequencyResult.frequency.noiseMechanism)
+        .isEqualTo(expectedDirectNoiseMechanism)
 
       val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
 
@@ -387,24 +382,24 @@ abstract class MeasurementConsumerSimulator(
         throw IllegalStateException("Expected result cannot be less than tolerance")
       }
 
-//      assertThat(reachAndFrequencyResult)
-//        .reachValue()
-//        .isWithin(reachTolerance)
-//        .of(expectedResult.reach.value)
-//
-//      val frequencyTolerance: Map<Long, Double> =
-//        computeRelativeFrequencyTolerance(
-//          reachAndFrequencyResult,
-//          reachVariance,
-//          measurementInfo.measurementSpec,
-//          protocol,
-//        )
-//
-//      assertThat(reachAndFrequencyResult)
-//        .frequencyDistribution()
-//        .isWithin(frequencyTolerance)
-//        .of(expectedResult.frequency.relativeFrequencyDistributionMap)
-        assert(true)
+      assertThat(reachAndFrequencyResult)
+        .reachValue()
+        .isWithin(reachTolerance)
+        .of(expectedResult.reach.value)
+
+      val frequencyTolerance: Map<Long, Double> =
+        computeRelativeFrequencyTolerance(
+          reachAndFrequencyResult,
+          reachVariance,
+          measurementInfo.measurementSpec,
+          protocol,
+        )
+
+      assertThat(reachAndFrequencyResult)
+        .frequencyDistribution()
+        .isWithin(frequencyTolerance)
+        .of(expectedResult.frequency.relativeFrequencyDistributionMap)
+
       logger.info(
         "Direct reach and frequency result is equal to the expected result for measurement: $measurementNumber"
       )
@@ -465,11 +460,11 @@ abstract class MeasurementConsumerSimulator(
         throw IllegalStateException("Expected result cannot be less than tolerance")
       }
 
-//      assertThat(reachResult).reachValue().isWithin(reachTolerance).of(expectedResult.reach.value)
-//      assertThat(reachResult.reach.hasDeterministicCountDistinct()).isTrue()
-//      assertThat(reachResult.reach.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
-//      assertThat(reachResult.hasFrequency()).isFalse()
-        assert(true)
+      assertThat(reachResult).reachValue().isWithin(reachTolerance).of(expectedResult.reach.value)
+      assertThat(reachResult.reach.hasDeterministicCountDistinct()).isTrue()
+      assertThat(reachResult.reach.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
+      assertThat(reachResult.hasFrequency()).isFalse()
+
       logger.info(
         "Direct reach result is equal to the expected result for measurement: $measurementNumber"
       )
@@ -504,13 +499,10 @@ abstract class MeasurementConsumerSimulator(
     var attemptCount = 0
     while (reachOnlyResult == null && (attemptCount < 6)) {
       attemptCount++
-      logger.info { "################# STILL INSIDE THE POOL FOR RESULT R" }
       logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
       delay(Duration.ofSeconds(30))
       reachOnlyResult = getReachResult(measurementName)
     }
-    logger.info { "################# OUT OF THE POOL FOR RESULT R" }
-
     checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
 
     val expectedResult: Result = getExpectedResult(measurementInfo)
@@ -569,44 +561,38 @@ abstract class MeasurementConsumerSimulator(
     val result =
       executeReachOnly(runId, requiredCapabilities, vidSamplingInterval, eventGroupFilter)
 
-//    val protocol = result.measurementInfo.measurement.protocolConfig.protocolsList.first()
-//    logger.info { "#########----- RESULT" }
-//    logger.info("$result")
-//    logger.info { "#########----- PROTOCOL" }
-//    logger.info("$protocol")
-//
-//    val reachVariance: Double =
-//      computeReachVariance(
-//        result.actualResult,
-//        result.measurementInfo.measurementSpec.vidSamplingInterval,
-//        result.measurementInfo.measurementSpec.reach.privacyParams,
-//        protocol,
-//      )
-//    val reachTolerance = computeErrorMargin(reachVariance)
-//    if (result.expectedResult.reach.value.toDouble() < reachTolerance) {
-//      throw IllegalStateException("Expected result cannot be less than tolerance")
-//    }
+    val protocol = result.measurementInfo.measurement.protocolConfig.protocolsList.first()
 
-//    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
-//      assertThat(protocol.protocolCase)
-//        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE)
-//    } else {
-//      assertThat(protocol.protocolCase)
-//        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.REACH_ONLY_LIQUID_LEGIONS_V2)
-//    }
-//    assertThat(result.actualResult)
-//      .reachValue()
-//      .isWithin(reachTolerance)
-//      .of(result.expectedResult.reach.value)
-//    logger.info("Actual result: ${result.actualResult}")
-//    logger.info("Expected result: ${result.expectedResult}")
-//
-//    assertThat(result.actualResult)
-//      .reachValue()
-//      .isWithin(reachTolerance)
-//      .of(result.expectedResult.reach.value)
+    val reachVariance: Double =
+      computeReachVariance(
+        result.actualResult,
+        result.measurementInfo.measurementSpec.vidSamplingInterval,
+        result.measurementInfo.measurementSpec.reach.privacyParams,
+        protocol,
+      )
+    val reachTolerance = computeErrorMargin(reachVariance)
+    if (result.expectedResult.reach.value.toDouble() < reachTolerance) {
+      throw IllegalStateException("Expected result cannot be less than tolerance")
+    }
 
-    assert(true)
+    if (requiredCapabilities.honestMajorityShareShuffleSupported) {
+      assertThat(protocol.protocolCase)
+        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE)
+    } else {
+      assertThat(protocol.protocolCase)
+        .isEqualTo(ProtocolConfig.Protocol.ProtocolCase.REACH_ONLY_LIQUID_LEGIONS_V2)
+    }
+    assertThat(result.actualResult)
+      .reachValue()
+      .isWithin(reachTolerance)
+      .of(result.expectedResult.reach.value)
+    logger.info("Actual result: ${result.actualResult}")
+    logger.info("Expected result: ${result.expectedResult}")
+
+    assertThat(result.actualResult)
+      .reachValue()
+      .isWithin(reachTolerance)
+      .of(result.expectedResult.reach.value)
     logger.info("Reach-only result is equal to the expected result. Correctness Test passes.")
   }
 
@@ -648,10 +634,9 @@ abstract class MeasurementConsumerSimulator(
       if (expectedResult.impression.value.toDouble() < tolerance) {
         throw IllegalStateException("Expected impressions cannot be less than tolerance")
       }
-//      assertThat(result.impression.hasDeterministicCount()).isTrue()
-//      assertThat(result.impression.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
-//      assertThat(result).impressionValue().isWithin(tolerance).of(expectedResult.impression.value)
-      assert(true)
+      assertThat(result.impression.hasDeterministicCount()).isTrue()
+      assertThat(result.impression.noiseMechanism).isEqualTo(expectedDirectNoiseMechanism)
+      assertThat(result).impressionValue().isWithin(tolerance).of(expectedResult.impression.value)
     }
     logger.info("Impression result is equal to the expected result")
   }
@@ -1429,11 +1414,9 @@ abstract class MeasurementConsumerSimulator(
     var attempt = 1
     while (true) {
       val result = getResult()
-      logger.info { "################# STILL INSIDE THE POOL FOR RESULT RyF" }
       if (done(result)) {
         return result
       }
-      logger.info { "################# OUT OF THE POOL FOR RESULT RyF" }
 
       val resultPollingDelay =
         backoff.durationForAttempt(attempt).coerceAtMost(maximumResultPollingDelay)
