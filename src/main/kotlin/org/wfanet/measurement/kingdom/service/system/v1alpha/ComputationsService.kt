@@ -102,6 +102,7 @@ class ComputationsService(
       //
       // TODO(@SanjayVas): Figure out an alternative mechanism (e.g. Spanner change streams) to
       // avoid having to poll internal service.
+      delay(50000)
       while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
