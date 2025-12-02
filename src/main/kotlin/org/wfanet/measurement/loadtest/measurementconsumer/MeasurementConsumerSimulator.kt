@@ -228,10 +228,10 @@ abstract class MeasurementConsumerSimulator(
     }
     logger.info("Got reach and frequency result from Kingdom: $reachAndFrequencyResult")
 //
-//    val expectedResult = getExpectedResult(measurementInfo)
-//    logger.info("Expected result: $expectedResult")
+    val expectedResult = getExpectedResult(measurementInfo)
+    logger.info("Expected result: $expectedResult")
 //
-//    val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
+    val protocol = measurementInfo.measurement.protocolConfig.protocolsList.first()
 //
 //    logger.info { "#########----- RESULT" }
 //    logger.info("$reachAndFrequencyResult")
