@@ -132,10 +132,24 @@ class RequisitionGrouperByReportId(
     for ((reportId, requisitionsByReportId) in requisitions.groupBy { getReportId(it) }) {
       val requisitionsMetadata: List<RequisitionMetadata> =
         listRequisitionMetadataByReportId(reportId)
-      val storedRequisitionMetadata =
-        requisitionsMetadata.filter { it.state == RequisitionMetadata.State.STORED }
-      val storedGroupIdToRequisitionMetadata: Map<String, List<RequisitionMetadata>> =
-        storedRequisitionMetadata.groupBy { it.groupId }
+//      val storedRequisitionMetadata =
+//        requisitionsMetadata.filter { it.state == RequisitionMetadata.State.STORED }
+      val storedRequisitionMetadata = ArrayList<RequisitionMetadata>()
+      for (meta in requisitionsMetadata) {
+        if (meta.state == RequisitionMetadata.State.STORED) {
+          storedRequisitionMetadata.add(meta)
+        }
+      }
+//      val storedGroupIdToRequisitionMetadata: Map<String, List<RequisitionMetadata>> =
+//        storedRequisitionMetadata.groupBy { it.groupId }
+      val storedGroupIdToRequisitionMetadata =
+        HashMap<String, MutableList<RequisitionMetadata>>()
+
+      for (meta in storedRequisitionMetadata) {
+        val list = storedGroupIdToRequisitionMetadata
+          .getOrPut(meta.groupId) { ArrayList() }
+        list.add(meta)
+      }
       groupedRequisitions.addAll(
         recoverUnpersistedGroupedRequisitions(
           storedGroupIdToRequisitionMetadata,
@@ -295,8 +309,15 @@ class RequisitionGrouperByReportId(
   ): GroupedRequisitions? {
     val existingCmmsRequisitionName: Set<String> =
       groupIdToRequisitionMetadata.values.flatten().map { it.cmmsRequisition }.toSet()
-    val unregisteredRequisitionsByReportId: List<Requisition> =
-      requisitionsByReportId.filter { it.name !in existingCmmsRequisitionName }
+//    val unregisteredRequisitionsByReportId: List<Requisition> =
+//      requisitionsByReportId.filter { it.name !in existingCmmsRequisitionName }
+    val unregisteredRequisitionsByReportId = ArrayList<Requisition>()
+    for (req in requisitionsByReportId) {
+      if (!existingCmmsRequisitionName.contains(req.name)) {
+        unregisteredRequisitionsByReportId.add(req)
+      }
+    }
+
     if (unregisteredRequisitionsByReportId.isEmpty()) return null
     val requisitionGroupId = UUID.randomUUID().toString()
     val reportValidationOutcome =
