@@ -141,7 +141,7 @@ class AsyncComputationControlService(
       token.blobsList.firstOrNull {
         it.blobId == request.blobId && it.dependencyType == ComputationBlobDependency.OUTPUT
       } ?: failGrpc(Status.FAILED_PRECONDITION) { "No output blob with ID ${request.blobId}" }
-    delay(Duration.ofSeconds(5))
+    delay(Duration.ofSeconds(15))
 
     if (outputBlob.path.isNotEmpty()) {
       if (outputBlob.path != request.blobPath) {
