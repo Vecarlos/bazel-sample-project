@@ -238,7 +238,6 @@ class InProcessDuchy(
 
   suspend fun stopHerald() {
     if (this::heraldJob.isInitialized) {
-      logger.info("------------------------------------Stopping Herald")
       heraldJob.cancel("Stopping Herald")
       heraldJob.join()
     }
@@ -331,7 +330,6 @@ class InProcessDuchy(
 
   suspend fun stopMill() {
     if (this::millJob.isInitialized) {
-      logger.info("------------------------------------Stopping Mill")
       millJob.cancel("Stopping Mill")
       millJob.join()
     }
