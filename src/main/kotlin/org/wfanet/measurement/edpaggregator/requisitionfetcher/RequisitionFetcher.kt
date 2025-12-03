@@ -23,8 +23,10 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.time.Duration
 import kotlin.time.TimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.wfanet.measurement.api.v2alpha.ListRequisitionsRequestKt
@@ -128,6 +130,8 @@ class RequisitionFetcher(
    */
   private suspend fun storeRequisitions(requisitions: List<Requisition>): Int =
     withStoreTelemetry(requisitions.size) {
+      delay(5000)
+
       val groupedRequisitions = requisitionGrouper.groupRequisitions(requisitions)
       val totalToStore = groupedRequisitions.count { it.requisitionsList.isNotEmpty() }
       var storedGroupedRequisitions = 0
