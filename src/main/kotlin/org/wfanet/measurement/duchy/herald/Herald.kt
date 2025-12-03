@@ -186,6 +186,7 @@ class Herald(
 
   private suspend fun processSystemComputation(computation: Computation, maxAttempts: Int = 10) {
     var attemptNumber = 0
+    delay(Duration.ofSeconds(15))
     while (coroutineContext.isActive) {
       attemptNumber++
       try {
