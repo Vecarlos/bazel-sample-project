@@ -219,6 +219,7 @@ class Herald(
     logger.fine("[id=$globalId]: Processing updated GlobalComputation")
     val state = computation.state
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // Proto enum fields are never null.
+    delay(Duration.ofSeconds(15))
     when (state) {
       // Creates a new computation if it is not already present in the database.
       State.PENDING_REQUISITION_PARAMS -> createComputation(computation)
