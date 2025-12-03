@@ -17,10 +17,12 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import com.google.protobuf.Descriptors.DescriptorValidationException
 import io.grpc.Status
 import io.grpc.StatusException
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.time.delay
 import org.wfanet.measurement.api.Version
 import org.wfanet.measurement.api.v2alpha.BatchGetEventGroupMetadataDescriptorsRequest
 import org.wfanet.measurement.api.v2alpha.BatchGetEventGroupMetadataDescriptorsResponse
@@ -106,6 +108,7 @@ class EventGroupMetadataDescriptorsService(
 
     val internalEventGroupMetadataDescriptor =
       try {
+        delay(Duration.ofSeconds(15))
         internalEventGroupMetadataDescriptorsStub.getEventGroupMetadataDescriptor(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
