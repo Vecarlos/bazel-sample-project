@@ -130,7 +130,7 @@ class RequisitionFetcher(
    */
   private suspend fun storeRequisitions(requisitions: List<Requisition>): Int =
     withStoreTelemetry(requisitions.size) {
-      delay(5000)
+      delay(10000)
       val groupedRequisitions = requisitionGrouper.groupRequisitions(requisitions)
       delay(5000)
 
