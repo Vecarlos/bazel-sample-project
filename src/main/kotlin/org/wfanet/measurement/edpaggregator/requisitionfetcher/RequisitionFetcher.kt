@@ -251,6 +251,7 @@ class RequisitionFetcher(
     ) {
       val result =
         try {
+          delay(2000)
           block()
         } catch (e: Exception) {
           Span.current()
