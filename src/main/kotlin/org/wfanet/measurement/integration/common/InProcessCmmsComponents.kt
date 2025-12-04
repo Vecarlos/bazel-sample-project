@@ -62,6 +62,7 @@ import org.wfanet.measurement.loadtest.resourcesetup.ResourceSetup
 import org.wfanet.measurement.loadtest.resourcesetup.Resources
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
 
 class InProcessCmmsComponents(
   private val kingdomDataServicesRule: ProviderRule<DataServices>,
@@ -303,13 +304,17 @@ class InProcessCmmsComponents(
       eventGroups = edpSimulators.map { it.ensureEventGroup() }
       edpSimulators.forEach { it.start() }
       edpSimulators.forEach { it.waitUntilHealthy() }
+      delay(5000)
     }
 
     duchies.forEach {
       it.startHerald()
       it.startMill(duchyCertMap)
+      delay(5000)
     }
     populationRequisitionFulfiller.start()
+    delay(5000)
+
   }
 
   fun stopEdpSimulators() = runBlocking { edpSimulators.forEach { it.stop() } }
