@@ -149,34 +149,34 @@ jobs:
 #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
 
 
-      - name: Run tests with coverage
-        id: run-coverage
-        env:
-          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
-        run: >
-          bazel coverage
-          --cache_test_results=yes
-          --test_output=all
-          --experimental_split_coverage_postprocessing
-          --experimental_fetch_all_coverage_outputs
-          --test_timeout=1200
-          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
-
 #      - name: Run tests with coverage
 #        id: run-coverage
 #        env:
 #          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
 #          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
 #        run: >
-#           bazel coverage
-#           --cache_test_results=yes
-#           --experimental_split_coverage_postprocessing
-#           --experimental_fetch_all_coverage_outputs
-#           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-#           //src/test/kotlin/...
-#        continue-on-error: true
+#          bazel coverage
+#          --cache_test_results=yes
+#          --test_output=all
+#          --experimental_split_coverage_postprocessing
+#          --experimental_fetch_all_coverage_outputs
+#          --test_timeout=1200
+#          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+
+      - name: Run tests with coverage
+        id: run-coverage
+        env:
+          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
+          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
+        run: >
+           bazel coverage
+           --cache_test_results=yes
+           --experimental_split_coverage_postprocessing
+           --experimental_fetch_all_coverage_outputs
+           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+           //src/test/kotlin/...
+        continue-on-error: true
 
 
 
