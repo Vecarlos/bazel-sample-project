@@ -20,6 +20,7 @@ import io.grpc.StatusException
 import io.grpc.serviceconfig.MethodConfigKt
 import io.grpc.serviceconfig.methodConfig
 import java.time.Clock
+import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.coroutineContext
@@ -120,6 +121,7 @@ class Herald(
     // Use custom retry logic to handle the stream potentially being partially processed.
     var attemptNumber = 1
     while (coroutineContext.isActive) {
+      delay(Duration.ofSeconds(15))
       try {
         syncStatuses()
       } catch (e: StreamingException) {
@@ -217,6 +219,7 @@ class Herald(
     logger.fine("[id=$globalId]: Processing updated GlobalComputation")
     val state = computation.state
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // Proto enum fields are never null.
+    delay(Duration.ofSeconds(15))
     when (state) {
       // Creates a new computation if it is not already present in the database.
       State.PENDING_REQUISITION_PARAMS -> createComputation(computation)
