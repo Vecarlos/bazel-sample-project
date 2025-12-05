@@ -17,12 +17,10 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import com.google.protobuf.Descriptors.DescriptorValidationException
 import io.grpc.Status
 import io.grpc.StatusException
-import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.time.delay
 import org.wfanet.measurement.api.Version
 import org.wfanet.measurement.api.v2alpha.BatchGetEventGroupMetadataDescriptorsRequest
 import org.wfanet.measurement.api.v2alpha.BatchGetEventGroupMetadataDescriptorsResponse
@@ -108,7 +106,6 @@ class EventGroupMetadataDescriptorsService(
 
     val internalEventGroupMetadataDescriptor =
       try {
-        delay(Duration.ofSeconds(15))
         internalEventGroupMetadataDescriptorsStub.getEventGroupMetadataDescriptor(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -454,3 +451,32 @@ private fun ListEventGroupMetadataDescriptorsPageToken
     }
   }
 }
+// --- INJECTED FOR CACHE TEST ---
+fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction2() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction3() {
+    println("Injected function 3 executed")
+}
+fun injectedFunction4() {
+    println("Injected function 4 executed")
+}
+fun injectedFunction5() {
+    println("Injected function 5 executed")
+}
+fun injectedFunction6() {
+    println("Injected function 6 executed")
+}
+fun injectedFunction7() {
+    println("Injected function 7 executed")
+}
+fun injectedFunction8() {
+    println("Injected function 8 executed")
+}
+fun injectedFunction9() {
+    println("Injected function 9 executed")
+}
+// --- END INJECTED ---
