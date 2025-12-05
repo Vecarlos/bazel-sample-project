@@ -38,6 +38,7 @@ import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoro
 import org.wfanet.measurement.internal.duchy.GetOutputBlobMetadataRequest
 import org.wfanet.measurement.internal.duchy.getComputationTokenRequest
 import org.wfanet.measurement.internal.duchy.recordOutputBlobPathRequest
+import java.time.Duration
 
 /** Implementation of the internal Async Computation Control Service. */
 class AsyncComputationControlService(
@@ -66,7 +67,9 @@ class AsyncComputationControlService(
           logger.log(Level.WARNING, e) {
             "[id=$globalComputationId]: advanceComputation attempt #$attempt failed; retrying"
           }
-          delay(advanceRetryBackoff.durationForAttempt(attempt))
+          logger.info("iiiiiiiiiiiiiiiiiiiiiiiiiiiii t = $advanceRetryBackoff.durationForAttempt(attempt)")
+          delay(Duration.ofSeconds(5))
+
           attempt++
           continue
         }
@@ -138,6 +141,8 @@ class AsyncComputationControlService(
       token.blobsList.firstOrNull {
         it.blobId == request.blobId && it.dependencyType == ComputationBlobDependency.OUTPUT
       } ?: failGrpc(Status.FAILED_PRECONDITION) { "No output blob with ID ${request.blobId}" }
+    delay(Duration.ofSeconds(5))
+
     if (outputBlob.path.isNotEmpty()) {
       if (outputBlob.path != request.blobPath) {
         throw Status.FAILED_PRECONDITION.withDescription(
