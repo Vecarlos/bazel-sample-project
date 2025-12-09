@@ -255,6 +255,7 @@ abstract class MillBase(
     logger.info("$globalId@$millId: Processing computation, stage $stage")
 
     try {
+      kotlinx.coroutines.delay(5000)
       processComputationImpl(token)
     } catch (e: Exception) {
       handleExceptions(token, e)
@@ -348,6 +349,7 @@ abstract class MillBase(
         else -> throw ComputationDataClients.PermanentErrorException(message, cause)
       }
     }
+    kotlinx.coroutines.delay(15000)
     while (true) {
       yield()
       val participant: ComputationParticipant =
