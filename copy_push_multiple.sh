@@ -200,7 +200,7 @@ do
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_2" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_4" || true
-  if [ $(($i % 2)) -eq 1 ]; then
+  if [ $(($i % 2)) -eq 0 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
     commit_msg="ACTIVE $i: Comment test and add empty functions"
   else
