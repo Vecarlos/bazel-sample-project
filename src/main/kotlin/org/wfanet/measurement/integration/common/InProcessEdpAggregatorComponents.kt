@@ -324,7 +324,7 @@ class InProcessEdpAggregatorComponents(
 
         logger.info("While enter")
         while (true) {
-          delay(10000)
+          delay(5000)
           requisitionFetcher.fetchAndStoreRequisitions()
         }
         logger.info("While exit")
