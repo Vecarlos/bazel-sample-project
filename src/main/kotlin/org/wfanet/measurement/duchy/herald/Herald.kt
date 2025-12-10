@@ -121,7 +121,7 @@ class Herald(
     // Use custom retry logic to handle the stream potentially being partially processed.
     var attemptNumber = 1
     while (coroutineContext.isActive) {
-      delay(Duration.ofSeconds(15))
+      delay(Duration.ofSeconds(5))
       try {
         syncStatuses()
       } catch (e: StreamingException) {
