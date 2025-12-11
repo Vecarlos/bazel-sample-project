@@ -116,7 +116,7 @@ TARGET_3="EventGroupMetadataDescriptorsServiceTest"
 
 # DORMAND_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_dormand"
 # ACTIVE_BRANCH="releases/fluctuation_test_$(date +%Y_%m_%d_%H_%M_%S)_active"
-ACTIVE_BRANCH="buildbuddy_kt_cov_2"
+ACTIVE_BRANCH="buildbuddy_kt_cov_2_2"
 
 # git checkout -b ${DORMAND_BRANCH}
 # git checkout -b ${ACTIVE_BRANCH}
