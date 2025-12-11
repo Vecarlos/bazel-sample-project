@@ -91,6 +91,10 @@ import org.wfanet.measurement.internal.kingdom.refuseRequisitionRequest
 import org.wfanet.measurement.internal.kingdom.requisitionRefusal as internalRequisitionRefusal
 import org.wfanet.measurement.internal.kingdom.streamRequisitionsRequest
 
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.withTimeout
+import kotlin.system.measureTimeMillis
+
 private const val DEFAULT_PAGE_SIZE = 10
 private const val MAX_PAGE_SIZE = 500
 
@@ -167,9 +171,26 @@ class RequisitionsService(
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
     delay(Duration.ofSeconds(15))
 
-    val internalRequisitions: List<InternalRequisition> =
-      try {
-        internalRequisitionStub.streamRequisitions(internalRequest).toList()
+//    val internalRequisitions: List<InternalRequisition> =
+//      try {
+//        internalRequisitionStub.streamRequisitions(internalRequest).toList()
+//      } catch (e: StatusException) {
+//        throw when (e.status.code) {
+//          Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
+//          Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
+//          else -> Status.UNKNOWN
+//        }.toExternalStatusRuntimeException(e)
+//      }
+
+    val timeout = Duration.ofSeconds(15).toMillis()
+
+    val internalRequisitions: List<InternalRequisition>
+
+    val elapsedMs = measureTimeMillis {
+      internalRequisitions = try {
+        withTimeout(timeout) {
+          internalRequisitionStub.streamRequisitions(internalRequest).toList()
+        }
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -177,6 +198,10 @@ class RequisitionsService(
           else -> Status.UNKNOWN
         }.toExternalStatusRuntimeException(e)
       }
+    }
+
+
+    println("⏱️ streamRequisitions terminó en ${elapsedMs}ms")
 
     if (internalRequisitions.isEmpty()) {
       return ListRequisitionsResponse.getDefaultInstance()
