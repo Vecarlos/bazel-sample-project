@@ -76,7 +76,7 @@ class ComputationsService(
         .apply { externalComputationId = apiIdToExternalId(computationKey.computationId) }
         .build()
     try {
-      return measurementsClient.withDeadlineAfter(30, TimeUnit.MINUTES).getMeasurementByComputationId(internalRequest).toSystemComputation()
+      return measurementsClient.getMeasurementByComputationId(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -105,7 +105,7 @@ class ComputationsService(
       // TODO(@SanjayVas): Figure out an alternative mechanism (e.g. Spanner change streams) to
       // avoid having to poll internal service.
       while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
-//        delay(15000)
+        delay(15000)
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
             if (cause !is StatusException) throw cause
@@ -199,7 +199,7 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return measurementsClient.withDeadlineAfter(30, TimeUnit.MINUTES).streamMeasurements(request)
+      return measurementsClient.streamMeasurements(request)
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
