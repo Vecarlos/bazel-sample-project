@@ -76,7 +76,7 @@ class ComputationsService(
         .apply { externalComputationId = apiIdToExternalId(computationKey.computationId) }
         .build()
     try {
-      return measurementsClient.getMeasurementByComputationId(internalRequest).toSystemComputation()
+      return measurementsClient.withDeadlineAfter(30, TimeUnit.MINUTES).getMeasurementByComputationId(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
