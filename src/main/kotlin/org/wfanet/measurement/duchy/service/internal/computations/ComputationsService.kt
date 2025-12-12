@@ -284,7 +284,7 @@ class ComputationsService(
   override suspend fun recordOutputBlobPath(
     request: RecordOutputBlobPathRequest
   ): RecordOutputBlobPathResponse {
-    delay(Duration.ofSeconds(15))
+    delay(Duration.ofSeconds(10))
     try {
       computationsDatabase.writeOutputBlobReference(
         request.token.toDatabaseEditToken(),
