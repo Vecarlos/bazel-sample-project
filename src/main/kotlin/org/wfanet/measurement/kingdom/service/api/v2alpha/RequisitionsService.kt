@@ -94,6 +94,7 @@ import org.wfanet.measurement.internal.kingdom.streamRequisitionsRequest
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
 import kotlin.system.measureTimeMillis
+import java.util.concurrent.TimeUnit
 
 private const val DEFAULT_PAGE_SIZE = 10
 private const val MAX_PAGE_SIZE = 500
@@ -183,13 +184,13 @@ class RequisitionsService(
 //      }
 
     val timeout = Duration.ofSeconds(15).toMillis()
-    val stubWithDeadline = measurementStub.withDeadlineAfter(5, TimeUnit.MINUTES)
-    val internalRequisitions: List<InternalRequisition>
 
+    val internalRequisitions: List<InternalRequisition>
+    val stubConPaciencia = internalRequisitionStub
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
     internalRequisitions = try {
-      withTimeout(timeout) {
-        internalRequisitionStub.streamRequisitions(internalRequest).toList()
-      }
+      stubConPaciencia.streamRequisitions(internalRequest).toList()
+
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
