@@ -199,7 +199,7 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return measurementsClient.streamMeasurements(request)
+      return measurementsClient.withWaitForReady().withDeadlineAfter(30, TimeUnit.MINUTES).streamMeasurements(request)
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
