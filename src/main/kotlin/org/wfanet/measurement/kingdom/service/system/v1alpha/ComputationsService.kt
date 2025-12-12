@@ -56,6 +56,8 @@ import org.wfanet.measurement.system.v1alpha.StreamActiveComputationsResponse
 import org.wfanet.measurement.system.v1alpha.streamActiveComputationsContinuationToken
 import org.wfanet.measurement.system.v1alpha.streamActiveComputationsResponse
 
+import java.util.concurrent.TimeUnit
+
 class ComputationsService(
   private val measurementsClient: MeasurementsCoroutineStub,
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
@@ -103,7 +105,7 @@ class ComputationsService(
       // TODO(@SanjayVas): Figure out an alternative mechanism (e.g. Spanner change streams) to
       // avoid having to poll internal service.
       while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
-        delay(15000)
+//        delay(15000)
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
             if (cause !is StatusException) throw cause
@@ -163,7 +165,7 @@ class ComputationsService(
       publicApiVersion = request.publicApiVersion
     }
     try {
-      return measurementsClient.setMeasurementResult(internalRequest).toSystemComputation()
+      return measurementsClient.withDeadlineAfter(30, TimeUnit.MINUTES).setMeasurementResult(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
