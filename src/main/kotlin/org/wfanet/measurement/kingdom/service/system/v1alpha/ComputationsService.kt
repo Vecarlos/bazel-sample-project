@@ -108,6 +108,7 @@ class ComputationsService(
 //        delay(15000)
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
+            println("Entro al catch! 11")
             if (cause !is StatusException) throw cause
             throw when (cause.status.code) {
                 Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -201,6 +202,7 @@ class ComputationsService(
     try {
       return measurementsClient.withWaitForReady().withDeadlineAfter(30, TimeUnit.MINUTES).streamMeasurements(request)
     } catch (e: StatusException) {
+      println("Entro al catch! 22")
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
           Status.Code.CANCELLED -> Status.CANCELLED
