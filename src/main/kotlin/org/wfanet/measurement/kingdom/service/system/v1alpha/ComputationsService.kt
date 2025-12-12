@@ -165,7 +165,7 @@ class ComputationsService(
       publicApiVersion = request.publicApiVersion
     }
     try {
-      return measurementsClient.withDeadlineAfter(30, TimeUnit.MINUTES).setMeasurementResult(internalRequest).toSystemComputation()
+      return measurementsClient.setMeasurementResult(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
