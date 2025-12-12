@@ -183,7 +183,7 @@ class RequisitionsService(
 //      }
 
     val timeout = Duration.ofSeconds(15).toMillis()
-
+    val stubWithDeadline = measurementStub.withDeadlineAfter(5, TimeUnit.MINUTES)
     val internalRequisitions: List<InternalRequisition>
 
     internalRequisitions = try {
