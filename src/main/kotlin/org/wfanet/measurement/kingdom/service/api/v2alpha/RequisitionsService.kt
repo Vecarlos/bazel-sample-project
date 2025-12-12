@@ -170,34 +170,34 @@ class RequisitionsService(
 
     val internalRequest =
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
-//    delay(Duration.ofSeconds(15))
+    delay(Duration.ofSeconds(15))
 
-//    val internalRequisitions: List<InternalRequisition> =
-//      try {
-//        internalRequisitionStub.streamRequisitions(internalRequest).toList()
-//      } catch (e: StatusException) {
-//        throw when (e.status.code) {
-//          Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
-//          Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
-//          else -> Status.UNKNOWN
-//        }.toExternalStatusRuntimeException(e)
-//      }
+    val internalRequisitions: List<InternalRequisition> =
+      try {
+        internalRequisitionStub.streamRequisitions(internalRequest).toList()
+      } catch (e: StatusException) {
+        throw when (e.status.code) {
+          Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
+          Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
+          else -> Status.UNKNOWN
+        }.toExternalStatusRuntimeException(e)
+      }
 
-    val timeout = Duration.ofSeconds(15).toMillis()
-
-    val internalRequisitions: List<InternalRequisition>
-    val stubConPaciencia = internalRequisitionStub
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
-    internalRequisitions = try {
-      stubConPaciencia.streamRequisitions(internalRequest).toList()
-
-    } catch (e: StatusException) {
-      throw when (e.status.code) {
-        Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
-        Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
-        else -> Status.UNKNOWN
-      }.toExternalStatusRuntimeException(e)
-    }
+//    val timeout = Duration.ofSeconds(15).toMillis()
+//
+//    val internalRequisitions: List<InternalRequisition>
+//    val stubConPaciencia = internalRequisitionStub
+//      .withDeadlineAfter(10, TimeUnit.MINUTES)
+//    internalRequisitions = try {
+//      stubConPaciencia.streamRequisitions(internalRequest).toList()
+//
+//    } catch (e: StatusException) {
+//      throw when (e.status.code) {
+//        Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
+//        Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
+//        else -> Status.UNKNOWN
+//      }.toExternalStatusRuntimeException(e)
+//    }
 
 
 
