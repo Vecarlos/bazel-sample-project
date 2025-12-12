@@ -186,22 +186,19 @@ class RequisitionsService(
 
     val internalRequisitions: List<InternalRequisition>
 
-    val elapsedMs = measureTimeMillis {
-      internalRequisitions = try {
-        withTimeout(timeout) {
-          internalRequisitionStub.streamRequisitions(internalRequest).toList()
-        }
-      } catch (e: StatusException) {
-        throw when (e.status.code) {
-          Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
-          Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
-          else -> Status.UNKNOWN
-        }.toExternalStatusRuntimeException(e)
+    internalRequisitions = try {
+      withTimeout(timeout) {
+        internalRequisitionStub.streamRequisitions(internalRequest).toList()
       }
+    } catch (e: StatusException) {
+      throw when (e.status.code) {
+        Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
+        Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
+        else -> Status.UNKNOWN
+      }.toExternalStatusRuntimeException(e)
     }
 
-
-    println("⏱️ streamRequisitions terminó en ${elapsedMs}ms")
+    
 
     if (internalRequisitions.isEmpty()) {
       return ListRequisitionsResponse.getDefaultInstance()
