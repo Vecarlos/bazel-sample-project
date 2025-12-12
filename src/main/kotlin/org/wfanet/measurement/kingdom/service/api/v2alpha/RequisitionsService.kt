@@ -198,7 +198,7 @@ class RequisitionsService(
       }.toExternalStatusRuntimeException(e)
     }
 
-    
+
 
     if (internalRequisitions.isEmpty()) {
       return ListRequisitionsResponse.getDefaultInstance()
