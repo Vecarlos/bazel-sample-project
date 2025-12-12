@@ -23,6 +23,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.time.delay
 import org.wfanet.measurement.common.grpc.grpcRequire
 import org.wfanet.measurement.common.protoTimestamp
 import org.wfanet.measurement.common.toDuration
@@ -73,6 +74,8 @@ import org.wfanet.measurement.system.v1alpha.CreateComputationLogEntryRequest
 import org.wfanet.measurement.system.v1alpha.computationLogEntry
 import org.wfanet.measurement.system.v1alpha.createComputationLogEntryRequest
 import org.wfanet.measurement.system.v1alpha.stageAttempt
+
+import kotlinx.coroutines.time.delay
 
 /** Implementation of the Computations service. */
 class ComputationsService(
@@ -282,6 +285,7 @@ class ComputationsService(
     request: RecordOutputBlobPathRequest
   ): RecordOutputBlobPathResponse {
     try {
+      delay(Duration.ofSeconds(5))
       computationsDatabase.writeOutputBlobReference(
         request.token.toDatabaseEditToken(),
         BlobRef(request.outputBlobId, request.blobPath),
