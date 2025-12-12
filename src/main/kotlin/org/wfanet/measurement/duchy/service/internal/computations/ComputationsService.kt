@@ -23,6 +23,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.time.delay
 import org.wfanet.measurement.common.grpc.grpcRequire
 import org.wfanet.measurement.common.protoTimestamp
 import org.wfanet.measurement.common.toDuration
@@ -281,6 +282,7 @@ class ComputationsService(
   override suspend fun recordOutputBlobPath(
     request: RecordOutputBlobPathRequest
   ): RecordOutputBlobPathResponse {
+    delay(Duration.ofSeconds(15))
     try {
       computationsDatabase.writeOutputBlobReference(
         request.token.toDatabaseEditToken(),
