@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - 'releases/**'
-      - buildbuddy_kt_cov_2
+      - buildbuddy_kt_cov_2_2
   pull_request:
     branches: ["**"]
   workflow_dispatch:
