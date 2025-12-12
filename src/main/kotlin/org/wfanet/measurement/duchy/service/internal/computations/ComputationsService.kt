@@ -75,6 +75,8 @@ import org.wfanet.measurement.system.v1alpha.computationLogEntry
 import org.wfanet.measurement.system.v1alpha.createComputationLogEntryRequest
 import org.wfanet.measurement.system.v1alpha.stageAttempt
 
+import kotlinx.coroutines.time.delay
+
 /** Implementation of the Computations service. */
 class ComputationsService(
   private val computationsDatabase: ComputationsDatabase,
