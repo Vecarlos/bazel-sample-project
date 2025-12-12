@@ -170,7 +170,7 @@ class RequisitionsService(
 
     val internalRequest =
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
-    delay(Duration.ofSeconds(15))
+//    delay(Duration.ofSeconds(15))
 
 //    val internalRequisitions: List<InternalRequisition> =
 //      try {
