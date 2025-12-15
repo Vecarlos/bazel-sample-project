@@ -187,7 +187,7 @@ class RequisitionsService(
     val timeout = Duration.ofSeconds(15).toMillis()
 
     val internalRequisitions: List<InternalRequisition>
-    val stubConPaciencia = internalRequisitionStub
+    val stubConPaciencia = internalRequisitionStub.withWaitForReady()
       .withDeadlineAfter(10, TimeUnit.MINUTES)
     internalRequisitions = try {
       stubConPaciencia.streamRequisitions(internalRequest).toList()
