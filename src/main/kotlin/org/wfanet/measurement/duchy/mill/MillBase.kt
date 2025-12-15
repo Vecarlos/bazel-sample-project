@@ -349,7 +349,7 @@ abstract class MillBase(
         else -> throw ComputationDataClients.PermanentErrorException(message, cause)
       }
     }
-//    kotlinx.coroutines.delay(15000)
+    kotlinx.coroutines.delay(15000)
     while (true) {
       yield()
       val participant: ComputationParticipant =
