@@ -369,6 +369,7 @@ abstract class MillBase(
           prepareRetry("Error getting ComputationParticipant from Kingdom", e)
           continue
         }
+    kotlinx.coroutines.delay(15000)
 
       try {
         return callKingdom(participant)
