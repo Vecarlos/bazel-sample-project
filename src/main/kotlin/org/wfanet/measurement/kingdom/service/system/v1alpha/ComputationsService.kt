@@ -105,7 +105,7 @@ class ComputationsService(
       // TODO(@SanjayVas): Figure out an alternative mechanism (e.g. Spanner change streams) to
       // avoid having to poll internal service.
       while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
-        delay(15000)
+//        delay(15000)
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
             println("Entro al catch! 11")
@@ -200,7 +200,11 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return measurementsClient.streamMeasurements(request)
+      return measurementsClient
+        .withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES)
+        .streamMeasurements(request)
+//      return measurementsClient.streamMeasurements(request)
     } catch (e: StatusException) {
       println("Entro al catch! 22")
       throw when (e.status.code) {
