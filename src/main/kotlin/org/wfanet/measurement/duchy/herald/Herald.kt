@@ -399,8 +399,10 @@ class Herald(
   private suspend fun deleteComputationAtDuchy(computation: Computation) {
     val globalId = computation.key.computationId
     try {
-      val token = internalComputationsClient.getComputationToken(globalId.toGetTokenRequest()).token
-      internalComputationsClient.deleteComputation(
+      val token = internalComputationsClient.withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES).getComputationToken(globalId.toGetTokenRequest()).token
+      internalComputationsClient.withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES).deleteComputation(
         deleteComputationRequest { localComputationId = token.localComputationId }
       )
     } catch (e: StatusException) {
