@@ -99,6 +99,7 @@ import org.wfanet.measurement.system.v1alpha.setComputationResultRequest
 import org.wfanet.measurement.system.v1alpha.setParticipantRequisitionParamsRequest
 import org.wfanet.measurement.system.v1alpha.stageAttempt
 
+import java.util.concurrent.TimeUnit
 /**
  * A [MillBase] wrapping common functionalities of mills.
  *
@@ -349,14 +350,21 @@ abstract class MillBase(
         else -> throw ComputationDataClients.PermanentErrorException(message, cause)
       }
     }
-    kotlinx.coroutines.delay(15000)
+//    kotlinx.coroutines.delay(15000)
     while (true) {
       yield()
       val participant: ComputationParticipant =
         try {
-          systemComputationParticipantsClient.getComputationParticipant(
-            getComputationParticipantRequest { name = participantKey.toName() }
-          )
+          systemComputationParticipantsClient
+            .withWaitForReady()
+            .withDeadlineAfter(30, TimeUnit.MINUTES)
+            .getComputationParticipant(
+              getComputationParticipantRequest { name = participantKey.toName() }
+            )
+
+//          systemComputationParticipantsClient.getComputationParticipant(
+//            getComputationParticipantRequest { name = participantKey.toName() }
+//          )
         } catch (e: StatusException) {
           prepareRetry("Error getting ComputationParticipant from Kingdom", e)
           continue
