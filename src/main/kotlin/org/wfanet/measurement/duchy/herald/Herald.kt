@@ -21,6 +21,7 @@ import io.grpc.serviceconfig.MethodConfigKt
 import io.grpc.serviceconfig.methodConfig
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.coroutineContext
@@ -121,7 +122,7 @@ class Herald(
     // Use custom retry logic to handle the stream potentially being partially processed.
     var attemptNumber = 1
     while (coroutineContext.isActive) {
-      delay(Duration.ofSeconds(15))
+//      delay(Duration.ofSeconds(15))
       try {
         syncStatuses()
       } catch (e: StreamingException) {
@@ -162,7 +163,8 @@ class Herald(
     }
 
     coroutineScope {
-      systemComputationsClient
+      systemComputationsClient.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamActiveComputations(streamRequest)
         .catch { cause ->
           if (cause !is StatusException) throw cause
