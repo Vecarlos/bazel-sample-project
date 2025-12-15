@@ -163,7 +163,8 @@ class Herald(
     }
 
     coroutineScope {
-      systemComputationsClient.withWaitForReady()
+      systemComputationsClient
+        .withWaitForReady()
         .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamActiveComputations(streamRequest)
         .catch { cause ->
@@ -191,7 +192,7 @@ class Herald(
     while (coroutineContext.isActive) {
       attemptNumber++
       try {
-        delay(Duration.ofSeconds(15))
+//        delay(Duration.ofSeconds(15))
         processSystemComputation(computation)
         return
       } catch (e: CancellationException) {
@@ -431,7 +432,7 @@ class Herald(
     val globalId = computation.key.computationId
     val token =
       try {
-        internalComputationsClient.getComputationToken(globalId.toGetTokenRequest()).token
+        internalComputationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).getComputationToken(globalId.toGetTokenRequest()).token
       } catch (e: StatusException) {
         null
       } ?: return
