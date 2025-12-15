@@ -40,6 +40,8 @@ import org.wfanet.measurement.internal.duchy.getComputationTokenRequest
 import org.wfanet.measurement.internal.duchy.recordOutputBlobPathRequest
 import java.time.Duration
 
+import java.util.concurrent.TimeUnit
+
 /** Implementation of the internal Async Computation Control Service. */
 class AsyncComputationControlService(
   private val computationsClient: ComputationsCoroutineStub,
@@ -67,8 +69,8 @@ class AsyncComputationControlService(
           logger.log(Level.WARNING, e) {
             "[id=$globalComputationId]: advanceComputation attempt #$attempt failed; retrying"
           }
-          logger.info("iiiiiiiiiiiiiiiiiiiiiiiiiiiii t = $advanceRetryBackoff.durationForAttempt(attempt)")
-          delay(Duration.ofSeconds(5))
+//          logger.info("iiiiiiiiiiiiiiiiiiiiiiiiiiiii t = $advanceRetryBackoff.durationForAttempt(attempt)")
+//          delay(Duration.ofSeconds(5))
 
           attempt++
           continue
@@ -225,7 +227,8 @@ class AsyncComputationControlService(
   private suspend fun getComputationToken(globalComputationId: String): ComputationToken? {
     val response =
       try {
-        computationsClient.getComputationToken(
+        computationsClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).getComputationToken(
           getComputationTokenRequest { this.globalComputationId = globalComputationId }
         )
       } catch (e: StatusException) {
