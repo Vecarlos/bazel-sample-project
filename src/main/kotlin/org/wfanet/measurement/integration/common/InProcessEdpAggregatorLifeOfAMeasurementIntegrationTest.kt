@@ -52,6 +52,9 @@ import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerDa
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
 
+import kotlinx.coroutines.delay
+
+
 /**
  * Test that everything is wired up properly.
  *
