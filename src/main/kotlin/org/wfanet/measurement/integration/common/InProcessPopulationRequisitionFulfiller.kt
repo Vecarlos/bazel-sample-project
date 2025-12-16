@@ -43,6 +43,7 @@ import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
 import org.wfanet.measurement.dataprovider.DataProviderData
 import org.wfanet.measurement.populationdataprovider.PopulationRequisitionFulfiller
 
+import java.util.concurrent.TimeUnit
 class InProcessPopulationRequisitionFulfiller(
   private val pdpData: DataProviderData,
   private val resourceName: String,
@@ -55,27 +56,32 @@ class InProcessPopulationRequisitionFulfiller(
 
   private val modelRolloutsClient by lazy {
     ModelRolloutsGrpcKt.ModelRolloutsCoroutineStub(kingdomPublicApiChannel)
-      .withPrincipalName(resourceName)
+      .withPrincipalName(resourceName).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val modelReleasesClient by lazy {
     ModelReleasesGrpcKt.ModelReleasesCoroutineStub(kingdomPublicApiChannel)
-      .withPrincipalName(resourceName)
+      .withPrincipalName(resourceName).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val populationsClient by lazy {
     PopulationsGrpcKt.PopulationsCoroutineStub(kingdomPublicApiChannel)
-      .withPrincipalName(resourceName)
+      .withPrincipalName(resourceName).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val certificatesClient by lazy {
     CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel)
-      .withPrincipalName(resourceName)
+      .withPrincipalName(resourceName).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val requisitionsClient by lazy {
     RequisitionsGrpcKt.RequisitionsCoroutineStub(kingdomPublicApiChannel)
-      .withPrincipalName(resourceName)
+      .withPrincipalName(resourceName).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   fun start() {
