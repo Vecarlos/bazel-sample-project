@@ -17,6 +17,7 @@ package org.wfanet.measurement.duchy.herald
 import com.google.protobuf.ByteString
 import com.google.protobuf.kotlin.toByteString
 import java.security.SecureRandom
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import org.wfanet.measurement.api.Version
@@ -146,7 +147,8 @@ object HonestMajorityShareShuffleStarter {
     when (stage) {
       // Expect WAIT_TO_START for the first non-aggregator duchy.
       Stage.WAIT_TO_START -> {
-        computationStorageClient.advanceComputationStage(
+        computationStorageClient.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).advanceComputationStage(
           computationToken = token,
           stage = Stage.SETUP_PHASE.toProtocolStage(),
         )
@@ -165,11 +167,13 @@ object HonestMajorityShareShuffleStarter {
           Level.WARNING,
           "[id=${token.globalComputationId}] skipping " + "INITIALIZED to catch up.",
         )
-        computationStorageClient.advanceComputationStage(
+        computationStorageClient.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).advanceComputationStage(
           token,
           stage = Stage.WAIT_TO_START.toProtocolStage(),
         )
-        computationStorageClient.advanceComputationStage(
+        computationStorageClient.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).advanceComputationStage(
           computationToken = token,
           stage = Stage.SETUP_PHASE.toProtocolStage(),
         )

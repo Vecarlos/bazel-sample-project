@@ -91,9 +91,6 @@ import org.wfanet.measurement.internal.kingdom.refuseRequisitionRequest
 import org.wfanet.measurement.internal.kingdom.requisitionRefusal as internalRequisitionRefusal
 import org.wfanet.measurement.internal.kingdom.streamRequisitionsRequest
 
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.withTimeout
-import kotlin.system.measureTimeMillis
 import java.util.concurrent.TimeUnit
 
 private const val DEFAULT_PAGE_SIZE = 10
