@@ -304,16 +304,16 @@ class InProcessCmmsComponents(
       eventGroups = edpSimulators.map { it.ensureEventGroup() }
       edpSimulators.forEach { it.start() }
       edpSimulators.forEach { it.waitUntilHealthy() }
-//      delay(5000)
+      delay(5000)
     }
 
     duchies.forEach {
       it.startHerald()
       it.startMill(duchyCertMap)
-//      delay(5000)
+      delay(5000)
     }
     populationRequisitionFulfiller.start()
-//    delay(5000)
+    delay(5000)
 
   }
 
