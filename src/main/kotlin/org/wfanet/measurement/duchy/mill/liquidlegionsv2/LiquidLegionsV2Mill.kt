@@ -45,6 +45,8 @@ import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.Compu
 import org.wfanet.measurement.system.v1alpha.ComputationsGrpcKt
 import org.wfanet.measurement.system.v1alpha.confirmComputationParticipantRequest
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Parent mill of ReachOnlyLiquidLegionsV2 and ReachFrequencyLiquidLegionsV2.
  *
@@ -184,7 +186,8 @@ abstract class LiquidLegionsV2Mill(
         return@updateComputationParticipant
       }
 
-      systemComputationParticipantsClient.confirmComputationParticipant(
+      systemComputationParticipantsClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES).confirmComputationParticipant(
         confirmComputationParticipantRequest {
           name = participant.name
           etag = participant.etag
