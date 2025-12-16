@@ -213,7 +213,8 @@ abstract class MillBase(
     }
     val claimWorkResponse =
       try {
-        dataClients.computationsClient.claimWork(claimWorkRequest)
+        dataClients.computationsClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).claimWork(claimWorkRequest)
       } catch (e: StatusException) {
         if (!computationsServerReady && e.status.code == Status.Code.UNAVAILABLE) {
           logger.info("Computations server not ready")
