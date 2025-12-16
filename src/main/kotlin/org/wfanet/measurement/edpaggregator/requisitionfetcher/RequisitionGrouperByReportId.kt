@@ -452,8 +452,7 @@ class RequisitionGrouperByReportId(
     reportName: String
   ): List<RequisitionMetadata> {
     val requisitionMetadataList: Flow<RequisitionMetadata> =
-      requisitionMetadataStub.withWaitForReady()
-        .withDeadlineAfter(1, TimeUnit.MINUTES)
+      requisitionMetadataStub
         .listResources { pageToken: String ->
           val request = listRequisitionMetadataRequest {
             parent = dataProviderName
@@ -462,7 +461,8 @@ class RequisitionGrouperByReportId(
             this.pageToken = pageToken
           }
           val response: ListRequisitionMetadataResponse =
-            requisitionMetadataStub.listRequisitionMetadata(request)
+            requisitionMetadataStub.withWaitForReady()
+              .withDeadlineAfter(1, TimeUnit.MINUTES).listRequisitionMetadata(request)
           ResourceList(response.requisitionMetadataList, response.nextPageToken)
         }
         .flattenConcat()
