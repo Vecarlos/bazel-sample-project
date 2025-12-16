@@ -119,7 +119,8 @@ class InProcessDuchy(
     SystemComputationLogEntriesCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
   }
   private val systemComputationParticipantsClient by lazy {
-    SystemComputationParticipantsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemComputationParticipantsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val systemRequisitionsClient by lazy {
     SystemRequisitionsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
