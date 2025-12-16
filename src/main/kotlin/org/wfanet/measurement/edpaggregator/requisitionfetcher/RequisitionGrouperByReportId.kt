@@ -521,7 +521,8 @@ class RequisitionGrouperByReportId(
       etag = requisitionMetadata.etag
       refusalMessage = message
     }
-    requisitionMetadataStub.refuseRequisitionMetadata(request)
+    requisitionMetadataStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).refuseRequisitionMetadata(request)
   }
 
   private fun getReportId(requisition: Requisition): String {
