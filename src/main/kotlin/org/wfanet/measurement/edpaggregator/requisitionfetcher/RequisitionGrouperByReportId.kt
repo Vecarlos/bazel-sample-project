@@ -498,7 +498,8 @@ class RequisitionGrouperByReportId(
       requisitionMetadata = metadata
       requestId = createRequisitionMetadataRequestId
     }
-    return requisitionMetadataStub.createRequisitionMetadata(request)
+    return requisitionMetadataStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createRequisitionMetadata(request)
   }
 
   /**
