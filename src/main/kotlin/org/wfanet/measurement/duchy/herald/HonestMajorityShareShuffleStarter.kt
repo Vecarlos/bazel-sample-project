@@ -167,11 +167,13 @@ object HonestMajorityShareShuffleStarter {
           Level.WARNING,
           "[id=${token.globalComputationId}] skipping " + "INITIALIZED to catch up.",
         )
-        computationStorageClient.advanceComputationStage(
+        computationStorageClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).advanceComputationStage(
           token,
           stage = Stage.WAIT_TO_START.toProtocolStage(),
         )
-        computationStorageClient.advanceComputationStage(
+        computationStorageClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).advanceComputationStage(
           computationToken = token,
           stage = Stage.SETUP_PHASE.toProtocolStage(),
         )
