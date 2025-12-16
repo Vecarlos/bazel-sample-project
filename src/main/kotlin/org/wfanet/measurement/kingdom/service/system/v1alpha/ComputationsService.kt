@@ -199,7 +199,8 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return measurementsClient.streamMeasurements(request)
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).streamMeasurements(request)
     } catch (e: StatusException) {
       println("Entro al catch! 22")
       throw when (e.status.code) {
