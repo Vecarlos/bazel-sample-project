@@ -184,13 +184,12 @@ class RequisitionsService(
 //        }.toExternalStatusRuntimeException(e)
 //      }
 
-    val timeout = Duration.ofSeconds(15).toMillis()
 
     val internalRequisitions: List<InternalRequisition>
-    val stubConPaciencia = internalRequisitionStub.withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
+
     internalRequisitions = try {
-      stubConPaciencia.streamRequisitions(internalRequest).toList()
+      internalRequisitionStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).streamRequisitions(internalRequest).toList()
 
     } catch (e: StatusException) {
       println("🚨 ERROR GRPC CAPTURADO: Código = ${e.status.code}")
@@ -241,7 +240,8 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub.getRequisition(getRequest)
+        internalRequisitionStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getRequisition(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -281,7 +281,8 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub.refuseRequisition(refuseRequest)
+        internalRequisitionStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).refuseRequisition(refuseRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -352,7 +353,8 @@ class RequisitionsService(
       etag = request.etag
     }
     try {
-      internalRequisitionStub.fulfillRequisition(fulfillRequest)
+      internalRequisitionStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).fulfillRequisition(fulfillRequest)
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
