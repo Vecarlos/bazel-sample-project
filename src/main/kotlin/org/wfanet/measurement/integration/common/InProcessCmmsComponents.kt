@@ -310,7 +310,7 @@ class InProcessCmmsComponents(
     duchies.forEach {
       it.startHerald()
       it.startMill(duchyCertMap)
-//      delay(5000)
+      delay(5000)
     }
     populationRequisitionFulfiller.start()
     delay(5000)
