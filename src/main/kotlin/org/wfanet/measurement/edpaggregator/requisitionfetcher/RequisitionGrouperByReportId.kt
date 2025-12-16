@@ -462,8 +462,7 @@ class RequisitionGrouperByReportId(
             this.pageToken = pageToken
           }
           val response: ListRequisitionMetadataResponse =
-            requisitionMetadataStub.withWaitForReady()
-              .withDeadlineAfter(1, TimeUnit.MINUTES).listRequisitionMetadata(request)
+            requisitionMetadataStub.listRequisitionMetadata(request)
           ResourceList(response.requisitionMetadataList, response.nextPageToken)
         }
         .flattenConcat()
