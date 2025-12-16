@@ -376,7 +376,8 @@ class Herald(
     val globalId = systemComputation.key.computationId
     runWithRetries(systemComputation) {
       logger.info("[id=$globalId]: Starting Computation...")
-      val token = internalComputationsClient.getComputationToken(globalId.toGetTokenRequest()).token
+      val token = internalComputationsClient.withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES).getComputationToken(globalId.toGetTokenRequest()).token
       @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // Proto enum fields are never null.
       when (token.computationDetails.protocolCase) {
         ComputationDetails.ProtocolCase.LIQUID_LEGIONS_V2 ->
