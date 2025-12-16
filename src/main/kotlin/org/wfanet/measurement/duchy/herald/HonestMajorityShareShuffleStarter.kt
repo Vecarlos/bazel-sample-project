@@ -45,7 +45,7 @@ import org.wfanet.measurement.internal.duchy.protocol.HonestMajorityShareShuffle
 import org.wfanet.measurement.internal.duchy.protocol.HonestMajorityShareShuffle.Stage
 import org.wfanet.measurement.internal.duchy.protocol.HonestMajorityShareShuffleKt
 import org.wfanet.measurement.system.v1alpha.Computation
-
+import java.util.concurrent.TimeUnit
 private const val RANDOM_SEED_LENGTH_IN_BYTES = 48
 
 /**
@@ -112,7 +112,8 @@ object HonestMajorityShareShuffleStarter {
     val requisitions =
       systemComputation.requisitionsList.toRequisitionEntries(systemComputation.measurementSpec)
 
-    computationStorageClient.createComputation(
+    computationStorageClient.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createComputation(
       createComputationRequest {
         computationType = ComputationTypeEnum.ComputationType.HONEST_MAJORITY_SHARE_SHUFFLE
         globalComputationId = globalId
@@ -146,7 +147,8 @@ object HonestMajorityShareShuffleStarter {
     when (stage) {
       // Expect WAIT_TO_START for the first non-aggregator duchy.
       Stage.WAIT_TO_START -> {
-        computationStorageClient.advanceComputationStage(
+        computationStorageClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).advanceComputationStage(
           computationToken = token,
           stage = Stage.SETUP_PHASE.toProtocolStage(),
         )
