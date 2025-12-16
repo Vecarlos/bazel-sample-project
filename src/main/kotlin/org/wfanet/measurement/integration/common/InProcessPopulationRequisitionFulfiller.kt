@@ -44,6 +44,7 @@ import org.wfanet.measurement.dataprovider.DataProviderData
 import org.wfanet.measurement.populationdataprovider.PopulationRequisitionFulfiller
 
 import java.util.concurrent.TimeUnit
+
 class InProcessPopulationRequisitionFulfiller(
   private val pdpData: DataProviderData,
   private val resourceName: String,
