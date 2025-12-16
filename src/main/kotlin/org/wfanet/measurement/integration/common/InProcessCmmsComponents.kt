@@ -172,15 +172,18 @@ class InProcessCmmsComponents(
   }
 
   private val publicMeasurementConsumersClient by lazy {
-    MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub(kingdom.publicApiChannel)
+    MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val publicAccountsClient by lazy {
-    AccountsGrpcKt.AccountsCoroutineStub(kingdom.publicApiChannel)
+    AccountsGrpcKt.AccountsCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
       // Fail faster.
       .withDeadlineAfter(5L, TimeUnit.SECONDS)
   }
   private val publicApiKeysClient by lazy {
-    ApiKeysGrpcKt.ApiKeysCoroutineStub(kingdom.publicApiChannel)
+    ApiKeysGrpcKt.ApiKeysCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   lateinit var mcResourceName: String
@@ -245,7 +248,8 @@ class InProcessCmmsComponents(
     modelProviderResource =
       resourceSetup.createModelProviderResource(MP_ROOT_CERT.subjectKeyIdentifier!!)
 
-    val populationsClient = PopulationsGrpcKt.PopulationsCoroutineStub(kingdom.publicApiChannel)
+    val populationsClient = PopulationsGrpcKt.PopulationsCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
     population =
       populationsClient
         .withPrincipalName(populationDataProviderResource.name)
@@ -313,7 +317,7 @@ class InProcessCmmsComponents(
 //      delay(5000)
     }
     populationRequisitionFulfiller.start()
-    delay(5000)
+//    delay(5000)
 
   }
 
