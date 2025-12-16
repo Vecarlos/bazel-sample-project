@@ -81,6 +81,8 @@ import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.Compu
 import org.wfanet.measurement.system.v1alpha.ComputationsGrpcKt.ComputationsCoroutineStub as SystemComputationsCoroutineStub
 import org.wfanet.measurement.system.v1alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub as SystemRequisitionsCoroutineStub
 
+import java.util.concurrent.TimeUnit
+
 /**
  * TestRule that starts and stops all Duchy gRPC services and daemons.
  *
