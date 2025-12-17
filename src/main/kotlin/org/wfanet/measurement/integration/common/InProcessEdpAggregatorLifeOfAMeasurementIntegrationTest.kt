@@ -16,6 +16,7 @@ package org.wfanet.measurement.integration.common
 
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -133,19 +134,24 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
 
   private val publicMeasurementsClient by lazy {
-    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicMeasurementConsumersClient by lazy {
-    MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicCertificatesClient by lazy {
-    CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicEventGroupsClient by lazy {
-    EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicDataProvidersClient by lazy {
-    DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private fun initMcSimulator() {
