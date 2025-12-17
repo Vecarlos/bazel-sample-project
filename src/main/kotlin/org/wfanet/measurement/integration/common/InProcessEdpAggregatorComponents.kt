@@ -112,6 +112,9 @@ import org.wfanet.measurement.securecomputation.service.internal.QueueMapping
 import org.wfanet.measurement.storage.StorageClient
 import org.wfanet.measurement.storage.filesystem.FileSystemStorageClient
 
+import java.util.concurrent.TimeUnit
+
+
 class InProcessEdpAggregatorComponents(
   secureComputationDatabaseAdmin: SpannerDatabaseAdmin,
   private val storagePath: Path,
@@ -245,7 +248,8 @@ class InProcessEdpAggregatorComponents(
       }
     edpResourceNameMap.toList().forEach { (edpAggregatorShortName, edpResourceName) ->
       val dataProvidersStub: DataProvidersCoroutineStub =
-        DataProvidersCoroutineStub(publicApiChannel).withPrincipalName(edpResourceName)
+        DataProvidersCoroutineStub(publicApiChannel).withWaitForReady()
+          .withDeadlineAfter(30, TimeUnit.MINUTES).withPrincipalName(edpResourceName)
       dataProvidersStub.replaceDataProviderCapabilities(
         replaceDataProviderCapabilitiesRequest {
           name = edpResourceName
@@ -289,10 +293,12 @@ class InProcessEdpAggregatorComponents(
       }
     edpResourceNameMap.toList().forEach { (edpAggregatorShortName, edpResourceName) ->
       val requisitionsClient: RequisitionsCoroutineStub =
-        RequisitionsCoroutineStub(publicApiChannel).withPrincipalName(edpResourceName)
+        RequisitionsCoroutineStub(publicApiChannel).withPrincipalName(edpResourceName).withWaitForReady()
+          .withDeadlineAfter(30, TimeUnit.MINUTES)
 
       val eventGroupsClient: EventGroupsCoroutineStub =
-        EventGroupsCoroutineStub(publicApiChannel).withPrincipalName(edpResourceName)
+        EventGroupsCoroutineStub(publicApiChannel).withPrincipalName(edpResourceName).withWaitForReady()
+          .withDeadlineAfter(30, TimeUnit.MINUTES)
       val edpPrivateKey = getDataProviderPrivateEncryptionKey(edpAggregatorShortName)
 
       val requisitionsValidator = RequisitionsValidator(edpPrivateKey)

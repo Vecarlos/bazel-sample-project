@@ -178,8 +178,6 @@ class InProcessCmmsComponents(
   private val publicAccountsClient by lazy {
     AccountsGrpcKt.AccountsCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
       .withDeadlineAfter(30, TimeUnit.MINUTES)
-      // Fail faster.
-      .withDeadlineAfter(5L, TimeUnit.SECONDS)
   }
   private val publicApiKeysClient by lazy {
     ApiKeysGrpcKt.ApiKeysCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
