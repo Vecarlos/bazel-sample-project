@@ -18,6 +18,7 @@ package org.wfanet.measurement.integration.common
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.extensions.proto.ProtoTruth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -67,13 +68,17 @@ abstract class InProcessLifeOfAnEventGroupIntegrationTest {
   val ruleChain: TestRule by lazy { chainRulesSequentially(kingdomDataServicesRule, kingdom) }
 
   private val publicMeasurementConsumersClient by lazy {
-    PublicMeasurementConsumersCoroutineStub(kingdom.publicApiChannel)
+    PublicMeasurementConsumersCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
   private val publicEventGroupsClient by lazy {
-    PublicEventGroupsCoroutineStub(kingdom.publicApiChannel).withPrincipalName(edpResourceName)
+    PublicEventGroupsCoroutineStub(kingdom.publicApiChannel).withPrincipalName(edpResourceName).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
-  private val publicAccountsClient by lazy { PublicAccountsCoroutineStub(kingdom.publicApiChannel) }
-  private val publicApiKeysClient by lazy { PublicApiKeysCoroutineStub(kingdom.publicApiChannel) }
+  private val publicAccountsClient by lazy { PublicAccountsCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+    .withDeadlineAfter(1, TimeUnit.MINUTES) }
+  private val publicApiKeysClient by lazy { PublicApiKeysCoroutineStub(kingdom.publicApiChannel).withWaitForReady()
+    .withDeadlineAfter(1, TimeUnit.MINUTES) }
 
   private lateinit var mcResourceName: String
   private lateinit var edpDisplayName: String
