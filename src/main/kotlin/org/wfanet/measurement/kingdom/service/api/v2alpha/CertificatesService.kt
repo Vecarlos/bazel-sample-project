@@ -16,6 +16,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.flow.toList
@@ -112,7 +113,8 @@ class CertificatesService(
 
     val internalCertificate =
       try {
-        internalCertificatesStub.getCertificate(internalGetCertificateRequest)
+        internalCertificatesStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).getCertificate(internalGetCertificateRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -186,7 +188,8 @@ class CertificatesService(
 
     val internalCertificates: List<InternalCertificate> =
       try {
-        internalCertificatesStub.streamCertificates(internalRequest).toList()
+        internalCertificatesStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).streamCertificates(internalRequest).toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -243,7 +246,8 @@ class CertificatesService(
 
     val response =
       try {
-        internalCertificatesStub.createCertificate(internalCertificate)
+        internalCertificatesStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).createCertificate(internalCertificate)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -291,7 +295,8 @@ class CertificatesService(
 
     val internalCertificate =
       try {
-        internalCertificatesStub.revokeCertificate(internalRevokeCertificateRequest)
+        internalCertificatesStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).revokeCertificate(internalRevokeCertificateRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -333,7 +338,8 @@ class CertificatesService(
 
     val internalCertificate =
       try {
-        internalCertificatesStub.releaseCertificateHold(internalReleaseCertificateHoldRequest)
+        internalCertificatesStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).releaseCertificateHold(internalReleaseCertificateHoldRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
