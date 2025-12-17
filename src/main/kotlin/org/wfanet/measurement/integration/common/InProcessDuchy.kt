@@ -135,7 +135,8 @@ class InProcessDuchy(
       .withDeadlineAfter(10, TimeUnit.MINUTES)
       .withPrincipalName(DuchyKey(externalDuchyId).toName())
   }
-  private val computationsClient by lazy { ComputationsCoroutineStub(computationsServer.channel) }
+  private val computationsClient by lazy { ComputationsCoroutineStub(computationsServer.channel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
   private val computationStatsClient by lazy {
     ComputationStatsCoroutineStub(computationsServer.channel).withWaitForReady()
       .withDeadlineAfter(10, TimeUnit.MINUTES)
@@ -210,7 +211,8 @@ class InProcessDuchy(
 
   private val computationDataClients by lazy {
     ComputationDataClients(
-      ComputationsCoroutineStub(computationsServer.channel),
+      ComputationsCoroutineStub(computationsServer.channel).withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES),
       duchyDependencies.storageClient,
     )
   }
@@ -267,7 +269,8 @@ class InProcessDuchy(
         val workerStubs =
           ALL_DUCHY_NAMES.minus(externalDuchyId).associateWith {
             val channel = computationControlChannel(it)
-            SystemComputationControlCoroutineStub(channel).withDuchyId(externalDuchyId)
+            SystemComputationControlCoroutineStub(channel).withDuchyId(externalDuchyId).withWaitForReady()
+              .withDeadlineAfter(30, TimeUnit.MINUTES)
           }
         val protocolsSetupConfig =
           when (externalDuchyId) {
