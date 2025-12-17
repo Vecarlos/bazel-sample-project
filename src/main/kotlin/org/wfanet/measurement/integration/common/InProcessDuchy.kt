@@ -115,31 +115,38 @@ class InProcessDuchy(
   }
 
   private val systemComputationsClient by lazy {
-    SystemComputationsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemComputationsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemComputationLogEntriesClient by lazy {
-    SystemComputationLogEntriesCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemComputationLogEntriesCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemComputationParticipantsClient by lazy {
     SystemComputationParticipantsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId).withWaitForReady()
       .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val systemRequisitionsClient by lazy {
-    SystemRequisitionsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemRequisitionsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val certificateStub: CertificatesGrpcKt.CertificatesCoroutineStub by lazy {
-    CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel)
+    CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .withPrincipalName(DuchyKey(externalDuchyId).toName())
   }
   private val computationsClient by lazy { ComputationsCoroutineStub(computationsServer.channel) }
   private val computationStatsClient by lazy {
-    ComputationStatsCoroutineStub(computationsServer.channel)
+    ComputationStatsCoroutineStub(computationsServer.channel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val asyncComputationControlClient by lazy {
-    AsyncComputationControlCoroutineStub(asyncComputationControlServer.channel)
+    AsyncComputationControlCoroutineStub(asyncComputationControlServer.channel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val continuationTokensClient by lazy {
-    ContinuationTokensCoroutineStub(computationsServer.channel)
+    ContinuationTokensCoroutineStub(computationsServer.channel).withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   // TODO(@renjiez): Use real PrivateKeyStore when enabling HMSS.
