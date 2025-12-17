@@ -105,6 +105,9 @@ import org.wfanet.measurement.system.v1alpha.computationLogEntry
 import org.wfanet.measurement.system.v1alpha.createComputationLogEntryRequest
 import org.wfanet.measurement.system.v1alpha.stageAttempt
 
+import java.util.concurrent.TimeUnit
+
+
 /** Implementation of the Computations service for Postgres database. */
 class PostgresComputationsService(
   private val computationTypeEnumHelper: ComputationTypeEnumHelper<ComputationType>,
@@ -478,7 +481,8 @@ class PostgresComputationsService(
 
   private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
     try {
-      computationLogEntriesClient.createComputationLogEntry(request)
+      computationLogEntriesClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES).createComputationLogEntry(request)
     } catch (ignored: Exception) {
       logger.log(Level.WARNING, "Failed to update status change to the kingdom. $ignored")
     }
