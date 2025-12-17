@@ -187,6 +187,8 @@ import org.wfanet.measurement.reporting.v2alpha.resultGroupSpec
 import org.wfanet.measurement.reporting.v2alpha.timeIntervals
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Test that everything is wired up properly.
  *
@@ -318,7 +320,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       inProcessCmmsComponents.getMeasurementConsumerData()
     val accessChannel = reportingServer.accessChannel
 
-    val rolesStub = RolesGrpc.newBlockingStub(accessChannel)
+    val rolesStub = RolesGrpc.newBlockingStub(accessChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
     val mcResourceType = "halo.wfanet.org/MeasurementConsumer"
     val mcUserRole =
       rolesStub.createRole(
@@ -350,9 +353,11 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         }
       )
 
-    val principalsStub = PrincipalsGrpc.newBlockingStub(accessChannel)
+    val principalsStub = PrincipalsGrpc.newBlockingStub(accessChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
     val principal =
-      principalsStub.createPrincipal(
+      principalsStub.withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES).createPrincipal(
         createPrincipalRequest {
           principalId = "mc-user"
           this.principal = principal {
@@ -365,8 +370,10 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         }
       )
 
-    val policiesStub = PoliciesGrpc.newBlockingStub(accessChannel)
-    policiesStub.createPolicy(
+    val policiesStub = PoliciesGrpc.newBlockingStub(accessChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
+    policiesStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createPolicy(
       createPolicyRequest {
         policyId = "test-mc-policy"
         policy = policy {
@@ -379,7 +386,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         }
       }
     )
-    policiesStub.createPolicy(
+    policiesStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createPolicy(
       createPolicyRequest {
         policyId = "test-root-policy"
         policy = policy {
@@ -397,56 +405,68 @@ abstract class InProcessLifeOfAReportIntegrationTest(
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
-    MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicKingdomModelSuitesClient by lazy {
     ModelSuitesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
-      .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName)
+      .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicKingdomModelLinesClient by lazy {
     ModelLinesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
-      .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName)
+      .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicDataProvidersClient by lazy {
-    DataProvidersCoroutineStub(reportingServer.publicApiChannel)
+    DataProvidersCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicEventGroupsClient by lazy {
-    EventGroupsCoroutineStub(reportingServer.publicApiChannel)
+    EventGroupsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicMetricCalculationSpecsClient by lazy {
-    MetricCalculationSpecsCoroutineStub(reportingServer.publicApiChannel)
+    MetricCalculationSpecsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
-  private val publicMetricsClient by lazy { MetricsCoroutineStub(reportingServer.publicApiChannel) }
+  private val publicMetricsClient by lazy { MetricsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+    .withDeadlineAfter(1, TimeUnit.MINUTES) }
 
-  private val publicReportsClient by lazy { ReportsCoroutineStub(reportingServer.publicApiChannel) }
+  private val publicReportsClient by lazy { ReportsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+    .withDeadlineAfter(1, TimeUnit.MINUTES) }
 
   private val publicReportingSetsClient by lazy {
     ReportingSetsCoroutineStub(reportingServer.publicApiChannel)
   }
 
   private val publicBasicReportsClient by lazy {
-    BasicReportsCoroutineStub(reportingServer.publicApiChannel)
+    BasicReportsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicImpressionQualificationFiltersClient by lazy {
-    ImpressionQualificationFiltersCoroutineStub(reportingServer.publicApiChannel)
+    ImpressionQualificationFiltersCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicMeasurementsClient by lazy {
-    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private suspend fun listMeasurements(): List<Measurement> {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
 
     return publicMeasurementsClient
-      .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+      .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
       .listMeasurements(listMeasurementsRequest { parent = measurementConsumerData.name })
       .measurementsList
   }
