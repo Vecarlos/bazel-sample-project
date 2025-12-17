@@ -166,7 +166,7 @@ class ComputationsService(
       publicApiVersion = request.publicApiVersion
     }
     try {
-      return measurementsClient.withWaitForReady() 
+      return measurementsClient.withWaitForReady()
         .withDeadlineAfter(30, TimeUnit.MINUTES).setMeasurementResult(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {

@@ -75,6 +75,9 @@ import org.wfanet.measurement.kingdom.service.system.v1alpha.ComputationsService
 import org.wfanet.measurement.kingdom.service.system.v1alpha.RequisitionsService as SystemRequisitionsService
 import org.wfanet.measurement.loadtest.panelmatchresourcesetup.PanelMatchResourceSetup
 
+import java.util.concurrent.TimeUnit
+
+
 /** TestRule that starts and stops all Kingdom gRPC services. */
 class InProcessKingdom(
   dataServicesProvider: () -> DataServices,
@@ -88,40 +91,53 @@ class InProcessKingdom(
     get() = kingdomDataServices.knownEventGroupMetadataTypes
 
   private val internalApiChannel by lazy { internalDataServer.channel }
-  private val internalApiKeysClient by lazy { InternalApiKeysCoroutineStub(internalApiChannel) }
+  private val internalApiKeysClient by lazy { InternalApiKeysCoroutineStub(internalApiChannel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
   private val internalMeasurementsClient by lazy {
-    InternalMeasurementsCoroutineStub(internalApiChannel)
+    InternalMeasurementsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalPublicKeysClient by lazy {
-    InternalPublicKeysCoroutineStub(internalApiChannel)
+    InternalPublicKeysCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalMeasurementLogEntriesClient by lazy {
-    InternalMeasurementLogEntriesCoroutineStub(internalApiChannel)
+    InternalMeasurementLogEntriesCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalComputationParticipantsClient by lazy {
-    InternalComputationParticipantsCoroutineStub(internalApiChannel)
+    InternalComputationParticipantsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalRequisitionsClient by lazy {
-    InternalRequisitionsCoroutineStub(internalApiChannel)
+    InternalRequisitionsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalMeasurementConsumersClient by lazy {
-    InternalMeasurementConsumersCoroutineStub(internalApiChannel)
+    InternalMeasurementConsumersCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalEventGroupsClient by lazy {
-    InternalEventGroupsCoroutineStub(internalApiChannel)
+    InternalEventGroupsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalEventGroupMetadataDescriptorsClient by lazy {
-    InternalEventGroupMetadataDescriptorsCoroutineStub(internalApiChannel)
+    InternalEventGroupMetadataDescriptorsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalExchangeStepAttemptsClient by lazy {
-    InternalExchangeStepAttemptsCoroutineStub(internalApiChannel)
+    InternalExchangeStepAttemptsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalExchangeStepsClient by lazy {
-    InternalExchangeStepsCoroutineStub(internalApiChannel)
+    InternalExchangeStepsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
-  private val internalExchangesClient by lazy { InternalExchangesCoroutineStub(internalApiChannel) }
+  private val internalExchangesClient by lazy { InternalExchangesCoroutineStub(internalApiChannel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
   private val internalRecurringExchangesClient by lazy {
-    InternalRecurringExchangesCoroutineStub(internalApiChannel)
+    InternalRecurringExchangesCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val internalDataServer =
@@ -224,41 +240,50 @@ class InProcessKingdom(
     get() = PanelMatchResourceSetup(internalApiChannel)
 
   /** Provides access to Account and DataProvider creation in place of the Kingdom's operator. */
-  val internalAccountsClient by lazy { InternalAccountsCoroutineStub(internalApiChannel) }
-  val internalDataProvidersClient by lazy { InternalDataProvidersCoroutineStub(internalApiChannel) }
+  val internalAccountsClient by lazy { InternalAccountsCoroutineStub(internalApiChannel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
+  val internalDataProvidersClient by lazy { InternalDataProvidersCoroutineStub(internalApiChannel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
 
   /** Provides access to Duchy Certificate creation without having multiple Duchy clients. */
-  val internalCertificatesClient by lazy { InternalCertificatesCoroutineStub(internalApiChannel) }
+  val internalCertificatesClient by lazy { InternalCertificatesCoroutineStub(internalApiChannel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
 
   /** Provides access to ModelProvider creation. */
   val internalModelProvidersClient by lazy {
     org.wfanet.measurement.internal.kingdom.ModelProvidersGrpcKt.ModelProvidersCoroutineStub(
       internalApiChannel
-    )
+    ).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelRollout creation. */
   private val internalModelRolloutsClient by lazy {
-    InternalModelRolloutsCoroutineStub(internalApiChannel)
+    InternalModelRolloutsCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelRelease creation. */
   private val internalModelReleasesClient by lazy {
-    InternalModelReleasesCoroutineStub(internalApiChannel)
+    InternalModelReleasesCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelSuite creation. */
   private val internalModelSuitesClient by lazy {
-    InternalModelSuitesCoroutineStub(internalApiChannel)
+    InternalModelSuitesCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelLine creation. */
   private val internalModelLinesClient by lazy {
-    InternalModelLinesCoroutineStub(internalApiChannel)
+    InternalModelLinesCoroutineStub(internalApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to Population creation. */
-  val internalPopulationsClient by lazy { InternalPopulationsCoroutineStub(internalApiChannel) }
+  val internalPopulationsClient by lazy { InternalPopulationsCoroutineStub(internalApiChannel).withWaitForReady()
+    .withDeadlineAfter(30, TimeUnit.MINUTES) }
 
   override fun apply(statement: Statement, description: Description): Statement {
     return chainRulesSequentially(internalDataServer, systemApiServer, publicApiServer)
