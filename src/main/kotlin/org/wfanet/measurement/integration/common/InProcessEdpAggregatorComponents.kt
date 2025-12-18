@@ -201,7 +201,8 @@ class InProcessEdpAggregatorComponents(
       subscriptionId = SUBSCRIPTION_ID,
       workItemsClient = workItemsClient,
       workItemAttemptsClient =
-        WorkItemAttemptsCoroutineStub(secureComputationPublicApi.publicApiChannel),
+        WorkItemAttemptsCoroutineStub(secureComputationPublicApi.publicApiChannel).withWaitForReady()
+          .withDeadlineAfter(30, TimeUnit.MINUTES),
       queueSubscriber = subscriber,
       kmsClients = kmsClients.toMutableMap(),
       requisitionMetadataStub = requisitionMetadataClient,
