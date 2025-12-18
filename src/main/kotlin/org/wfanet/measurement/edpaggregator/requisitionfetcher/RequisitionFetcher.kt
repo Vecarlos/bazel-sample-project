@@ -40,6 +40,7 @@ import org.wfanet.measurement.common.api.grpc.listResources
 import org.wfanet.measurement.edpaggregator.telemetry.Tracing.traceSuspending
 import org.wfanet.measurement.edpaggregator.v1alpha.GroupedRequisitions
 import org.wfanet.measurement.storage.StorageClient
+import java.util.concurrent.TimeUnit
 
 /**
  * Fetches requisitions from the Kingdom and persists them into GCS.
@@ -109,7 +110,8 @@ class RequisitionFetcher(
           }
           val response: ListRequisitionsResponse =
             try {
-              requisitionsStub.listRequisitions(request)
+              requisitionsStub.withWaitForReady()
+                .withDeadlineAfter(30, TimeUnit.MINUTES).listRequisitions(request)
             } catch (e: StatusException) {
               throw Exception("Error listing requisitions", e)
             }
