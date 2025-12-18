@@ -63,7 +63,7 @@ class ComputationsService(
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
   private val duchyIdentityProvider: () -> DuchyIdentity = ::duchyIdentityFromContext,
   private val streamingTimeout: Duration = 10.minutes,
-  private val streamingThrottle: Duration = 1.seconds,
+  private val streamingThrottle: Duration = 5.seconds,
   private val streamingLimit: Int = DEFAULT_STREAMING_LIMIT,
 ) : ComputationsCoroutineImplBase(coroutineContext) {
   override suspend fun getComputation(request: GetComputationRequest): Computation {
