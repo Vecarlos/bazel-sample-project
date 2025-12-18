@@ -113,7 +113,8 @@ import org.wfanet.measurement.storage.StorageClient
 import org.wfanet.measurement.storage.filesystem.FileSystemStorageClient
 
 import java.util.concurrent.TimeUnit
-
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 class InProcessEdpAggregatorComponents(
   secureComputationDatabaseAdmin: SpannerDatabaseAdmin,
@@ -331,14 +332,27 @@ class InProcessEdpAggregatorComponents(
         )
 
       backgroundScope.launch {
-
         logger.info("While enter")
         while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
+          delay(5000) // Si cancelas aquí, sale limpio.
+
+          // PROTECCIÓN: Si entra aquí, no se puede cancelar hasta que termine.
+          withContext(NonCancellable) {
+            requisitionFetcher.fetchAndStoreRequisitions()
+          }
         }
         logger.info("While exit")
       }
+//
+//      backgroundScope.launch {
+//
+//        logger.info("While enter")
+//        while (true) {
+//          delay(1000)
+//          requisitionFetcher.fetchAndStoreRequisitions()
+//        }
+//        logger.info("While exit")
+//      }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler)
