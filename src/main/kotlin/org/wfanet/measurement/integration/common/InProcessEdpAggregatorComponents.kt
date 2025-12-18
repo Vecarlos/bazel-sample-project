@@ -150,7 +150,8 @@ class InProcessEdpAggregatorComponents(
   }
 
   private val workItemsClient: WorkItemsCoroutineStub by lazy {
-    WorkItemsCoroutineStub(secureComputationPublicApi.publicApiChannel)
+    WorkItemsCoroutineStub(secureComputationPublicApi.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val edpAggregatorSystemApi by lazy {
@@ -158,11 +159,13 @@ class InProcessEdpAggregatorComponents(
   }
 
   private val requisitionMetadataClient: RequisitionMetadataServiceCoroutineStub by lazy {
-    RequisitionMetadataServiceCoroutineStub(edpAggregatorSystemApi.publicApiChannel)
+    RequisitionMetadataServiceCoroutineStub(edpAggregatorSystemApi.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val impressionMetadataClient: ImpressionMetadataServiceCoroutineStub by lazy {
-    ImpressionMetadataServiceCoroutineStub(edpAggregatorSystemApi.publicApiChannel)
+    ImpressionMetadataServiceCoroutineStub(edpAggregatorSystemApi.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private lateinit var dataWatcher: DataWatcher
