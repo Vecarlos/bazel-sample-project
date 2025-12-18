@@ -332,7 +332,7 @@ class InProcessDuchy(
             workLockDuration = Duration.ofSeconds(1),
             privateKeyStore = privateKeyStore,
           )
-        val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(5))
+        val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(15))
         throttler.loopOnReady {
           reachFrequencyLiquidLegionsV2Mill.claimAndProcessWork()
           reachOnlyLiquidLegionsV2Mill.claimAndProcessWork()
