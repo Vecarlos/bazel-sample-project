@@ -172,7 +172,8 @@ class MeasurementsService(
       }
     val dataProviderCapabilities: List<InternalDataProviderCapabilities> =
       try {
-          internalDataProvidersStub.batchGetDataProviders(
+          internalDataProvidersStub.withWaitForReady()
+            .withDeadlineAfter(1, TimeUnit.MINUTES).batchGetDataProviders(
             batchGetDataProvidersRequest {
               this.externalDataProviderIds += externalDataProviderIds.map { it.value }
             }
