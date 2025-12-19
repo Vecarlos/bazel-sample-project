@@ -17,6 +17,7 @@ package org.wfanet.measurement.access.service.v1alpha
 import io.grpc.Status
 import io.grpc.StatusException
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.access.service.InvalidFieldValueException
@@ -62,7 +63,8 @@ class PermissionsService(
 
     val internalResponse: InternalPermission =
       try {
-        internalPermissionStub.getPermission(
+        internalPermissionStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).getPermission(
           internalGetPermissionRequest { permissionResourceId = permissionKey.permissionId }
         )
       } catch (e: StatusException) {
@@ -114,7 +116,8 @@ class PermissionsService(
 
     val internalResponse: InternalListPermissionsResponse =
       try {
-        internalPermissionStub.listPermissions(
+        internalPermissionStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).listPermissions(
           internalListPermissionsRequest {
             pageSize = request.pageSize
             if (internalPageToken != null) {
@@ -181,7 +184,8 @@ class PermissionsService(
 
     val internalResponse: InternalCheckPermissionsResponse =
       try {
-        internalPermissionStub.checkPermissions(
+        internalPermissionStub.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).checkPermissions(
           internalCheckPermissionsRequest {
             protectedResourceName = request.protectedResource
             principalResourceId = principalKey.principalId
