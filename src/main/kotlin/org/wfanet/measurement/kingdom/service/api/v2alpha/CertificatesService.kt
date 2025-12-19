@@ -114,7 +114,7 @@ class CertificatesService(
     val internalCertificate =
       try {
         internalCertificatesStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).getCertificate(internalGetCertificateRequest)
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getCertificate(internalGetCertificateRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -189,7 +189,7 @@ class CertificatesService(
     val internalCertificates: List<InternalCertificate> =
       try {
         internalCertificatesStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).streamCertificates(internalRequest).toList()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).streamCertificates(internalRequest).toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -247,7 +247,7 @@ class CertificatesService(
     val response =
       try {
         internalCertificatesStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).createCertificate(internalCertificate)
+          .withDeadlineAfter(10, TimeUnit.MINUTES).createCertificate(internalCertificate)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -296,7 +296,7 @@ class CertificatesService(
     val internalCertificate =
       try {
         internalCertificatesStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).revokeCertificate(internalRevokeCertificateRequest)
+          .withDeadlineAfter(10, TimeUnit.MINUTES).revokeCertificate(internalRevokeCertificateRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -339,7 +339,7 @@ class CertificatesService(
     val internalCertificate =
       try {
         internalCertificatesStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).releaseCertificateHold(internalReleaseCertificateHoldRequest)
+          .withDeadlineAfter(10, TimeUnit.MINUTES).releaseCertificateHold(internalReleaseCertificateHoldRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND

@@ -415,7 +415,8 @@ class MetricsService(
       measurementIds: List<MeasurementIds>,
     ) {
       try {
-        internalMeasurementsStub.batchSetCmmsMeasurementIds(
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).batchSetCmmsMeasurementIds(
           batchSetCmmsMeasurementIdsRequest {
             this.cmmsMeasurementConsumerId = cmmsMeasurementConsumerId
             this.measurementIds += measurementIds
@@ -432,7 +433,8 @@ class MetricsService(
       createMeasurementRequests: List<CreateMeasurementRequest>,
     ): BatchCreateMeasurementsResponse {
       try {
-        return measurementsStub
+        return measurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .withCallCredentials(measurementConsumerCreds.callCredentials)
           .batchCreateMeasurements(
             batchCreateMeasurementsRequest {
@@ -755,7 +757,8 @@ class MetricsService(
     ): MeasurementConsumer {
       val measurementConsumerName = measurementConsumerCreds.resourceKey.toName()
       return try {
-        measurementConsumersStub
+        measurementConsumersStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .withCallCredentials(measurementConsumerCreds.callCredentials)
           .getMeasurementConsumer(getMeasurementConsumerRequest { name = measurementConsumerName })
       } catch (e: StatusException) {
@@ -889,7 +892,8 @@ class MetricsService(
       }
 
       try {
-        internalMeasurementsStub.batchSetMeasurementFailures(
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).batchSetMeasurementFailures(
           batchSetInternalMeasurementFailuresRequest
         )
       } catch (e: StatusException) {
@@ -916,7 +920,8 @@ class MetricsService(
       }
 
       try {
-        internalMeasurementsStub.batchSetMeasurementResults(batchSetMeasurementResultsRequest)
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).batchSetMeasurementResults(batchSetMeasurementResultsRequest)
       } catch (e: StatusException) {
         throw Exception("Unable to set measurement results for Measurements.", e)
       }
@@ -967,7 +972,8 @@ class MetricsService(
       measurementNames: List<String>,
     ): BatchGetMeasurementsResponse {
       try {
-        return measurementsStub
+        return measurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .withCallCredentials(measurementConsumerCreds.callCredentials)
           .batchGetMeasurements(
             batchGetMeasurementsRequest {
@@ -1085,7 +1091,8 @@ class MetricsService(
      */
     private suspend fun getCertificate(name: String, apiAuthenticationKey: String): Certificate {
       return try {
-        certificatesStub
+        certificatesStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .withAuthenticationKey(apiAuthenticationKey)
           .getCertificate(getCertificateRequest { this.name = name })
       } catch (e: StatusException) {
@@ -1109,7 +1116,8 @@ class MetricsService(
      */
     private suspend fun getDataProvider(name: String, apiAuthenticationKey: String): DataProvider {
       return try {
-        dataProvidersStub
+        dataProvidersStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .withAuthenticationKey(apiAuthenticationKey)
           .getDataProvider(getDataProviderRequest { this.name = name })
       } catch (e: StatusException) {
@@ -1237,7 +1245,8 @@ class MetricsService(
 
     val results: List<InternalMetric> =
       try {
-        internalMetricsStub.streamMetrics(streamInternalMetricRequest).toList()
+        internalMetricsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).streamMetrics(streamInternalMetricRequest).toList()
       } catch (e: StatusException) {
         throw Status.INTERNAL.withCause(e).asRuntimeException()
       }
@@ -1386,7 +1395,8 @@ class MetricsService(
 
     val internalMetric =
       try {
-        internalMetricsStub.createMetric(internalCreateMetricRequest)
+        internalMetricsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).createMetric(internalCreateMetricRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
             Status.Code.ALREADY_EXISTS ->
@@ -1510,7 +1520,8 @@ class MetricsService(
 
     val internalMetrics =
       try {
-        internalMetricsStub
+        internalMetricsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .batchCreateMetrics(
             internalBatchCreateMetricsRequest {
               cmmsMeasurementConsumerId = parentKey.measurementConsumerId
@@ -1598,7 +1609,8 @@ class MetricsService(
           .asStatusRuntimeException(Status.Code.INVALID_ARGUMENT)
 
       try {
-        kingdomModelLinesStub
+        kingdomModelLinesStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .withAuthenticationKey(measurementConsumerCreds.callCredentials.apiAuthenticationKey)
           .getModelLine(getModelLineRequest { name = request.metric.modelLine })
       } catch (e: StatusException) {
@@ -1728,7 +1740,8 @@ class MetricsService(
     externalReportingSetIds: List<String>,
   ): BatchGetReportingSetsResponse {
     return try {
-      internalReportingSetsStub.batchGetReportingSets(
+      internalReportingSetsStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).batchGetReportingSets(
         batchGetReportingSetsRequest {
           this.cmmsMeasurementConsumerId = cmmsMeasurementConsumerId
           this.externalReportingSetIds += externalReportingSetIds
