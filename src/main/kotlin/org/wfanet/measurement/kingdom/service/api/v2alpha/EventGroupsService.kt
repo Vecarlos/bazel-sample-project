@@ -147,7 +147,7 @@ class EventGroupsService(
     val internalResponse: InternalEventGroup =
       try {
         internalEventGroupsStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).getEventGroup(internalRequest)
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getEventGroup(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND ->
@@ -203,7 +203,7 @@ class EventGroupsService(
     }
     return try {
       internalEventGroupsStub.withWaitForReady()
-        .withDeadlineAfter(1, TimeUnit.MINUTES).createEventGroup(internalRequest).toEventGroup()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).createEventGroup(internalRequest).toEventGroup()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -233,7 +233,7 @@ class EventGroupsService(
     }
     return try {
       internalEventGroupsStub.withWaitForReady()
-        .withDeadlineAfter(1, TimeUnit.MINUTES).updateEventGroup(updateRequest).toEventGroup()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).updateEventGroup(updateRequest).toEventGroup()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -313,7 +313,7 @@ class EventGroupsService(
 
     return try {
       internalEventGroupsStub.withWaitForReady()
-        .withDeadlineAfter(1, TimeUnit.MINUTES).deleteEventGroup(deleteRequest).toEventGroup()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).deleteEventGroup(deleteRequest).toEventGroup()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -358,7 +358,7 @@ class EventGroupsService(
     val internalEventGroups: List<InternalEventGroup> =
       try {
         internalEventGroupsStub.withWaitForReady()
-          .withDeadlineAfter(1, TimeUnit.MINUTES).streamEventGroups(internalRequest).toList()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).streamEventGroups(internalRequest).toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED

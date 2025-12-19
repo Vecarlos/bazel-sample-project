@@ -34,6 +34,7 @@ import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAdjusters
 import java.time.zone.ZoneRulesException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -134,7 +135,8 @@ class ReportsService(
 
     val results: List<InternalReport> =
       try {
-        internalReportsStub.streamReports(streamInternalReportsRequest).toList()
+        internalReportsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).streamReports(streamInternalReportsRequest).toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
             Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -237,7 +239,8 @@ class ReportsService(
 
     val internalReport =
       try {
-        internalReportsStub.getReport(
+        internalReportsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getReport(
           internalGetReportRequest {
             cmmsMeasurementConsumerId = reportKey.cmmsMeasurementConsumerId
             externalReportId = reportKey.reportId
@@ -306,7 +309,8 @@ class ReportsService(
     metricNames: List<String>,
   ): BatchGetMetricsResponse {
     return try {
-      metricsStub
+      metricsStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .withForwardedTrustedCredentials()
         .batchGetMetrics(
           batchGetMetricsRequest {
@@ -373,7 +377,8 @@ class ReportsService(
     //  request IDs, the external metric IDs will also be filled.
     val internalReport =
       try {
-        internalReportsStub.createReport(internalCreateReportRequest)
+        internalReportsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).createReport(internalCreateReportRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
             Status.Code.DEADLINE_EXCEEDED ->
@@ -446,7 +451,8 @@ class ReportsService(
     // Once all metrics are created, get the updated internal report with the metric IDs filled.
     val updatedInternalReport =
       try {
-        internalReportsStub.getReport(
+        internalReportsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getReport(
           internalGetReportRequest {
             cmmsMeasurementConsumerId = internalReport.cmmsMeasurementConsumerId
             externalReportId = internalReport.externalReportId
@@ -469,7 +475,8 @@ class ReportsService(
     externalMetricCalculationSpecIds: List<String>,
   ): Map<String, InternalMetricCalculationSpec> {
     return try {
-      internalMetricCalculationSpecsStub
+      internalMetricCalculationSpecsStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .batchGetMetricCalculationSpecs(
           batchGetMetricCalculationSpecsRequest {
             this.cmmsMeasurementConsumerId = cmmsMeasurementConsumerId
@@ -623,7 +630,8 @@ class ReportsService(
     createMetricRequests: List<CreateMetricRequest>,
   ): BatchCreateMetricsResponse {
     return try {
-      metricsStub
+      metricsStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .withForwardedTrustedCredentials()
         .batchCreateMetrics(
           batchCreateMetricsRequest {

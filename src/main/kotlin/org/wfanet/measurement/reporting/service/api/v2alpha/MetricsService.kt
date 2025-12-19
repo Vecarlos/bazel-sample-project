@@ -1295,7 +1295,8 @@ class MetricsService(
     authorization.check(measurementConsumerName, Permission.INVALIDATE)
 
     try {
-      return internalMetricsStub
+      return internalMetricsStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .invalidateMetric(
           invalidateMetricRequest {
             cmmsMeasurementConsumerId = metricKey.cmmsMeasurementConsumerId
