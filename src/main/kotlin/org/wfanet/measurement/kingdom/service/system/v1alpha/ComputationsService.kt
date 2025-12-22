@@ -133,9 +133,9 @@ class ComputationsService(
               currentContinuationToken = continuationToken
               emit(response)
             }
-
-          delay(streamingThrottle)
         }
+          delay(streamingThrottle)
+
       }
     }
   }
