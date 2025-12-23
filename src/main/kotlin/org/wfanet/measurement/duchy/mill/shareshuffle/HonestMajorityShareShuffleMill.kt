@@ -22,6 +22,7 @@ import java.security.cert.CertPathValidatorException
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.flowOf
@@ -336,7 +337,8 @@ class HonestMajorityShareShuffleMill(
     val dataProviderCertificateName = secretSeed.dataProviderCertificate
     val dataProviderCertificate =
       try {
-        certificateClient.getCertificate(
+        certificateClient.withWaitForReady()
+          .withDeadlineAfter(30, TimeUnit.MINUTES).getCertificate(
           getCertificateRequest { name = dataProviderCertificateName }
         )
       } catch (e: StatusException) {
