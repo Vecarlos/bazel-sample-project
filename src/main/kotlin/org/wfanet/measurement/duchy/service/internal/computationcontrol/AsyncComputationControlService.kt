@@ -125,7 +125,7 @@ class AsyncComputationControlService(
         }
         token =
           computationsClient.withWaitForReady()
-            .withDeadlineAfter(1, TimeUnit.MINUTES).advanceComputationStage(
+            .withDeadlineAfter(10, TimeUnit.MINUTES).advanceComputationStage(
             computationToken = token,
             inputsToNextStage = token.outputPathList(),
             stage = stages.nextStage(token.computationStage, role),
@@ -160,7 +160,7 @@ class AsyncComputationControlService(
       val response =
         try {
           computationsClient.withWaitForReady()
-            .withDeadlineAfter(1, TimeUnit.MINUTES).recordOutputBlobPath(
+            .withDeadlineAfter(10, TimeUnit.MINUTES).recordOutputBlobPath(
             recordOutputBlobPathRequest {
               this.token = token
               outputBlobId = outputBlob.blobId
