@@ -285,7 +285,7 @@ class ComputationsService(
     request: RecordOutputBlobPathRequest
   ): RecordOutputBlobPathResponse {
     try {
-      delay(java.time.Duration.ofMillis(200))
+//      delay(java.time.Duration.ofMillis(200))
       computationsDatabase.writeOutputBlobReference(
         request.token.toDatabaseEditToken(),
         BlobRef(request.outputBlobId, request.blobPath),
