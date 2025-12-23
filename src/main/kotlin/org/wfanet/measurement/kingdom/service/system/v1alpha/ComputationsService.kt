@@ -105,31 +105,66 @@ class ComputationsService(
       //
       // TODO(@SanjayVas): Figure out an alternative mechanism (e.g. Spanner change streams) to
       // avoid having to poll internal service.
-      while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
-        streamMeasurements(currentContinuationToken)
-          .catch { cause ->
-            println("Entro al catch! 11")
-            if (cause !is StatusException) throw cause
-            throw when (cause.status.code) {
-                Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
-                Status.Code.CANCELLED -> Status.CANCELLED
-                else -> Status.UNKNOWN
+//      while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
+//        streamMeasurements(currentContinuationToken)
+//          .catch { cause ->
+//            println("Entro al catch! 11")
+//            if (cause !is StatusException) throw cause
+//            throw when (cause.status.code) {
+//                Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
+//                Status.Code.CANCELLED -> Status.CANCELLED
+//                else -> Status.UNKNOWN
+//              }
+//              .withCause(cause)
+//              .asRuntimeException()
+//          }
+//          .collect { measurement ->
+//            val continuationToken = streamActiveComputationsContinuationToken {
+//              lastSeenUpdateTime = measurement.updateTime
+//              lastSeenExternalComputationId = measurement.externalComputationId
+//            }
+//            val response = streamActiveComputationsResponse {
+//              this.continuationToken = ContinuationTokenConverter.encode(continuationToken)
+//              computation = measurement.toSystemComputation()
+//            }
+//            currentContinuationToken = continuationToken
+//            emit(response)
+//          }
+//
+//        delay(streamingThrottle)
+//      }
+
+      while (currentCoroutineContext().isActive &&
+        streamingDeadline.hasNotPassedNow()) {
+
+        try {
+          streamMeasurements(currentContinuationToken)
+            .collect { measurement ->
+              val continuationToken = streamActiveComputationsContinuationToken {
+                lastSeenUpdateTime = measurement.updateTime
+                lastSeenExternalComputationId = measurement.externalComputationId
               }
-              .withCause(cause)
-              .asRuntimeException()
-          }
-          .collect { measurement ->
-            val continuationToken = streamActiveComputationsContinuationToken {
-              lastSeenUpdateTime = measurement.updateTime
-              lastSeenExternalComputationId = measurement.externalComputationId
+
+              val response = streamActiveComputationsResponse {
+                this.continuationToken =
+                  ContinuationTokenConverter.encode(continuationToken)
+                computation = measurement.toSystemComputation()
+              }
+
+              currentContinuationToken = continuationToken
+              emit(response)
             }
-            val response = streamActiveComputationsResponse {
-              this.continuationToken = ContinuationTokenConverter.encode(continuationToken)
-              computation = measurement.toSystemComputation()
+
+        } catch (e: StatusException) {
+          when (e.status.code) {
+            Status.Code.DEADLINE_EXCEEDED,
+            Status.Code.CANCELLED -> {
+              // 👇 camino SIEMPRE igual
+              // no emit, no log, no branch
             }
-            currentContinuationToken = continuationToken
-            emit(response)
+            else -> throw e
           }
+        }
 
         delay(streamingThrottle)
       }
