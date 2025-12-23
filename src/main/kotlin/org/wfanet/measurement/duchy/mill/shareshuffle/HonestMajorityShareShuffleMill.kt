@@ -253,7 +253,11 @@ class HonestMajorityShareShuffleMill(
     }
 
     val peerDuchyId = peerDuchyId(role)
-    val peerDuchyStub = workerStubs[peerDuchyId] ?: error("$peerDuchyId stub not found")
+//    val peerDuchyStub = workerStubs[peerDuchyId] ?: error("$peerDuchyId stub not found")
+    val peerDuchyStub = workerStubs[peerDuchyId]
+      ?.withWaitForReady()
+      ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+      ?: error("$peerDuchyId stub not found")
     val peerDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, peerDuchyId, peerDuchyStub)
         .honestMajorityShareShuffle
@@ -468,7 +472,12 @@ class HonestMajorityShareShuffleMill(
     }
 
     val aggregatorId = protocolSetupConfig.aggregatorDuchyId
-    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+//    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+    val aggregatorStub = workerStubs[aggregatorId]
+      ?.withWaitForReady()
+      ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+      ?: error("$aggregatorId stub not found")
+
     val aggregatorStage =
       getComputationStageInOtherDuchy(token.globalComputationId, aggregatorId, aggregatorStub)
         .honestMajorityShareShuffle

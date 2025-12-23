@@ -70,6 +70,7 @@ import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.Compu
 import org.wfanet.measurement.system.v1alpha.ComputationsGrpcKt
 import org.wfanet.measurement.system.v1alpha.ReachOnlyLiquidLegionsV2
 
+import java.util.concurrent.TimeUnit
 /**
  * Mill works on computations using the ReachOnlyLiquidLegionSketchAggregationProtocol.
  *
@@ -377,7 +378,11 @@ class ReachOnlyLiquidLegionsV2Mill(
       }
 
     val nextDuchyId = nextDuchyId(rollv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+//    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = workerStubs[nextDuchyId]
+      ?.withWaitForReady()
+      ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+      ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .reachOnlyLiquidLegionsSketchAggregationV2
@@ -432,7 +437,11 @@ class ReachOnlyLiquidLegionsV2Mill(
       }
 
     val aggregatorId = rollv2Details.participantList.last().duchyId
-    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+//    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+    val aggregatorStub = workerStubs[aggregatorId]
+      ?.withWaitForReady()
+      ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+      ?: error("$aggregatorId stub not found")
     val aggregatorStage =
       getComputationStageInOtherDuchy(token.globalComputationId, aggregatorId, aggregatorStub)
         .reachOnlyLiquidLegionsSketchAggregationV2
@@ -570,7 +579,11 @@ class ReachOnlyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(rollv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+//    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = workerStubs[nextDuchyId]
+      ?.withWaitForReady()
+      ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+      ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .reachOnlyLiquidLegionsSketchAggregationV2
