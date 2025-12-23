@@ -189,8 +189,6 @@ class RequisitionsService(
         .withDeadlineAfter(10, TimeUnit.MINUTES).streamRequisitions(internalRequest).toList()
 
     } catch (e: StatusException) {
-      println("🚨 ERROR GRPC CAPTURADO: Código = ${e.status.code}")
-      println("🚨 MENSAJE: ${e.message}")
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
         Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED

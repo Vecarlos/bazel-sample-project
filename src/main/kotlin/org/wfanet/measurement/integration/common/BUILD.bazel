@@ -57,6 +57,7 @@ java_library(
         ":kingdom_public_api_services",
         ":kingdom_system_api_services",
     ] + KINGDOM_INTERNAL_PROTOS,
+    tags = ["no_coverage"],
 )
 
 java_library(
