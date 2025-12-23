@@ -325,6 +325,7 @@ kt_jvm_library(
         "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
         "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
     ],
+     tags = ["no_coverage"],
 )
 
 kt_jvm_library(
