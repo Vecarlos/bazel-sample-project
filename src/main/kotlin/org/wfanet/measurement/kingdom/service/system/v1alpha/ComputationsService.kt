@@ -57,8 +57,6 @@ import org.wfanet.measurement.system.v1alpha.streamActiveComputationsContinuatio
 import org.wfanet.measurement.system.v1alpha.streamActiveComputationsResponse
 
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
 
 class ComputationsService(
   private val measurementsClient: MeasurementsCoroutineStub,
@@ -108,34 +106,32 @@ class ComputationsService(
       // TODO(@SanjayVas): Figure out an alternative mechanism (e.g. Spanner change streams) to
       // avoid having to poll internal service.
       while (currentCoroutineContext().isActive && streamingDeadline.hasNotPassedNow()) {
-        withContext(NonCancellable) {
-          streamMeasurements(currentContinuationToken)
-            .catch { cause ->
-              println("Entro al catch! 11")
-              if (cause !is StatusException) throw cause
-              throw when (cause.status.code) {
+        streamMeasurements(currentContinuationToken)
+          .catch { cause ->
+            println("Entro al catch! 11")
+            if (cause !is StatusException) throw cause
+            throw when (cause.status.code) {
                 Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
                 Status.Code.CANCELLED -> Status.CANCELLED
                 else -> Status.UNKNOWN
               }
-                .withCause(cause)
-                .asRuntimeException()
+              .withCause(cause)
+              .asRuntimeException()
+          }
+          .collect { measurement ->
+            val continuationToken = streamActiveComputationsContinuationToken {
+              lastSeenUpdateTime = measurement.updateTime
+              lastSeenExternalComputationId = measurement.externalComputationId
             }
-            .collect { measurement ->
-              val continuationToken = streamActiveComputationsContinuationToken {
-                lastSeenUpdateTime = measurement.updateTime
-                lastSeenExternalComputationId = measurement.externalComputationId
-              }
-              val response = streamActiveComputationsResponse {
-                this.continuationToken = ContinuationTokenConverter.encode(continuationToken)
-                computation = measurement.toSystemComputation()
-              }
-              currentContinuationToken = continuationToken
-              emit(response)
+            val response = streamActiveComputationsResponse {
+              this.continuationToken = ContinuationTokenConverter.encode(continuationToken)
+              computation = measurement.toSystemComputation()
             }
-        }
-          delay(streamingThrottle)
+            currentContinuationToken = continuationToken
+            emit(response)
+          }
 
+        delay(streamingThrottle)
       }
     }
   }
