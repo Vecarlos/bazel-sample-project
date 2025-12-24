@@ -25,7 +25,6 @@ import com.google.protobuf.Empty
 import com.google.protobuf.kotlin.toByteStringUtf8
 import io.grpc.Status
 import java.time.Clock
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -412,29 +411,24 @@ class HeraldTest {
     }
 
   private val internalComputationsStub: InternalComputationsCoroutineStub by lazy {
-    InternalComputationsCoroutineStub(grpcTestServerRule.channel).withWaitForReady()
-      .withDeadlineAfter(30, TimeUnit.MINUTES)
+    InternalComputationsCoroutineStub(grpcTestServerRule.channel)
   }
 
   private val computationLogEntriesCoroutineStub: SystemComputationLogEntriesCoroutineStub by lazy {
-    SystemComputationLogEntriesCoroutineStub(grpcTestServerRule.channel).withWaitForReady()
-      .withDeadlineAfter(30, TimeUnit.MINUTES)
+    SystemComputationLogEntriesCoroutineStub(grpcTestServerRule.channel)
   }
 
   private val systemComputationsStub: SystemComputationsCoroutineStub by lazy {
-    SystemComputationsCoroutineStub(grpcTestServerRule.channel).withWaitForReady()
-      .withDeadlineAfter(30, TimeUnit.MINUTES)
+    SystemComputationsCoroutineStub(grpcTestServerRule.channel)
   }
 
   private val systemComputationParticipantsStub:
     SystemComputationParticipantsCoroutineStub by lazy {
-    SystemComputationParticipantsCoroutineStub(grpcTestServerRule.channel).withWaitForReady()
-      .withDeadlineAfter(30, TimeUnit.MINUTES)
+    SystemComputationParticipantsCoroutineStub(grpcTestServerRule.channel)
   }
 
   private val continuationTokensStub: ContinuationTokensCoroutineStub by lazy {
-    ContinuationTokensCoroutineStub(grpcTestServerRule.channel).withWaitForReady()
-      .withDeadlineAfter(30, TimeUnit.MINUTES)
+    ContinuationTokensCoroutineStub(grpcTestServerRule.channel)
   }
 
   private val internalComputationsMock: InternalComputationsCoroutineImplBase = mockService {}
@@ -442,8 +436,7 @@ class HeraldTest {
     addService(internalComputationsMock)
   }
   private val mockBasedInternalComputationsStub =
-    InternalComputationsCoroutineStub(mockBasedInternalComputationsServerRule.channel).withWaitForReady()
-      .withDeadlineAfter(30, TimeUnit.MINUTES)
+    InternalComputationsCoroutineStub(mockBasedInternalComputationsServerRule.channel)
 
   private lateinit var aggregatorHerald: Herald
   private lateinit var nonAggregatorHerald: Herald

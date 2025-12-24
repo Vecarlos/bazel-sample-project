@@ -18,6 +18,7 @@ import com.google.common.truth.extensions.proto.ProtoTruth.assertThat
 import com.google.protobuf.ByteString
 import com.google.protobuf.timestamp
 import com.google.protobuf.util.Timestamps
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -289,7 +290,8 @@ class ComputationsServiceTest {
 
   private val service =
     ComputationsService(
-      InternalMeasurementsCoroutineStub(grpcTestServerRule.channel),
+      InternalMeasurementsCoroutineStub(grpcTestServerRule.channel).withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES),
       duchyIdentityProvider = duchyIdProvider,
     )
 
