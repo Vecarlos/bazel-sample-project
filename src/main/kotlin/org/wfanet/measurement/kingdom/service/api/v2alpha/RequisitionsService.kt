@@ -185,6 +185,7 @@ class RequisitionsService(
     val internalRequisitions: List<InternalRequisition>
 
     internalRequisitions = try {
+      kotlinx.coroutines.delay(5000)
       internalRequisitionStub.withWaitForReady()
         .withDeadlineAfter(10, TimeUnit.MINUTES).streamRequisitions(internalRequest).toList()
 
