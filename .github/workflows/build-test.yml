@@ -104,8 +104,12 @@ jobs:
 #        run: bazel mod deps
 
       - name: Check lockfile
+          # Forzamos las banderas de JVM aquí también para asegurar que el comando 'mod deps'
+          # ignore el certificado vencido, independientemente de si leyó el .bazelrc o no.
         run: >
           bazel 
+          --host_jvm_args=-Djsse.enableSNIExtension=false 
+          --host_jvm_args=-Dcom.sun.net.ssl.checkRevocation=false 
           mod deps 
           --http_timeout_scaling=5.0
       # - name: Build
