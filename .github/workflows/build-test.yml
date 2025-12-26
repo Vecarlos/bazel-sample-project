@@ -76,6 +76,8 @@ jobs:
           build --define pdp_cert_name=dataProviders/foodp1/certificates/bar1
           build --define google_cloud_project=example-project
           build --define basic_reports_enabled=true
+          
+          build --jvmopt=-Dcom.sun.net.ssl.checkRevocation=false
           EOF
 
       - name: Set TCP keepalive
