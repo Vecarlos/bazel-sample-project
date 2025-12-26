@@ -40,6 +40,12 @@ jobs:
           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
           EOF
 
+      - name: Update CA certificates
+        run: |
+          sudo apt update
+          sudo apt install --reinstall -y ca-certificates
+          sudo update-ca-certificates
+
       - name: Write ~/.bazelrc
         run: |
           cat << EOF > ~/.bazelrc
