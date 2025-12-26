@@ -45,6 +45,10 @@ jobs:
           cat << EOF > ~/.bazelrc
           common --config=ci
           
+          common --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/main/
+          # 2. Ignorar el lockfile para que no intente contactar al servidor viejo
+          common --lockfile_mode=off
+          
           build --remote_upload_local_results
           build --define container_registry=localhost:5001
           build --define image_repo_prefix=halo
@@ -97,8 +101,6 @@ jobs:
         run: >
           bazel 
           mod deps 
-          --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/main/ 
-          --lockfile_mode=off 
           --http_timeout_scaling=5.0
       # - name: Build
       #   run: >
