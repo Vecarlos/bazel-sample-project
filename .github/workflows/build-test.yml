@@ -81,9 +81,14 @@ jobs:
       - name: Set TCP keepalive
         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
+#      - name: Check lockfile
+#        run: bazel mod deps
       - name: Check lockfile
-        run: bazel mod deps
-
+        env:
+            # 1. Ignora el certificado vencido
+          BAZELISK_INSECURE_SKIP_TLS_VERIFY: true
+          # 2. Aumenta el tiempo de espera (5x) para evitar el error 504
+        run: bazel mod deps --http_timeout_scaling=5.0
       # - name: Build
       #   run: >
       #     bazel build --worker_quit_after_build
