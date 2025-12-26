@@ -96,9 +96,8 @@ jobs:
       - name: Check lockfile
         run: >
           bazel 
-          --host_jvm_args=-Djsse.enableSNIExtension=false 
-          --host_jvm_args=-Dcom.sun.net.ssl.checkRevocation=false 
           mod deps 
+          --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/main/ 
           --http_timeout_scaling=5.0
       # - name: Build
       #   run: >
