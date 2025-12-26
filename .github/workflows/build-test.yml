@@ -83,22 +83,6 @@ jobs:
       - name: Set TCP keepalive
         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
-      # --- PASO 1: Descargar Bazel manualmente ignorando el certificado vencido ---
-      - name: Install Bazel manually
-        run: |
-          wget --no-check-certificate https://releases.bazel.build/7.4.1/release/bazel-7.4.1-linux-x86_64 -O bazel-bin
-          chmod +x bazel-bin
-          sudo mv bazel-bin /usr/local/bin/bazel
-          bazel --version
-
-      # --- PASO 2: Ejecutar el comando inyectando las banderas para ignorar errores SSL internos ---
-      - name: Check lockfile
-        run: >
-          bazel 
-          --host_jvm_args=-Djsse.enableSNIExtension=false 
-          --host_jvm_args=-Dcom.sun.net.ssl.checkRevocation=false 
-          mod deps 
-          --http_timeout_scaling=5.0
 
 #      - name: Check lockfile
 #        run: bazel mod deps
