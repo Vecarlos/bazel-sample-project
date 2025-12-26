@@ -40,31 +40,10 @@ jobs:
           build --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_API_KEY
           EOF
 
-      - name: Update CA certificates
-        run: |
-          sudo apt update
-          sudo apt install --reinstall -y ca-certificates
-          sudo update-ca-certificates
-
-      - name: Force update SSL certificates
-        run: |
-          sudo apt update
-          sudo apt install --reinstall -y ca-certificates openssl
-          sudo update-ca-certificates --fresh
-          # Force update Java keystore
-          sudo rm -f /etc/ssl/certs/java/cacerts
-          sudo update-ca-certificates -f
-          # Sync Mono certificates
-          sudo cert-sync /etc/ssl/certs/ca-certificates.crt
-
       - name: Write ~/.bazelrc
         run: |
           cat << EOF > ~/.bazelrc
           common --config=ci
-          
-          common --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/main/
-          # 2. Ignorar el lockfile para que no intente contactar al servidor viejo
-          common --lockfile_mode=off
           
           build --remote_upload_local_results
           build --define container_registry=localhost:5001
@@ -102,27 +81,9 @@ jobs:
       - name: Set TCP keepalive
         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
-      # --- NUEVO PASO: Descarga manual para saltar error de certificado ---
-      - name: Install Bazel manually
-        run: |
-          wget --no-check-certificate https://releases.bazel.build/7.4.1/release/bazel-7.4.1-linux-x86_64 -O bazel-bin
-          chmod +x bazel-bin
-          sudo mv bazel-bin /usr/local/bin/bazel
-          bazel --version
-
-
-#      - name: Check lockfile
-#        run: bazel mod deps
-
       - name: Check lockfile
-          # Forzamos las banderas de JVM aquí también para asegurar que el comando 'mod deps'
-          # ignore el certificado vencido, independientemente de si leyó el .bazelrc o no.
-        run: >
-          bazel 
-          --host_jvm_args=-Djsse.enableSNIExtension=false 
-          --host_jvm_args=-Dcom.sun.net.ssl.checkRevocation=false 
-          mod deps 
-          --http_timeout_scaling=5.0
+        run: bazel mod deps
+
       # - name: Build
       #   run: >
       #     bazel build --worker_quit_after_build
