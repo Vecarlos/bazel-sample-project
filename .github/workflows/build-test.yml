@@ -84,11 +84,13 @@ jobs:
 #      - name: Check lockfile
 #        run: bazel mod deps
       - name: Check lockfile
-        env:
-            # 1. Ignora el certificado vencido
-          BAZELISK_INSECURE_SKIP_TLS_VERIFY: true
-          # 2. Aumenta el tiempo de espera (5x) para evitar el error 504
-        run: bazel mod deps --http_timeout_scaling=5.0
+          # Agregamos las flags de JVM para que Java (dentro de Bazel) también ignore errores SSL al buscar dependencias
+        run: >
+          bazel 
+          --host_jvm_args=-Djsse.enableSNIExtension=false 
+          --host_jvm_args=-Dcom.sun.net.ssl.checkRevocation=false 
+          mod deps 
+          --http_timeout_scaling=5.0
       # - name: Build
       #   run: >
       #     bazel build --worker_quit_after_build
