@@ -76,7 +76,8 @@ class ComputationsService(
         .apply { externalComputationId = apiIdToExternalId(computationKey.computationId) }
         .build()
     try {
-      return measurementsClient.getMeasurementByComputationId(internalRequest).toSystemComputation()
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES).getMeasurementByComputationId(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -166,7 +167,8 @@ class ComputationsService(
       publicApiVersion = request.publicApiVersion
     }
     try {
-      return measurementsClient.setMeasurementResult(internalRequest).toSystemComputation()
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES).setMeasurementResult(internalRequest).toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -200,7 +202,8 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return measurementsClient.streamMeasurements(request)
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).streamMeasurements(request)
     } catch (e: StatusException) {
       println("Entro al catch! 22")
       throw when (e.status.code) {
