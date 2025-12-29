@@ -110,7 +110,8 @@ class RequisitionFetcher(
           }
           val response: ListRequisitionsResponse =
             try {
-              requisitionsStub.listRequisitions(request)
+              requisitionsStub.withWaitForReady()
+                .withDeadlineAfter(30, TimeUnit.MINUTES).listRequisitions(request)
             } catch (e: StatusException) {
               throw Exception("Error listing requisitions", e)
             }

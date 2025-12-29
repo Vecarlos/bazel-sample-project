@@ -124,8 +124,7 @@ class AsyncComputationControlService(
             .asRuntimeException()
         }
         token =
-          computationsClient.withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES).advanceComputationStage(
+          computationsClient.advanceComputationStage(
             computationToken = token,
             inputsToNextStage = token.outputPathList(),
             stage = stages.nextStage(token.computationStage, role),
