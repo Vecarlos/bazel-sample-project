@@ -136,6 +136,8 @@ VICTIM_FILE_2="src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisit
 VICTIM_FILE_3="src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/EventGroupMetadataDescriptorsService.kt"
 VICTIM_FILE_4="src/main/kotlin/org/wfanet/measurement/reporting/service/api/CelEnvProvider.kt"
 VICTIM_FILE_5="src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations/ComputationsCleaner.kt"
+VICTIM_FILE_6="src/main/kotlin/org/wfanet/measurement/duchy/mill/MillBase.kt"
+
 
 INJECTED_CONTENT=$(cat <<EOF
 // --- INJECTED FOR CACHE TEST ---
@@ -201,7 +203,7 @@ do
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_3" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_4" || true
   sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_5" || true
-
+  sed -i '/\/\/ --- INJECTED FOR CACHE TEST ---/,/\/\/ --- END INJECTED ---/d' "$VICTIM_FILE_6" || true
   if [ $(($i % 2)) -eq 1 ]; then
     echo "Comment RequisitionMetadataServiceTest and delete functions"
     commit_msg="ACTIVE $i: Comment test and add empty functions"
@@ -212,6 +214,7 @@ do
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_3"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_4"
     echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_5"
+    echo "$INJECTED_CONTENT" >> "$VICTIM_FILE_6"
     commit_msg="ACTIVE $i: Uncomment test and delete empty functions"
   fi
 
