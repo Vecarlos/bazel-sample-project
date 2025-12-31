@@ -23,6 +23,7 @@ load("//build:variables.bzl", "MEASUREMENT_SYSTEM_REPO")
 def java_image(
         name,
         binary,
+        # buildifier: disable=unused-variable
         main_class = None,
         args = None,
         base = None,
