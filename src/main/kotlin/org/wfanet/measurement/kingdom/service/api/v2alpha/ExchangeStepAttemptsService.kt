@@ -46,6 +46,7 @@ import org.wfanet.measurement.internal.kingdom.ExchangeStepsGrpcKt.ExchangeSteps
 import org.wfanet.measurement.internal.kingdom.appendLogEntryRequest as internalAppendLogEntryRequest
 import org.wfanet.measurement.internal.kingdom.finishExchangeStepAttemptRequest as internalFinishExchangeStepAttemptRequest
 import org.wfanet.measurement.internal.kingdom.getExchangeStepRequest as internalGetExchangeStepRequest
+import java.util.concurrent.TimeUnit
 
 class ExchangeStepAttemptsService(
   private val internalExchangeStepAttempts: InternalExchangeStepAttemptsCoroutineStub,
@@ -99,7 +100,8 @@ class ExchangeStepAttemptsService(
     }
     val internalResponse: InternalExchangeStepAttempt =
       try {
-        internalExchangeStepAttempts.appendLogEntry(internalRequest)
+        internalExchangeStepAttempts.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).appendLogEntry(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -133,7 +135,8 @@ class ExchangeStepAttemptsService(
     }
     val internalResponse =
       try {
-        internalExchangeStepAttempts.finishExchangeStepAttempt(internalRequest)
+        internalExchangeStepAttempts.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).finishExchangeStepAttempt(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -182,7 +185,8 @@ class ExchangeStepAttemptsService(
     val authenticatedPrincipal: MeasurementPrincipal = principalFromCurrentContext
     val internalExchangeStep =
       try {
-        internalExchangeSteps.getExchangeStep(
+        internalExchangeSteps.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getExchangeStep(
           internalGetExchangeStepRequest {
             externalRecurringExchangeId = externalIds.externalRecurringExchangeId.value
             date = externalIds.date
