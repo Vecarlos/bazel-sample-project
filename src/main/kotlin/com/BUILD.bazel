@@ -1,7 +1,6 @@
 load("@rules_java//java:defs.bzl", "java_binary")
 load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
 load("//src/main/docker:macros.bzl", "java_image")
-load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_binary", "kt_jvm_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -18,28 +17,21 @@ kt_jvm_library(
     ],
 )
 
-#kt_jvm_library(
-#    name = "count_letters_server_kt",
-#    srcs = ["CountLettersServer.kt"],
-#    deps = [
-#        "//src/main/kotlin/com:common_server_kt",
-#        "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
-#    ],
-#)
-#
-#java_binary(
-#    name = "count_letters_server_bin",
-#    main_class = "com.CountLettersServerKt",
-#    runtime_deps = [
-#        ":common_server_kt",
-#        ":count_letters_server_kt",],
-#)
-kt_jvm_binary(
-    name = "count_letters_server_bin",
+kt_jvm_library(
+    name = "count_letters_server_kt",
     srcs = ["CountLettersServer.kt"],
-    main_class = "com.CountLettersServer.CountLettersServerKt",
     deps = [
+        "//src/main/kotlin/com:common_server_kt",
+        "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
+    ],
+)
+
+java_binary(
+    name = "count_letters_server_bin",
+    main_class = "com.CountLettersServerKt",
+    runtime_deps = [
         ":common_server_kt",
+        ":count_letters_server_kt",
         "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
         "//src/main/proto/service:service_count_letters_kt_jvm_grpc",
     ],
@@ -51,4 +43,3 @@ java_image(
     main_class = "com.CountLettersServerKt",
     visibility = ["//visibility:public"],
 )
-
