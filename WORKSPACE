@@ -1,1 +1,1 @@
-workspace(name = "bazel-sample-project")
+workspace(name = "wfa_measurement_system")

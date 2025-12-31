@@ -3,8 +3,75 @@ common --enable_bzlmod
 common --registry=https://raw.githubusercontent.com/world-federation-of-advertisers/bazel-registry/main
 common --registry=https://bcr.bazel.build
 
-# Files to test
-coverage --instrumentation_filter="^//src/main[/:]"
-
 # Use clang as C++ compiler.
 build --repo_env='CC=clang'
+
+# Configuration for python proto import.
+build --incompatible_default_to_explicit_init_py
+
+# Configuration for running CC coverage locally
+# See https://github.com/bazelbuild/bazel/blob/106903d38f6d41b5eb1f100698f257184bea47a3/src/test/shell/bazel/bazel_coverage_cc_test_llvm.sh#L59
+# and https://github.com/bazelbuild/bazel/commit/21b5eb627d78c09d47c4de957e9e6b56a9ae6fad
+common:llvm-cov --repo_env=BAZEL_LLVM_COV=llvm-cov
+common:llvm-cov --repo_env=BAZEL_LLVM_PROFDATA=llvm-profdata
+common:llvm-cov --repo_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
+common:llvm-cov --repo_env=GCOV=llvm-profdata
+common:llvm-cov --experimental_generate_llvm_lcov
+
+# Configuration for coverage reports
+coverage --combined_report=lcov
+
+# Use C++17 language features.
+build --cxxopt='-std=c++17'
+build --host_cxxopt='-std=c++17'
+
+# Use JDK 17.
+build --java_runtime_version=remotejdk_17
+build --tool_java_runtime_version=remotejdk_17
+build --tool_java_language_version=17
+
+# Target Java 11.
+build --java_language_version=11
+
+# Pass environment variables for tests.
+common --test_env TESTCONTAINERS_RYUK_DISABLED=true
+common --test_env DOCKER_HOST
+
+# Configuration for remote cache.
+build --noremote_upload_local_results  # Do not upload by default
+build --remote_download_outputs=minimal
+build --remote_timeout=3600
+build:remote-cache --remote_cache=grpcs://brs.buildbuddy.io
+build:remote-cache --experimental_remote_cache_compression
+build:remote-cache --experimental_remote_cache_compression_threshold=100
+# These next three flags are due to a workaround for missing digests described here
+# https://www.buildbuddy.io/docs/troubleshooting-rbe/#cachenotfoundexception-missing-digest
+build:remote-cache --experimental_remote_cache_eviction_retries=5
+build:remote-cache --experimental_remote_cache_lease_extension=true
+build:remote-cache --experimental_remote_cache_ttl=3h
+
+# Configuration for continuous integration (CI).
+# TODO(bazelbuild/rules_kotlin#1352): Remove these two environment variable overrides once they’re no longer needed to ignore Android in GHA.
+common:ci --action_env=ANDROID_HOME=""
+common:ci --action_env=ANDROID_SDK_ROOT=""
+common:ci --lockfile_mode=error
+build:ci --compilation_mode=opt
+build:ci --build_metadata=ROLE=CI
+build:ci --build_metadata=VISIBILITY=PUBLIC
+build:ci --config=remote-cache
+build:ci --config=results
+build:ci --config=remote
+
+# Configuration for GitHub Container Registry
+build:ghcr --define container_registry=ghcr.io
+build:ghcr --define image_repo_prefix=world-federation-of-advertisers
+
+# Convenience platform configurations.
+build:debian-bullseye --platforms=//build/platforms:debian_bullseye
+build:ubuntu-bionic --platforms=//build/platforms:ubuntu_bionic
+
+import %workspace%/container.bazelrc
+import %workspace%/maven.bazelrc
+import %workspace%/remote.bazelrc
+import %workspace%/results.bazelrc
+try-import %workspace%/auth.bazelrc

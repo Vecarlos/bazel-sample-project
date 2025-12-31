@@ -1,0 +1,85 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/protobuf/empty.proto";
+import "google/type/date.proto";
+import "wfa/measurement/internal/kingdom/exchange.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// Internal service for managing `Exchange` resources.
+service Exchanges {
+  // Gets an existing `Exchange`.
+  rpc GetExchange(GetExchangeRequest) returns (Exchange);
+
+  // Creates an `Exchange`.
+  //
+  // If there is already an Exchange for the same date for the given
+  // `RecurringExchange`, this will do nothing and return that instead.
+  rpc CreateExchange(CreateExchangeRequest) returns (Exchange);
+
+  // Streams `Exchange`s.
+  rpc StreamExchanges(StreamExchangesRequest) returns (stream Exchange);
+
+  // Permanently deletes `Exchange`s.
+  rpc BatchDeleteExchanges(BatchDeleteExchangesRequest)
+      returns (google.protobuf.Empty);
+}
+
+// Request for `/Exchanges.GetExchange`.
+message GetExchangeRequest {
+  // External identifier of the `RecurringExchange` that contains this.
+  fixed64 external_recurring_exchange_id = 1;
+
+  // Date of the `Exchange`. For any given `external_recurring_exchange_id`
+  // there is at most one `Exchange` for any given date -- this is part of the
+  // `Exchange`'s primary key.
+  google.type.Date date = 2;
+}
+
+// Request for `/Exchanges.CreateExchange`.
+message CreateExchangeRequest {
+  // The `Exchange` to create.
+  Exchange exchange = 1;
+}
+
+// Request for `/Exchanges.StreamExchange`.
+message StreamExchangesRequest {
+  // Restricts results to those matching the given criteria.
+  message Filter {
+    google.type.Date date_before = 1;
+  }
+  Filter filter = 1;
+
+  // The maximum number of results to return. If not specified or 0, it implies
+  // unlimited.
+  int32 limit = 2;
+}
+
+message DeleteExchangeRequest {
+  fixed64 external_recurring_exchange_id = 1;
+  google.type.Date date = 2;
+}
+
+// Request for `/Exchanges.BatchDeleteExchanges`.
+message BatchDeleteExchangesRequest {
+  // The request message specifying the `Exchange`s to permanently delete. A
+  // maximum of 1000 Exchanges can be deleted in a batch.
+  repeated DeleteExchangeRequest requests = 1;
+}

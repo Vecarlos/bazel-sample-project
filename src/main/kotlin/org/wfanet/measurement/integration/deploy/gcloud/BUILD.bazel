@@ -1,0 +1,83 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_testonly = True,
+    default_visibility = ["//visibility:public"],
+)
+
+kt_jvm_library(
+    name = "secure_computation_services_provider_rule",
+    srcs = ["SecureComputationServicesProviderRule.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common/service:data_services",
+        "//src/main/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner:services",
+        "//src/main/kotlin/org/wfanet/measurement/securecomputation/deploy/gcloud/spanner/testing:schemata",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
+    ],
+)
+
+kt_jvm_library(
+    name = "kingdom_data_services_provider_rule",
+    srcs = ["KingdomDataServicesProviderRule.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common/service:data_services",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner:services",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/testing",
+        "//src/main/proto/wfa/measurement/api/v2alpha/event_group_metadata/testing:simulator_synthetic_data_spec_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha/event_group_metadata/testing:test_metadata_message_kt_jvm_proto",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
+    ],
+)
+
+kt_jvm_library(
+    name = "spanner_duchy_dependency_provider_rule",
+    srcs = [
+        "SpannerDuchyDependencyProviderRule.kt",
+    ],
+    visibility = [
+        "//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:__pkg__",
+        "//src/test/kotlin/org/wfanet/measurement/integration/postgres:__pkg__",
+    ],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/service:spanner_duchy_data_services",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/spanner/computation",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/spanner/continuationtoken:service",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/spanner/testing",
+        "//src/main/kotlin/org/wfanet/measurement/integration/common:in_process_duchy",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/storage/filesystem:client",
+    ],
+)
+
+kt_jvm_library(
+    name = "spanner_access_services_factory",
+    srcs = ["SpannerAccessServicesFactory.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/access/common:tls_client_principal_mapping",
+        "//src/main/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner:internal_api_services",
+        "//src/main/kotlin/org/wfanet/measurement/access/deploy/gcloud/spanner/testing:schemata",
+        "//src/main/kotlin/org/wfanet/measurement/access/service/internal:permission_mapping",
+        "//src/main/kotlin/org/wfanet/measurement/access/service/internal:services",
+        "//src/main/kotlin/org/wfanet/measurement/integration/common:access_services_factory",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
+    ],
+)
+
+kt_jvm_library(
+    name = "internal_reporting_provider_rule",
+    srcs = ["InternalReportingServicesProviderRule.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/reporting/deploy/v2/common/service:services",
+        "//src/main/kotlin/org/wfanet/measurement/reporting/deploy/v2/gcloud/spanner/testing",
+        "//src/main/kotlin/org/wfanet/measurement/reporting/service/internal:impression_qualification_filter_mapping",
+        "//src/main/proto/wfa/measurement/api/v2alpha/event_templates/testing:test_event_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/org/junit",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/db/r2dbc/postgres/testing:database_provider",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/testing",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner/testing",
+    ],
+)

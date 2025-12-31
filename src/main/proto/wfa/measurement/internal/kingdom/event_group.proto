@@ -1,0 +1,59 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/protobuf/timestamp.proto";
+import "google/type/interval.proto";
+import "wfa/measurement/internal/kingdom/event_group_details.proto";
+import "wfa/measurement/internal/kingdom/media_type.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+message EventGroup {
+  fixed64 external_data_provider_id = 1;
+  fixed64 external_event_group_id = 2;
+
+  fixed64 external_measurement_consumer_id = 3;
+  fixed64 external_measurement_consumer_certificate_id = 4 [deprecated = true];
+
+  // Reference ID provided by the Data Provider.
+  string provided_event_group_id = 5;
+
+  google.protobuf.Timestamp create_time = 6;
+  google.protobuf.Timestamp update_time = 7;
+
+  repeated MediaType media_types = 10;
+  google.type.Interval data_availability_interval = 11;
+  EventGroupDetails details = 8;
+
+  // Possible states of Event Group.
+  enum State {
+    // The default value if state is omitted. Should not be used.
+    STATE_UNSPECIFIED = 0;
+    // The Event Group has been created.
+    ACTIVE = 1;
+    // The Event Group has been deleted.
+    DELETED = 2;
+  }
+  // Event Group state. Output-only.
+  State state = 9;
+
+  // Output only. This may be sent on batch create and update requests to ensure
+  // the client has an up-to-date Measurement before proceeding.
+  string etag = 14;
+}

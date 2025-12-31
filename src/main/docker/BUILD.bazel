@@ -1,19 +1,151 @@
-load("@wfa_common_jvm//build/rules_oci:defs.bzl", "container_push")
-load(":images.bzl", "COMMON_IMAGES")
+load(
+    "@wfa_common_jvm//build/rules_oci:defs.bzl",
+    "container_push",
+    "container_push_all",
+)
+load("//build:variables.bzl", "IMAGE_REPOSITORY_SETTINGS")
+load("//build/cosign:macros.bzl", "sign_all")
+load(":images.bzl", "ALL_EKS_IMAGES", "ALL_GKE_IMAGES", "ALL_IMAGES", "ALL_LOCAL_IMAGES", "ALL_REPORTING_GKE_IMAGES", "ALL_TEE_APP_GKE_IMAGES")
 
-package(default_visibility = ["//visibility:public"])
+package(
+    default_testonly = True,  #TODO: delete when InMemoryKeyStore and FakeHybridCipher are not used.
+    default_visibility = [
+        "//src/test/kotlin/org/wfanet/measurement/integration/k8s:__pkg__",
+        "//src/test/kotlin/org/wfanet/panelmatch/integration/k8s:__pkg__",
+    ],
+)
 
+# These rules push Docker images to the container registry.
+# 'bazel build' builds the image, 'bazel run' will actually push it.
 [
     container_push(
         name = "push_" + image_spec.name,
         image = image_spec.image,
-        registry = "localhost:5001",
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
         repository = image_spec.repository,
-        tag = "v5",
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
         tags = [
             "manual",
             "no-remote",
         ],
     )
-    for image_spec in COMMON_IMAGES
+    for image_spec in ALL_IMAGES
 ]
+
+container_push_all(
+    name = "push_all_local_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_LOCAL_IMAGES},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_all_gke_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_GKE_IMAGES},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_all_eks_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_EKS_IMAGES},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_tee_app_gke_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_TEE_APP_GKE_IMAGES},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_all_kingdom_gke_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_IMAGES if image_spec.name.startswith("kingdom_")},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_all_duchy_gke_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_IMAGES if image_spec.name.startswith("duchy_")},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_all_duchy_eks_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_EKS_IMAGES if image_spec.name.startswith("duchy_")},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+container_push_all(
+    name = "push_all_reporting_gke_images",
+    images = {"{registry}/{name}:{tag}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+        tag = IMAGE_REPOSITORY_SETTINGS.image_tag,
+    ): image_spec.image for image_spec in ALL_REPORTING_GKE_IMAGES},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)
+
+IMAGES_TO_SIGN = ALL_GKE_IMAGES + ALL_TEE_APP_GKE_IMAGES + ALL_EKS_IMAGES
+
+sign_all(
+    name = "sign_all_images",
+    images = {"{registry}/{name}".format(
+        name = image_spec.repository,
+        registry = IMAGE_REPOSITORY_SETTINGS.container_registry,
+    ): image_spec.image for image_spec in IMAGES_TO_SIGN},
+    tags = [
+        "manual",
+        "no-remote",
+    ],
+)

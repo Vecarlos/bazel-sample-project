@@ -1,0 +1,124 @@
+// Copyright 2023 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.reporting.v2;
+
+import "google/api/resource.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/interval.proto";
+import "wfa/measurement/internal/reporting/v2/measurement.proto";
+
+option java_package = "org.wfanet.measurement.internal.reporting.v2";
+option java_multiple_files = true;
+
+message MetricSpec {
+  reserved 6;
+
+  message DifferentialPrivacyParams {
+    double epsilon = 1;
+    double delta = 2;
+  }
+  message VidSamplingInterval {
+    float start = 1;
+    float width = 2;
+  }
+  message SamplingAndPrivacyParams {
+    DifferentialPrivacyParams privacy_params = 1;
+    VidSamplingInterval vid_sampling_interval = 2;
+  }
+  message ReachAndFrequencySamplingAndPrivacyParams {
+    DifferentialPrivacyParams reach_privacy_params = 1;
+    DifferentialPrivacyParams frequency_privacy_params = 2;
+    VidSamplingInterval vid_sampling_interval = 3;
+  }
+
+  message ReachParams {
+    reserved 1;
+
+    SamplingAndPrivacyParams multiple_data_provider_params = 2;
+    SamplingAndPrivacyParams single_data_provider_params = 3;
+  }
+  message ReachAndFrequencyParams {
+    reserved 1, 2;
+
+    ReachAndFrequencySamplingAndPrivacyParams multiple_data_provider_params = 4;
+    ReachAndFrequencySamplingAndPrivacyParams single_data_provider_params = 5;
+    int32 maximum_frequency = 3;
+  }
+  message ImpressionCountParams {
+    reserved 1;
+
+    SamplingAndPrivacyParams params = 3;
+    int32 maximum_frequency_per_user = 2;
+  }
+  message WatchDurationParams {
+    reserved 1;
+
+    SamplingAndPrivacyParams params = 3;
+    google.protobuf.Duration maximum_watch_duration_per_user = 2;
+  }
+  message PopulationCountParams {}
+
+  oneof type {
+    ReachParams reach = 1;
+    ReachAndFrequencyParams reach_and_frequency = 2;
+    ImpressionCountParams impression_count = 3;
+    WatchDurationParams watch_duration = 4;
+    PopulationCountParams population_count = 5;
+  }
+}
+
+// Proto representation of the internal Metric entity type.
+message Metric {
+  // `MeasurementConsumer` ID from the CMMS public API.
+  string cmms_measurement_consumer_id = 1;
+
+  string external_metric_id = 2;
+
+  google.protobuf.Timestamp create_time = 3;
+
+  string external_reporting_set_id = 4;
+
+  google.type.Interval time_interval = 5;
+
+  MetricSpec metric_spec = 6;
+
+  string cmms_model_line = 10
+      [(google.api.resource_reference).type = "halo.wfanet.org/ModelLine"];
+
+  message WeightedMeasurement {
+    int32 weight = 1;
+    int32 binary_representation = 2;
+    Measurement measurement = 3;
+  }
+  repeated WeightedMeasurement weighted_measurements = 7;
+
+  message Details {
+    repeated string filters = 1;
+    string containing_report = 2;
+  }
+  Details details = 8;
+
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    RUNNING = 1;
+    SUCCEEDED = 2;
+    FAILED = 3;
+    INVALID = 4;
+  }
+  State state = 9;
+}

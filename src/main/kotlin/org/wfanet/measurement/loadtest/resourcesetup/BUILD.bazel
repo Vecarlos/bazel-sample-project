@@ -1,0 +1,103 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/docker:macros.bzl", "java_image")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/integration:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/loadtest:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/integration:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/loadtest:__subpackages__",
+        "//src/test/kotlin/org/wfanet/panelmatch/integration:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "resource_setup",
+    srcs = [
+        "ResourceSetup.kt",
+    ],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/access/common:tls_client_principal_mapping",
+        "//src/main/kotlin/org/wfanet/measurement/access/service:resource_key",
+        "//src/main/kotlin/org/wfanet/measurement/api:public_api_version",
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:resource_key",
+        "//src/main/kotlin/org/wfanet/measurement/common/identity",
+        "//src/main/kotlin/org/wfanet/measurement/common/identity:principal_identity",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:account_authentication_server_interceptor",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:certificates",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_suites_service",
+        "//src/main/kotlin/org/wfanet/measurement/loadtest/common:output",
+        "//src/main/proto/wfa/measurement/api/v2alpha:account_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:accounts_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:api_key_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:api_keys_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:certificate_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:certificates_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:crypto_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_consumer_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_consumers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/config:authority_key_to_principal_map_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/config/reporting:encryption_key_pair_config_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/config/reporting:measurement_consumer_config_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:account_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:accounts_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:certificate_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:certificates_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:data_provider_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:data_providers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_lines_service_kt_jvm_grpc",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_providers_service_kt_jvm_grpc",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_suites_service_kt_jvm_grpc",
+        "//src/main/proto/wfa/measurement/loadtest/resourcesetup:resources_kt_jvm_proto",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto:signatures",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto/tink",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
+        "@wfa_consent_signaling_client//src/main/kotlin/org/wfanet/measurement/consent/client/common:key_handles",
+        "@wfa_consent_signaling_client//src/main/kotlin/org/wfanet/measurement/consent/client/dataprovider",
+        "@wfa_consent_signaling_client//src/main/kotlin/org/wfanet/measurement/consent/client/measurementconsumer",
+    ],
+)
+
+kt_jvm_library(
+    name = "resource_setup_runner",
+    srcs = [
+        "ResourceSetupFlags.kt",
+        "ResourceSetupRunner.kt",
+    ],
+    deps = [
+        ":resource_setup",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:flags",
+        "//src/main/kotlin/org/wfanet/measurement/loadtest:service_flags",
+        "//src/main/proto/wfa/measurement/api/v2alpha:data_provider_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:data_providers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_consumers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_lines_service_kt_jvm_grpc",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_providers_service_kt_jvm_grpc",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_suites_service_kt_jvm_grpc",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto/testing",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto/tink",
+        "@wfa_consent_signaling_client//src/main/kotlin/org/wfanet/measurement/consent/client/common:key_handles",
+    ],
+)
+
+java_binary(
+    name = "ResourceSetup",
+    main_class = "org.wfanet.measurement.loadtest.resourcesetup.ResourceSetupRunnerKt",
+    runtime_deps = [
+        ":resource_setup_runner",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/logging",
+    ],
+)
+
+java_image(
+    name = "resource_setup_runner_image",
+    binary = ":ResourceSetup",
+    main_class = "org.wfanet.measurement.loadtest.resourcesetup.ResourceSetupRunnerKt",
+    visibility = ["//src:docker_image_deployment"],
+)

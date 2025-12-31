@@ -1,0 +1,36 @@
+# proto-file: wfa/measurement/config/reporting/impression_qualification_filter_config.proto
+# proto-message: ImpressionQualificationFilterConfig
+
+# AMI
+impression_qualification_filters {
+  external_impression_qualification_filter_id: "ami"
+  impression_qualification_filter_id: 1
+  filter_specs {
+    media_type: DISPLAY
+    filters: {
+      terms: {
+        path: "banner_ad.viewable"
+        value {
+          bool_value: false
+        }
+      }
+    }
+  }
+}
+
+# MRC
+impression_qualification_filters {
+  external_impression_qualification_filter_id: "mrc"
+  impression_qualification_filter_id: 2
+  filter_specs {
+    media_type: DISPLAY
+    filters: {
+      terms: {
+        path: "banner_ad.viewable"
+        value {
+          bool_value: true
+        }
+      }
+    }
+  }
+}

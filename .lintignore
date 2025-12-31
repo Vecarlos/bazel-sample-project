@@ -1,0 +1,7 @@
+# File patterns that linters should ignore.
+#
+# This file uses gitignore syntax.
+
+third_party/
+node_modules/
+**/.terraform.lock.hcl

@@ -1,0 +1,465 @@
+load("@wfa_common_jvm//build:defs.bzl", "expand_template")
+load("@wfa_rules_cue//cue:defs.bzl", "cue_library")
+load("//build:variables.bzl", "IMAGE_REPOSITORY_SETTINGS", "REPORTING_K8S_SETTINGS", "TEST_K8S_SETTINGS")
+load("//build/k8s:defs.bzl", "kustomization_dir")
+load("//src/main/k8s:macros.bzl", "cue_dump")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        ":__subpackages__",
+        "//src/main/k8s/panelmatch:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/integration/k8s:__pkg__",
+        "//src/test/kotlin/org/wfanet/panelmatch/integration/k8s:__pkg__",
+    ],
+)
+
+SPANNER_EMULATOR_VERSION = "1.5.37"
+
+SECRET_NAME = "certs-and-configs"
+
+DB_SECRET_NAME = "db-creds"
+
+MC_CONFIG_SECRET_NAME = "mc-config"
+
+EVENT_DESCRIPTOR_SET = "//src/main/proto/wfa/measurement/api/v2alpha/event_templates/testing:test_event_descriptor_set"
+
+exports_files(["open_id_providers_config.json"])
+
+cue_library(
+    name = "config_cue",
+    srcs = ["config.cue"],
+    deps = [
+        "//src/main/k8s:base",
+        "//src/main/k8s:config",
+        "//src/main/k8s:spanner",
+    ],
+)
+
+cue_library(
+    name = "emulators_cue",
+    srcs = ["emulators.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:base",
+    ],
+)
+
+cue_dump(
+    name = "emulators",
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "spanner_emulator_version": SPANNER_EMULATOR_VERSION,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+    },
+    tags = ["manual"],
+    deps = [":emulators_cue"],
+)
+
+cue_library(
+    name = "panelmatch_emulators_cue",
+    srcs = ["panelmatch_emulators.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:base",
+    ],
+)
+
+cue_dump(
+    name = "panelmatch_emulators",
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "spanner_emulator_version": SPANNER_EMULATOR_VERSION,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+    },
+    tags = ["manual"],
+    deps = [":panelmatch_emulators_cue"],
+)
+
+cue_library(
+    name = "kingdom_cue",
+    srcs = ["kingdom.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:kingdom",
+    ],
+)
+
+cue_dump(
+    name = "kingdom",
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+    },
+    tags = ["manual"],
+    deps = [":kingdom_cue"],
+)
+
+cue_library(
+    name = "duchies_cue",
+    srcs = ["duchies.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:postgres",
+        "//src/main/k8s:postgres_duchy",
+        "//src/main/k8s:spanner_duchy",
+    ],
+)
+
+cue_dump(
+    name = "duchies",
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "db_secret_name": DB_SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "aggregator_cert_name": TEST_K8S_SETTINGS.aggregator_cert_name,
+        "worker1_cert_name": TEST_K8S_SETTINGS.worker1_cert_name,
+        "worker2_cert_name": TEST_K8S_SETTINGS.worker2_cert_name,
+    },
+    tags = ["manual"],
+    deps = [":duchies_cue"],
+)
+
+cue_library(
+    name = "edp_simulators_cue",
+    srcs = ["edp_simulators.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:edp_simulator",
+    ],
+)
+
+cue_dump(
+    name = "edp_simulators",
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "mc_name": TEST_K8S_SETTINGS.mc_name,
+        "edp1_name": TEST_K8S_SETTINGS.edp1_name,
+        "edp1_cert_name": TEST_K8S_SETTINGS.edp1_cert_name,
+        "edp2_name": TEST_K8S_SETTINGS.edp2_name,
+        "edp2_cert_name": TEST_K8S_SETTINGS.edp2_cert_name,
+        "edp3_name": TEST_K8S_SETTINGS.edp3_name,
+        "edp3_cert_name": TEST_K8S_SETTINGS.edp3_cert_name,
+        "edp4_name": TEST_K8S_SETTINGS.edp4_name,
+        "edp4_cert_name": TEST_K8S_SETTINGS.edp4_cert_name,
+        "edp5_name": TEST_K8S_SETTINGS.edp5_name,
+        "edp5_cert_name": TEST_K8S_SETTINGS.edp5_cert_name,
+        "edp6_name": TEST_K8S_SETTINGS.edp6_name,
+        "edp6_cert_name": TEST_K8S_SETTINGS.edp6_cert_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":edp_simulators_cue",
+    ],
+)
+
+cue_library(
+    name = "population_requisition_fulfiller_cue",
+    srcs = ["population_requisition_fulfiller.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:population_requisition_fulfiller",
+    ],
+)
+
+cue_dump(
+    name = "population_requisition_fulfiller",
+    cue_tags = {
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "pdp_name": TEST_K8S_SETTINGS.pdp_name,
+        "pdp_cert_name": TEST_K8S_SETTINGS.pdp_cert_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":population_requisition_fulfiller_cue",
+    ],
+)
+
+cue_library(
+    name = "measurement_system_prober_cue",
+    srcs = ["measurement_system_prober.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:measurement_system_prober",
+    ],
+)
+
+cue_dump(
+    name = "measurement_system_prober",
+    srcs = ["measurement_system_prober.cue"],
+    cue_tags = {
+        "mc_name": TEST_K8S_SETTINGS.mc_name,
+        "mc_api_key": TEST_K8S_SETTINGS.mc_api_key,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "secret_name": SECRET_NAME,
+        "edp1_name": TEST_K8S_SETTINGS.edp1_name,
+        "edp2_name": TEST_K8S_SETTINGS.edp2_name,
+        "edp3_name": TEST_K8S_SETTINGS.edp3_name,
+        "edp4_name": TEST_K8S_SETTINGS.edp4_name,
+        "edp5_name": TEST_K8S_SETTINGS.edp5_name,
+        "edp6_name": TEST_K8S_SETTINGS.edp6_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":measurement_system_prober_cue",
+        "//src/main/k8s:measurement_system_prober",
+    ],
+)
+
+cue_dump(
+    name = "postgres_database",
+    srcs = ["postgres_database.cue"],
+    cue_tags = {
+        "db_secret_name": DB_SECRET_NAME,
+    },
+    tags = ["manual"],
+    deps = [
+        "//src/main/k8s:base",
+    ],
+)
+
+cue_library(
+    name = "reporting_v2_cue",
+    srcs = ["reporting_v2.cue"],
+    deps = [
+        ":config_cue",
+        "//src/main/k8s:postgres",
+        "//src/main/k8s:reporting_v2",
+    ],
+)
+
+cue_dump(
+    name = "reporting_v2",
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "db_secret_name": DB_SECRET_NAME,
+        "mc_config_secret_name": MC_CONFIG_SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "basic_reports_enabled": REPORTING_K8S_SETTINGS.basic_reports_enabled,
+        "pdp_name": TEST_K8S_SETTINGS.pdp_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":config_cue",
+        ":reporting_v2_cue",
+    ],
+)
+
+cue_dump(
+    name = "prometheus",
+    srcs = ["prometheus.cue"],
+    tags = ["manual"],
+    deps = ["//src/main/k8s:base"],
+)
+
+cue_dump(
+    name = "open_telemetry",
+    srcs = ["open_telemetry.cue"],
+    tags = ["manual"],
+    deps = ["//src/main/k8s:open_telemetry"],
+)
+
+cue_dump(
+    name = "grafana",
+    srcs = ["grafana.cue"],
+    cue_tags = {
+        "secret_name": TEST_K8S_SETTINGS.grafana_secret_name,
+    },
+    tags = ["manual"],
+    deps = ["//src/main/k8s:grafana"],
+)
+
+expand_template(
+    name = "gen_encryption_key_pair_config",
+    out = "encryption_key_pair_config.textproto",
+    substitutions = {
+        "{principal}": TEST_K8S_SETTINGS.mc_name,
+    },
+    tags = ["manual"],
+    template = "encryption_key_pair_config.tmpl.textproto",
+)
+
+expand_template(
+    name = "gen_measurement_consumer_config",
+    out = "measurement_consumer_config.textproto",
+    substitutions = {
+        "{key}": TEST_K8S_SETTINGS.mc_name,
+        "{api_key}": TEST_K8S_SETTINGS.mc_api_key,
+        "{signing_certificate_name}": TEST_K8S_SETTINGS.mc_cert_name,
+    },
+    tags = ["manual"],
+    template = "measurement_consumer_config.tmpl.textproto",
+)
+
+kustomization_dir(
+    name = "config_files_with_empty_mapping",
+    srcs = [
+        "config_files_kustomization.yaml",
+        "empty_akid_mapping_config.textproto",
+        "empty_encryption_key_pair_config.textproto",
+        "open_id_providers_config.json",
+        "//src/main/k8s/testing/data:synthetic_generation_specs_small",
+        "//src/main/k8s/testing/secretfiles:basic_report_metric_spec_config.textproto",
+        "//src/main/k8s/testing/secretfiles:impression_qualification_filter_config.textproto",
+        "//src/main/k8s/testing/secretfiles:known_event_group_metadata_type_set",
+        "//src/main/k8s/testing/secretfiles:metric_spec_config.textproto",
+        EVENT_DESCRIPTOR_SET,
+    ],
+    renames = {
+        "config_files_kustomization.yaml": "kustomization.yaml",
+        "empty_akid_mapping_config.textproto": "authority_key_identifier_to_principal_map.textproto",
+        "empty_encryption_key_pair_config.textproto": "encryption_key_pair_config.textproto",
+        EVENT_DESCRIPTOR_SET: "event_message_descriptor_set.pb",
+    },
+)
+
+kustomization_dir(
+    name = "config_files",
+    srcs = [
+        "config_files_kustomization.yaml",
+        "open_id_providers_config.json",
+        ":encryption_key_pair_config.textproto",
+        "//src/main/k8s/testing/data:synthetic_generation_specs_small",
+        "//src/main/k8s/testing/secretfiles:basic_report_metric_spec_config.textproto",
+        "//src/main/k8s/testing/secretfiles:impression_qualification_filter_config.textproto",
+        "//src/main/k8s/testing/secretfiles:known_event_group_metadata_type_set",
+        "//src/main/k8s/testing/secretfiles:metric_spec_config.textproto",
+        EVENT_DESCRIPTOR_SET,
+    ],
+    renames = {
+        "config_files_kustomization.yaml": "kustomization.yaml",
+        EVENT_DESCRIPTOR_SET: "event_message_descriptor_set.pb",
+    },
+    tags = ["manual"],
+)
+
+kustomization_dir(
+    name = "pdp_config",
+    srcs = [
+        "pdp_config_kustomization.yaml",
+        "//src/main/k8s/testing/secretfiles:pdp_trusted_certs.pem",
+        EVENT_DESCRIPTOR_SET,
+    ],
+    renames = {
+        "pdp_config_kustomization.yaml": "kustomization.yaml",
+        "//src/main/k8s/testing/secretfiles:pdp_trusted_certs.pem": "trusted_certs.pem",
+        EVENT_DESCRIPTOR_SET: "event_message_descriptor_set.pb",
+    },
+)
+
+kustomization_dir(
+    name = "db_creds",
+    srcs = ["db_creds_kustomization.yaml"],
+    renames = {
+        "db_creds_kustomization.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "mc_config",
+    srcs = [
+        "mc_config_kustomization.yaml",
+        ":measurement_consumer_config.textproto",
+    ],
+    renames = {
+        "mc_config_kustomization.yaml": "kustomization.yaml",
+    },
+    tags = ["manual"],
+)
+
+kustomization_dir(
+    name = "kingdom_setup",
+    srcs = [
+        ":emulators",
+        ":kingdom",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files_with_empty_mapping",
+        "//src/main/k8s/testing/secretfiles:kustomization",
+    ],
+)
+
+kustomization_dir(
+    name = "kingdom_for_panelmatch_setup",
+    srcs = [
+        ":kingdom",
+        ":panelmatch_emulators",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files_with_empty_mapping",
+        "//src/main/k8s/testing/secretfiles:kustomization",
+    ],
+)
+
+kustomization_dir(
+    name = "pdp",
+    srcs = [":population_requisition_fulfiller"],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":pdp_config",
+        "//src/main/k8s/testing/secretfiles:pdp1_consent_signaling",
+        "//src/main/k8s/testing/secretfiles:pdp1_tls",
+    ],
+)
+
+kustomization_dir(
+    name = "cmms",
+    srcs = [
+        ":duchies",
+        ":edp_simulators",
+        ":emulators",
+        ":kingdom",
+        ":measurement_system_prober",
+        ":postgres_database",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files",
+        ":db_creds",
+        ":pdp",
+        "//src/main/k8s/testing/secretfiles:kustomization",
+    ],
+)
+
+kustomization_dir(
+    name = "cmms_with_reporting_v2",
+    srcs = [
+        ":duchies",
+        ":edp_simulators",
+        ":emulators",
+        ":kingdom",
+        ":postgres_database",
+        ":reporting_v2",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files",
+        ":db_creds",
+        ":mc_config",
+        "//src/main/k8s/testing/secretfiles:kustomization",
+    ],
+)

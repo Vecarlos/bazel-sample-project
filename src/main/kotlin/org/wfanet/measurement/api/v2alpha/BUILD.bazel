@@ -1,0 +1,119 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = ["//visibility:public"])
+
+package_group(
+    name = "duchy",
+    packages = [
+        "//src/main/kotlin/org/wfanet/measurement/duchy/...",
+        "//src/test/kotlin/org/wfanet/measurement/duchy/...",
+    ],
+)
+
+package_group(
+    name = "kingdom",
+    packages = [
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/...",
+        "//src/test/kotlin/org/wfanet/measurement/kingdom/...",
+    ],
+)
+
+kt_jvm_library(
+    name = "resource_key",
+    srcs = glob(["*Key.kt"]) + ["IdVariable.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/common/api:resource_key",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)
+
+kt_jvm_library(
+    name = "measurement_principal",
+    srcs = ["MeasurementPrincipal.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:resource_key",
+        "//src/main/kotlin/org/wfanet/measurement/common/api:principal",
+    ],
+)
+
+kt_jvm_library(
+    name = "context_keys",
+    srcs = ["ContextKeys.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:measurement_principal",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/io/grpc:context",
+    ],
+)
+
+kt_jvm_library(
+    name = "principal_server_interceptor",
+    srcs = ["PrincipalServerInterceptor.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:context_keys",
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:measurement_principal",
+        "//src/main/kotlin/org/wfanet/measurement/common/api/grpc:akid_principal_server_interceptor",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:context",
+        "//src/main/kotlin/org/wfanet/measurement/common/identity",
+        "//src/main/proto/wfa/measurement/api/v2alpha:duchy_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_provider_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/io/grpc:context",
+        "@wfa_common_jvm//imports/kotlin/io/grpc/kotlin:stub",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
+    ],
+)
+
+kt_jvm_library(
+    name = "akid_principal_lookup",
+    srcs = [
+        "AkidPrincipalLookup.kt",
+    ],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:measurement_principal",
+        "//src/main/kotlin/org/wfanet/measurement/common/api:akid_config_lookup",
+        "//src/main/kotlin/org/wfanet/measurement/common/identity",
+        "//src/main/proto/wfa/measurement/config:authority_key_to_principal_map_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)
+
+kt_jvm_library(
+    name = "packed_messages",
+    srcs = ["PackedMessages.kt"],
+    deps = [
+        "//src/main/proto/wfa/measurement/api/v2alpha:crypto_kt_jvm_proto",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)
+
+kt_jvm_library(
+    name = "event_templates",
+    srcs = ["EventTemplates.kt"],
+    deps = [
+        "//src/main/proto/wfa/measurement/api/v2alpha:event_annotations_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+    ],
+)
+
+kt_jvm_library(
+    name = "population_spec_validator",
+    srcs = ["PopulationSpecValidator.kt"],
+    deps = [
+        ":event_templates",
+        "//src/main/proto/wfa/measurement/api/v2alpha:population_spec_kt_jvm_proto",
+    ],
+)
+
+kt_jvm_library(
+    name = "event_message_descriptor",
+    srcs = ["EventMessageDescriptor.kt"],
+    deps = [
+        "//src/main/proto/wfa/measurement/api/v2alpha:event_annotations_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:media_type_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+    ],
+)

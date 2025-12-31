@@ -1,0 +1,72 @@
+# Copyright 2023 The Cross-Media Measurement Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Liquibase changelog.
+
+databaseChangeLog:
+- preConditions:
+    onFail: HALT
+    onError: HALT
+
+- include:
+    file: create-v2-reporting-schema.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-binary-representation-column-to-weighted-subset-unions-and-metric-measurements.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-report-scheduling-tables.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-details-column-to-reports.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-details-column-to-reporting-sets.sql
+    relativeToChangeLogFile: true
+- include:
+    file: drop-periodic-column-from-reports.sql
+    relativeToChangeLogFile: true
+- include:
+    file: drop-report-time-intervals-table.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-state-column-to-metrics.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-index-on-metric-calculation-spec-reporting-metrics-table-for-update.sql
+    relativeToChangeLogFile: true
+- include:
+    file: drop-reporting-set-id-from-metric-calculation-spec-reporting-metrics-table-primary-key.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-indexes-for-metric-reuse.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-additional-metric-spec-columns-to-metrics.sql
+    relativeToChangeLogFile: true
+- include:
+    file: recreate-metric-reuse-index.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-campaign-group-to-reporting-sets.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-model-line-to-metric-calculation-specs-and-metrics.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-campaign-group-id-index-to-reporting-sets.sql
+    relativeToChangeLogFile: true
+- include:
+    file: add-campaign-group-id-to-metric-calculation-specs.sql
+    relativeToChangeLogFile: true

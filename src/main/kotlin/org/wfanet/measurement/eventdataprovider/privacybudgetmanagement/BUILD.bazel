@@ -1,0 +1,30 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(default_visibility = [
+    "//src/main/kotlin/org/wfanet/measurement:__subpackages__",
+    "//src/test/kotlin/org/wfanet/measurement:__subpackages__",
+])
+
+kt_jvm_library(
+    name = "privacy_budget_manager",
+    srcs = glob(["*.kt"]),
+    deps = [
+        "//imports/java/org/apache/commons/math3",
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/eventfiltration:event_filters",
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)
+
+kt_jvm_library(
+    name = "acdp_params_converter",
+    srcs = [
+        "AcdpParamsConverter.kt",
+        "PrivacyQuery.kt",
+    ],
+    deps = [
+        "//imports/java/org/apache/commons/math3",
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/noiser",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)

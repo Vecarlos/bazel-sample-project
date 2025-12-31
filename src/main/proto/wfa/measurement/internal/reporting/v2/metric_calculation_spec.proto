@@ -1,0 +1,84 @@
+// Copyright 2023 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.reporting.v2;
+
+import "google/api/resource.proto";
+import "google/type/dayofweek.proto";
+import "wfa/measurement/internal/reporting/v2/metric.proto";
+
+option java_package = "org.wfanet.measurement.internal.reporting.v2";
+option java_multiple_files = true;
+
+// Proto representation of the internal MetricCalculationSpec entity type.
+message MetricCalculationSpec {
+  // `MeasurementConsumer` ID from the CMMS public API.
+  string cmms_measurement_consumer_id = 1;
+  string external_metric_calculation_spec_id = 2;
+
+  string cmms_model_line = 4
+      [(google.api.resource_reference).type = "halo.wfanet.org/ModelLine"];
+
+  string external_campaign_group_id = 5;
+
+  message Grouping {
+    repeated string predicates = 1;
+  }
+
+  message MetricFrequencySpec {
+    message Daily {}
+
+    message Weekly {
+      google.type.DayOfWeek day_of_week = 1;
+    }
+
+    message Monthly {
+      int32 day_of_month = 1;
+    }
+
+    oneof frequency {
+      Daily daily = 1;
+      Weekly weekly = 2;
+      Monthly monthly = 3;
+    }
+  }
+
+  message TrailingWindow {
+    int32 count = 1;
+
+    enum Increment {
+      INCREMENT_UNSPECIFIED = 0;
+      DAY = 1;
+      WEEK = 2;
+      MONTH = 3;
+    }
+    Increment increment = 2;
+  }
+
+  message Details {
+    string display_name = 1;
+    // At least 1 `MetricSpec` required.
+    repeated MetricSpec metric_specs = 2;
+    repeated Grouping groupings = 3;
+    string filter = 5;
+    // A map of arbitrary key-value pairs to support tagging of
+    // `MetricCalculationSpec`s for upstream use by UIs and other rich clients.
+    map<string, string> tags = 6;
+    MetricFrequencySpec metric_frequency_spec = 7;
+    TrailingWindow trailing_window = 8;
+  }
+  Details details = 3;
+}

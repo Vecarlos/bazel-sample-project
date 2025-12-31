@@ -19,11 +19,3 @@
 
 # Authentication credentials
 /auth.bazelrc
-
-**/node_modules
-
-# Coverage HTML directory
-genhtml/
-
-# VS code settings
-.vscode/

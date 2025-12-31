@@ -1,0 +1,153 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/protobuf/timestamp.proto";
+import "wfa/measurement/internal/kingdom/event_group.proto";
+import "wfa/measurement/internal/kingdom/media_type.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// Internal service for persistence of EventGroup entities.
+service EventGroups {
+  rpc CreateEventGroup(CreateEventGroupRequest) returns (EventGroup);
+
+  rpc BatchCreateEventGroups(BatchCreateEventGroupsRequest)
+      returns (BatchCreateEventGroupsResponse);
+
+  rpc UpdateEventGroup(UpdateEventGroupRequest) returns (EventGroup);
+
+  rpc BatchUpdateEventGroup(BatchUpdateEventGroupsRequest)
+      returns (BatchUpdateEventGroupsResponse);
+
+  rpc GetEventGroup(GetEventGroupRequest) returns (EventGroup);
+
+  rpc DeleteEventGroup(DeleteEventGroupRequest) returns (EventGroup);
+
+  rpc StreamEventGroups(StreamEventGroupsRequest) returns (stream EventGroup);
+}
+
+message CreateEventGroupRequest {
+  EventGroup event_group = 1;
+  string request_id = 2;
+}
+
+message BatchCreateEventGroupsRequest {
+  fixed64 external_data_provider_id = 1;
+  repeated CreateEventGroupRequest requests = 2;
+}
+
+message BatchCreateEventGroupsResponse {
+  repeated EventGroup event_groups = 1;
+}
+
+message UpdateEventGroupRequest {
+  EventGroup event_group = 1;
+}
+
+message BatchUpdateEventGroupsRequest {
+  fixed64 external_data_provider_id = 1;
+
+  repeated UpdateEventGroupRequest requests = 2;
+}
+
+message BatchUpdateEventGroupsResponse {
+  repeated EventGroup event_groups = 1;
+}
+
+message GetEventGroupRequest {
+  // External ID of the parent. Required.
+  oneof external_parent_id {
+    fixed64 external_data_provider_id = 1;
+    fixed64 external_measurement_consumer_id = 3;
+  }
+  // External ID of the EventGroup. Required.
+  fixed64 external_event_group_id = 2;
+}
+
+message DeleteEventGroupRequest {
+  // External ID of the parent `DataProvider`. Required.
+  fixed64 external_data_provider_id = 1;
+  // The external id of `EventGroup`. Required.
+  fixed64 external_event_group_id = 2;
+}
+
+message StreamEventGroupsRequest {
+  message Filter {
+    reserved 3, 4;
+
+    oneof external_parent_id {
+      fixed64 external_data_provider_id = 1;
+      fixed64 external_measurement_consumer_id = 6;
+    }
+    repeated fixed64 external_data_provider_id_in = 7;
+    repeated fixed64 external_measurement_consumer_id_in = 2;
+    bool show_deleted = 5;
+    repeated MediaType media_types_intersect = 9;
+    google.protobuf.Timestamp data_availability_start_time_on_or_after = 10;
+    google.protobuf.Timestamp data_availability_end_time_on_or_before = 11;
+    google.protobuf.Timestamp data_availability_start_time_on_or_before = 14;
+    google.protobuf.Timestamp data_availability_end_time_on_or_after = 15;
+    string metadata_search_query = 12;
+
+    // Specification of where the results should start within the ordering.
+    //
+    // How this is interpreted depends on the value of
+    // [StreamEventGroupsRequest.order_by][].
+    message After {
+      EventGroupKey event_group_key = 1;
+      google.protobuf.Timestamp data_availability_start_time = 2;
+    }
+    After after = 13;
+
+    // Where results should start. Deprecated in favor of [after][].
+    //
+    // TODO(@SanjayVas): Delete this field once the replacement has been
+    // available for at least one release.
+    EventGroupKey event_group_key_after = 8 [deprecated = true];
+  }
+  Filter filter = 1;
+
+  // The maximum number of results to return. If not specified or 0, it implies
+  // unlimited.
+  int32 limit = 2;
+
+  // Structure for ordering results.
+  message OrderBy {
+    // Orderable field.
+    enum Field {
+      FIELD_NOT_SPECIFIED = 0;
+      DATA_AVAILABILITY_START_TIME = 1;
+    }
+    // Field to order by.
+    Field field = 1;
+
+    // Whether the sort order is descending.
+    bool descending = 2;
+  }
+  // How results should be ordered.
+  OrderBy order_by = 3;
+
+  // Whether to allow stale rather than strong reads.
+  bool allow_stale_reads = 4;
+}
+
+message EventGroupKey {
+  fixed64 external_data_provider_id = 1;
+  fixed64 external_event_group_id = 2;
+}

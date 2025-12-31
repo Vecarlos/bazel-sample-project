@@ -1,0 +1,17 @@
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_proto_library")
+
+package(default_visibility = ["//src/main/kotlin/org/wfanet/measurement/reporting:__subpackages__"])
+
+IMPORT_PREFIX = "/src/main/proto"
+
+proto_library(
+    name = "error_code_proto",
+    srcs = ["error_code.proto"],
+    strip_import_prefix = IMPORT_PREFIX,
+)
+
+kt_jvm_proto_library(
+    name = "error_code_kt_jvm_proto",
+    deps = [":error_code_proto"],
+)

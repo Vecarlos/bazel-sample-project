@@ -1,0 +1,97 @@
+// Copyright 2023 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.reporting.v2;
+
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+import "google/type/datetime.proto";
+import "google/type/interval.proto";
+import "wfa/measurement/internal/reporting/v2/metric.proto";
+import "wfa/measurement/internal/reporting/v2/time_interval.proto";
+
+option java_package = "org.wfanet.measurement.internal.reporting.v2";
+option java_multiple_files = true;
+
+// Proto representation of the internal Report entity type.
+message Report {
+  // `MeasurementConsumer` ID from the CMMS public API.
+  string cmms_measurement_consumer_id = 1;
+  string external_report_id = 2;
+
+  google.protobuf.Timestamp create_time = 3;
+
+  message ReportingMetric {
+    // Request ID for the CreateMetric method.
+    //
+    // The request ID will be filled by the internal reports service. For now,
+    // it generates a new UUID directly.
+    // In the future when metric reuse is done, two cases--(1) When there is no
+    // metric can be found based on the metric config, generate a new UUID. (2)
+    // When a corresponding metric is found, fill its request ID and the
+    // external metric ID.
+    string create_metric_request_id = 1;
+
+    // External ID for the metric.
+    //
+    // Will be filled by the internal reports service during reading. It can be
+    // found by using the request ID above.
+    string external_metric_id = 2;
+
+    message Details {
+      MetricSpec metric_spec = 1;
+      google.type.Interval time_interval = 2;
+      repeated string grouping_predicates = 3;
+    }
+
+    Details details = 3;
+  }
+
+  message MetricCalculationSpecReportingMetrics {
+    string external_metric_calculation_spec_id = 1;
+
+    // Represents all `Metric`s associated with the `MetricCalculationSpec`.
+    repeated ReportingMetric reporting_metrics = 2;
+  }
+
+  message ReportingMetricCalculationSpec {
+    repeated MetricCalculationSpecReportingMetrics
+        metric_calculation_spec_reporting_metrics = 1;
+  }
+
+  // Map of `external_reporting_set_id` to `ReportingMetricCalculationSpec`.
+  map<string, ReportingMetricCalculationSpec> reporting_metric_entries = 4;
+
+  // Only set if `Report` is associated with a `ReportSchedule`.
+  string external_report_schedule_id = 7;
+
+  message Details {
+    // A map of arbitrary key-value pairs to support tagging of Reports
+    // for upstream use by UIs and other rich clients.
+    map<string, string> tags = 1;
+
+    message ReportingInterval {
+      google.type.DateTime report_start = 1;
+      google.type.Date report_end = 2;
+    }
+
+    oneof time {
+      TimeIntervals time_intervals = 2;
+      ReportingInterval reporting_interval = 3;
+    }
+  }
+  Details details = 8;
+}

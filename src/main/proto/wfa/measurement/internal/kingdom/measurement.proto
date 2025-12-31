@@ -1,0 +1,223 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/protobuf/timestamp.proto";
+import "wfa/measurement/internal/kingdom/certificate.proto";
+import "wfa/measurement/internal/kingdom/computation_participant.proto";
+import "wfa/measurement/internal/kingdom/duchy_measurement_log_entry.proto";
+import "wfa/measurement/internal/kingdom/measurement_details.proto";
+import "wfa/measurement/internal/kingdom/participant_requisition_params.proto";
+import "wfa/measurement/internal/kingdom/protocol_config.proto";
+import "wfa/measurement/internal/kingdom/requisition_details.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// Representation of the internal Measurement entity type.
+message Measurement {
+  enum View {
+    // Default view, which includes all fields aside from child collections.
+    DEFAULT = 0;
+
+    // View for computation, which includes child Requisitions and
+    // ComputationParticipants.
+    COMPUTATION = 1;
+
+    // View for computation that includes ComputationParticipants and additional
+    // log entries for ComputationParticipants, but does not include child
+    // Requisitions.
+    COMPUTATION_STATS = 2;
+  }
+
+  fixed64 external_measurement_consumer_id = 1;
+  fixed64 external_measurement_id = 2;
+
+  // ID that's unique across all Measurements and exposed via system services.
+  fixed64 external_computation_id = 3;
+
+  // Reference ID provided by the Measurement Consumer.
+  string provided_measurement_id = 4;
+
+  fixed64 external_measurement_consumer_certificate_id = 5;
+
+  google.protobuf.Timestamp create_time = 6;
+  google.protobuf.Timestamp update_time = 7;
+
+  enum State {
+    STATE_UNSPECIFIED = 0;
+
+    // Awaiting the necessary parameters from computation participants (Duchies)
+    // before Requisitions may be made available in the public API.
+    PENDING_REQUISITION_PARAMS = 1;
+
+    // Awaiting fulfillment of all Requisitions by Data Providers.
+    //
+    // Requisitions are available in the public API at this state.
+    PENDING_REQUISITION_FULFILLMENT = 2;
+
+    // Awaiting confirmation from computation participants (Duchies).
+    //
+    // Requisitions are all fulfilled at this state.
+    PENDING_PARTICIPANT_CONFIRMATION = 3;
+
+    // Awaiting completion of computation by participants (Duchies).
+    //
+    // Requisitions are all fulfilled at this state.
+    PENDING_COMPUTATION = 4;
+
+    // Succeeded (has a result). Terminal state.
+    SUCCEEDED = 5;
+
+    // Failed. Terminal state.
+    FAILED = 6;
+
+    // Cancelled by Measurement Consumer. Terminal state.
+    CANCELLED = 7;
+  }
+  State state = 8;
+
+  message DataProviderValue {
+    fixed64 external_data_provider_certificate_id = 1;
+
+    // Serialized `EncryptionPublicKey` message from the public API.
+    bytes data_provider_public_key = 2;
+    bytes data_provider_public_key_signature = 3 [deprecated = true];
+    string data_provider_public_key_signature_algorithm_oid = 6
+        [deprecated = true];
+
+    bytes encrypted_requisition_spec = 4;
+    bytes nonce_hash = 5;
+  }
+  // Map of external DataProvider ID to DataProviderValue.
+  //
+  // Only set for DEFAULT view.
+  map<fixed64, DataProviderValue> data_providers = 9;
+
+  MeasurementDetails details = 10;
+
+  message ResultInfo {
+    oneof certificate_parent {
+      string external_aggregator_duchy_id = 1;
+      fixed64 external_data_provider_id = 2;
+    }
+    fixed64 external_certificate_id = 3;
+    bytes encrypted_result = 4;
+
+    // Version of the public API for serialized message definitions.
+    string api_version = 5;
+  }
+  repeated ResultInfo results = 11;
+
+  // Child Requisitions of this Measurement. Output-only.
+  //
+  // Only set for COMPUTATION view.
+  repeated Requisition requisitions = 12;
+
+  // Child ComputationParticipants of this Measurement. Output-only.
+  //
+  // Only set for COMPUTATION and COMPUTATION_STATS views.
+  repeated ComputationParticipant computation_participants = 13;
+
+  // Output only. This may be sent on cancel and delete requests to ensure the
+  // client has an up-to-date Measurement before proceeding.
+  string etag = 14;
+
+  // All log entries across all child ComputationParticipants. Output-only.
+  //
+  // Only set for COMPUTATION_STATS view.
+  repeated DuchyMeasurementLogEntry log_entries = 15;
+}
+
+message Requisition {
+  fixed64 external_measurement_consumer_id = 1;
+  fixed64 external_measurement_id = 2;
+  fixed64 external_requisition_id = 3;
+
+  fixed64 external_computation_id = 4;
+
+  fixed64 external_data_provider_id = 5;
+
+  google.protobuf.Timestamp update_time = 6;
+
+  enum State {
+    STATE_UNSPECIFIED = 0;
+
+    // Awaiting the necessary parameters from computation participants (Duchies)
+    // before Requisition may be made available in the public API.
+    PENDING_PARAMS = 1;
+
+    UNFULFILLED = 2;
+    FULFILLED = 3;
+    REFUSED = 4;
+    WITHDRAWN = 5;
+  }
+  State state = 7;
+
+  // The human-friendly external ID of the Duchy that has marked or is assigned
+  // to this Requisition as as `FULFILLED` or being assigned to fulfill.
+  string external_fulfilling_duchy_id = 8;
+
+  message DuchyValue {
+    // External ID of Certificate used to verify signatures in protocol field.
+    fixed64 external_duchy_certificate_id = 1;
+
+    oneof protocol {
+      LiquidLegionsV2Params liquid_legions_v2 = 2;
+
+      LiquidLegionsV2Params reach_only_liquid_legions_v2 = 3;
+
+      HonestMajorityShareShuffleParams honest_majority_share_shuffle = 4;
+
+      TrusTeeParams trus_tee = 5;
+    }
+  }
+  // Map of external Duchy ID to DuchyValue.
+  map<string, DuchyValue> duchies = 9;
+
+  RequisitionDetails details = 10;
+
+  // Denormalized DataProvider Certificate. Output-only.
+  Certificate data_provider_certificate = 11;
+
+  message ParentMeasurement {
+    // Version of the public API for serialized message definitions as well as
+    // resource names.
+    string api_version = 1;
+
+    fixed64 external_measurement_consumer_certificate_id = 2;
+
+    // Serialized `MeasurementSpec` from public API.
+    bytes measurement_spec = 3;
+    bytes measurement_spec_signature = 4;
+    string measurement_spec_signature_algorithm_oid = 8;
+
+    // The protocol config used in this measurement.
+    ProtocolConfig protocol_config = 5;
+
+    Measurement.State state = 6;
+
+    int32 data_providers_count = 7;
+
+    google.protobuf.Timestamp create_time = 9;
+  }
+  // Denormalized fields from the parent Measurement. Output-only.
+  ParentMeasurement parent_measurement = 12;
+
+  // Current etag. Output only.
+  string etag = 13;
+}

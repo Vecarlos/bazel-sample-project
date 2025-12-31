@@ -1,0 +1,81 @@
+// Copyright 2023 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.integration.k8s.testing;
+
+import "google/api/resource.proto";
+
+option java_package = "org.measurement.integration.k8s.testing";
+option java_multiple_files = true;
+option java_outer_classname = "CorrectnessTestConfigProto";
+
+message CorrectnessTestConfig {
+  // gRPC target of Kingdom public API server.
+  string kingdom_public_api_target = 1;
+
+  // Expected hostname (DNS-ID) in the Kingdom public API server's TLS
+  // certificate.
+  //
+  // If not specified, standard TLS DNS-ID derivation will be used.
+  string kingdom_public_api_cert_host = 2;
+
+  // MeasurementConsumer resource name.
+  string measurement_consumer = 3 [(google.api.resource_reference).type =
+                                       "halo.wfanet.org/MeasurementConsumer"];
+
+  // Authentication key for the CMMS public API.
+  string api_authentication_key = 4;
+
+  // gRPC target of Reporting public API server.
+  string reporting_public_api_target = 5;
+
+  // Expected hostname (DNS-ID) in the reporting public API server's TLS
+  // certificate.
+  //
+  // If not specified, standard TLS DNS-ID derivation will be used.
+  string reporting_public_api_cert_host = 6;
+
+  // DataProvider resource names of simulated EDPs, in order.
+  repeated string event_data_providers = 7
+      [(google.api.resource_reference).type = "halo.wfanet.org/DataProvider"];
+
+  // Resource name of the Population `DataProvider` (PDP).
+  string population_data_provider = 8
+      [(google.api.resource_reference).type = "halo.wfanet.org/DataProvider"];
+
+  // Resource name of the `ModelProvider` (MP).
+  string model_provider = 9
+      [(google.api.resource_reference).type = "halo.wfanet.org/ModelProvider"];
+
+  // http endpoint of Reporting Server.
+  string reporting_service_endpoint = 10;
+
+  // gRPC target of Access public API server.
+  string access_public_api_target = 11;
+
+  // jwt audience for Reporting Server.
+  string reporting_token_audience = 12;
+
+  // Expected hostname (DNS-ID) in the access public API server's TLS
+  // certificate.
+  //
+  // If not specified, standard TLS DNS-ID derivation will be used.
+  string access_public_api_cert_host = 13;
+
+  // Resource name of the `ModelLine`.
+  string model_line = 14
+      [(google.api.resource_reference).type = "halo.wfanet.org/ModelLine"];
+}

@@ -1,0 +1,68 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/docker:macros.bzl", "java_image")
+
+package(
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/dataprovider:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/integration/common:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/loadtest/dataprovider:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/dataprovider:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/loadtest/dataprovider:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "population_requisition_fulfiller",
+    srcs = ["PopulationRequisitionFulfiller.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:population_spec_validator",
+        "//src/main/kotlin/org/wfanet/measurement/dataprovider:measurement_results",
+        "//src/main/kotlin/org/wfanet/measurement/dataprovider:requisition_fulfiller",
+        "//src/main/proto/wfa/measurement/api/v2alpha:certificates_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_releases_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_rollouts_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:population_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:population_spec_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:populations_service_kt_jvm_grpc",
+    ],
+)
+
+kt_jvm_library(
+    name = "population_requisition_fulfiller_daemon",
+    srcs = ["PopulationRequisitionFulfillerDaemon.kt"],
+    deps = [
+        ":population_requisition_fulfiller",
+        "//src/main/proto/wfa/measurement/api/v2alpha:certificates_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:data_providers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:event_group_metadata_descriptors_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:event_groups_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:measurement_consumers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:requisition_fulfillment_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:requisitions_service_kt_jvm_grpc_proto",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto:signing_certs",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto/tink",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/throttler",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/storage:client",
+    ],
+)
+
+java_binary(
+    name = "PopulationRequisitionFulfillerDaemon",
+    main_class = "org.wfanet.measurement.populationdataprovider.PopulationRequisitionFulfillerDaemonKt",
+    runtime_deps = [
+        ":population_requisition_fulfiller_daemon",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/logging",
+    ],
+)
+
+java_image(
+    name = "population_requisition_fulfiller_daemon_image",
+    binary = ":PopulationRequisitionFulfillerDaemon",
+    main_class = "org.wfanet.measurement.populationdataprovider.PopulationRequisitionFulfillerDaemonKt",
+    visibility = ["//src:docker_image_deployment"],
+)

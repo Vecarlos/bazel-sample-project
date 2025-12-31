@@ -1,0 +1,66 @@
+// Copyright 2020 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package org.wfanet.measurement.kingdom.deploy.gcloud.server
+
+import java.time.Clock
+import java.time.Duration
+import kotlinx.coroutines.runBlocking
+import org.wfanet.measurement.common.commandLineMain
+import org.wfanet.measurement.common.identity.RandomIdGenerator
+import org.wfanet.measurement.gcloud.spanner.SpannerFlags
+import org.wfanet.measurement.gcloud.spanner.usingSpanner
+import org.wfanet.measurement.kingdom.deploy.common.server.KingdomDataServer
+import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.SpannerDataServices
+import picocli.CommandLine
+
+/** Implementation of [KingdomDataServer] using Google Cloud Spanner. */
+@CommandLine.Command(
+  name = "SpannerKingdomDataServer",
+  description = ["Start the internal Kingdom data-layer services in a single blocking server."],
+  mixinStandardHelpOptions = true,
+  showDefaultValues = true,
+)
+class SpannerKingdomDataServer : KingdomDataServer() {
+  @CommandLine.Mixin private lateinit var spannerFlags: SpannerFlags
+
+  @CommandLine.Option(
+    names = ["--max-event-group-read-staleness"],
+    description = ["Maximum staleness allowed for stale reads of EventGroups"],
+    required = false,
+    defaultValue = "30s",
+  )
+  protected lateinit var maxEventGroupReadStaleness: Duration
+    private set
+
+  override fun run() = runBlocking {
+    spannerFlags.usingSpanner { spanner ->
+      val clock = Clock.systemUTC()
+      val idGenerator = RandomIdGenerator(clock)
+      val client = spanner.databaseClient
+
+      run(
+        SpannerDataServices(
+          clock,
+          idGenerator,
+          client,
+          knownEventGroupMetadataTypes,
+          maxEventGroupReadStaleness,
+        )
+      )
+    }
+  }
+}
+
+fun main(args: Array<String>) = commandLineMain(SpannerKingdomDataServer(), args)

@@ -1,0 +1,73 @@
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/reporting:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/reporting:__subpackages__",
+    ],
+)
+
+kt_jvm_library(
+    name = "encryption_key_pair_map",
+    srcs = ["EncryptionKeyPairMap.kt"],
+    deps = [
+        "//src/main/proto/wfa/measurement/config/reporting:encryption_key_pair_config_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/crypto/tink",
+    ],
+)
+
+kt_jvm_library(
+    name = "flags",
+    srcs = ["InternalApiFlags.kt"],
+    deps = [
+        "@wfa_common_jvm//imports/java/picocli",
+    ],
+)
+
+kt_jvm_library(
+    name = "kingdom_flags",
+    srcs = ["KingdomApiFlags.kt"],
+    deps = [
+        "@wfa_common_jvm//imports/java/picocli",
+    ],
+)
+
+kt_jvm_library(
+    name = "reporting_api_server_flags",
+    srcs = ["ReportingApiServerFlags.kt"],
+    deps = [
+        ":flags",
+        "@wfa_common_jvm//imports/java/picocli",
+    ],
+)
+
+kt_jvm_library(
+    name = "spanner_flags",
+    srcs = ["SpannerFlags.kt"],
+    deps = [
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/spanner",
+    ],
+)
+
+kt_jvm_library(
+    name = "v2alpha_flags",
+    srcs = ["V2AlphaFlags.kt"],
+    deps = [
+        "@wfa_common_jvm//imports/java/picocli",
+    ],
+)
+
+kt_jvm_library(
+    name = "event_message_flags",
+    srcs = ["EventMessageFlags.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:event_message_descriptor",
+        "//src/main/proto/wfa/measurement/api/v2alpha:event_annotations_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:media_type_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/com/google/protobuf",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+    ],
+)

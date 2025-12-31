@@ -1,0 +1,19 @@
+ # Remote Build Execution (RBE)
+
+build:remote --remote_executor=grpcs://brs.buildbuddy.io
+build:remote --define=EXECUTOR=remote
+
+# Include container toolchain/platform configuration.
+build:remote --config=container
+
+# Depending on how many machines are in the remote execution instance, setting
+# this higher can make builds faster by allowing more jobs to run in parallel.
+# Setting it too high can result in jobs that timeout, however, while waiting
+# for a remote machine to execute them.
+build:remote --jobs=50
+
+# Enforce stricter environment rules, which eliminates some non-hermetic
+# behavior and therefore improves both the remote cache hit rate and the
+# correctness and repeatability of the build.
+build:remote --incompatible_strict_action_env=true
+

@@ -1,0 +1,663 @@
+load("@wfa_common_jvm//build:defs.bzl", "expand_template")
+load("@wfa_rules_cue//cue:defs.bzl", "cue_library")
+load(
+    "//build:variables.bzl",
+    "AWS_SETTINGS",
+    "DUCHY_K8S_SETTINGS",
+    "GCLOUD_SETTINGS",
+    "IMAGE_REPOSITORY_SETTINGS",
+    "KINGDOM_K8S_SETTINGS",
+    "PDP_K8S_SETTINGS",
+    "REPORTING_K8S_SETTINGS",
+    "SIMULATOR_K8S_SETTINGS",
+)
+load("//build/k8s:defs.bzl", "kustomization_dir")
+load("//src/main/k8s:macros.bzl", "cue_dump")
+
+SECRET_NAME = "certs-and-configs"
+
+MC_CONFIG_SECRET_NAME = "mc-config"
+
+SIGNING_SECRET_NAME = "signing"
+
+cue_library(
+    name = "base_gke",
+    srcs = ["base_gke.cue"],
+    deps = ["//src/main/k8s:base"],
+)
+
+cue_library(
+    name = "base_eks",
+    srcs = ["base_eks.cue"],
+    deps = ["//src/main/k8s:base"],
+)
+
+cue_library(
+    name = "config",
+    srcs = ["config.cue"],
+)
+
+cue_library(
+    name = "config_gke",
+    srcs = ["config_gke.cue"],
+    deps = [
+        ":base_gke",
+        ":config",
+        "//src/main/k8s:postgres",
+        "//src/main/k8s:spanner",
+    ],
+)
+
+cue_library(
+    name = "config_eks",
+    srcs = ["config_eks.cue"],
+    deps = [
+        ":config",
+        "//src/main/k8s:postgres",
+    ],
+)
+
+cue_dump(
+    name = "kingdom_gke",
+    srcs = ["kingdom_gke.cue"],
+    cue_tags = {
+        "secret_name": SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+        "public_api_address_name": KINGDOM_K8S_SETTINGS.public_api_address_name,
+        "system_api_address_name": KINGDOM_K8S_SETTINGS.system_api_address_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:kingdom",
+    ],
+)
+
+kustomization_dir(
+    name = "kingdom_secret",
+    srcs = ["kingdom_secret_kustomization.yaml"],
+    renames = {"kingdom_secret_kustomization.yaml": "kustomization.yaml"},
+)
+
+kustomization_dir(
+    name = "config_files",
+    testonly = True,
+    srcs = [
+        "config_files_kustomization.yaml",
+        "//src/main/k8s/testing/secretfiles:known_event_group_metadata_type_set",
+    ],
+    renames = {"config_files_kustomization.yaml": "kustomization.yaml"},
+)
+
+kustomization_dir(
+    name = "kingdom",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":kingdom_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        "config_files",
+        ":kingdom_secret",
+    ],
+)
+
+cue_dump(
+    name = "population_requisition_fulfiller_gke",
+    srcs = [
+        "population_requisition_fulfiller_gke.cue",
+    ],
+    cue_tags = {
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "pdp_name": PDP_K8S_SETTINGS.pdp_name,
+        "pdp_cert_name": PDP_K8S_SETTINGS.pdp_cert_name,
+        "event_message_type_url": PDP_K8S_SETTINGS.event_message_type_url,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config",
+        "//src/main/k8s:population_requisition_fulfiller",
+    ],
+)
+
+kustomization_dir(
+    name = "pdp_config",
+    srcs = ["pdp_config_kustomization.yaml"],
+    renames = {
+        "pdp_config_kustomization.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "pdp_consent_signaling",
+    srcs = ["pdp_cs_kustomization.yaml"],
+    renames = {
+        "pdp_cs_kustomization.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "pdp_tls",
+    srcs = ["pdp_tls_kustomization.yaml"],
+    renames = {
+        "pdp_tls_kustomization.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "population_requisition_fulfiller",
+    srcs = [
+        ":population_requisition_fulfiller_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":pdp_config",
+        ":pdp_consent_signaling",
+        ":pdp_tls",
+    ],
+)
+
+cue_dump(
+    name = "aggregator_duchy_gke",
+    srcs = ["duchy_gke.cue"],
+    cue_tags = {
+        "duchy_name": "aggregator",
+        "duchy_protocols_setup_config": "aggregator_protocols_setup_config.textproto",
+        "secret_name": SECRET_NAME,
+        "public_api_address_name": DUCHY_K8S_SETTINGS.public_api_address_name,
+        "system_api_address_name": DUCHY_K8S_SETTINGS.system_api_address_name,
+        "certificate_id": DUCHY_K8S_SETTINGS.certificate_id,
+        "cloud_storage_bucket": DUCHY_K8S_SETTINGS.storage_bucket,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+        "kingdom_system_api_target": KINGDOM_K8S_SETTINGS.system_api_target,
+        "kingdom_public_api_target": KINGDOM_K8S_SETTINGS.public_api_target,
+        "aggregator_system_api_target": DUCHY_K8S_SETTINGS.aggregator_system_api_target,
+        "worker1_system_api_target": DUCHY_K8S_SETTINGS.worker1_system_api_target,
+        "worker2_system_api_target": DUCHY_K8S_SETTINGS.worker2_system_api_target,
+        "internal_api_address_name": DUCHY_K8S_SETTINGS.internal_api_address_name,
+        "trustee_mill_subnetwork_cidr_range": DUCHY_K8S_SETTINGS.trustee_mill_subnetwork_cidr_range,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:base",
+        "//src/main/k8s:spanner_duchy",
+    ],
+)
+
+cue_dump(
+    name = "worker1_duchy_gke",
+    srcs = ["duchy_gke.cue"],
+    cue_tags = {
+        "duchy_name": "worker1",
+        "duchy_protocols_setup_config": "worker1_protocols_setup_config.textproto",
+        "duchy_key_encryption_key_file": "worker1_kek.tink",
+        "secret_name": SECRET_NAME,
+        "public_api_address_name": DUCHY_K8S_SETTINGS.public_api_address_name,
+        "system_api_address_name": DUCHY_K8S_SETTINGS.system_api_address_name,
+        "certificate_id": DUCHY_K8S_SETTINGS.certificate_id,
+        "cloud_storage_bucket": DUCHY_K8S_SETTINGS.storage_bucket,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+        "kingdom_system_api_target": KINGDOM_K8S_SETTINGS.system_api_target,
+        "kingdom_public_api_target": KINGDOM_K8S_SETTINGS.public_api_target,
+        "aggregator_system_api_target": DUCHY_K8S_SETTINGS.aggregator_system_api_target,
+        "worker1_system_api_target": DUCHY_K8S_SETTINGS.worker1_system_api_target,
+        "worker2_system_api_target": DUCHY_K8S_SETTINGS.worker2_system_api_target,
+        "internal_api_address_name": DUCHY_K8S_SETTINGS.internal_api_address_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:base",
+        "//src/main/k8s:spanner_duchy",
+    ],
+)
+
+cue_dump(
+    name = "worker2_duchy_gke",
+    srcs = ["duchy_gke.cue"],
+    cue_tags = {
+        "duchy_name": "worker2",
+        "duchy_protocols_setup_config": "worker2_protocols_setup_config.textproto",
+        "duchy_key_encryption_key_file": "worker2_kek.tink",
+        "secret_name": SECRET_NAME,
+        "public_api_address_name": DUCHY_K8S_SETTINGS.public_api_address_name,
+        "system_api_address_name": DUCHY_K8S_SETTINGS.system_api_address_name,
+        "certificate_id": DUCHY_K8S_SETTINGS.certificate_id,
+        "cloud_storage_bucket": DUCHY_K8S_SETTINGS.storage_bucket,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+        "kingdom_system_api_target": KINGDOM_K8S_SETTINGS.system_api_target,
+        "kingdom_public_api_target": KINGDOM_K8S_SETTINGS.public_api_target,
+        "aggregator_system_api_target": DUCHY_K8S_SETTINGS.aggregator_system_api_target,
+        "worker1_system_api_target": DUCHY_K8S_SETTINGS.worker1_system_api_target,
+        "worker2_system_api_target": DUCHY_K8S_SETTINGS.worker2_system_api_target,
+        "internal_api_address_name": DUCHY_K8S_SETTINGS.internal_api_address_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:base",
+        "//src/main/k8s:spanner_duchy",
+    ],
+)
+
+cue_dump(
+    name = "worker2_duchy_eks",
+    srcs = ["duchy_eks.cue"],
+    cue_tags = {
+        "duchy_name": "worker2",
+        "duchy_protocols_setup_config": "worker2_protocols_setup_config.textproto",
+        "duchy_key_encryption_key_file": "worker2_kek.tink",
+        "secret_name": SECRET_NAME,
+        "certificate_id": DUCHY_K8S_SETTINGS.certificate_id,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "postgres_host": AWS_SETTINGS.postgres_host,
+        "postgres_port": AWS_SETTINGS.postgres_port,
+        "postgres_credential_secret_name": AWS_SETTINGS.postgres_credential_secret_name,
+        "postgres_region": AWS_SETTINGS.postgres_region,
+        "s3_bucket": AWS_SETTINGS.s3_bucket,
+        "s3_region": AWS_SETTINGS.s3_region,
+        "public_api_eip_allocs": DUCHY_K8S_SETTINGS.public_api_eip_allocs,
+        "system_api_eip_allocs": DUCHY_K8S_SETTINGS.system_api_eip_allocs,
+        "kingdom_system_api_target": KINGDOM_K8S_SETTINGS.system_api_target,
+        "kingdom_public_api_target": KINGDOM_K8S_SETTINGS.public_api_target,
+        "aggregator_system_api_target": DUCHY_K8S_SETTINGS.aggregator_system_api_target,
+        "worker1_system_api_target": DUCHY_K8S_SETTINGS.worker1_system_api_target,
+        "worker2_system_api_target": DUCHY_K8S_SETTINGS.worker2_system_api_target,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_eks",
+        ":config_eks",
+        "//src/main/k8s:base",
+        "//src/main/k8s:duchy",
+        "//src/main/k8s:postgres_duchy",
+    ],
+)
+
+expand_template(
+    name = "gen_aggregator_secret_kustomization",
+    out = "aggregator_secret_kustomization.yaml",
+    substitutions = {
+        "{duchy_id}": "aggregator",
+        "{duchy_role}": "aggregator",
+    },
+    template = "aggregator_secret_kustomization.tmpl.yaml",
+)
+
+expand_template(
+    name = "gen_worker1_secret_kustomization",
+    out = "worker1_secret_kustomization.yaml",
+    substitutions = {
+        "{duchy_id}": "worker1",
+        "{duchy_role}": "non_aggregator",
+    },
+    template = "non_aggregator_secret_kustomization.tmpl.yaml",
+)
+
+expand_template(
+    name = "gen_worker2_secret_kustomization",
+    out = "worker2_secret_kustomization.yaml",
+    substitutions = {
+        "{duchy_id}": "worker2",
+        "{duchy_role}": "non_aggregator",
+    },
+    template = "non_aggregator_secret_kustomization.tmpl.yaml",
+)
+
+kustomization_dir(
+    name = "aggregator_duchy_secret",
+    srcs = [":aggregator_secret_kustomization.yaml"],
+    renames = {"aggregator_secret_kustomization.yaml": "kustomization.yaml"},
+)
+
+kustomization_dir(
+    name = "worker1_duchy_secret",
+    srcs = [":worker1_secret_kustomization.yaml"],
+    renames = {"worker1_secret_kustomization.yaml": "kustomization.yaml"},
+)
+
+kustomization_dir(
+    name = "worker2_duchy_secret",
+    srcs = [":worker2_secret_kustomization.yaml"],
+    renames = {"worker2_secret_kustomization.yaml": "kustomization.yaml"},
+)
+
+kustomization_dir(
+    name = "aggregator_duchy",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":aggregator_duchy_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":aggregator_duchy_secret",
+        ":config_files",
+    ],
+)
+
+kustomization_dir(
+    name = "worker1_duchy",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":worker1_duchy_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files",
+        ":worker1_duchy_secret",
+    ],
+)
+
+kustomization_dir(
+    name = "worker2_duchy",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":worker2_duchy_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files",
+        ":worker2_duchy_secret",
+    ],
+)
+
+kustomization_dir(
+    name = "worker2_duchy_aws",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":worker2_duchy_eks",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":config_files",
+        ":worker2_duchy_secret",
+    ],
+)
+
+EDP_SIMULATOR_TAGS = {
+    "secret_name": SECRET_NAME,
+    "mc_name": SIMULATOR_K8S_SETTINGS.mc_name,
+    "edp1_name": SIMULATOR_K8S_SETTINGS.edp1_name,
+    "edp1_cert_name": SIMULATOR_K8S_SETTINGS.edp1_cert_name,
+    "edp2_name": SIMULATOR_K8S_SETTINGS.edp2_name,
+    "edp2_cert_name": SIMULATOR_K8S_SETTINGS.edp2_cert_name,
+    "edp3_name": SIMULATOR_K8S_SETTINGS.edp3_name,
+    "edp3_cert_name": SIMULATOR_K8S_SETTINGS.edp3_cert_name,
+    "edp4_name": SIMULATOR_K8S_SETTINGS.edp4_name,
+    "edp4_cert_name": SIMULATOR_K8S_SETTINGS.edp4_cert_name,
+    "edp5_name": SIMULATOR_K8S_SETTINGS.edp5_name,
+    "edp5_cert_name": SIMULATOR_K8S_SETTINGS.edp5_cert_name,
+    "edp6_name": SIMULATOR_K8S_SETTINGS.edp6_name,
+    "edp6_cert_name": SIMULATOR_K8S_SETTINGS.edp6_cert_name,
+    "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+    "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+    "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+    "kingdom_public_api_target": KINGDOM_K8S_SETTINGS.public_api_target,
+    "worker1_id": DUCHY_K8S_SETTINGS.worker1_id,
+    "worker1_public_api_target": DUCHY_K8S_SETTINGS.worker1_public_api_target,
+    "worker2_id": DUCHY_K8S_SETTINGS.worker2_id,
+    "worker2_public_api_target": DUCHY_K8S_SETTINGS.worker2_public_api_target,
+    "google_cloud_project": GCLOUD_SETTINGS.project,
+}
+
+cue_dump(
+    name = "edp_simulators_gke",
+    srcs = ["edp_simulators_gke.cue"],
+    cue_tags = EDP_SIMULATOR_TAGS,
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:edp_simulator",
+    ],
+)
+
+kustomization_dir(
+    name = "edp_simulator_config_files",
+    testonly = True,
+    srcs = [
+        "edp_simulator_config_files.yaml",
+        "//src/main/k8s/testing/data:synthetic_generation_specs_large",
+        "//src/main/k8s/testing/secretfiles:known_event_group_metadata_type_set",
+    ],
+    renames = {
+        "edp_simulator_config_files.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "edp_simulators",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":edp_simulators_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":edp_simulator_config_files",
+        "//src/main/k8s/testing/secretfiles:kustomization",
+    ],
+)
+
+cue_dump(
+    name = "reporting_v2_gke",
+    srcs = ["reporting_v2_gke.cue"],
+    cue_tags = {
+        "secret_name": SIGNING_SECRET_NAME,
+        "mc_config_secret_name": MC_CONFIG_SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "basic_reports_enabled": REPORTING_K8S_SETTINGS.basic_reports_enabled,
+        "public_api_address_name": REPORTING_K8S_SETTINGS.public_api_address_name,
+        "event_message_type_url": REPORTING_K8S_SETTINGS.event_message_type_url,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+        "postgres_instance": GCLOUD_SETTINGS.postgres_instance,
+        "postgres_region": GCLOUD_SETTINGS.postgres_region,
+        "kingdom_public_api_target": KINGDOM_K8S_SETTINGS.public_api_target,
+        "pdp_name": PDP_K8S_SETTINGS.pdp_name,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:reporting_v2",
+    ],
+)
+
+kustomization_dir(
+    name = "reporting_v2_config_files",
+    testonly = True,
+    srcs = [
+        "reporting_v2_config_files_kustomization.yaml",
+        "//src/main/k8s/testing/secretfiles:impression_qualification_filter_config.textproto",
+        "//src/main/k8s/testing/secretfiles:known_event_group_metadata_type_set",
+        "//src/main/proto/wfa/measurement/api/v2alpha/event_templates/testing:test_event_descriptor_set",
+    ],
+    renames = {
+        "reporting_v2_config_files_kustomization.yaml": "kustomization.yaml",
+        "//src/main/proto/wfa/measurement/api/v2alpha/event_templates/testing:test_event_descriptor_set": "event_message_descriptor_set.pb",
+    },
+)
+
+kustomization_dir(
+    name = "reporting_v2_secrets",
+)
+
+kustomization_dir(
+    name = "reporting_v2",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":reporting_v2_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":reporting_v2_config_files",
+        ":reporting_v2_secrets",
+    ],
+)
+
+cue_dump(
+    name = "open_telemetry_gke",
+    srcs = ["open_telemetry_gke.cue"],
+    cue_tags = {
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+    },
+    tags = ["manual"],
+    deps = [
+        ":config_gke",
+        "//src/main/k8s:open_telemetry",
+    ],
+)
+
+cue_dump(
+    name = "open_telemetry_eks",
+    srcs = ["open_telemetry_eks.cue"],
+    cue_tags = {
+        "amp_ingest_endpoint": AWS_SETTINGS.amp_ingest_endpoint,
+        "amp_region": AWS_SETTINGS.amp_region,
+    },
+    tags = ["manual"],
+    deps = [
+        ":config_eks",
+        "//src/main/k8s:open_telemetry",
+    ],
+)
+
+cue_dump(
+    name = "secure_computation_gke",
+    srcs = ["secure_computation_gke.cue"],
+    cue_tags = {
+        "secret_name": SIGNING_SECRET_NAME,
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:secure_computation",
+    ],
+)
+
+kustomization_dir(
+    name = "secure_computation_config_files",
+    testonly = True,
+    srcs = [
+        "secure_computation_config_files_kustomization.yaml",
+        "//src/main/proto/wfa/measurement/securecomputation/controlplane/v1alpha:queues_config.textproto",
+    ],
+    renames = {"secure_computation_config_files_kustomization.yaml": "kustomization.yaml"},
+)
+
+kustomization_dir(
+    name = "secure_computation_secrets",
+)
+
+kustomization_dir(
+    name = "secure_computation",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":secure_computation_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":secure_computation_config_files",
+        ":secure_computation_secrets",
+    ],
+)
+
+cue_dump(
+    name = "edp_aggregator_gke",
+    srcs = ["edp_aggregator_gke.cue"],
+    cue_tags = {
+        "container_registry": IMAGE_REPOSITORY_SETTINGS.container_registry,
+        "image_repo_prefix": IMAGE_REPOSITORY_SETTINGS.repository_prefix,
+        "image_tag": IMAGE_REPOSITORY_SETTINGS.image_tag,
+        "google_cloud_project": GCLOUD_SETTINGS.project,
+        "spanner_instance": GCLOUD_SETTINGS.spanner_instance,
+    },
+    tags = ["manual"],
+    deps = [
+        ":base_gke",
+        ":config_gke",
+        "//src/main/k8s:edp_aggregator",
+    ],
+)
+
+kustomization_dir(
+    name = "edp_aggregator_tls",
+    srcs = ["edp_aggregator_tls_kustomization.yaml"],
+    renames = {
+        "edp_aggregator_tls_kustomization.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "edp_aggregator_config",
+    srcs = ["edp_aggregator_config_kustomization.yaml"],
+    renames = {
+        "edp_aggregator_config_kustomization.yaml": "kustomization.yaml",
+    },
+)
+
+kustomization_dir(
+    name = "edp_aggregator",
+    testonly = True,
+    srcs = [
+        "resource_requirements.yaml",
+        ":edp_aggregator_gke",
+    ],
+    generate_kustomization = True,
+    tags = ["manual"],
+    deps = [
+        ":edp_aggregator_config",
+        ":edp_aggregator_tls",
+    ],
+)

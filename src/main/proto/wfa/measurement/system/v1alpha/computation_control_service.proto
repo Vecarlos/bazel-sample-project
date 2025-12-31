@@ -1,0 +1,156 @@
+// Copyright 2020 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.system.v1alpha;
+
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "wfa/measurement/system/v1alpha/computation_stage.proto";
+
+option java_package = "org.wfanet.measurement.system.v1alpha";
+option java_multiple_files = true;
+option java_outer_classname = "ComputationControlServiceProto";
+
+// Service for controlling inter-Duchy operations on GlobalComputation
+// resources.
+service ComputationControl {
+  // Advance the computation locally according to the request.
+  rpc AdvanceComputation(stream AdvanceComputationRequest)
+      returns (AdvanceComputationResponse) {}
+
+  // Returns the stage of a MPC protocol for the specific Computation.
+  rpc GetComputationStage(GetComputationStageRequest)
+      returns (ComputationStage) {
+    option (google.api.method_signature) = "name";
+  }
+}
+
+// Request to advance the computation at the receiver.
+message AdvanceComputationRequest {
+  // Header of the streaming request.
+  //
+  // (-- api-linter: core::0123::resource-annotation=disabled
+  //     aip.dev/not-precedent: This is not a resource message. --)
+  message Header {
+    // Resource name of the `Computation`.
+    string name = 1 [
+      (google.api.resource_reference).type =
+          "halo-system.wfanet.org/Computation",
+      (google.api.field_behavior) = REQUIRED
+    ];
+    // The protocol of the computation.
+    oneof protocol {
+      // The LiquidLegionsV2 (three-round) protocol.
+      LiquidLegionsV2 liquid_legions_v2 = 2;
+
+      // The ReachOnlyLiquidLegionsV2 (one-round) protocol.
+      ReachOnlyLiquidLegionsV2 reach_only_liquid_legions_v2 = 3;
+
+      // The HonestMajorityShareShuffle protocol.
+      HonestMajorityShareShuffle honest_majority_share_shuffle = 4;
+    }
+  }
+
+  // Body chunk of the streaming request.
+  message BodyChunk {
+    // A chunk of the data bytes.
+    bytes partial_data = 1;
+  }
+
+  oneof payload {
+    // Payload of first request message.
+    Header header = 1;
+    // Payload of subsequent request messages.
+    BodyChunk body_chunk = 2;
+  }
+}
+
+// Parameters for the Liquid Legions v2 protocol.
+//
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: This is not a resource message. --)
+message LiquidLegionsV2 {
+  // The description of the data in the payload.
+  enum Description {
+    // The data type is unknown. This is never set intentionally.
+    DESCRIPTION_UNSPECIFIED = 0;
+    // The input for the setup phase.
+    SETUP_PHASE_INPUT = 1;
+    // The input for the execution phase one.
+    EXECUTION_PHASE_ONE_INPUT = 2;
+    // The input for the execution phase two.
+    EXECUTION_PHASE_TWO_INPUT = 3;
+    // The input for the execution phase three.
+    EXECUTION_PHASE_THREE_INPUT = 4;
+  }
+  // Payload data description
+  Description description = 1;
+}
+
+// Parameters for the Reach-Only Liquid Legions v2 protocol.
+//
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: This is not a resource message. --)
+message ReachOnlyLiquidLegionsV2 {
+  // The description of the data in the payload.
+  enum Description {
+    // The data type is unknown. This is never set intentionally.
+    DESCRIPTION_UNSPECIFIED = 0;
+    // The input for the setup phase.
+    SETUP_PHASE_INPUT = 1;
+    // The input for the execution phase.
+    EXECUTION_PHASE_INPUT = 2;
+  }
+  // Payload data description
+  Description description = 1;
+}
+
+// Parameters for the Honest Majority Shuffle Based Secret Sharing protocol.
+//
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: This is not a resource message. --)
+message HonestMajorityShareShuffle {
+  // The description of the data in the payload.
+  enum Description {
+    // The data type is unknown. This is never set intentionally.
+    DESCRIPTION_UNSPECIFIED = 0;
+    // The input for the WAIT_ON_SHUFFLE_INPUT_PHASE_ONE.
+    SHUFFLE_PHASE_INPUT_ONE = 1;
+    // The input for the WAIT_ON_SHUFFLE_INPUT_PHASE_TWO.
+    SHUFFLE_PHASE_INPUT_TWO = 2;
+    // The input for the aggregation phase.
+    AGGREGATION_PHASE_INPUT = 3;
+  }
+  // Payload data description
+  Description description = 1;
+}
+
+// Response message for the `AdvanceComputation` method.
+message AdvanceComputationResponse {
+  // (-- Deliberately empty. --)
+}
+
+// Request message for `GetComputationStage` method.
+message GetComputationStageRequest {
+  // Resource name of the `Stage`.
+  // Format: "computations/{computation}/participants/{duchy}/computationStage"
+  string name = 1 [
+    (google.api.resource_reference).type =
+        "halo-system.wfanet.org/ComputationStage",
+    (google.api.field_behavior) = REQUIRED
+  ];
+}

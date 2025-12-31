@@ -1,0 +1,123 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wfa.measurement.internal.kingdom;
+
+import "google/protobuf/timestamp.proto";
+import "wfa/measurement/internal/kingdom/measurement.proto";
+import "wfa/measurement/internal/kingdom/requisition_details.proto";
+import "wfa/measurement/internal/kingdom/requisition_refusal.proto";
+
+option java_package = "org.wfanet.measurement.internal.kingdom";
+option java_multiple_files = true;
+
+// Internal service for persistence of Requisition entities.
+service Requisitions {
+  rpc GetRequisition(GetRequisitionRequest) returns (Requisition);
+
+  // Streams Requisitions response ordered by update_time asc,
+  // external_data_provider_id asc, external_requisition_id asc.
+  rpc StreamRequisitions(StreamRequisitionsRequest)
+      returns (stream Requisition);
+
+  // Marks a Requisition as FULFILLED by transitioning its state.
+  rpc FulfillRequisition(FulfillRequisitionRequest) returns (Requisition);
+
+  // Marks a Requisition as REFUSED by transitioning its state.
+  rpc RefuseRequisition(RefuseRequisitionRequest) returns (Requisition);
+}
+
+message GetRequisitionRequest {
+  fixed64 external_data_provider_id = 1;
+  fixed64 external_requisition_id = 2;
+}
+
+message StreamRequisitionsRequest {
+  // Filter criteria as a conjunction of specified fields. Repeated fields are
+  // disjunctions of their items.
+  message Filter {
+    reserved 6, 7;
+
+    int64 external_measurement_consumer_id = 1;
+    int64 external_measurement_id = 2;
+    int64 external_data_provider_id = 3;
+    repeated Requisition.State states = 4;
+    google.protobuf.Timestamp updated_after = 5;
+    repeated Measurement.State measurement_states = 8 [deprecated = true];
+
+    message After {
+      google.protobuf.Timestamp update_time = 1;
+      fixed64 external_data_provider_id = 2;
+      fixed64 external_requisition_id = 3;
+    }
+    After after = 9;
+  }
+  Filter filter = 1;
+
+  // The maximum number of results to return. If not specified or 0, it implies
+  // unlimited.
+  int32 limit = 2;
+}
+
+message FulfillRequisitionRequest {
+  fixed64 external_requisition_id = 1;
+  // Cryptographic nonce from the `RequisitionSpec`.
+  fixed64 nonce = 2;
+  RequisitionDetails.FulfillmentContext fulfillment_context = 5;
+
+  // Requisition parameters for a Computed Measurement
+  message ComputedRequisitionParams {
+    fixed64 external_computation_id = 1;
+    // The human-friendly external ID of the Duchy that marked this
+    // `Requisition` as `FULFILLED` or being assigned to fulfill.
+    string external_fulfilling_duchy_id = 2;
+  }
+
+  // Requisition parameters for a Direct Measurement
+  message DirectRequisitionParams {
+    fixed64 external_data_provider_id = 1;
+    // Encrypted `SignedData`containing the data for a direct and volumetric
+    // measurement.
+    bytes encrypted_data = 2;
+    string api_version = 3;
+    // Certificate that should be used to verify the encrypted `SignedData`.
+    fixed64 external_certificate_id = 4;
+  }
+
+  oneof params {
+    ComputedRequisitionParams computed_params = 3;
+    DirectRequisitionParams direct_params = 4;
+  }
+
+  // `etag` of the `Requisition`.
+  //
+  // If specified and the value does not match the current `etag`, this method
+  // will result in an ABORTED status.
+  string etag = 6;
+}
+
+message RefuseRequisitionRequest {
+  fixed64 external_data_provider_id = 1;
+  fixed64 external_requisition_id = 2;
+
+  RequisitionRefusal refusal = 3;
+
+  // `etag` of the `Requisition`.
+  //
+  // If specified and the value does not match the current `etag`, this method
+  // will result in an ABORTED status.
+  string etag = 4;
+}

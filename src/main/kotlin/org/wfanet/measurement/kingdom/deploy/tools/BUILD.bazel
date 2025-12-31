@@ -1,0 +1,69 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+
+package(
+    default_testonly = True,
+    default_visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/integration/common:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/kingdom/deploy/tools:__pkg__",
+    ],
+)
+
+kt_jvm_library(
+    name = "create_resource",
+    srcs = ["CreateResource.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:resource_key",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:flags",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:certificates",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:proto_conversions",
+        "//src/main/proto/wfa/measurement/api/v2alpha:exchange_workflow_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:accounts_service_kt_jvm_grpc",
+        "//src/main/proto/wfa/measurement/internal/kingdom:accounts_service_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:certificates_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:data_provider_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:data_providers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_provider_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:model_providers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:recurring_exchange_details_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:recurring_exchange_kt_jvm_proto",
+        "//src/main/proto/wfa/measurement/internal/kingdom:recurring_exchanges_service_kt_jvm_grpc_proto",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//imports/kotlin/com/google/protobuf/kotlin",
+        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
+    ],
+)
+
+java_binary(
+    name = "CreateResource",
+    main_class = "org.wfanet.measurement.kingdom.deploy.tools.CreateResourceKt",
+    tags = ["manual"],
+    runtime_deps = [":create_resource"],
+)
+
+kt_jvm_library(
+    name = "model_repository",
+    srcs = ["ModelRepository.kt"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:population_spec_validator",
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha/testing",
+        "//src/main/kotlin/org/wfanet/measurement/common:protobuf_messages",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_lines_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_providers_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_releases_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_rollouts_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:model_suites_service_kt_jvm_grpc_proto",
+        "//src/main/proto/wfa/measurement/api/v2alpha:populations_service_kt_jvm_grpc_proto",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+    ],
+)
+
+java_binary(
+    name = "ModelRepository",
+    main_class = "org.wfanet.measurement.kingdom.deploy.tools.ModelRepository",
+    runtime_deps = [":model_repository"],
+)

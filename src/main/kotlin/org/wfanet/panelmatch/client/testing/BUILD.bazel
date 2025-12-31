@@ -1,0 +1,55 @@
+"""
+This is a convenience testing binary in case adopters want to import a testing
+library. It is a java_binary instead of a java_library since it should be a fat
+jar of all the testing dependencies.
+"""
+
+load("@rules_java//java:java_library.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "maven_export")
+load("@wfa_common_jvm//build/maven:defs.bzl", "artifact_version")
+
+package(
+    default_testonly = True,
+)
+
+MAVEN_COORDINATES = "org.wfanet.panelmatch:panel-exchange-client-testing:" + artifact_version()
+
+java_library(
+    name = "testing",
+    resources = [
+        "//src/main/kotlin/org/wfanet/panelmatch/integration/fixtures/edp",
+        "//src/main/kotlin/org/wfanet/panelmatch/integration/fixtures/mp",
+        "//src/main/kotlin/org/wfanet/panelmatch/integration/fixtures/shared",
+        "//src/test/kotlin/org/wfanet/panelmatch/integration/config",
+    ],
+    tags = ["maven_coordinates=" + MAVEN_COORDINATES],
+    runtime_deps = [
+        "//src/main/kotlin/org/wfanet/panelmatch/client/deploy",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/eventpreprocessing/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/exchangetasks/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/launcher/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/privatemembership/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/client/storage/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/beam/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/certificates/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/crypto/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/secrets/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/common/testing",
+        "//src/main/kotlin/org/wfanet/panelmatch/integration",
+        "//src/main/kotlin/org/wfanet/panelmatch/integration/testing",
+        "@wfa_common_jvm//imports/kotlin/io/grpc/health/v1:health_kt_jvm_grpc",
+    ],
+)
+
+maven_export(
+    name = "maven_testing",
+    # See https://github.com/bazelbuild/rules_jvm_external/issues/1213
+    testonly = None,
+    lib_name = "testing",
+    maven_coordinates = MAVEN_COORDINATES,
+    tags = [
+        "no-javadocs",
+        "no-remote-cache",
+    ],
+    visibility = ["//visibility:private"],
+)

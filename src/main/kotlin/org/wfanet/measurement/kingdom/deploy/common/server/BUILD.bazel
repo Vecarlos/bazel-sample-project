@@ -1,0 +1,132 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@wfa_rules_kotlin_jvm//kotlin:defs.bzl", "kt_jvm_library")
+load("//src/main/docker:macros.bzl", "java_image")
+
+kt_jvm_library(
+    name = "kingdom_data_server",
+    srcs = ["KingdomDataServer.kt"],
+    visibility = ["//src/main/kotlin/org/wfanet/measurement/kingdom/deploy:__subpackages__"],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:service_flags",
+        "//src/main/kotlin/org/wfanet/measurement/common/identity",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:duchy_ids",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:hmss_protocol_config",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:llv2_protocol_config",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:ro_llv2_protocol_config",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:trus_tee_protocol_config",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common/service:data_services",
+        "@wfa_common_jvm//imports/java/io/grpc/netty",
+        "@wfa_common_jvm//imports/kotlin/kotlinx/coroutines:core",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
+    ],
+)
+
+kt_jvm_library(
+    name = "utils",
+    srcs = ["Utils.kt"],
+    visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common/job:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/job:__subpackages__",
+    ],
+    deps = [
+        "//src/main/kotlin/org/wfanet/measurement/common/identity",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common:flags",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/identity",
+    ],
+)
+
+kt_jvm_library(
+    name = "v2alpha_public_api_server",
+    srcs = ["V2alphaPublicApiServer.kt"],
+    runtime_deps = ["@wfa_common_jvm//imports/java/io/grpc/netty"],
+    deps = [
+        ":utils",
+        "//src/main/kotlin/org/wfanet/measurement/api/v2alpha:akid_principal_lookup",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:api_change_metrics_interceptor",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:interceptors",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:rate_limiter_provider",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:rate_limiting_server_interceptor",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:service_flags",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:accounts_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:api_key_authentication_server_interceptor",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:api_keys_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:certificates_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:data_providers_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:event_group_metadata_descriptors_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:event_groups_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:exchange_step_attempts_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:exchange_steps_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:exchanges_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:measurement_consumers_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:measurements_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_lines_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_outages_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_providers_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_releases_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_rollouts_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_shards_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:model_suites_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:populations_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:public_keys_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:requisitions_service",
+        "//src/main/proto/wfa/measurement/config:rate_limit_config_kt_jvm_proto",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+    ],
+)
+
+java_binary(
+    name = "V2alphaPublicApiServer",
+    main_class = "org.wfanet.measurement.kingdom.deploy.common.server.V2alphaPublicApiServerKt",
+    runtime_deps = [
+        ":v2alpha_public_api_server",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/logging",
+    ],
+)
+
+java_image(
+    name = "v2alpha_public_api_server_image",
+    binary = ":V2alphaPublicApiServer",
+    main_class = "org.wfanet.measurement.kingdom.deploy.common.server.V2alphaPublicApiServerKt",
+    visibility = ["//src:docker_image_deployment"],
+)
+
+kt_jvm_library(
+    name = "system_api_server",
+    srcs = ["SystemApiServer.kt"],
+    runtime_deps = ["@wfa_common_jvm//imports/java/io/grpc/netty"],
+    deps = [
+        ":utils",
+        "//src/main/kotlin/org/wfanet/measurement/common/grpc:service_flags",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/system/v1alpha:computation_log_entries_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/system/v1alpha:computation_participants_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/system/v1alpha:computations_service",
+        "//src/main/kotlin/org/wfanet/measurement/kingdom/service/system/v1alpha:requisitions_service",
+        "@wfa_common_jvm//imports/java/io/grpc:api",
+        "@wfa_common_jvm//imports/java/picocli",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/common/grpc",
+    ],
+)
+
+java_binary(
+    name = "SystemApiServer",
+    main_class = "org.wfanet.measurement.kingdom.deploy.common.server.SystemApiServerKt",
+    runtime_deps = [
+        ":system_api_server",
+        "@wfa_common_jvm//src/main/kotlin/org/wfanet/measurement/gcloud/logging",
+    ],
+)
+
+java_image(
+    name = "system_api_server_image",
+    binary = ":SystemApiServer",
+    main_class = "org.wfanet.measurement.kingdom.deploy.common.server.SystemApiServerKt",
+    visibility = ["//src:docker_image_deployment"],
+)
