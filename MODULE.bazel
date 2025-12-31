@@ -265,6 +265,13 @@ maven.artifact(
 
 maven.install(
     artifacts = [
+        "io.grpc:grpc-netty-shaded:1.62.2",
+        "io.grpc:grpc-okhttp:1.62.2",
+        "io.grpc:grpc-kotlin-stub:1.4.1",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
+
+        "io.netty:netty-handler:4.1.91.Final",
+
         "com.google.crypto.tink:tink-awskms:1.11.0",
         "com.google.crypto.tink:tink-gcpkms:1.9.0",
         "com.squareup.okhttp3:okhttp",
