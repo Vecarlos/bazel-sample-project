@@ -18,22 +18,22 @@ kt_jvm_library(
     ],
 )
 
-kt_jvm_library(
-    name = "count_letters_server_kt",
-    srcs = ["CountLettersServer.kt"],
-    deps = [
-        "//src/main/kotlin/com:common_server_kt",
-        "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
-    ],
-)
-
-java_binary(
-    name = "count_letters_server_bin",
-    main_class = "com.CountLettersServerKt",
-    runtime_deps = [
-        ":common_server_kt",
-        ":count_letters_server_kt",],
-)
+#kt_jvm_library(
+#    name = "count_letters_server_kt",
+#    srcs = ["CountLettersServer.kt"],
+#    deps = [
+#        "//src/main/kotlin/com:common_server_kt",
+#        "//src/main/kotlin/implementation:count_letters_service_implementation_kt",
+#    ],
+#)
+#
+#java_binary(
+#    name = "count_letters_server_bin",
+#    main_class = "com.CountLettersServerKt",
+#    runtime_deps = [
+#        ":common_server_kt",
+#        ":count_letters_server_kt",],
+#)
 kt_jvm_binary(
     name = "count_letters_server_bin",
     srcs = ["CountLettersServer.kt"],
