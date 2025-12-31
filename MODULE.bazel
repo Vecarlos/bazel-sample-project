@@ -220,6 +220,27 @@ maven.artifact(
     ],
     group = "org.apache.beam",
 )
+maven.artifact(
+    testonly = True,
+    artifact = "mockito-core",
+    group = "org.mockito",
+    version = "5.12.0",
+)
+
+maven.artifact(
+    testonly = True,
+    artifact = "mockito-inline",
+    group = "org.mockito",
+    version = "5.2.0",
+)
+
+maven.artifact(
+    testonly = True,
+    artifact = "mockito-kotlin",
+    group = "org.mockito.kotlin",
+    version = "5.4.0",
+)
+
 maven.install(
     artifacts = [
         "com.google.crypto.tink:tink-awskms:1.11.0",
