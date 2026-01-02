@@ -24,6 +24,10 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
+      - name: re pin
+        run: REPIN=1 bazel  run @maven//:pin
+
+
       - name: Check lockfile
         run: bazel mod deps
 
