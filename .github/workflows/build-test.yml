@@ -98,8 +98,8 @@ jobs:
 
       - uses: ./.github/actions/free-disk-space
 
-      - name: re pin
-        run: REPIN=1 bazel  run @maven//:pin
+#      - name: re pin
+#        run: REPIN=1 bazel  run @maven//:pin
 
 
       - name: Check lockfile
