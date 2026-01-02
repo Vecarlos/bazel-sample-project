@@ -24,6 +24,8 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v4
 
+      - uses: ./.github/actions/free-disk-space
+
       - name: re pin
         run: REPIN=1 bazel  run @maven//:pin
 
