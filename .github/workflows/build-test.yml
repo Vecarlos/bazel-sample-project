@@ -96,6 +96,10 @@ jobs:
       - name: Set TCP keepalive
         run: sudo sysctl -w net.ipv4.tcp_keepalive_time=60
 
+      - name: re pin
+        run: REPIN=1 bazel  run @maven//:pin
+
+
       - name: Check lockfile
         run: bazel mod deps
 
