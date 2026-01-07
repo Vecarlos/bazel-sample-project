@@ -1,6 +1,6 @@
  # Remote Build Execution (RBE)
 
-build:remote --remote_executor=grpcs://halo-cmm.buildbuddy.io
+build:remote --remote_executor=grpcs://brs.buildbuddy.io
 build:remote --define=EXECUTOR=remote
 
 # Include container toolchain/platform configuration.
