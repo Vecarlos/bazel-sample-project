@@ -3,8 +3,10 @@
   "extends": [
     "config:base"
   ],
-  "disabledManagers": [
-    "pip_requirements",
-    "terraform"
-  ]
+  "pip_requirements": {
+    "enabled": false
+  },
+  "terraform": {
+    "enabled": false
+  }
 }
