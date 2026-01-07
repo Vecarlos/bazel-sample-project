@@ -23,6 +23,7 @@ on:
     branches:
       - main
       - 'releases/**'
+      - renovate_deps
   workflow_dispatch:
 
 permissions:
