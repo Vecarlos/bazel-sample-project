@@ -1,3 +1,10 @@
 {
-  "enabledManagers": ["github-actions"]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "disabledManagers": [
+    "pip_requirements",
+    "terraform"
+  ]
 }
