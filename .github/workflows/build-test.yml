@@ -19,6 +19,7 @@ on:
     branches:
       - main
       - 'releases/**'
+      - renovate_deps
   pull_request:
     branches:
       - main
