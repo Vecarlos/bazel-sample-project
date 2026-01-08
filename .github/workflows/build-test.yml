@@ -54,7 +54,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          readarray -t kt_files_with_inline_fun < <(grep -rl --include '*.kt' "inline fun" src/main/kotlin/*)
+          readarray -t kt_files_with_inline_fun < <(grep -rl --include '*.kt' "inline fun" src/main/kotlin/* || true)
+
+          if [ "${#kt_files_with_inline_fun[@]}" -eq 0 ]; then
+            echo "exclusion_filter=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
           files_as_labels=()
           for f in "${kt_files_with_inline_fun[@]}"; do
@@ -64,9 +69,19 @@ jobs:
           done
 
           query_file="$(mktemp)"
-          printf 'kind(rule, rdeps(//..., set(%s), 1))\n' "${files_as_labels[*]}" > "$query_file"
-          exclusion_filter=$(bazel query --noimplicit_deps --query_file "$query_file" --output label | sed 's/^/-/' | paste -sd,)
+          all_labels=""
+          chunk_size=200
+          for ((i=0; i<${#files_as_labels[@]}; i+=chunk_size)); do
+            chunk=("${files_as_labels[@]:i:chunk_size}")
+            printf 'kind(rule, rdeps(//..., set(%s), 1))\n' "${chunk[*]}" > "$query_file"
+            chunk_labels=$(bazel query --noimplicit_deps --query_file "$query_file" --output label)
+            if [ -n "$chunk_labels" ]; then
+              all_labels="${all_labels}"$'\n'"${chunk_labels}"
+            fi
+          done
           rm -f "$query_file"
+
+          exclusion_filter=$(printf "%s\n" "$all_labels" | sed '/^$/d' | sort -u | sed 's/^/-/' | paste -sd,)
           echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
 
