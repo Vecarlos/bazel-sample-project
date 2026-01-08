@@ -85,6 +85,9 @@ jobs:
           done
           rm -f "$query_file"
 
+          echo "Computed exclusion labels:"
+          printf "%s\n" "$all_labels" | sed '/^$/d' | sort -u
+
           exclusion_filter=$(printf "%s\n" "$all_labels" | sed '/^$/d' | sort -u | sed 's/^/-/' | paste -sd,)
           echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
