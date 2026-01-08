@@ -64,7 +64,7 @@ jobs:
           done
 
           query="kind(rule, rdeps(//..., set(${files_as_labels[*]}), 1))"
-          exclusion_filter=$(bazel query --noimplicit_deps "${query}" --output label | sed 's/^/-/' | paste -sd,)
+          exclusion_filter=$(bazel query --noimplicit_deps --query_file "${query}" --output label | sed 's/^/-/' | paste -sd,)
           echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
 
