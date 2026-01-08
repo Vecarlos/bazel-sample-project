@@ -63,8 +63,10 @@ jobs:
             files_as_labels+=("//${pkg}:${name}")
           done
 
-          query="kind(rule, rdeps(//..., set(${files_as_labels[*]}), 1))"
-          exclusion_filter=$(bazel query --noimplicit_deps --query_file "${query}" --output label | sed 's/^/-/' | paste -sd,)
+          query_file="$(mktemp)"
+          printf 'kind(rule, rdeps(//..., set(%s), 1))\n' "${files_as_labels[*]}" > "$query_file"
+          exclusion_filter=$(bazel query --noimplicit_deps --query_file "$query_file" --output label | sed 's/^/-/' | paste -sd,)
+          rm -f "$query_file"
           echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
 
 
