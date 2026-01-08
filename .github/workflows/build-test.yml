@@ -70,7 +70,7 @@ jobs:
 
           query_file="$(mktemp)"
           all_labels=""
-          chunk_size=200
+          chunk_size=50
           for ((i=0; i<${#files_as_labels[@]}; i+=chunk_size)); do
             chunk=("${files_as_labels[@]:i:chunk_size}")
             printf 'kind(rule, rdeps(//..., set(%s), 1))\n' "${chunk[*]}" > "$query_file"
