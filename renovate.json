@@ -1,8 +1,5 @@
 {
   "pip_requirements": {
     "enabled": false
-  },
-  "terraform": {
-    "enabled": true
   }
 }
