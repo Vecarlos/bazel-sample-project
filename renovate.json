@@ -1,11 +1,17 @@
 {
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "packageRules": [
     {
       "enabled": false,
-      "matchPackageNames": ["*"]
+      "matchPackageNames": [
+        "*"
+      ]
     }
   ],
-  "vulnerabilityAlerts": { "enabled": true },
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
   "osvVulnerabilityAlerts": true
 }
