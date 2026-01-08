@@ -154,14 +154,9 @@ bazel_dep(
 # Must be compatible with the protobuf version declared in requirements.txt
 bazel_dep(
     name = "protobuf",
-    version = "32.0",
+    version = "33.1",
     repo_name = "com_google_protobuf",
 )
-# bazel_dep(
-#     name = "protobuf",
-#     version = "33.1",
-#     repo_name = "com_google_protobuf",
-# )
 bazel_dep(
     name = "abseil-cpp",
     version = "20250814.0",
@@ -451,4 +446,9 @@ http_archive(
 single_version_override(
     module_name = "boringssl",
     version = BORINGSSL_VERSION,
+)
+
+single_version_override(
+    module_name = "protobuf",
+    version = "32.0",
 )
