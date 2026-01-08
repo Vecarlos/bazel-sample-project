@@ -1,9 +1,13 @@
 {
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "packageRules": [
     {
       "enabled": false,
-      "matchPackageNames": ["*"],
+      "matchPackageNames": [
+        "*"
+      ],
       "prBodyDefinitions": {
         "OpenSSF": "[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/{{sourceRepo}}/badge)](https://securityscorecards.dev/viewer/?uri=github.com/{{sourceRepo}})"
       },
@@ -17,6 +21,8 @@
       ]
     }
   ],
-  "vulnerabilityAlerts": { "enabled": true },
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
   "osvVulnerabilityAlerts": true
 }
