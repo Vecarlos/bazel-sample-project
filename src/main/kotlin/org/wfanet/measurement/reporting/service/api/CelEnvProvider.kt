@@ -21,6 +21,7 @@ import com.google.protobuf.TypeRegistry
 import io.grpc.Status
 import io.grpc.StatusException
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -178,23 +179,29 @@ class CelEnvCacheProvider(
     try {
       val eventGroupMetadataDescriptors = mutableListOf<EventGroupMetadataDescriptor>()
       var response =
-        eventGroupsMetadataDescriptorsStub.listEventGroupMetadataDescriptors(
-          listEventGroupMetadataDescriptorsRequest {
-            parent = "dataProviders/-"
-            pageSize = MAX_PAGE_SIZE
-          }
-        )
+        eventGroupsMetadataDescriptorsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .listEventGroupMetadataDescriptors(
+            listEventGroupMetadataDescriptorsRequest {
+              parent = "dataProviders/-"
+              pageSize = MAX_PAGE_SIZE
+            }
+          )
       eventGroupMetadataDescriptors.addAll(response.eventGroupMetadataDescriptorsList)
 
       while (coroutineContext.isActive && response.nextPageToken.isNotEmpty()) {
         response =
-          eventGroupsMetadataDescriptorsStub.listEventGroupMetadataDescriptors(
-            listEventGroupMetadataDescriptorsRequest {
-              parent = "dataProviders/-"
-              pageSize = MAX_PAGE_SIZE
-              pageToken = response.nextPageToken
-            }
-          )
+          eventGroupsMetadataDescriptorsStub
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
+            .listEventGroupMetadataDescriptors(
+              listEventGroupMetadataDescriptorsRequest {
+                parent = "dataProviders/-"
+                pageSize = MAX_PAGE_SIZE
+                pageToken = response.nextPageToken
+              }
+            )
         eventGroupMetadataDescriptors.addAll(response.eventGroupMetadataDescriptorsList)
       }
 
@@ -240,32 +247,3 @@ class CelEnvCacheProvider(
     }
   }
 }
-// --- INJECTED FOR CACHE TEST ---
-fun injectedFunction1() {
-    println("Injected function 1 executed")
-}
-fun injectedFunction2() {
-    println("Injected function 2 executed")
-}
-fun injectedFunction3() {
-    println("Injected function 3 executed")
-}
-fun injectedFunction4() {
-    println("Injected function 4 executed")
-}
-fun injectedFunction5() {
-    println("Injected function 5 executed")
-}
-fun injectedFunction6() {
-    println("Injected function 6 executed")
-}
-fun injectedFunction7() {
-    println("Injected function 7 executed")
-}
-fun injectedFunction8() {
-    println("Injected function 8 executed")
-}
-fun injectedFunction9() {
-    println("Injected function 9 executed")
-}
-// --- END INJECTED ---
