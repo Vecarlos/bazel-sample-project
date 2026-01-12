@@ -18,6 +18,7 @@ import com.google.protobuf.Empty
 import io.grpc.Status
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -478,7 +479,10 @@ class PostgresComputationsService(
 
   private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
     try {
-      computationLogEntriesClient.createComputationLogEntry(request)
+      computationLogEntriesClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createComputationLogEntry(request)
     } catch (ignored: Exception) {
       logger.log(Level.WARNING, "Failed to update status change to the kingdom. $ignored")
     }
