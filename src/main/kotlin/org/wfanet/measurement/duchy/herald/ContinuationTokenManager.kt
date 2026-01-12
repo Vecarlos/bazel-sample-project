@@ -16,6 +16,7 @@ package org.wfanet.measurement.duchy.herald
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import org.wfanet.measurement.internal.duchy.ContinuationTokensGrpcKt.ContinuationTokensCoroutineStub
@@ -49,6 +50,7 @@ class ContinuationTokenManager(
     val response =
       continuationTokenClient
         .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getContinuationToken(getContinuationTokenRequest {})
 
     synchronized(this) {
@@ -102,7 +104,10 @@ class ContinuationTokenManager(
 
     // TODO(@renjiez): Throttle the calling of the api if needed.
     try {
-      continuationTokenClient.setContinuationToken(setRequest)
+      continuationTokenClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .setContinuationToken(setRequest)
     } catch (e: StatusException) {
       if (e.status.code == Status.Code.FAILED_PRECONDITION) {
         logger.log(Level.WARNING, e) { "Failure happened during setContinuationToken" }

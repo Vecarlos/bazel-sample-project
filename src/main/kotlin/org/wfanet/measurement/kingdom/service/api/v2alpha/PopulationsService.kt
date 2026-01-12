@@ -18,6 +18,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -115,7 +116,10 @@ class PopulationsService(
 
     val internalResponse: InternalPopulation =
       try {
-        internalClient.createPopulation(internalRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .createPopulation(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -154,7 +158,11 @@ class PopulationsService(
     }
 
     try {
-      return internalClient.getPopulation(getPopulationRequest).toPopulation()
+      return internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .getPopulation(getPopulationRequest)
+        .toPopulation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -192,6 +200,8 @@ class PopulationsService(
     val results: List<InternalPopulation> =
       try {
         internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .streamPopulations(listPopulationsPageToken.toStreamPopulationsRequest())
           .toList()
       } catch (e: StatusException) {
