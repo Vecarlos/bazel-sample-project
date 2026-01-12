@@ -94,11 +94,10 @@ class ApiKeyAuthenticationServerInterceptor(
       } catch (e: Exception) {
         throw Status.INVALID_ARGUMENT.withDescription("API key is invalid").asException()
       }
-    return internalApiKeysClient.authenticateApiKey(
-      authenticateApiKeyRequest { authenticationKeyHash = keyHash }
-    )
+    return internalApiKeysClient
       .withWaitForReady()
       .withDeadlineAfter(10, TimeUnit.MINUTES)
+      .authenticateApiKey(authenticateApiKeyRequest { authenticationKeyHash = keyHash })
   }
 }
 
