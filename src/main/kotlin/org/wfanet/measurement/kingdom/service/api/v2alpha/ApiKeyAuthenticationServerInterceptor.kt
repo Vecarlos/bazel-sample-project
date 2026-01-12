@@ -24,6 +24,7 @@ import io.grpc.ServerInterceptors
 import io.grpc.ServerServiceDefinition
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.ApiKeyCredentials
@@ -96,6 +97,8 @@ class ApiKeyAuthenticationServerInterceptor(
     return internalApiKeysClient.authenticateApiKey(
       authenticateApiKeyRequest { authenticationKeyHash = keyHash }
     )
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 }
 
