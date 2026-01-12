@@ -22,6 +22,7 @@ import com.google.protobuf.kotlin.unpack
 import com.google.protobuf.util.Timestamps
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -154,7 +155,10 @@ class EventGroupsService(
       }
     val internalResponse: InternalEventGroup =
       try {
-        internalEventGroupsStub.getEventGroup(internalRequest)
+        internalEventGroupsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getEventGroup(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND ->
@@ -209,7 +213,11 @@ class EventGroupsService(
       requestId = request.requestId
     }
     return try {
-      internalEventGroupsStub.createEventGroup(internalRequest).toEventGroup()
+      internalEventGroupsStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createEventGroup(internalRequest)
+        .toEventGroup()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -273,9 +281,12 @@ class EventGroupsService(
     return try {
       batchCreateEventGroupsResponse {
         eventGroups +=
-          internalEventGroupsStub.batchCreateEventGroups(internalRequest).eventGroupsList.map {
-            it.toEventGroup()
-          }
+          internalEventGroupsStub
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
+            .batchCreateEventGroups(internalRequest)
+            .eventGroupsList
+            .map { it.toEventGroup() }
       }
     } catch (e: StatusException) {
       throw when (e.status.code) {
@@ -305,7 +316,11 @@ class EventGroupsService(
         request.eventGroup.toInternal(eventGroupKey.dataProviderId, eventGroupKey.eventGroupId)
     }
     return try {
-      internalEventGroupsStub.updateEventGroup(updateRequest).toEventGroup()
+      internalEventGroupsStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .updateEventGroup(updateRequest)
+        .toEventGroup()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -364,9 +379,12 @@ class EventGroupsService(
     return try {
       batchUpdateEventGroupsResponse {
         eventGroups +=
-          internalEventGroupsStub.batchUpdateEventGroup(internalBatchRequest).eventGroupsList.map {
-            it.toEventGroup()
-          }
+          internalEventGroupsStub
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
+            .batchUpdateEventGroup(internalBatchRequest)
+            .eventGroupsList
+            .map { it.toEventGroup() }
       }
     } catch (e: StatusException) {
       throw when (e.status.code) {
@@ -446,7 +464,11 @@ class EventGroupsService(
     }
 
     return try {
-      internalEventGroupsStub.deleteEventGroup(deleteRequest).toEventGroup()
+      internalEventGroupsStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .deleteEventGroup(deleteRequest)
+        .toEventGroup()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -490,7 +512,11 @@ class EventGroupsService(
       )
     val internalEventGroups: List<InternalEventGroup> =
       try {
-        internalEventGroupsStub.streamEventGroups(internalRequest).toList()
+        internalEventGroupsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .streamEventGroups(internalRequest)
+          .toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED

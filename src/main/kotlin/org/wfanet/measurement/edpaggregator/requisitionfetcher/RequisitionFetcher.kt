@@ -21,6 +21,7 @@ import io.grpc.StatusException
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.time.TimeSource
@@ -96,8 +97,10 @@ class RequisitionFetcher(
    */
   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
   private suspend fun fetchRequisitions(): List<Requisition> = withFetchTelemetry {
+    val readyRequisitionsStub =
+      requisitionsStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
     val requisitions: Flow<Requisition> =
-      requisitionsStub
+      readyRequisitionsStub
         .listResources { pageToken: String ->
           val request = listRequisitionsRequest {
             parent = dataProviderName
@@ -109,7 +112,7 @@ class RequisitionFetcher(
           }
           val response: ListRequisitionsResponse =
             try {
-              requisitionsStub.listRequisitions(request)
+              readyRequisitionsStub.listRequisitions(request)
             } catch (e: StatusException) {
               throw Exception("Error listing requisitions", e)
             }
