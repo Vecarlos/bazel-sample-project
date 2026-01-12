@@ -18,6 +18,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -93,7 +94,11 @@ class ModelReleasesService(
 
     val createModelReleaseRequest = request.modelRelease.toInternal(parentKey, populationKey)
     return try {
-      internalClient.createModelRelease(createModelReleaseRequest).toModelRelease()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createModelRelease(createModelReleaseRequest)
+        .toModelRelease()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -127,7 +132,11 @@ class ModelReleasesService(
     }
 
     try {
-      return internalClient.getModelRelease(internalGetModelReleaseRequest).toModelRelease()
+      return internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .getModelRelease(internalGetModelReleaseRequest)
+        .toModelRelease()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -164,6 +173,8 @@ class ModelReleasesService(
 
     val results: List<InternalModelRelease> =
       internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamModelReleases(listModelReleasesPageToken.toStreamModelReleasesRequest())
         .toList()
 
