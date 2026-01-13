@@ -184,14 +184,19 @@ jobs:
            //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
         continue-on-error: true
 
-
+      - name: Verify consolidated coverage report exists
+        run: |
+          set -euo pipefail
+          report_path="$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat"
+          if [ ! -f "$report_path" ]; then
+            echo "Missing coverage report at $report_path"
+            exit 1
+          fi
+          ls -l "$report_path"
 
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
-
-      - name: Get bazel-testlogs path
-        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
 
       - name: Upload coverage report as artifact
@@ -200,13 +205,13 @@ jobs:
           name: coverage-report
           path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload all coverage.dat files to Codecov
+      - name: Upload consolidated coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
-          directory: ${{ env.BAZEL_TESTLOGS_PATH }}
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
       # - name: Run correctness test
       #   id: run-correctness-test
@@ -248,5 +253,4 @@ jobs:
       #   continue-on-error: true
       #   uses: world-federation-of-advertisers/actions/bazel-upload-testlogs@a9407321ceb8da9912face58a8139603678c869d # v2.5.0
       #   if: failure() && (steps.run-tests.outcome == 'failure' || steps.run-correctness-test.outcome == 'failure' || steps.run-panelmatch-correctness-test.outcome == 'failure')
-
 
