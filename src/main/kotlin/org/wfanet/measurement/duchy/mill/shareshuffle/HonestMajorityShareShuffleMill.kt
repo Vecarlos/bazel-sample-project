@@ -22,6 +22,7 @@ import java.security.cert.CertPathValidatorException
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.flowOf
@@ -136,6 +137,11 @@ class HonestMajorityShareShuffleMill(
   }
 
   override val endingStage = Stage.COMPLETE.toProtocolStage()
+
+  private val readyCertificateClient =
+    certificateClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+  private val readyWorkerStubs =
+    workerStubs.mapValues { it.value.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES) }
 
   private val actions =
     mapOf(
@@ -252,7 +258,7 @@ class HonestMajorityShareShuffleMill(
     }
 
     val peerDuchyId = peerDuchyId(role)
-    val peerDuchyStub = workerStubs[peerDuchyId] ?: error("$peerDuchyId stub not found")
+    val peerDuchyStub = readyWorkerStubs[peerDuchyId] ?: error("$peerDuchyId stub not found")
     val peerDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, peerDuchyId, peerDuchyStub)
         .honestMajorityShareShuffle
@@ -336,7 +342,7 @@ class HonestMajorityShareShuffleMill(
     val dataProviderCertificateName = secretSeed.dataProviderCertificate
     val dataProviderCertificate =
       try {
-        certificateClient.getCertificate(
+        readyCertificateClient.getCertificate(
           getCertificateRequest { name = dataProviderCertificateName }
         )
       } catch (e: StatusException) {
@@ -466,7 +472,7 @@ class HonestMajorityShareShuffleMill(
     }
 
     val aggregatorId = protocolSetupConfig.aggregatorDuchyId
-    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+    val aggregatorStub = readyWorkerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
     val aggregatorStage =
       getComputationStageInOtherDuchy(token.globalComputationId, aggregatorId, aggregatorStub)
         .honestMajorityShareShuffle
@@ -609,7 +615,7 @@ class HonestMajorityShareShuffleMill(
 
   private fun peerDuchyStub(role: RoleInComputation): ComputationControlCoroutineStub {
     val peerDuchyId = peerDuchyId(role)
-    return workerStubs[peerDuchyId]
+    return readyWorkerStubs[peerDuchyId]
       ?: throw PermanentErrorException(
         "No ComputationControlService stub for the peer duchy '$peerDuchyId'"
       )

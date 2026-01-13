@@ -19,6 +19,7 @@ import com.google.protobuf.Any
 import com.google.type.Interval
 import com.google.type.interval
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -112,7 +113,13 @@ class RequisitionGrouperByReportId(
   throttler: Throttler,
   eventGroupsClient: EventGroupsCoroutineStub,
   requisitionsClient: RequisitionsCoroutineStub,
-) : RequisitionGrouper(requisitionValidator, requisitionsClient, eventGroupsClient, throttler) {
+) :
+  RequisitionGrouper(
+    requisitionValidator,
+    requisitionsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
+    eventGroupsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
+    throttler,
+  ) {
 
   /**
    * Groups validated [Requisition]s by report ID and persists their metadata.

@@ -18,6 +18,7 @@ import com.google.protobuf.ByteString
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import org.wfanet.anysketch.crypto.combineElGamalPublicKeysRequest
@@ -131,6 +132,9 @@ class ReachOnlyLiquidLegionsV2Mill(
     maximumAttempts,
     clock,
   ) {
+  private val readyWorkerStubs =
+    workerStubs.mapValues { it.value.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES) }
+
   override val endingStage = Stage.COMPLETE.toProtocolStage()
 
   private val actions =
@@ -377,7 +381,7 @@ class ReachOnlyLiquidLegionsV2Mill(
       }
 
     val nextDuchyId = nextDuchyId(rollv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .reachOnlyLiquidLegionsSketchAggregationV2
@@ -432,7 +436,7 @@ class ReachOnlyLiquidLegionsV2Mill(
       }
 
     val aggregatorId = rollv2Details.participantList.last().duchyId
-    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+    val aggregatorStub = readyWorkerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
     val aggregatorStage =
       getComputationStageInOtherDuchy(token.globalComputationId, aggregatorId, aggregatorStub)
         .reachOnlyLiquidLegionsSketchAggregationV2
@@ -570,7 +574,7 @@ class ReachOnlyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(rollv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .reachOnlyLiquidLegionsSketchAggregationV2
