@@ -127,7 +127,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
-    runBlocking { delay(Duration.ofSeconds(10)) }
+    runBlocking { delay(10_000L) }
     initMcSimulator()
   }
 

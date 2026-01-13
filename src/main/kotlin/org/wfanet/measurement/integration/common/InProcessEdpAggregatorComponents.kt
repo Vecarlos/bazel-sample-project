@@ -338,7 +338,7 @@ class InProcessEdpAggregatorComponents(
           requisitionGrouper,
         )
       backgroundScope.launch {
-        delay(Duration.ofSeconds(10))
+        delay(10_000L)
         while (true) {
           delay(1000)
           requisitionFetcher.fetchAndStoreRequisitions()
