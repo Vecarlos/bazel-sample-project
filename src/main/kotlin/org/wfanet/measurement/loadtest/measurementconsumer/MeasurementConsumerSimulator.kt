@@ -25,6 +25,7 @@ import java.security.SignatureException
 import java.security.cert.CertPathValidatorException
 import java.security.cert.X509Certificate
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlin.math.log2
 import kotlin.math.max
@@ -974,6 +975,8 @@ abstract class MeasurementConsumerSimulator(
       try {
         measurementsClient
           .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .createMeasurement(request)
       } catch (e: StatusException) {
         throw Exception("Error creating Measurement", e)
@@ -1044,6 +1047,8 @@ abstract class MeasurementConsumerSimulator(
       try {
         measurementsClient
           .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getMeasurement(getMeasurementRequest { name = measurementName })
       } catch (e: StatusException) {
         throw Exception("Error fetching measurement $measurementName", e)
@@ -1086,6 +1091,8 @@ abstract class MeasurementConsumerSimulator(
         try {
           certificatesClient
             .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
             .getCertificate(getCertificateRequest { name = resultOutput.certificate })
         } catch (e: StatusException) {
           throw Exception("Error fetching certificate ${resultOutput.certificate}", e)
@@ -1193,6 +1200,8 @@ abstract class MeasurementConsumerSimulator(
     try {
       return measurementConsumersClient
         .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getMeasurementConsumer(request)
     } catch (e: StatusException) {
       throw Exception("Error getting MC $name", e)
@@ -1322,6 +1331,8 @@ abstract class MeasurementConsumerSimulator(
   private fun listEventGroups(measurementConsumer: String): Flow<EventGroup> {
     return eventGroupsClient
       .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .listResources { pageToken: String ->
         val response =
           try {
@@ -1349,6 +1360,8 @@ abstract class MeasurementConsumerSimulator(
     try {
       return dataProvidersClient
         .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getDataProvider(request)
     } catch (e: StatusException) {
       throw Exception("Error fetching DataProvider $name", e)
