@@ -641,8 +641,9 @@ abstract class MillBase(
           AdvanceComputationRequest.newBuilder().apply { bodyChunkBuilder.partialData = it }.build()
         }
         .onStart { emit(AdvanceComputationRequest.newBuilder().setHeader(header).build()) }
+    val readyStub = stub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
     try {
-      stub.advanceComputation(requestFlow)
+      readyStub.advanceComputation(requestFlow)
     } catch (e: StatusException) {
       val message = "Error advancing computation at other Duchy"
       throw when (e.status.code) {
@@ -827,9 +828,10 @@ abstract class MillBase(
     otherDuchyId: String,
     stub: ComputationControlCoroutineStub,
   ): ComputationStage {
+    val readyStub = stub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
     val systemStage =
       try {
-        stub.getComputationStage(
+        readyStub.getComputationStage(
           getComputationStageRequest { name = StageKey(globalComputationId, otherDuchyId).toName() }
         )
       } catch (e: StatusException) {
@@ -942,32 +944,3 @@ fun Duration.toHumanFriendlyDuration(): String {
   val millisString = if (millis == 0) "" else "$millis milliseconds"
   return "$hoursString$minutesString$secondsString$millisString"
 }
-// --- INJECTED FOR CACHE TEST ---
-fun injectedFunction1() {
-    println("Injected function 1 executed")
-}
-fun injectedFunction2() {
-    println("Injected function 2 executed")
-}
-fun injectedFunction3() {
-    println("Injected function 3 executed")
-}
-fun injectedFunction4() {
-    println("Injected function 4 executed")
-}
-fun injectedFunction5() {
-    println("Injected function 5 executed")
-}
-fun injectedFunction6() {
-    println("Injected function 6 executed")
-}
-fun injectedFunction7() {
-    println("Injected function 7 executed")
-}
-fun injectedFunction8() {
-    println("Injected function 8 executed")
-}
-fun injectedFunction9() {
-    println("Injected function 9 executed")
-}
-// --- END INJECTED ---
