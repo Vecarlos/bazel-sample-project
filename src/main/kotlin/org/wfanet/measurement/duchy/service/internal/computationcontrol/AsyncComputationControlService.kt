@@ -41,13 +41,15 @@ import org.wfanet.measurement.internal.duchy.recordOutputBlobPathRequest
 
 /** Implementation of the internal Async Computation Control Service. */
 class AsyncComputationControlService(
-  private val computationsClient: ComputationsCoroutineStub,
+  computationsClient: ComputationsCoroutineStub,
   /** Maximum number of attempts for [advanceComputation]. */
   private val maxAdvanceAttempts: Int,
   /** Retry backoff for [advanceComputation]. */
   private val advanceRetryBackoff: ExponentialBackoff = ExponentialBackoff(),
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : AsyncComputationControlCoroutineService(coroutineContext) {
+  private val computationsClient = computationsClient.withWaitForReady()
+
   init {
     require(maxAdvanceAttempts >= 1) { "maxAdvanceAttempts must be at least 1" }
   }
