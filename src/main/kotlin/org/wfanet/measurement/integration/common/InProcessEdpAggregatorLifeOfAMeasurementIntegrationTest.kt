@@ -187,7 +187,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           .toName(),
         modelLineName = modelLineName,
         initialResultPollingDelay = Duration.ofSeconds(10),
-        maximumResultPollingDelay = Duration.ofSeconds(30),
+        maximumResultPollingDelay = Duration.ofSeconds(10),
       )
   }
 
