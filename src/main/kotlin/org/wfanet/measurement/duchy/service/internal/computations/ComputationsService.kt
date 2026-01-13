@@ -19,6 +19,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -77,7 +78,7 @@ import org.wfanet.measurement.system.v1alpha.stageAttempt
 /** Implementation of the Computations service. */
 class ComputationsService(
   private val computationsDatabase: ComputationsDatabase,
-  private val computationLogEntriesClient: ComputationLogEntriesCoroutineStub,
+  computationLogEntriesClient: ComputationLogEntriesCoroutineStub,
   private val computationStore: ComputationStore,
   private val requisitionStore: RequisitionStore,
   private val duchyName: String,
@@ -85,6 +86,8 @@ class ComputationsService(
   private val clock: Clock = Clock.systemUTC(),
   private val defaultLockDuration: Duration = Duration.ofMinutes(5),
 ) : ComputationsCoroutineImplBase(coroutineContext) {
+  private val computationLogEntriesClient =
+    computationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
 
   override suspend fun claimWork(request: ClaimWorkRequest): ClaimWorkResponse {
     grpcRequire(request.owner.isNotEmpty()) { "owner is not specified" }

@@ -16,6 +16,7 @@ package org.wfanet.measurement.duchy.service.internal.computationcontrol
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -48,7 +49,8 @@ class AsyncComputationControlService(
   private val advanceRetryBackoff: ExponentialBackoff = ExponentialBackoff(),
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : AsyncComputationControlCoroutineService(coroutineContext) {
-  private val computationsClient = computationsClient.withWaitForReady()
+  private val computationsClient =
+    computationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
 
   init {
     require(maxAdvanceAttempts >= 1) { "maxAdvanceAttempts must be at least 1" }
