@@ -1409,6 +1409,9 @@ abstract class MeasurementConsumerSimulator(
   }
 
   private suspend inline fun <T> pollForResult(getResult: () -> T, done: (T) -> Boolean): T {
+    if (!initialResultPollingDelay.isZero) {
+      delay(initialResultPollingDelay)
+    }
     val backoff =
       ExponentialBackoff(initialDelay = initialResultPollingDelay, randomnessFactor = 0.0)
     var attempt = 1
