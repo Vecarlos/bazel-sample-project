@@ -65,6 +65,7 @@ abstract class RequisitionFulfillmentServer : Runnable {
           )
           .withDefaultDeadline(flags.computationsServiceFlags.defaultDeadlineDuration)
       )
+        .withWaitForReady()
     val systemRequisitionsClient =
       SystemRequisitionsCoroutineStub(
           buildMutualTlsChannel(
@@ -74,6 +75,7 @@ abstract class RequisitionFulfillmentServer : Runnable {
           )
         )
         .withDuchyId(flags.duchy.duchyName)
+        .withWaitForReady()
 
     val akidInterceptor = AuthorityKeyServerInterceptor()
     val akidPrincipalInterceptor =

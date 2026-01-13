@@ -75,8 +75,8 @@ abstract class ComputationControlServer : Runnable {
         javaClass.name,
         ComputationControlService(
             flags.duchy.duchyName,
-            ComputationsCoroutineStub(computationsServiceChannel),
-            AsyncComputationControlCoroutineStub(asyncControlServiceChannel),
+            ComputationsCoroutineStub(computationsServiceChannel).withWaitForReady(),
+            AsyncComputationControlCoroutineStub(asyncControlServiceChannel).withWaitForReady(),
             storageClient,
             serviceDispatcher,
           )

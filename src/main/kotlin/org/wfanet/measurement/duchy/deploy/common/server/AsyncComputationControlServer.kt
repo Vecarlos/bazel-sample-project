@@ -97,7 +97,7 @@ private fun run(@CommandLine.Mixin flags: AsyncComputationControlServiceFlags) {
       flags.server,
       SERVER_NAME,
       AsyncComputationControlService(
-        ComputationsCoroutineStub(channel),
+        ComputationsCoroutineStub(channel).withWaitForReady(),
         flags.maxAdvanceAttempts,
         coroutineContext = serviceDispatcher,
       ),
