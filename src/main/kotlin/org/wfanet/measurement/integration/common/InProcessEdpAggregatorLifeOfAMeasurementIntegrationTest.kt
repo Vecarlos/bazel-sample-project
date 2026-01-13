@@ -19,6 +19,7 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -126,6 +127,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
+    runBlocking { delay(Duration.ofSeconds(10)) }
     initMcSimulator()
   }
 
