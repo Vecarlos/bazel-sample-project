@@ -22,6 +22,7 @@ import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
 import java.util.AbstractMap
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -103,8 +104,8 @@ private const val MAX_BATCH_SIZE = 50
 private const val MISSING_RESOURCE_NAME_ERROR = "Resource name is either unspecified or invalid"
 
 class MeasurementsService(
-  private val internalMeasurementsStub: InternalMeasurementsCoroutineStub,
-  private val internalDataProvidersStub: InternalDataProvidersCoroutineStub,
+  internalMeasurementsStub: InternalMeasurementsCoroutineStub,
+  internalDataProvidersStub: InternalDataProvidersCoroutineStub,
   private val noiseMechanisms: List<NoiseMechanism>,
   private val reachOnlyLlV2Enabled: Boolean = false,
   private val hmssEnabled: Boolean = false,
@@ -113,6 +114,10 @@ class MeasurementsService(
   private val trusTeeEnabledMeasurementConsumers: List<String> = emptyList(),
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : MeasurementsCoroutineImplBase(coroutineContext) {
+  private val internalMeasurementsStub =
+    internalMeasurementsStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+  private val internalDataProvidersStub =
+    internalDataProvidersStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
 
   override suspend fun getMeasurement(request: GetMeasurementRequest): Measurement {
     val authenticatedMeasurementConsumerKey = getAuthenticatedMeasurementConsumerKey()
