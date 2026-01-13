@@ -27,6 +27,7 @@ import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.math.pow
@@ -127,10 +128,10 @@ abstract class MillBase(
   protected val signingKey: SigningKeyHandle,
   protected val consentSignalCert: Certificate,
   protected val dataClients: ComputationDataClients,
-  protected val systemComputationParticipantsClient: ComputationParticipantsCoroutineStub,
-  private val systemComputationsClient: ComputationsGrpcKt.ComputationsCoroutineStub,
-  private val systemComputationLogEntriesClient: ComputationLogEntriesCoroutineStub,
-  private val computationStatsClient: ComputationStatsCoroutineStub,
+  systemComputationParticipantsClient: ComputationParticipantsCoroutineStub,
+  systemComputationsClient: ComputationsGrpcKt.ComputationsCoroutineStub,
+  systemComputationLogEntriesClient: ComputationLogEntriesCoroutineStub,
+  computationStatsClient: ComputationStatsCoroutineStub,
   protected val computationType: ComputationType,
   private val workLockDuration: Duration,
   private val requestChunkSizeBytes: Int,
@@ -139,6 +140,15 @@ abstract class MillBase(
   private val rpcRetryBackoff: ExponentialBackoff = ExponentialBackoff(),
   private val rpcMaxAttempts: Int = 3,
 ) {
+  protected val systemComputationParticipantsClient =
+    systemComputationParticipantsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+  private val systemComputationsClient =
+    systemComputationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+  private val systemComputationLogEntriesClient =
+    systemComputationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+  private val computationStatsClient =
+    computationStatsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+
   abstract val endingStage: ComputationStage
 
   protected val cryptoWallClockDurationHistogram: DoubleHistogram =
@@ -932,3 +942,32 @@ fun Duration.toHumanFriendlyDuration(): String {
   val millisString = if (millis == 0) "" else "$millis milliseconds"
   return "$hoursString$minutesString$secondsString$millisString"
 }
+// --- INJECTED FOR CACHE TEST ---
+fun injectedFunction1() {
+    println("Injected function 1 executed")
+}
+fun injectedFunction2() {
+    println("Injected function 2 executed")
+}
+fun injectedFunction3() {
+    println("Injected function 3 executed")
+}
+fun injectedFunction4() {
+    println("Injected function 4 executed")
+}
+fun injectedFunction5() {
+    println("Injected function 5 executed")
+}
+fun injectedFunction6() {
+    println("Injected function 6 executed")
+}
+fun injectedFunction7() {
+    println("Injected function 7 executed")
+}
+fun injectedFunction8() {
+    println("Injected function 8 executed")
+}
+fun injectedFunction9() {
+    println("Injected function 9 executed")
+}
+// --- END INJECTED ---

@@ -20,6 +20,7 @@ import com.google.protobuf.any
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -93,9 +94,11 @@ private const val DEFAULT_PAGE_SIZE = 10
 private const val MAX_PAGE_SIZE = 500
 
 class RequisitionsService(
-  private val internalRequisitionStub: RequisitionsCoroutineStub,
+  internalRequisitionStub: RequisitionsCoroutineStub,
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : RequisitionsCoroutineImplBase(coroutineContext) {
+  private val internalRequisitionStub =
+    internalRequisitionStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
 
   private enum class Permission {
     LIST,
