@@ -16,6 +16,7 @@ package org.wfanet.measurement.integration.common
 
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
@@ -183,6 +184,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
+        initialResultPollingDelay = Duration.ofSeconds(10),
+        maximumResultPollingDelay = Duration.ofSeconds(30),
       )
   }
 
