@@ -122,6 +122,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
     }
     inProcessCmmsComponents.startDaemons()
+    runBlocking { warmUpSystemApi() }
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
     val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
@@ -134,10 +135,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
-    runBlocking {
-      delay(10_000L)
-      warmUpSystemApi()
-    }
+    runBlocking { delay(10_000L) }
     initMcSimulator()
   }
 
