@@ -16,6 +16,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.accountFromCurrentContext
@@ -65,7 +66,10 @@ class ApiKeysService(
 
     val result =
       try {
-        internalApiKeysStub.createApiKey(internalCreateApiKeyRequest)
+        internalApiKeysStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .createApiKey(internalCreateApiKeyRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -96,7 +100,10 @@ class ApiKeysService(
 
     val result =
       try {
-        internalApiKeysStub.deleteApiKey(deleteApiKeyRequest)
+        internalApiKeysStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .deleteApiKey(deleteApiKeyRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND

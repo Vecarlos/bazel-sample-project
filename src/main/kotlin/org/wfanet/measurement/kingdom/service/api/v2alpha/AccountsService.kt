@@ -19,6 +19,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import java.io.IOException
 import java.security.GeneralSecurityException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.AccountConstants
@@ -88,7 +89,10 @@ class AccountsService(
 
     val result =
       try {
-        internalAccountsStub.createAccount(internalCreateAccountRequest)
+        internalAccountsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .createAccount(internalCreateAccountRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -132,7 +136,10 @@ class AccountsService(
 
     val result =
       try {
-        internalAccountsStub.activateAccount(internalActivateAccountRequest)
+        internalAccountsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .activateAccount(internalActivateAccountRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.PERMISSION_DENIED -> Status.PERMISSION_DENIED
@@ -174,7 +181,10 @@ class AccountsService(
 
     val result =
       try {
-        internalAccountsStub.replaceAccountIdentity(internalReplaceAccountIdentityRequest)
+        internalAccountsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .replaceAccountIdentity(internalReplaceAccountIdentityRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.FAILED_PRECONDITION -> Status.FAILED_PRECONDITION
@@ -191,7 +201,10 @@ class AccountsService(
     grpcRequire(request.issuer.isNotBlank()) { "Issuer unspecified" }
 
     val openIdRequestParams =
-      internalAccountsStub.generateOpenIdRequestParams(generateOpenIdRequestParamsRequest {})
+      internalAccountsStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .generateOpenIdRequestParams(generateOpenIdRequestParamsRequest {})
 
     var uriString = ""
     if (request.issuer == SELF_ISSUED_ISSUER) {
@@ -297,9 +310,12 @@ class AccountsService(
       }
 
       val openIdRequestParams =
-        internalAccountsStub.getOpenIdRequestParams(
-          getOpenIdRequestParamsRequest { this.state = state.base64UrlDecode().toLong() }
-        )
+        internalAccountsStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getOpenIdRequestParams(
+            getOpenIdRequestParamsRequest { this.state = state.base64UrlDecode().toLong() }
+          )
 
       if (
         nonce.base64UrlDecode().toLong() != openIdRequestParams.nonce ||

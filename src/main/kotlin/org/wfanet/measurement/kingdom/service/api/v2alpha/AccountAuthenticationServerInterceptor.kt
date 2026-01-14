@@ -26,6 +26,7 @@ import io.grpc.ServerServiceDefinition
 import io.grpc.Status
 import io.grpc.StatusException
 import java.security.GeneralSecurityException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.AccountConstants
@@ -87,12 +88,14 @@ class AccountAuthenticationServerInterceptor(
       AccountsService.validateIdToken(
         idToken = idToken,
         redirectUri = redirectUri,
-        internalAccountsStub = internalAccountsClient,
+        internalAccountsStub =
+          internalAccountsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
       )
 
-    return internalAccountsClient.authenticateAccount(
-      authenticateAccountRequest { identity = openIdConnectIdentity }
-    )
+    return internalAccountsClient
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+      .authenticateAccount(authenticateAccountRequest { identity = openIdConnectIdentity })
   }
 }
 
