@@ -310,10 +310,18 @@ class InProcessEdpAggregatorComponents(
           .withWaitForReady()
           .withDeadlineAfter(10, TimeUnit.MINUTES)
 
-      requisitionsClient
-        .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
-        .listRequisitions(listRequisitionsRequest { parent = edpResourceName; pageSize = 1 })
+      withTimeout(Duration.ofMinutes(2).toMillis()) {
+        while (true) {
+          try {
+            requisitionsClient.listRequisitions(
+              listRequisitionsRequest { parent = edpResourceName; pageSize = 1 }
+            )
+            break
+          } catch (e: Exception) {
+            delay(1000)
+          }
+        }
+      }
 
       val eventGroupsClient: EventGroupsCoroutineStub =
         EventGroupsCoroutineStub(publicApiChannel)
