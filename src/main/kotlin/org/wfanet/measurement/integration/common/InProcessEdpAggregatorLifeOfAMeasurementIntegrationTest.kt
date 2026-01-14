@@ -35,6 +35,7 @@ import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCorouti
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.Measurement
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCoroutineStub
@@ -45,6 +46,7 @@ import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.Synthetic
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
 import org.wfanet.measurement.api.v2alpha.listEventGroupsRequest
+import org.wfanet.measurement.api.v2alpha.listMeasurementsRequest
 import org.wfanet.measurement.api.withAuthenticationKey
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.identity.withDuchyId
@@ -227,6 +229,37 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
   }
 
+  private suspend fun awaitMeasurementsFinal(runId: String, expectedCount: Int) {
+    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+    val readyMeasurementsClient =
+      publicMeasurementsClient.withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+    withTimeout(Duration.ofMinutes(2).toMillis()) {
+      while (true) {
+        val response =
+          readyMeasurementsClient.listMeasurements(
+            listMeasurementsRequest {
+              parent = measurementConsumerData.name
+              pageSize = 1000
+            }
+          )
+        val runMeasurements =
+          response.measurementsList.filter { it.measurementReferenceId == runId }
+        if (runMeasurements.size >= expectedCount &&
+            runMeasurements.all {
+              when (it.state) {
+                Measurement.State.SUCCEEDED,
+                Measurement.State.FAILED,
+                Measurement.State.CANCELLED -> true
+                else -> false
+              }
+            }) {
+          return@withTimeout
+        }
+        delay(1000)
+      }
+    }
+  }
+
   private fun initMcSimulator() {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     mcSimulator =
@@ -275,7 +308,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
-      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
+      val runId = "direct-rf"
+      mcSimulator.testDirectReachAndFrequency(runId = runId, numMeasurements = 1)
+      awaitMeasurementsFinal(runId, expectedCount = 1)
     }
 
   @Test
@@ -283,7 +318,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
-      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
+      val runId = "direct-reach"
+      mcSimulator.testDirectReachOnly(runId = runId, numMeasurements = 1)
+      awaitMeasurementsFinal(runId, expectedCount = 1)
     }
 
   @Test
@@ -291,34 +328,42 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create N incremental direct reach and frequency measurements and
       // verify its result.
-      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
+      val runId = "direct-reach-incremental"
+      mcSimulator.testDirectReachOnly(runId = runId, numMeasurements = 3)
+      awaitMeasurementsFinal(runId, expectedCount = 3)
     }
 
   @Test
   fun `create an impression measurement and check the result is equal to the expected result`() =
     runBlocking {
       // Use frontend simulator to create an impression measurement and verify its result.
-      mcSimulator.testImpression("1234")
+      val runId = "impression"
+      mcSimulator.testImpression(runId)
+      awaitMeasurementsFinal(runId, expectedCount = 1)
     }
 
   @Test
   fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
     runBlocking {
       // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      val runId = "hmss-reach-only"
       mcSimulator.testReachOnly(
-        "1234",
+        runId,
         DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
       )
+      awaitMeasurementsFinal(runId, expectedCount = 1)
     }
 
   @Test
   fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
     runBlocking {
       // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      val runId = "hmss-rf"
       mcSimulator.testReachAndFrequency(
-        "1234",
+        runId,
         DataProviderKt.capabilities { honestMajorityShareShuffleSupported = true },
       )
+      awaitMeasurementsFinal(runId, expectedCount = 1)
     }
 
   companion object {
