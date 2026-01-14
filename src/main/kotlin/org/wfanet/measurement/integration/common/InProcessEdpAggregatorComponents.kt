@@ -337,13 +337,6 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        delay(10_000L)
-        while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
-        }
-      }
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler, 500)
@@ -380,6 +373,14 @@ class InProcessEdpAggregatorComponents(
           )
         logger.info("Storing impression metadata for edp: $edpResourceName")
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
+      }
+
+      backgroundScope.launch {
+        delay(20_000L)
+        while (true) {
+          delay(1000)
+          requisitionFetcher.fetchAndStoreRequisitions()
+        }
       }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
