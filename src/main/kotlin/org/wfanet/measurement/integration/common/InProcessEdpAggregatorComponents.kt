@@ -61,6 +61,7 @@ import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCorouti
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticEventGroupSpec
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
+import org.wfanet.measurement.api.v2alpha.listRequisitionsRequest
 import org.wfanet.measurement.api.v2alpha.refuseRequisitionRequest
 import org.wfanet.measurement.api.v2alpha.replaceDataProviderCapabilitiesRequest
 import org.wfanet.measurement.common.crypto.tink.testing.FakeKmsClient
@@ -305,6 +306,11 @@ class InProcessEdpAggregatorComponents(
           .withPrincipalName(edpResourceName)
           .withWaitForReady()
           .withDeadlineAfter(10, TimeUnit.MINUTES)
+
+      requisitionsClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .listRequisitions(listRequisitionsRequest { parent = edpResourceName; pageSize = 1 })
 
       val eventGroupsClient: EventGroupsCoroutineStub =
         EventGroupsCoroutineStub(publicApiChannel)
