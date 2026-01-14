@@ -235,7 +235,7 @@ class InProcessEdpAggregatorComponents(
   private val backgroundScope =
     CoroutineScope(
       backgroundJob +
-        Dispatchers.Default +
+        Dispatchers.Default.limitedParallelism(1) +
         CoroutineName(loggingName) +
         CoroutineExceptionHandler { _, e ->
           logger.log(Level.SEVERE, e) { "Error in $loggingName" }

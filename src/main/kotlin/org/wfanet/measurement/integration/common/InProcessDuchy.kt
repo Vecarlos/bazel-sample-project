@@ -174,7 +174,7 @@ class InProcessDuchy(
       .makeKmsPrivateKeyStore(TinkKeyStore(InMemoryStorageClient()), keyUri)
   }
 
-  private val serviceDispatcher = Dispatchers.Default
+  private val serviceDispatcher = Dispatchers.Default.limitedParallelism(1)
 
   private val computationsServer =
     GrpcTestServerRule(logAllRequests = verboseGrpcLogging) {
