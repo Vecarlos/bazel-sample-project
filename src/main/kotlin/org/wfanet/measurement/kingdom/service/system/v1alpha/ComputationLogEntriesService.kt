@@ -15,6 +15,7 @@
 package org.wfanet.measurement.kingdom.service.system.v1alpha
 
 import io.grpc.Status
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.common.grpc.failGrpc
@@ -75,6 +76,8 @@ class ComputationLogEntriesService(
         }
         .build()
     return measurementLogEntriesService
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .createDuchyMeasurementLogEntry(internalRequest)
       .toSystemComputationLogEntry(computationParticipantKey.computationId)
   }

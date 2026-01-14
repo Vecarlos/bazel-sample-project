@@ -14,6 +14,7 @@
 
 package org.wfanet.measurement.kingdom.service.system.v1alpha
 
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.common.grpc.grpcRequire
@@ -44,24 +45,27 @@ class RequisitionsService(
     grpcRequire(request.nonce != 0L) { "nonce unspecified" }
 
     val internalResponse =
-      internalRequisitionsClient.fulfillRequisition(
-        internalFulfillRequisitionRequest {
-          externalRequisitionId = apiIdToExternalId(requisitionKey.requisitionId)
-          nonce = request.nonce
-          if (request.hasFulfillmentContext()) {
-            fulfillmentContext =
-              RequisitionDetailsKt.fulfillmentContext {
-                buildLabel = request.fulfillmentContext.buildLabel
-                warnings += request.fulfillmentContext.warningsList
-              }
+      internalRequisitionsClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .fulfillRequisition(
+          internalFulfillRequisitionRequest {
+            externalRequisitionId = apiIdToExternalId(requisitionKey.requisitionId)
+            nonce = request.nonce
+            if (request.hasFulfillmentContext()) {
+              fulfillmentContext =
+                RequisitionDetailsKt.fulfillmentContext {
+                  buildLabel = request.fulfillmentContext.buildLabel
+                  warnings += request.fulfillmentContext.warningsList
+                }
+            }
+            computedParams = computedRequisitionParams {
+              externalComputationId = apiIdToExternalId(requisitionKey.computationId)
+              externalFulfillingDuchyId = duchyIdentityProvider().id
+            }
+            etag = request.etag
           }
-          computedParams = computedRequisitionParams {
-            externalComputationId = apiIdToExternalId(requisitionKey.computationId)
-            externalFulfillingDuchyId = duchyIdentityProvider().id
-          }
-          etag = request.etag
-        }
-      )
+        )
     return internalResponse.toSystemRequisition()
   }
 }

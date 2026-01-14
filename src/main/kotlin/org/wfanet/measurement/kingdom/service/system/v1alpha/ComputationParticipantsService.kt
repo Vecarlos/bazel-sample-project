@@ -16,6 +16,7 @@ package org.wfanet.measurement.kingdom.service.system.v1alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.v2alpha.DuchyCertificateKey
@@ -67,7 +68,10 @@ class ComputationParticipantsService(
     }
     val response: InternalComputationParticipant =
       try {
-        internalComputationParticipantsClient.getComputationParticipant(internalRequest)
+        internalComputationParticipantsClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getComputationParticipant(internalRequest)
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
       }
@@ -80,9 +84,10 @@ class ComputationParticipantsService(
   ): ComputationParticipant {
     val internalResponse =
       try {
-        internalComputationParticipantsClient.setParticipantRequisitionParams(
-          request.toInternalRequest()
-        )
+        internalComputationParticipantsClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .setParticipantRequisitionParams(request.toInternalRequest())
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
       }
@@ -95,9 +100,10 @@ class ComputationParticipantsService(
   ): ComputationParticipant {
     val internalResponse =
       try {
-        internalComputationParticipantsClient.confirmComputationParticipant(
-          request.toInternalRequest()
-        )
+        internalComputationParticipantsClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .confirmComputationParticipant(request.toInternalRequest())
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
       }
@@ -110,9 +116,10 @@ class ComputationParticipantsService(
   ): ComputationParticipant {
     val internalResponse =
       try {
-        internalComputationParticipantsClient.failComputationParticipant(
-          request.toInternalRequest()
-        )
+        internalComputationParticipantsClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .failComputationParticipant(request.toInternalRequest())
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
       }

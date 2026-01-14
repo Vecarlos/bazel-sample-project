@@ -342,9 +342,10 @@ class HonestMajorityShareShuffleMill(
     val dataProviderCertificateName = secretSeed.dataProviderCertificate
     val dataProviderCertificate =
       try {
-        readyCertificateClient.getCertificate(
-          getCertificateRequest { name = dataProviderCertificateName }
-        )
+        readyCertificateClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getCertificate(getCertificateRequest { name = dataProviderCertificateName })
       } catch (e: StatusException) {
         val message = "Fail to get certificate for $dataProviderCertificateName"
         when (e.status.code) {
