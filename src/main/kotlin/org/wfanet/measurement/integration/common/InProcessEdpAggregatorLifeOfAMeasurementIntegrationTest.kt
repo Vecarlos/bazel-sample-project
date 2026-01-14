@@ -44,6 +44,7 @@ import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.Synthetic
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
 import org.wfanet.measurement.common.getRuntimePath
+import org.wfanet.measurement.common.identity.withDuchyId
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
@@ -168,8 +169,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   }
 
   private suspend fun warmUpSystemApi() {
+    val warmupDuchyId = inProcessCmmsComponents.duchies.first().externalDuchyId
     val stub =
       ComputationParticipantsCoroutineStub(inProcessCmmsComponents.kingdom.systemApiChannel)
+        .withDuchyId(warmupDuchyId)
         .withWaitForReady()
         .withDeadlineAfter(10, TimeUnit.MINUTES)
 
@@ -177,7 +180,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       try {
         stub.getComputationParticipant(
           getComputationParticipantRequest {
-            name = ComputationParticipantKey("warmup", "warmup").toName()
+            name = ComputationParticipantKey("warmup", warmupDuchyId).toName()
           }
         )
         return
