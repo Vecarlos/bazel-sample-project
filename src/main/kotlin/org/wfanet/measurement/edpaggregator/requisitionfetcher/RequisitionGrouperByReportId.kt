@@ -459,6 +459,8 @@ class RequisitionGrouperByReportId(
   ): List<RequisitionMetadata> {
     val requisitionMetadataList: Flow<RequisitionMetadata> =
       requisitionMetadataStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .listResources { pageToken: String ->
           val request = listRequisitionMetadataRequest {
             parent = dataProviderName
@@ -467,7 +469,10 @@ class RequisitionGrouperByReportId(
             this.pageToken = pageToken
           }
           val response: ListRequisitionMetadataResponse =
-            requisitionMetadataStub.listRequisitionMetadata(request)
+            requisitionMetadataStub
+              .withWaitForReady()
+              .withDeadlineAfter(10, TimeUnit.MINUTES)
+              .listRequisitionMetadata(request)
           ResourceList(response.requisitionMetadataList, response.nextPageToken)
         }
         .flattenConcat()
@@ -502,7 +507,10 @@ class RequisitionGrouperByReportId(
       requisitionMetadata = metadata
       requestId = createRequisitionMetadataRequestId
     }
-    return requisitionMetadataStub.createRequisitionMetadata(request)
+    return requisitionMetadataStub
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+      .createRequisitionMetadata(request)
   }
 
   /**
@@ -524,7 +532,10 @@ class RequisitionGrouperByReportId(
       etag = requisitionMetadata.etag
       refusalMessage = message
     }
-    requisitionMetadataStub.refuseRequisitionMetadata(request)
+    requisitionMetadataStub
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+      .refuseRequisitionMetadata(request)
   }
 
   private fun getReportId(requisition: Requisition): String {
