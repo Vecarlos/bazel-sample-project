@@ -168,7 +168,11 @@ class RequisitionsService(
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
     val internalRequisitions: List<InternalRequisition> =
       try {
-        internalRequisitionStub.streamRequisitions(internalRequest).toList()
+        internalRequisitionStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .streamRequisitions(internalRequest)
+          .toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -214,7 +218,10 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub.getRequisition(getRequest)
+        internalRequisitionStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getRequisition(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -254,7 +261,10 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub.refuseRequisition(refuseRequest)
+        internalRequisitionStub
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .refuseRequisition(refuseRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -325,7 +335,10 @@ class RequisitionsService(
       etag = request.etag
     }
     try {
-      internalRequisitionStub.fulfillRequisition(fulfillRequest)
+      internalRequisitionStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .fulfillRequisition(fulfillRequest)
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND

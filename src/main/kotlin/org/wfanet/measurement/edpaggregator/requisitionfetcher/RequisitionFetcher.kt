@@ -101,6 +101,8 @@ class RequisitionFetcher(
       requisitionsStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
     val requisitions: Flow<Requisition> =
       readyRequisitionsStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .listResources { pageToken: String ->
           val request = listRequisitionsRequest {
             parent = dataProviderName
@@ -112,7 +114,10 @@ class RequisitionFetcher(
           }
           val response: ListRequisitionsResponse =
             try {
-              readyRequisitionsStub.listRequisitions(request)
+              readyRequisitionsStub
+                .withWaitForReady()
+                .withDeadlineAfter(10, TimeUnit.MINUTES)
+                .listRequisitions(request)
             } catch (e: StatusException) {
               throw Exception("Error listing requisitions", e)
             }
