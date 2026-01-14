@@ -21,6 +21,7 @@ import com.google.type.interval
 import io.grpc.Status
 import io.grpc.StatusException
 import java.time.ZoneOffset
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -114,7 +115,11 @@ class ModelRolloutsService(
 
     val createModelRolloutRequest = request.modelRollout.toInternal(parentKey, modelReleaseKey)
     return try {
-      internalClient.createModelRollout(createModelRolloutRequest).toModelRollout()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createModelRollout(createModelRolloutRequest)
+        .toModelRollout()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -162,6 +167,8 @@ class ModelRolloutsService(
 
     try {
       return internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .scheduleModelRolloutFreeze(internalScheduleModelRolloutFreezeRequest)
         .toModelRollout()
     } catch (e: StatusException) {
@@ -201,7 +208,10 @@ class ModelRolloutsService(
       externalModelRolloutId = apiIdToExternalId(key.modelRolloutId)
     }
     try {
-      internalClient.deleteModelRollout(deleteModelRolloutRequest)
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .deleteModelRollout(deleteModelRolloutRequest)
       return Empty.getDefaultInstance()
     } catch (e: StatusException) {
       throw when (e.status.code) {
@@ -241,6 +251,8 @@ class ModelRolloutsService(
 
     val results: List<InternalModelRollout> =
       internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamModelRollouts(listModelRolloutsPageToken.toStreamModelRolloutsRequest())
         .toList()
 

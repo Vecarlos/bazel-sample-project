@@ -21,6 +21,7 @@ import java.io.IOException
 import java.lang.NumberFormatException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.v2alpha.AccountPrincipal
@@ -99,7 +100,10 @@ class ExchangeStepAttemptsService(
     }
     val internalResponse: InternalExchangeStepAttempt =
       try {
-        internalExchangeStepAttempts.appendLogEntry(internalRequest)
+        internalExchangeStepAttempts
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .appendLogEntry(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -133,7 +137,10 @@ class ExchangeStepAttemptsService(
     }
     val internalResponse =
       try {
-        internalExchangeStepAttempts.finishExchangeStepAttempt(internalRequest)
+        internalExchangeStepAttempts
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .finishExchangeStepAttempt(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -182,13 +189,16 @@ class ExchangeStepAttemptsService(
     val authenticatedPrincipal: MeasurementPrincipal = principalFromCurrentContext
     val internalExchangeStep =
       try {
-        internalExchangeSteps.getExchangeStep(
-          internalGetExchangeStepRequest {
-            externalRecurringExchangeId = externalIds.externalRecurringExchangeId.value
-            date = externalIds.date
-            stepIndex = externalIds.stepIndex
-          }
-        )
+        internalExchangeSteps
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getExchangeStep(
+            internalGetExchangeStepRequest {
+              externalRecurringExchangeId = externalIds.externalRecurringExchangeId.value
+              date = externalIds.date
+              stepIndex = externalIds.stepIndex
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.PERMISSION_DENIED

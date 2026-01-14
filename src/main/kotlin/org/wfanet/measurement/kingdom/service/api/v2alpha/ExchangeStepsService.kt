@@ -17,6 +17,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import io.grpc.Status
 import io.grpc.StatusException
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.flow.toList
@@ -110,7 +111,10 @@ class ExchangeStepsService(
       }
     }
     val internalResponse: InternalClaimReadyExchangeStepResponse =
-      internalExchangeSteps.claimReadyExchangeStep(internalRequest)
+      internalExchangeSteps
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .claimReadyExchangeStep(internalRequest)
     if (!internalResponse.hasExchangeStep()) {
       return ClaimReadyExchangeStepResponse.getDefaultInstance()
     }
@@ -144,11 +148,14 @@ class ExchangeStepsService(
       }
     val internalRecurringExchange: RecurringExchange =
       try {
-        internalRecurringExchanges.getRecurringExchange(
-          getRecurringExchangeRequest {
-            externalRecurringExchangeId = ApiId(parentKey.recurringExchangeId).externalId.value
-          }
-        )
+        internalRecurringExchanges
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getRecurringExchange(
+            getRecurringExchangeRequest {
+              externalRecurringExchangeId = ApiId(parentKey.recurringExchangeId).externalId.value
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.PERMISSION_DENIED
@@ -245,7 +252,11 @@ class ExchangeStepsService(
     }
 
     val results: List<InternalExchangeStep> =
-      internalExchangeSteps.streamExchangeSteps(streamExchangeStepsRequest).toList()
+      internalExchangeSteps
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .streamExchangeSteps(streamExchangeStepsRequest)
+        .toList()
 
     if (results.isEmpty()) {
       return ListExchangeStepsResponse.getDefaultInstance()

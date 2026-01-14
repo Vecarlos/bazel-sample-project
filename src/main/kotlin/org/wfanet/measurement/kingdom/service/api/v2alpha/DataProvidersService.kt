@@ -93,9 +93,14 @@ class DataProvidersService(
 
     val internalDataProvider =
       try {
-        internalClient.getDataProvider(
-          getDataProviderRequest { externalDataProviderId = apiIdToExternalId(key.dataProviderId) }
-        )
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getDataProvider(
+            getDataProviderRequest {
+              externalDataProviderId = apiIdToExternalId(key.dataProviderId)
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -130,12 +135,15 @@ class DataProvidersService(
 
     val internalDataProvider: InternalDataProvider =
       try {
-        internalClient.replaceDataProviderRequiredDuchies(
-          replaceDataProviderRequiredDuchiesRequest {
-            externalDataProviderId = apiIdToExternalId(key.dataProviderId)
-            this.requiredExternalDuchyIds += requiredExternalDuchyIds
-          }
-        )
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .replaceDataProviderRequiredDuchies(
+            replaceDataProviderRequiredDuchiesRequest {
+              externalDataProviderId = apiIdToExternalId(key.dataProviderId)
+              this.requiredExternalDuchyIds += requiredExternalDuchyIds
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -193,7 +201,10 @@ class DataProvidersService(
 
     val internalDataProvider: InternalDataProvider =
       try {
-        internalClient.replaceDataAvailabilityIntervals(internalRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .replaceDataAvailabilityIntervals(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -238,12 +249,15 @@ class DataProvidersService(
 
     val internalDataProvider: InternalDataProvider =
       try {
-        internalClient.replaceDataAvailabilityInterval(
-          replaceDataAvailabilityIntervalRequest {
-            externalDataProviderId = apiIdToExternalId(key.dataProviderId)
-            dataAvailabilityInterval = request.dataAvailabilityInterval
-          }
-        )
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .replaceDataAvailabilityInterval(
+            replaceDataAvailabilityIntervalRequest {
+              externalDataProviderId = apiIdToExternalId(key.dataProviderId)
+              dataAvailabilityInterval = request.dataAvailabilityInterval
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -272,12 +286,15 @@ class DataProvidersService(
 
     val response: InternalDataProvider =
       try {
-        internalClient.replaceDataProviderCapabilities(
-          replaceDataProviderCapabilitiesRequest {
-            externalDataProviderId = ApiId(key.dataProviderId).externalId.value
-            capabilities = request.capabilities.toInternal()
-          }
-        )
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .replaceDataProviderCapabilities(
+            replaceDataProviderCapabilitiesRequest {
+              externalDataProviderId = ApiId(key.dataProviderId).externalId.value
+              capabilities = request.capabilities.toInternal()
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED

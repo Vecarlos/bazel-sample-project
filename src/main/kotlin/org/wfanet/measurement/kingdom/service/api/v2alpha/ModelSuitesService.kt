@@ -18,6 +18,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -84,7 +85,11 @@ class ModelSuitesService(
 
     val createModelSuiteRequest = request.modelSuite.toInternal(parentKey)
     return try {
-      internalClient.createModelSuite(createModelSuiteRequest).toModelSuite()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createModelSuite(createModelSuiteRequest)
+        .toModelSuite()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -117,7 +122,11 @@ class ModelSuitesService(
     }
 
     try {
-      return internalClient.getModelSuite(getModelSuiteRequest).toModelSuite()
+      return internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .getModelSuite(getModelSuiteRequest)
+        .toModelSuite()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -150,6 +159,8 @@ class ModelSuitesService(
     val results: List<InternalModelSuite> =
       try {
         internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .streamModelSuites(listModelSuitesPageToken.toStreamModelSuitesRequest())
           .toList()
       } catch (e: StatusException) {

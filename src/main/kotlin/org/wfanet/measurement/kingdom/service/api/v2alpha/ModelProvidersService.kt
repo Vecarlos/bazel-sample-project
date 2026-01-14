@@ -19,6 +19,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import com.google.protobuf.InvalidProtocolBufferException
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.v2alpha.DataProviderPrincipal
@@ -76,6 +77,8 @@ class ModelProvidersService(
 
     try {
       return internalModelProviders
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getModelProvider(internalGetModelProviderRequest)
         .toModelProvider()
     } catch (e: StatusException) {
@@ -112,7 +115,10 @@ class ModelProvidersService(
     }
 
     val response: InternalListModelProvidersResponse =
-      internalModelProviders.listModelProviders(internalListModelProvidersRequest)
+      internalModelProviders
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .listModelProviders(internalListModelProvidersRequest)
 
     return listModelProvidersResponse {
       modelProviders += response.modelProvidersList.map { it.toModelProvider() }

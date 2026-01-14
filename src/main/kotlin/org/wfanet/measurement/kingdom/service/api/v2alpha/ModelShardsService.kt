@@ -19,6 +19,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import com.google.protobuf.Empty
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -91,7 +92,11 @@ class ModelShardsService(
 
     val createModelShardRequest = request.modelShard.toInternal(parentKey, modelReleaseKey)
     return try {
-      internalClient.createModelShard(createModelShardRequest).toModelShard()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createModelShard(createModelShardRequest)
+        .toModelShard()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -125,7 +130,10 @@ class ModelShardsService(
       this.externalModelProviderId = externalModelProviderId
     }
     try {
-      internalClient.deleteModelShard(deleteModelShardRequest)
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .deleteModelShard(deleteModelShardRequest)
       return Empty.getDefaultInstance()
     } catch (e: StatusException) {
       throw when (e.status.code) {
@@ -161,6 +169,8 @@ class ModelShardsService(
 
     val results: List<InternalModelShard> =
       internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamModelShards(listModelShardsPageToken.toStreamModelShardsRequest())
         .toList()
 

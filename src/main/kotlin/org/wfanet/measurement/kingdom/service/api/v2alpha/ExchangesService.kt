@@ -17,6 +17,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import io.grpc.Status
 import io.grpc.StatusException
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.v2alpha.AccountPrincipal
@@ -61,11 +62,14 @@ class ExchangesService(
 
     val internalRecurringExchange: InternalRecurringExchange =
       try {
-        internalRecurringExchanges.getRecurringExchange(
-          internalGetRecurringExchangeRequest {
-            externalRecurringExchangeId = ApiId(key.recurringExchangeId).externalId.value
-          }
-        )
+        internalRecurringExchanges
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getRecurringExchange(
+            internalGetRecurringExchangeRequest {
+              externalRecurringExchangeId = ApiId(key.recurringExchangeId).externalId.value
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.PERMISSION_DENIED
@@ -100,12 +104,15 @@ class ExchangesService(
 
     val internalExchange: InternalExchange =
       try {
-        internalExchanges.getExchange(
-          internalGetExchangeRequest {
-            externalRecurringExchangeId = apiIdToExternalId(key.recurringExchangeId)
-            date = LocalDate.parse(key.exchangeId).toProtoDate()
-          }
-        )
+        internalExchanges
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getExchange(
+            internalGetExchangeRequest {
+              externalRecurringExchangeId = apiIdToExternalId(key.recurringExchangeId)
+              date = LocalDate.parse(key.exchangeId).toProtoDate()
+            }
+          )
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND

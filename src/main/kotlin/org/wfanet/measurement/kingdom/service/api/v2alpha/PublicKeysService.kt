@@ -18,6 +18,7 @@ import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.Version
@@ -99,7 +100,10 @@ class PublicKeysService(
       publicKeySignatureAlgorithmOid = request.publicKey.publicKey.signatureAlgorithmOid
     }
     try {
-      internalPublicKeysStub.updatePublicKey(updateRequest)
+      internalPublicKeysStub
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .updatePublicKey(updateRequest)
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT

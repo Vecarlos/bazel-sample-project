@@ -19,6 +19,7 @@ package org.wfanet.measurement.kingdom.service.api.v2alpha
 import com.google.protobuf.util.Timestamps
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -86,7 +87,11 @@ class ModelOutagesService(
 
     val createModelOutageRequest = request.modelOutage.toInternal(parentKey)
     return try {
-      internalClient.createModelOutage(createModelOutageRequest).toModelOutage()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createModelOutage(createModelOutageRequest)
+        .toModelOutage()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -125,7 +130,11 @@ class ModelOutagesService(
     }
 
     return try {
-      internalClient.deleteModelOutage(deleteRequest).toModelOutage()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .deleteModelOutage(deleteRequest)
+        .toModelOutage()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -163,6 +172,8 @@ class ModelOutagesService(
 
     val results: List<InternalModelOutage> =
       internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamModelOutages(listModelOutagesPageToken.toStreamModelOutagesRequest())
         .toList()
 

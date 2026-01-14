@@ -20,6 +20,7 @@ import com.google.protobuf.util.Timestamps
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.StatusRuntimeException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -110,7 +111,11 @@ class ModelLinesService(
 
     val createModelLineRequest = request.modelLine.toInternal(parentKey)
     return try {
-      internalClient.createModelLine(createModelLineRequest).toModelLine()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .createModelLine(createModelLineRequest)
+        .toModelLine()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -141,6 +146,8 @@ class ModelLinesService(
 
     return try {
       internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getModelLine(
           getModelLineRequest {
             externalModelProviderId = apiIdToExternalId(modelLineKey.modelProviderId)
@@ -184,7 +191,11 @@ class ModelLinesService(
     }
 
     try {
-      return internalClient.setActiveEndTime(internalRequest).toModelLine()
+      return internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .setActiveEndTime(internalRequest)
+        .toModelLine()
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -236,6 +247,8 @@ class ModelLinesService(
 
     try {
       return internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .setModelLineHoldbackModelLine(internalSetHoldbackModelLineRequest)
         .toModelLine()
     } catch (e: StatusException) {
@@ -281,7 +294,10 @@ class ModelLinesService(
     }
     val internalResponse: InternalModelLine =
       try {
-        internalClient.setModelLineType(internalRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .setModelLineType(internalRequest)
       } catch (e: StatusException) {
         val exception: StatusRuntimeException =
           when (Errors.getErrorCode(e)) {
@@ -377,7 +393,11 @@ class ModelLinesService(
     }
 
     val results: List<InternalModelLine> =
-      internalClient.streamModelLines(listModelLinesPageToken.toStreamModelLinesRequest()).toList()
+      internalClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .streamModelLines(listModelLinesPageToken.toStreamModelLinesRequest())
+        .toList()
 
     if (results.isEmpty()) {
       return ListModelLinesResponse.getDefaultInstance()
@@ -461,6 +481,8 @@ class ModelLinesService(
     val internalModelLines: List<InternalModelLine> =
       try {
         internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .enumerateValidModelLines(
             enumerateValidModelLinesRequest {
               if (parent.modelProviderId != ResourceKey.WILDCARD_ID) {

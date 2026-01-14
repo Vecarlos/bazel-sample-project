@@ -19,6 +19,7 @@ import com.google.protobuf.any
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.wfanet.measurement.api.Version
@@ -103,7 +104,10 @@ class MeasurementConsumersService(
 
     val internalMeasurementConsumer =
       try {
-        internalClient.createMeasurementConsumer(createRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .createMeasurementConsumer(createRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -149,7 +153,10 @@ class MeasurementConsumersService(
     }
     val internalResponse =
       try {
-        internalClient.getMeasurementConsumer(getRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .getMeasurementConsumer(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -187,7 +194,10 @@ class MeasurementConsumersService(
 
     val internalMeasurementConsumer =
       try {
-        internalClient.addMeasurementConsumerOwner(internalAddMeasurementConsumerOwnerRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .addMeasurementConsumerOwner(internalAddMeasurementConsumerOwnerRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.FAILED_PRECONDITION -> Status.FAILED_PRECONDITION
@@ -225,7 +235,10 @@ class MeasurementConsumersService(
 
     val internalMeasurementConsumer =
       try {
-        internalClient.removeMeasurementConsumerOwner(internalRemoveMeasurementConsumerOwnerRequest)
+        internalClient
+          .withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
+          .removeMeasurementConsumerOwner(internalRemoveMeasurementConsumerOwnerRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.FAILED_PRECONDITION -> Status.FAILED_PRECONDITION
