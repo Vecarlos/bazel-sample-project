@@ -65,9 +65,6 @@ class ComputationsService(
   private val streamingThrottle: Duration = 1.seconds,
   private val streamingLimit: Int = DEFAULT_STREAMING_LIMIT,
 ) : ComputationsCoroutineImplBase(coroutineContext) {
-  private val readyMeasurementsClient =
-    measurementsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
-
   override suspend fun getComputation(request: GetComputationRequest): Computation {
     val computationKey =
       grpcRequireNotNull(ComputationKey.fromName(request.name)) {
@@ -78,7 +75,11 @@ class ComputationsService(
         .apply { externalComputationId = apiIdToExternalId(computationKey.computationId) }
         .build()
     try {
-      return readyMeasurementsClient.getMeasurementByComputationId(internalRequest).toSystemComputation()
+      return measurementsClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .getMeasurementByComputationId(internalRequest)
+        .toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -166,7 +167,11 @@ class ComputationsService(
       publicApiVersion = request.publicApiVersion
     }
     try {
-      return readyMeasurementsClient.setMeasurementResult(internalRequest).toSystemComputation()
+      return measurementsClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .setMeasurementResult(internalRequest)
+        .toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -200,7 +205,10 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return readyMeasurementsClient.streamMeasurements(request)
+      return measurementsClient
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .streamMeasurements(request)
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED

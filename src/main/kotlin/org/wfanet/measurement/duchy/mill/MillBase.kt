@@ -392,7 +392,7 @@ abstract class MillBase(
         return@updateComputationParticipant
       }
 
-      systemComputationParticipantsClient.setParticipantRequisitionParams(
+      systemComputationParticipantsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).setParticipantRequisitionParams(
         setParticipantRequisitionParamsRequest {
           name = participant.name
           etag = participant.etag
@@ -588,7 +588,7 @@ abstract class MillBase(
     metricValue: Long,
   ) {
     logAndSuppressExceptionSuspend {
-      computationStatsClient.createComputationStat(
+      computationStatsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).createComputationStat(
         CreateComputationStatRequest.newBuilder()
           .setLocalComputationId(token.localComputationId)
           .setAttempt(token.attempt)

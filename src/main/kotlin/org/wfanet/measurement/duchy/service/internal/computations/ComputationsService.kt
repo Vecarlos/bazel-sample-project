@@ -411,7 +411,7 @@ class ComputationsService(
    */
   private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
     try {
-      computationLogEntriesClient.createComputationLogEntry(request)
+      computationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).createComputationLogEntry(request)
     } catch (e: StatusException) {
       logger.log(Level.WARNING, e) { "Failed to update status change to the kingdom." }
     }
