@@ -17,6 +17,8 @@ package org.wfanet.measurement.integration.common
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Duration
+import io.grpc.Status
+import io.grpc.StatusException
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
@@ -54,6 +56,9 @@ import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurem
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
+import org.wfanet.measurement.system.v1alpha.ComputationParticipantKey
+import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineStub
+import org.wfanet.measurement.system.v1alpha.getComputationParticipantRequest
 
 /**
  * Test that everything is wired up properly.
@@ -127,7 +132,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
-    runBlocking { delay(10_000L) }
+    runBlocking {
+      delay(10_000L)
+      warmUpSystemApi()
+    }
     initMcSimulator()
   }
 
@@ -157,6 +165,28 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
       .withDeadlineAfter(10, TimeUnit.MINUTES)
+  }
+
+  private suspend fun warmUpSystemApi() {
+    val stub =
+      ComputationParticipantsCoroutineStub(inProcessCmmsComponents.kingdom.systemApiChannel)
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+
+    repeat(5) {
+      try {
+        stub.getComputationParticipant(
+          getComputationParticipantRequest {
+            name = ComputationParticipantKey("warmup", "warmup").toName()
+          }
+        )
+        return
+      } catch (e: StatusException) {
+        if (e.status.code == Status.Code.NOT_FOUND) return
+        if (e.status.code != Status.Code.UNAVAILABLE) throw e
+        delay(1_000L)
+      }
+    }
   }
 
   private fun initMcSimulator() {
