@@ -16,6 +16,7 @@ package org.wfanet.measurement.integration.common
 
 import java.time.Instant
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -76,38 +77,56 @@ abstract class InProcessLifeOfAMeasurementIntegrationTest(
 
   private val publicMeasurementsClient by lazy {
     MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicMeasurementConsumersClient by lazy {
     MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicCertificatesClient by lazy {
     CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicEventGroupsClient by lazy {
     EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicDataProvidersClient by lazy {
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicModelSuitesClient by lazy {
     ModelSuitesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicModelLinesClient by lazy {
     ModelLinesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicModelReleasesClient by lazy {
     ModelReleasesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicModelRolloutClient by lazy {
     ModelRolloutsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   @Before

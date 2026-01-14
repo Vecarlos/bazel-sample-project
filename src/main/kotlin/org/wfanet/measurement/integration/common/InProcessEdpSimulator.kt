@@ -19,6 +19,7 @@ import io.grpc.Channel
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -105,18 +106,36 @@ class InProcessEdpSimulator(
         edpDisplayName = displayName,
         measurementConsumerName = mcResourceName,
         certificatesStub =
-          CertificatesCoroutineStub(kingdomPublicApiChannel).withPrincipalName(resourceName),
+          CertificatesCoroutineStub(kingdomPublicApiChannel)
+            .withPrincipalName(resourceName)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES),
         modelLinesStub =
-          ModelLinesCoroutineStub(kingdomPublicApiChannel).withPrincipalName(resourceName),
+          ModelLinesCoroutineStub(kingdomPublicApiChannel)
+            .withPrincipalName(resourceName)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES),
         dataProvidersStub =
-          DataProvidersCoroutineStub(kingdomPublicApiChannel).withPrincipalName(resourceName),
+          DataProvidersCoroutineStub(kingdomPublicApiChannel)
+            .withPrincipalName(resourceName)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES),
         eventGroupsStub =
-          EventGroupsCoroutineStub(kingdomPublicApiChannel).withPrincipalName(resourceName),
+          EventGroupsCoroutineStub(kingdomPublicApiChannel)
+            .withPrincipalName(resourceName)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES),
         requisitionsStub =
-          RequisitionsCoroutineStub(kingdomPublicApiChannel).withPrincipalName(resourceName),
+          RequisitionsCoroutineStub(kingdomPublicApiChannel)
+            .withPrincipalName(resourceName)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES),
         requisitionFulfillmentStubsByDuchyId =
           duchyPublicApiChannelMap.mapValues {
-            RequisitionFulfillmentCoroutineStub(it.value).withPrincipalName(resourceName)
+            RequisitionFulfillmentCoroutineStub(it.value)
+              .withPrincipalName(resourceName)
+              .withWaitForReady()
+              .withDeadlineAfter(10, TimeUnit.MINUTES)
           },
         syntheticDataTimeZone = eventQuery.timeZone,
         eventGroupsOptions = listOf(eventGroupOptions),
