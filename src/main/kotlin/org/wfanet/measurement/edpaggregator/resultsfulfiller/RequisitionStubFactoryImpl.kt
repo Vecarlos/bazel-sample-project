@@ -21,6 +21,7 @@ import io.opentelemetry.instrumentation.grpc.v1_6.GrpcTelemetry
 import java.io.File
 import java.nio.file.Paths
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import org.wfanet.measurement.api.v2alpha.RequisitionFulfillmentGrpcKt.RequisitionFulfillmentCoroutineStub
 import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub
 import org.wfanet.measurement.common.crypto.SigningCerts
@@ -66,6 +67,8 @@ class RequisitionStubFactoryImpl(
       ClientInterceptors.intercept(channel, grpcTelemetry.newClientInterceptor())
     }
     return RequisitionsCoroutineStub(publicChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   override fun buildRequisitionFulfillmentStubs(
@@ -95,7 +98,10 @@ class RequisitionStubFactoryImpl(
               .withShutdownTimeout(channelShutdownTimeout)
           ClientInterceptors.intercept(channel, grpcTelemetry.newClientInterceptor())
         }
-        duchyResourceName to RequisitionFulfillmentCoroutineStub(publicChannel)
+        duchyResourceName to
+          RequisitionFulfillmentCoroutineStub(publicChannel)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
       }
       .toMap()
   }

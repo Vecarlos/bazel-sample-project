@@ -17,6 +17,7 @@
 package org.wfanet.measurement.edpaggregator.resultsfulfiller.testing
 
 import io.grpc.Channel
+import java.util.concurrent.TimeUnit
 import org.wfanet.measurement.api.v2alpha.RequisitionFulfillmentGrpcKt.RequisitionFulfillmentCoroutineStub
 import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub
 import org.wfanet.measurement.common.identity.withPrincipalName
@@ -31,7 +32,10 @@ class TestRequisitionStubFactory(
   override fun buildRequisitionsStub(
     fulfillerParams: ResultsFulfillerParams
   ): RequisitionsCoroutineStub {
-    return RequisitionsCoroutineStub(cmmsChannel).withPrincipalName(fulfillerParams.dataProvider)
+    return RequisitionsCoroutineStub(cmmsChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+      .withPrincipalName(fulfillerParams.dataProvider)
   }
 
   override fun buildRequisitionFulfillmentStubs(
@@ -41,6 +45,8 @@ class TestRequisitionStubFactory(
       .map { (duchyId, channel) ->
         duchyId to
           RequisitionFulfillmentCoroutineStub(duchies.getValue(duchyId))
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
             .withPrincipalName(fulfillerParams.dataProvider)
       }
       .toMap()
