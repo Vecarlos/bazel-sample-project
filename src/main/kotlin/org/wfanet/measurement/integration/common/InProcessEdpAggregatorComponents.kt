@@ -42,11 +42,13 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withContext
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -255,6 +257,7 @@ class InProcessEdpAggregatorComponents(
       edpAggregatorShortNames.associateWith { edpAggregatorShortName ->
         edpDisplayNameToResourceMap.getValue(edpAggregatorShortName).name
       }
+    val firstFetchReadySignals = mutableListOf<CompletableDeferred<Unit>>()
     edpResourceNameMap.toList().forEach { (edpAggregatorShortName, edpResourceName) ->
       val dataProvidersStub: DataProvidersCoroutineStub =
         DataProvidersCoroutineStub(publicApiChannel)
@@ -343,11 +346,25 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
+      val firstFetchReady = CompletableDeferred<Unit>()
+      firstFetchReadySignals += firstFetchReady
       backgroundScope.launch {
-        delay(10_000L)
         while (true) {
+          try {
+            requisitionFetcher.fetchAndStoreRequisitions()
+            if (!firstFetchReady.isCompleted) {
+              firstFetchReady.complete(Unit)
+            }
+          } catch (e: Exception) {
+            if (!firstFetchReady.isCompleted) {
+              logger.log(Level.INFO, e) { "Requisition fetcher not ready for $edpResourceName" }
+            } else {
+              logger.log(Level.WARNING, e) {
+                "Error fetching requisitions for $edpResourceName"
+              }
+            }
+          }
           delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
       val eventGroups = buildEventGroups(measurementConsumerData)
@@ -387,6 +404,9 @@ class InProcessEdpAggregatorComponents(
         logger.info("Storing impression metadata for edp: $edpResourceName")
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
+    }
+    withTimeout(Duration.ofMinutes(2).toMillis()) {
+      firstFetchReadySignals.forEach { it.await() }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
   }

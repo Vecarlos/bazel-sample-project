@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -43,6 +44,8 @@ import org.wfanet.measurement.api.v2alpha.differentialPrivacyParams
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticEventGroupSpec
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
+import org.wfanet.measurement.api.v2alpha.listEventGroupsRequest
+import org.wfanet.measurement.api.withAuthenticationKey
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.identity.withDuchyId
 import org.wfanet.measurement.common.identity.externalIdToApiId
@@ -135,7 +138,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
-    runBlocking { delay(10_000L) }
+    runBlocking { awaitPublicApiReady(measurementConsumerData) }
     initMcSimulator()
   }
 
@@ -187,6 +190,38 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       } catch (e: StatusException) {
         if (e.status.code == Status.Code.NOT_FOUND) return
         if (e.status.code != Status.Code.UNAVAILABLE) throw e
+        delay(1_000L)
+      }
+    }
+  }
+
+  private suspend fun awaitPublicApiReady(measurementConsumerData: MeasurementConsumerData) {
+    val expectedEventGroupCount = syntheticEventGroupMap.values.sumOf { it.dateSpecsCount }
+    if (expectedEventGroupCount == 0) {
+      return
+    }
+    val readyEventGroupsClient =
+      publicEventGroupsClient.withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+    withTimeout(Duration.ofMinutes(2).toMillis()) {
+      while (true) {
+        try {
+          val response =
+            readyEventGroupsClient.listEventGroups(
+              listEventGroupsRequest {
+                parent = measurementConsumerData.name
+                pageSize = expectedEventGroupCount
+              }
+            )
+          if (response.eventGroupsCount >= expectedEventGroupCount) {
+            return@withTimeout
+          }
+        } catch (e: StatusException) {
+          when (e.status.code) {
+            Status.Code.UNAVAILABLE,
+            Status.Code.DEADLINE_EXCEEDED -> {}
+            else -> throw e
+          }
+        }
         delay(1_000L)
       }
     }
