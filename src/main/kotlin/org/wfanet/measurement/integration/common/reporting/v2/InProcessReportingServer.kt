@@ -28,6 +28,7 @@ import java.nio.file.Paths
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlin.random.asKotlinRandom
 import kotlinx.coroutines.Dispatchers
@@ -118,44 +119,84 @@ class InProcessReportingServer(
 ) : TestRule {
   private val publicKingdomMeasurementConsumersClient =
     PublicKingdomMeasurementConsumersCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   private val publicKingdomMeasurementsClient =
     PublicKingdomMeasurementsCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   private val publicKingdomCertificatesClient =
     PublicKingdomCertificatesCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   private val publicKingdomDataProvidersClient =
     PublicKingdomDataProvidersCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   private val publicKingdomEventGroupMetadataDescriptorsClient =
     PublicKingdomEventGroupMetadataDescriptorsCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   private val publicKingdomEventGroupsClient =
     PublicKingdomEventGroupsCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   private val publicKingdomModelLinesClient =
     PublicKingdomModelLinesCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
 
   private val internalApiChannel
     get() = buildMutualTlsChannel("localhost:${internalReportingServer.port}", SIGNING_CERTS)
 
   private val internalMeasurementConsumersClient by lazy {
     InternalMeasurementConsumersCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val internalMeasurementsClient by lazy {
     InternalMeasurementsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   val internalMetricCalculationSpecsClient by lazy {
     InternalMetricCalculationSpecsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
-  private val internalMetricsClient by lazy { InternalMetricsCoroutineStub(internalApiChannel) }
+  private val internalMetricsClient by lazy {
+    InternalMetricsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+  }
   private val internalReportingSetsClient by lazy {
     InternalReportingSetsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
-  private val internalReportsClient by lazy { InternalReportsCoroutineStub(internalApiChannel) }
+  private val internalReportsClient by lazy {
+    InternalReportsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+  }
 
-  val internalBasicReportsClient by lazy { InternalBasicReportsCoroutineStub(internalApiChannel) }
+  val internalBasicReportsClient by lazy {
+    InternalBasicReportsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+  }
 
   private val internalImpressionQualificationFiltersClient by lazy {
     InternalImpressionQualificationFiltersCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
-  val internalReportResultsClient by lazy { ReportResultsCoroutineStub(internalApiChannel) }
+  val internalReportResultsClient by lazy {
+    ReportResultsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
+  }
 
   private lateinit var _internalReportingServer: CommonServer
 
@@ -257,7 +298,12 @@ class InProcessReportingServer(
           }
         }
 
-        val authorization = Authorization(PermissionsGrpcKt.PermissionsCoroutineStub(accessChannel))
+        val authorization =
+          Authorization(
+            PermissionsGrpcKt.PermissionsCoroutineStub(accessChannel)
+              .withWaitForReady()
+              .withDeadlineAfter(10, TimeUnit.MINUTES)
+          )
 
         METRIC_SPEC_CONFIG.validate()
         metricSpecConfig = METRIC_SPEC_CONFIG
@@ -323,7 +369,9 @@ class InProcessReportingServer(
             ReportsService(
                 internalReportsClient,
                 internalMetricCalculationSpecsClient,
-                PublicMetricsCoroutineStub(this@GrpcTestServerRule.channel),
+                PublicMetricsCoroutineStub(this@GrpcTestServerRule.channel)
+                  .withWaitForReady()
+                  .withDeadlineAfter(10, TimeUnit.MINUTES),
                 METRIC_SPEC_CONFIG,
                 authorization,
                 SecureRandom().asKotlinRandom(),
@@ -334,7 +382,9 @@ class InProcessReportingServer(
                 internalImpressionQualificationFiltersClient,
                 internalReportingSetsClient,
                 internalMetricCalculationSpecsClient,
-                PublicReportsCoroutineStub(this@GrpcTestServerRule.channel),
+                PublicReportsCoroutineStub(this@GrpcTestServerRule.channel)
+                  .withWaitForReady()
+                  .withDeadlineAfter(10, TimeUnit.MINUTES),
                 publicKingdomModelLinesClient,
                 EventMessageDescriptor(eventDescriptor),
                 METRIC_SPEC_CONFIG,

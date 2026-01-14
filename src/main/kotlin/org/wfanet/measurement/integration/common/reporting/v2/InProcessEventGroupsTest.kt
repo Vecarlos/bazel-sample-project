@@ -23,6 +23,7 @@ import com.google.type.interval
 import java.security.cert.X509Certificate
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -116,10 +117,18 @@ abstract class InProcessEventGroupsTest(
         private set
 
       private fun buildReportingServer(): InProcessReportingServer {
-        val cmmsAccountsStub = AccountsGrpcKt.AccountsCoroutineStub(kingdom.publicApiChannel)
-        val cmmsApiKeysStub = ApiKeysGrpcKt.ApiKeysCoroutineStub(kingdom.publicApiChannel)
+        val cmmsAccountsStub =
+          AccountsGrpcKt.AccountsCoroutineStub(kingdom.publicApiChannel)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
+        val cmmsApiKeysStub =
+          ApiKeysGrpcKt.ApiKeysCoroutineStub(kingdom.publicApiChannel)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
         val cmmsMeasurementConsumersStub =
           MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub(kingdom.publicApiChannel)
+            .withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES)
         val resourceSetup =
           ResourceSetup(
             internalAccountsClient = kingdom.internalAccountsClient,
