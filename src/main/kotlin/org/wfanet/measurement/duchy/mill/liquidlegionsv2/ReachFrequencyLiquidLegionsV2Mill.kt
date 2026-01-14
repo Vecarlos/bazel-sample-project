@@ -18,6 +18,7 @@ import com.google.protobuf.ByteString
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import org.wfanet.anysketch.crypto.CombineElGamalPublicKeysRequest
@@ -143,6 +144,9 @@ class ReachFrequencyLiquidLegionsV2Mill(
     clock,
   ) {
   override val endingStage = Stage.COMPLETE.toProtocolStage()
+
+  private val readyWorkerStubs =
+    workerStubs.mapValues { it.value.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES) }
 
   private val actions =
     mapOf(
@@ -387,7 +391,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
       }
 
     val nextDuchyId = nextDuchyId(llv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .liquidLegionsSketchAggregationV2
@@ -441,7 +445,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
       }
 
     val aggregatorId = llv2Details.participantList.last().duchyId
-    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+    val aggregatorStub = readyWorkerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
     val aggregatorStage =
       getComputationStageInOtherDuchy(token.globalComputationId, aggregatorId, aggregatorStub)
         .liquidLegionsSketchAggregationV2
@@ -504,7 +508,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(llv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .liquidLegionsSketchAggregationV2
@@ -563,7 +567,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(llv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .liquidLegionsSketchAggregationV2
@@ -692,7 +696,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(llv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .liquidLegionsSketchAggregationV2
@@ -758,7 +762,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(llv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .liquidLegionsSketchAggregationV2
@@ -875,7 +879,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
 
     // Passes the computation to the next duchy.
     val nextDuchyId = nextDuchyId(llv2Details.participantList)
-    val nextDuchyStub = workerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
+    val nextDuchyStub = readyWorkerStubs[nextDuchyId] ?: error("$nextDuchyId stub not found")
     val nextDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, nextDuchyId, nextDuchyStub)
         .liquidLegionsSketchAggregationV2
