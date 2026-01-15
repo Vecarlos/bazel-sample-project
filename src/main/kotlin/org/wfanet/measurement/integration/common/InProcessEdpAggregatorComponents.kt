@@ -569,7 +569,10 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
-    backgroundJob.cancel()
+    runBlocking {
+      backgroundJob.cancel()
+      backgroundJob.join()
+    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
