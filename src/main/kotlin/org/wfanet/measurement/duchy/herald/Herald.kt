@@ -167,6 +167,11 @@ class Herald(
         .streamActiveComputations(streamRequest)
         .catch { cause ->
           if (cause !is StatusException) throw cause
+          logger.log(
+            Level.INFO,
+            "Herald.kt: streamActiveComputations failed: code={0}, description={1}",
+            arrayOf(cause.status.code, cause.status.description ?: ""),
+          )
           throw StreamingException("Error streaming active computations", cause)
         }
         .collect { response ->

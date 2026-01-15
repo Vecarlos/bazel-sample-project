@@ -20,6 +20,8 @@ import com.google.protobuf.any
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -97,6 +99,15 @@ class RequisitionsService(
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : RequisitionsCoroutineImplBase(coroutineContext) {
   private val internalRequisitionStub = internalRequisitionStub.withWaitForReady()
+  private val logger = Logger.getLogger(RequisitionsService::class.java.name)
+
+  private fun logStatus(operation: String, e: StatusException) {
+    logger.log(
+      Level.INFO,
+      "RequisitionsService.kt: $operation failed: code={0}, description={1}",
+      arrayOf(e.status.code, e.status.description ?: ""),
+    )
+  }
 
   private enum class Permission {
     LIST,
@@ -169,6 +180,7 @@ class RequisitionsService(
         internalRequisitionStub.withWaitForReady().streamRequisitions(internalRequest)
           .toList()
       } catch (e: StatusException) {
+        logStatus("streamRequisitions", e)
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -215,6 +227,7 @@ class RequisitionsService(
       try {
         internalRequisitionStub.withWaitForReady().getRequisition(getRequest)
       } catch (e: StatusException) {
+        logStatus("getRequisition", e)
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -255,6 +268,7 @@ class RequisitionsService(
       try {
         internalRequisitionStub.withWaitForReady().refuseRequisition(refuseRequest)
       } catch (e: StatusException) {
+        logStatus("refuseRequisition", e)
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
           Status.Code.NOT_FOUND -> Status.NOT_FOUND
@@ -326,6 +340,7 @@ class RequisitionsService(
     try {
       internalRequisitionStub.withWaitForReady().fulfillRequisition(fulfillRequest)
     } catch (e: StatusException) {
+      logStatus("fulfillRequisition", e)
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND
         Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
