@@ -40,6 +40,7 @@ import java.util.logging.Logger
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CompletableDeferred
@@ -49,6 +50,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.withContext
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -228,6 +230,9 @@ class InProcessEdpAggregatorComponents(
 
   private val loggingName = javaClass.simpleName
   private val backgroundJob = Job()
+  private val fetcherJobs = mutableListOf<Job>()
+  private var resultFulfillerJob: Job? = null
+  @Volatile private var stopRequested = false
   private val backgroundScope =
     CoroutineScope(
       backgroundJob +
@@ -247,6 +252,9 @@ class InProcessEdpAggregatorComponents(
     edpAggregatorShortNames: List<String>,
     duchyMap: Map<String, Channel>,
   ) = runBlocking {
+    stopRequested = false
+    fetcherJobs.clear()
+    resultFulfillerJob = null
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
     edpResourceNameMap =
@@ -349,14 +357,22 @@ class InProcessEdpAggregatorComponents(
         )
       val firstFetchReady = CompletableDeferred<Unit>()
       firstFetchReadySignals += firstFetchReady
-      backgroundScope.launch {
-        while (true) {
+      val fetcherJob = backgroundScope.launch {
+        while (isActive && !stopRequested) {
           try {
             requisitionFetcher.fetchAndStoreRequisitions()
             if (!firstFetchReady.isCompleted) {
               firstFetchReady.complete(Unit)
             }
+          } catch (e: CancellationException) {
+            if (stopRequested) {
+              return@launch
+            }
+            throw e
           } catch (e: Exception) {
+            if (stopRequested) {
+              return@launch
+            }
             if (!firstFetchReady.isCompleted) {
               logger.log(Level.INFO, e) { "Requisition fetcher not ready for $edpResourceName" }
             } else {
@@ -365,9 +381,12 @@ class InProcessEdpAggregatorComponents(
               }
             }
           }
-          delay(1000)
+          if (!stopRequested) {
+            delay(1000)
+          }
         }
       }
+      fetcherJobs += fetcherJob
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler, 500)
@@ -409,7 +428,7 @@ class InProcessEdpAggregatorComponents(
     withTimeout(Duration.ofMinutes(2).toMillis()) {
       firstFetchReadySignals.forEach { it.await() }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+    resultFulfillerJob = backgroundScope.launch { resultFulfillerApp.run() }
   }
 
   private suspend fun refuseRequisition(
@@ -570,6 +589,16 @@ class InProcessEdpAggregatorComponents(
 
   fun stopDaemons() {
     runBlocking {
+      stopRequested = true
+      val fetchersJoined =
+        withTimeoutOrNull(Duration.ofSeconds(30).toMillis()) {
+          fetcherJobs.forEach { it.join() }
+          true
+        } ?: false
+      if (!fetchersJoined) {
+        fetcherJobs.forEach { it.cancel() }
+      }
+      resultFulfillerJob?.cancel()
       backgroundJob.cancel()
       backgroundJob.join()
     }
