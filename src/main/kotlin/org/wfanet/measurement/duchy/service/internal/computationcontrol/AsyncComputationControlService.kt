@@ -68,7 +68,8 @@ class AsyncComputationControlService(
       } catch (e: RetryableException) {
         if (attempt < maxAdvanceAttempts) {
           logger.log(Level.WARNING, e) {
-            "[id=$globalComputationId]: advanceComputation attempt #$attempt failed; retrying"
+            "[COVDBG] [id=$globalComputationId]: advanceComputation attempt #$attempt failed; " +
+              "retrying"
           }
           delay(advanceRetryBackoff.durationForAttempt(attempt))
           attempt++
@@ -163,6 +164,12 @@ class AsyncComputationControlService(
             }
           )
         } catch (e: StatusException) {
+          logger.log(
+            Level.INFO,
+            "[COVDBG] AsyncComputationControlService recordOutputBlobPath failed: " +
+              "id=$globalComputationId, code=${e.status.code}, " +
+              "description=${e.status.description ?: ""}",
+          )
           throw when (e.status.code) {
             Status.Code.UNAVAILABLE,
             Status.Code.ABORTED -> RetryableException(e)
@@ -183,6 +190,12 @@ class AsyncComputationControlService(
           stage = stages.nextStage(token.computationStage, role),
         )
       } catch (e: StatusException) {
+        logger.log(
+          Level.INFO,
+          "[COVDBG] AsyncComputationControlService advanceComputationStage failed: " +
+            "id=$globalComputationId, code=${e.status.code}, " +
+            "description=${e.status.description ?: ""}",
+        )
         throw when (e.status.code) {
           Status.Code.UNAVAILABLE,
           Status.Code.ABORTED -> RetryableException(e)
@@ -229,6 +242,12 @@ class AsyncComputationControlService(
         )
       } catch (e: StatusException) {
         if (e.status.code != Status.Code.NOT_FOUND) {
+          logger.log(
+            Level.INFO,
+            "[COVDBG] AsyncComputationControlService getComputationToken failed: " +
+              "id=$globalComputationId, code=${e.status.code}, " +
+              "description=${e.status.description ?: ""}",
+          )
           throw Exception("Unable to retrieve token for $globalComputationId.", e)
         }
         null
