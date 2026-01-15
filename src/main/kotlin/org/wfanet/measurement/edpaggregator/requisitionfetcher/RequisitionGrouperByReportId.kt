@@ -120,6 +120,8 @@ class RequisitionGrouperByReportId(
     eventGroupsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
     throttler,
   ) {
+  private val readyRequisitionMetadataClient =
+    requisitionMetadataStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
 
   /**
    * Groups validated [Requisition]s by report ID and persists their metadata.
@@ -458,9 +460,7 @@ class RequisitionGrouperByReportId(
     reportName: String
   ): List<RequisitionMetadata> {
     val requisitionMetadataList: Flow<RequisitionMetadata> =
-      requisitionMetadataStub
-        .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
+      readyRequisitionMetadataClient
         .listResources { pageToken: String ->
           val request = listRequisitionMetadataRequest {
             parent = dataProviderName
@@ -469,10 +469,7 @@ class RequisitionGrouperByReportId(
             this.pageToken = pageToken
           }
           val response: ListRequisitionMetadataResponse =
-            requisitionMetadataStub
-              .withWaitForReady()
-              .withDeadlineAfter(10, TimeUnit.MINUTES)
-              .listRequisitionMetadata(request)
+            readyRequisitionMetadataClient.listRequisitionMetadata(request)
           ResourceList(response.requisitionMetadataList, response.nextPageToken)
         }
         .flattenConcat()
@@ -507,10 +504,7 @@ class RequisitionGrouperByReportId(
       requisitionMetadata = metadata
       requestId = createRequisitionMetadataRequestId
     }
-    return requisitionMetadataStub
-      .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
-      .createRequisitionMetadata(request)
+    return readyRequisitionMetadataClient.createRequisitionMetadata(request)
   }
 
   /**
@@ -532,10 +526,7 @@ class RequisitionGrouperByReportId(
       etag = requisitionMetadata.etag
       refusalMessage = message
     }
-    requisitionMetadataStub
-      .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
-      .refuseRequisitionMetadata(request)
+    readyRequisitionMetadataClient.refuseRequisitionMetadata(request)
   }
 
   private fun getReportId(requisition: Requisition): String {

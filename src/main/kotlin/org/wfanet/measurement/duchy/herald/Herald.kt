@@ -20,6 +20,7 @@ import io.grpc.StatusException
 import io.grpc.serviceconfig.MethodConfigKt
 import io.grpc.serviceconfig.methodConfig
 import java.time.Clock
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.coroutineContext
@@ -93,6 +94,8 @@ class Herald(
   private val deletableComputationStates: Set<State> = emptySet(),
 ) {
   private val semaphore = Semaphore(maxConcurrency)
+  private val readySystemComputationsClient =
+    systemComputationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
 
   init {
     for (state in deletableComputationStates) {
@@ -160,7 +163,7 @@ class Herald(
     }
 
     coroutineScope {
-      systemComputationsClient
+      readySystemComputationsClient
         .streamActiveComputations(streamRequest)
         .catch { cause ->
           if (cause !is StatusException) throw cause
