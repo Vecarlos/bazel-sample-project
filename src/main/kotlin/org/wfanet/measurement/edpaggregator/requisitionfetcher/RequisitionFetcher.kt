@@ -99,11 +99,30 @@ class RequisitionFetcher(
   private suspend fun fetchRequisitions(): List<Requisition> = withFetchTelemetry {
     val readyRequisitionsStub =
       requisitionsStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    suspend fun listRequisitionsWithRetry(
+      request: ListRequisitionsRequest
+    ): ListRequisitionsResponse {
+      var attempt = 1
+      while (true) {
+        try {
+          return readyRequisitionsStub.listRequisitions(request)
+        } catch (e: StatusException) {
+          if (e.status.code != Status.Code.UNAVAILABLE &&
+            e.status.code != Status.Code.DEADLINE_EXCEEDED &&
+            e.status.code != Status.Code.ABORTED
+          ) {
+            throw Exception("Error listing requisitions", e)
+          }
+          if (attempt >= 3) {
+            throw Exception("Error listing requisitions", e)
+          }
+          delay(500L * attempt)
+          attempt++
+        }
+      }
+    }
     val requisitions: Flow<Requisition> =
-      readyRequisitionsStub
-        .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
-        .listResources { pageToken: String ->
+      readyRequisitionsStub.listResources { pageToken: String ->
           val request = listRequisitionsRequest {
             parent = dataProviderName
             filter = ListRequisitionsRequestKt.filter { states += Requisition.State.UNFULFILLED }
@@ -112,15 +131,7 @@ class RequisitionFetcher(
             }
             this.pageToken = pageToken
           }
-          val response: ListRequisitionsResponse =
-            try {
-              readyRequisitionsStub
-                .withWaitForReady()
-                .withDeadlineAfter(10, TimeUnit.MINUTES)
-                .listRequisitions(request)
-            } catch (e: StatusException) {
-              throw Exception("Error listing requisitions", e)
-            }
+          val response: ListRequisitionsResponse = listRequisitionsWithRetry(request)
           ResourceList(response.requisitionsList, response.nextPageToken)
         }
         .flattenConcat()

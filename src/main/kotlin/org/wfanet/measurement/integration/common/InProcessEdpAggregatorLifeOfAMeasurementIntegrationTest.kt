@@ -232,13 +232,21 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private suspend fun awaitMeasurementsFinal(runId: String, expectedCount: Int) {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     val readyMeasurementsClient =
-      publicMeasurementsClient.withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+      publicMeasurementsClient
+        .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+        .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
     withTimeout(Duration.ofMinutes(2).toMillis()) {
       while (true) {
         val response =
           readyMeasurementsClient.listMeasurements(
             listMeasurementsRequest {
               parent = measurementConsumerData.name
+              filter {
+                states += Measurement.State.SUCCEEDED
+                states += Measurement.State.FAILED
+                states += Measurement.State.CANCELLED
+              }
               pageSize = 1000
             }
           )
