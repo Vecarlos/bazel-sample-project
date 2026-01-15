@@ -341,10 +341,16 @@ abstract class MillBase(
     callKingdom: suspend (participant: ComputationParticipant) -> Unit,
   ) {
     val participantKey = ComputationParticipantKey(token.globalComputationId, duchyId)
+    val globalId = token.globalComputationId
 
     var attempt = 1
     suspend fun prepareRetry(message: String, cause: StatusException) {
       if (attempt >= rpcMaxAttempts) {
+        logger.log(
+          Level.INFO,
+          "[COVDBG] MillBase updateComputationParticipant retry exhausted: " +
+            "global_id=$globalId, code=${cause.status.code}",
+        )
         throw ComputationDataClients.PermanentErrorException(message, cause)
       }
 
@@ -352,10 +358,22 @@ abstract class MillBase(
         Status.Code.UNAVAILABLE,
         Status.Code.DEADLINE_EXCEEDED,
         Status.Code.ABORTED -> {
+          logger.log(
+            Level.INFO,
+            "[COVDBG] MillBase updateComputationParticipant retrying: " +
+              "global_id=$globalId, code=${cause.status.code}, attempt=$attempt",
+          )
           delay(rpcRetryBackoff.durationForAttempt(attempt))
           attempt++
         }
-        else -> throw ComputationDataClients.PermanentErrorException(message, cause)
+        else -> {
+          logger.log(
+            Level.INFO,
+            "[COVDBG] MillBase updateComputationParticipant permanent error: " +
+              "global_id=$globalId, code=${cause.status.code}",
+          )
+          throw ComputationDataClients.PermanentErrorException(message, cause)
+        }
       }
     }
     while (true) {
