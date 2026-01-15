@@ -96,6 +96,11 @@ class Herald(
   private val semaphore = Semaphore(maxConcurrency)
   private val readySystemComputationsClient =
     systemComputationsClient.withWaitForReady()
+  @Volatile private var stopRequested = false
+
+  fun requestStop() {
+    stopRequested = true
+  }
 
   init {
     for (state in deletableComputationStates) {
@@ -122,7 +127,7 @@ class Herald(
 
     // Use custom retry logic to handle the stream potentially being partially processed.
     var attemptNumber = 1
-    while (coroutineContext.isActive) {
+    while (coroutineContext.isActive && !stopRequested) {
       try {
         syncStatuses()
       } catch (e: StreamingException) {

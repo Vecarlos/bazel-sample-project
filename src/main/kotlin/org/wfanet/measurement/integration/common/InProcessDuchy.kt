@@ -35,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -108,6 +109,7 @@ class InProcessDuchy(
   private val daemonScope = CoroutineScope(daemonContext)
   private lateinit var heraldJob: Job
   private lateinit var millJob: Job
+  private var herald: Herald? = null
 
   private val duchyDependencies by lazy {
     duchyDependenciesRule.value(externalDuchyId, systemComputationLogEntriesClient)
@@ -249,14 +251,24 @@ class InProcessDuchy(
             protocolsSetupConfig = protocolsSetupConfig,
             clock = Clock.systemUTC(),
           )
+        this@InProcessDuchy.herald = herald
         herald.continuallySyncStatuses()
       }
   }
 
   suspend fun stopHerald() {
     if (this::heraldJob.isInitialized) {
-      heraldJob.cancel("Stopping Herald")
-      heraldJob.join()
+      herald?.requestStop()
+      val stopped =
+        withTimeoutOrNull(Duration.ofSeconds(30).toMillis()) {
+          heraldJob.join()
+          true
+        } ?: false
+      if (!stopped) {
+        heraldJob.cancel("Stopping Herald")
+        heraldJob.join()
+      }
+      herald = null
     }
   }
 

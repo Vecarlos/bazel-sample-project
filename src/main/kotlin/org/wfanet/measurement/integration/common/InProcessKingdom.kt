@@ -18,6 +18,7 @@ import com.google.protobuf.Descriptors
 import io.grpc.Channel
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
+import kotlin.time.Duration.Companion.seconds
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -154,7 +155,7 @@ class InProcessKingdom(
     ) {
       logger.info("Building Kingdom's system API services")
       listOf(
-          SystemComputationsService(internalMeasurementsClient),
+          SystemComputationsService(internalMeasurementsClient, streamingTimeout = 5.seconds),
           SystemComputationLogEntriesService(internalMeasurementLogEntriesClient),
           SystemComputationParticipantsService(internalComputationParticipantsClient),
           SystemRequisitionsService(internalRequisitionsClient),
