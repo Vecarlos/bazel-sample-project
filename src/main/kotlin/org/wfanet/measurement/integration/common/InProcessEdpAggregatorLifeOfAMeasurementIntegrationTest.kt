@@ -35,6 +35,7 @@ import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCorouti
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.ListMeasurementsRequestKt
 import org.wfanet.measurement.api.v2alpha.Measurement
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub
@@ -242,7 +243,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           readyMeasurementsClient.listMeasurements(
             listMeasurementsRequest {
               parent = measurementConsumerData.name
-              filter = filter {
+              filter = ListMeasurementsRequestKt.filter {
                 states += Measurement.State.SUCCEEDED
                 states += Measurement.State.FAILED
                 states += Measurement.State.CANCELLED
