@@ -16,6 +16,8 @@ package org.wfanet.measurement.kingdom.service.system.v1alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -64,6 +66,7 @@ class ComputationsService(
   private val streamingThrottle: Duration = 1.seconds,
   private val streamingLimit: Int = DEFAULT_STREAMING_LIMIT,
 ) : ComputationsCoroutineImplBase(coroutineContext) {
+  private val logger = Logger.getLogger(ComputationsService::class.java.name)
   override suspend fun getComputation(request: GetComputationRequest): Computation {
     val computationKey =
       grpcRequireNotNull(ComputationKey.fromName(request.name)) {
@@ -109,6 +112,11 @@ class ComputationsService(
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
             if (cause !is StatusException) throw cause
+            logger.log(
+              Level.INFO,
+              "streamMeasurements failed: code={0}, description={1}",
+              arrayOf(cause.status.code, cause.status.description ?: ""),
+            )
             throw when (cause.status.code) {
                 Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
                 Status.Code.CANCELLED -> Status.CANCELLED
