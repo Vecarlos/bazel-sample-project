@@ -95,7 +95,6 @@ class DataProvidersService(
       try {
         internalClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getDataProvider(
             getDataProviderRequest {
               externalDataProviderId = apiIdToExternalId(key.dataProviderId)
@@ -137,7 +136,6 @@ class DataProvidersService(
       try {
         internalClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .replaceDataProviderRequiredDuchies(
             replaceDataProviderRequiredDuchiesRequest {
               externalDataProviderId = apiIdToExternalId(key.dataProviderId)
@@ -203,7 +201,6 @@ class DataProvidersService(
       try {
         internalClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .replaceDataAvailabilityIntervals(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -251,7 +248,6 @@ class DataProvidersService(
       try {
         internalClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .replaceDataAvailabilityInterval(
             replaceDataAvailabilityIntervalRequest {
               externalDataProviderId = apiIdToExternalId(key.dataProviderId)
@@ -288,7 +284,6 @@ class DataProvidersService(
       try {
         internalClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .replaceDataProviderCapabilities(
             replaceDataProviderCapabilitiesRequest {
               externalDataProviderId = ApiId(key.dataProviderId).externalId.value

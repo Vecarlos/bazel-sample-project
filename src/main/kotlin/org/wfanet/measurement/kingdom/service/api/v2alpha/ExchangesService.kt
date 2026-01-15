@@ -64,7 +64,6 @@ class ExchangesService(
       try {
         internalRecurringExchanges
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getRecurringExchange(
             internalGetRecurringExchangeRequest {
               externalRecurringExchangeId = ApiId(key.recurringExchangeId).externalId.value
@@ -106,7 +105,6 @@ class ExchangesService(
       try {
         internalExchanges
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getExchange(
             internalGetExchangeRequest {
               externalRecurringExchangeId = apiIdToExternalId(key.recurringExchangeId)

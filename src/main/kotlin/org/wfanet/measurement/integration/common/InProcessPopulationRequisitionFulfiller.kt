@@ -58,35 +58,30 @@ class InProcessPopulationRequisitionFulfiller(
     ModelRolloutsGrpcKt.ModelRolloutsCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val modelReleasesClient by lazy {
     ModelReleasesGrpcKt.ModelReleasesCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val populationsClient by lazy {
     PopulationsGrpcKt.PopulationsCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val certificatesClient by lazy {
     CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val requisitionsClient by lazy {
     RequisitionsGrpcKt.RequisitionsCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   fun start() {

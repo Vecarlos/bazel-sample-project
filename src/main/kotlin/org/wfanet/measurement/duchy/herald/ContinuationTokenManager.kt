@@ -50,7 +50,6 @@ class ContinuationTokenManager(
     val response =
       continuationTokenClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getContinuationToken(getContinuationTokenRequest {})
 
     synchronized(this) {
@@ -106,7 +105,6 @@ class ContinuationTokenManager(
     try {
       continuationTokenClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .setContinuationToken(setRequest)
     } catch (e: StatusException) {
       if (e.status.code == Status.Code.FAILED_PRECONDITION) {

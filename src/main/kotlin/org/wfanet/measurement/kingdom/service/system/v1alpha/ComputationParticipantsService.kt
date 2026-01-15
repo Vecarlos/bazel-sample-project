@@ -70,7 +70,6 @@ class ComputationParticipantsService(
       try {
         internalComputationParticipantsClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getComputationParticipant(internalRequest)
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
@@ -86,7 +85,6 @@ class ComputationParticipantsService(
       try {
         internalComputationParticipantsClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .setParticipantRequisitionParams(request.toInternalRequest())
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
@@ -102,7 +100,6 @@ class ComputationParticipantsService(
       try {
         internalComputationParticipantsClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .confirmComputationParticipant(request.toInternalRequest())
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()
@@ -118,7 +115,6 @@ class ComputationParticipantsService(
       try {
         internalComputationParticipantsClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .failComputationParticipant(request.toInternalRequest())
       } catch (e: StatusException) {
         throw mapStatusException(e).asRuntimeException()

@@ -78,7 +78,6 @@ class ModelProvidersService(
     try {
       return internalModelProviders
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getModelProvider(internalGetModelProviderRequest)
         .toModelProvider()
     } catch (e: StatusException) {
@@ -117,7 +116,6 @@ class ModelProvidersService(
     val response: InternalListModelProvidersResponse =
       internalModelProviders
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .listModelProviders(internalListModelProvidersRequest)
 
     return listModelProvidersResponse {

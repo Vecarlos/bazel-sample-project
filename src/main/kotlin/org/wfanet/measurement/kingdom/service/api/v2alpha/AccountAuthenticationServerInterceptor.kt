@@ -89,12 +89,11 @@ class AccountAuthenticationServerInterceptor(
         idToken = idToken,
         redirectUri = redirectUri,
         internalAccountsStub =
-          internalAccountsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
+          internalAccountsClient.withWaitForReady(),
       )
 
     return internalAccountsClient
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .authenticateAccount(authenticateAccountRequest { identity = openIdConnectIdentity })
   }
 }

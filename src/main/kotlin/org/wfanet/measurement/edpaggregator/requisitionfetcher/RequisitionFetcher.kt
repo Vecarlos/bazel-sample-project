@@ -101,7 +101,7 @@ class RequisitionFetcher(
   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
   private suspend fun fetchRequisitions(): List<Requisition> = withFetchTelemetry {
     val readyRequisitionsStub =
-      requisitionsStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+      requisitionsStub.withWaitForReady()
     suspend fun listRequisitionsWithRetry(
       request: ListRequisitionsRequest
     ): ListRequisitionsResponse {

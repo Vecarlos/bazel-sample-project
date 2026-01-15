@@ -133,7 +133,7 @@ class ReachOnlyLiquidLegionsV2Mill(
     clock,
   ) {
   private val readyWorkerStubs =
-    workerStubs.mapValues { it.value.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES) }
+    workerStubs.mapValues { it.value.withWaitForReady() }
 
   override val endingStage = Stage.COMPLETE.toProtocolStage()
 

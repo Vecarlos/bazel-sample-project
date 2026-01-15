@@ -146,7 +146,7 @@ class ReachFrequencyLiquidLegionsV2Mill(
   override val endingStage = Stage.COMPLETE.toProtocolStage()
 
   private val readyWorkerStubs =
-    workerStubs.mapValues { it.value.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES) }
+    workerStubs.mapValues { it.value.withWaitForReady() }
 
   private val actions =
     mapOf(

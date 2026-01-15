@@ -84,34 +84,28 @@ abstract class InProcessReachMeasurementAccuracyTest(
   private val publicMeasurementsClient by lazy {
     MeasurementsGrpcKt.MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicMeasurementConsumersClient by lazy {
     MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub(
       inProcessCmmsComponents.kingdom.publicApiChannel
     )
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicCertificatesClient by lazy {
     CertificatesGrpcKt.CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicEventGroupsClient by lazy {
     EventGroupsGrpcKt.EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicDataProvidersClient by lazy {
     DataProvidersGrpcKt.DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicRequisitionsClient by lazy {
     RequisitionsGrpcKt.RequisitionsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   @Before

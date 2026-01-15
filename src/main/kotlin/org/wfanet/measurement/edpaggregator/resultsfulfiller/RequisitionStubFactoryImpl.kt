@@ -68,7 +68,6 @@ class RequisitionStubFactoryImpl(
     }
     return RequisitionsCoroutineStub(publicChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   override fun buildRequisitionFulfillmentStubs(
@@ -101,7 +100,6 @@ class RequisitionStubFactoryImpl(
         duchyResourceName to
           RequisitionFulfillmentCoroutineStub(publicChannel)
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
       }
       .toMap()
   }

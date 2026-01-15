@@ -89,7 +89,6 @@ class ModelOutagesService(
     return try {
       internalClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .createModelOutage(createModelOutageRequest)
         .toModelOutage()
     } catch (e: StatusException) {
@@ -132,7 +131,6 @@ class ModelOutagesService(
     return try {
       internalClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .deleteModelOutage(deleteRequest)
         .toModelOutage()
     } catch (e: StatusException) {
@@ -173,7 +171,6 @@ class ModelOutagesService(
     val results: List<InternalModelOutage> =
       internalClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamModelOutages(listModelOutagesPageToken.toStreamModelOutagesRequest())
         .toList()
 

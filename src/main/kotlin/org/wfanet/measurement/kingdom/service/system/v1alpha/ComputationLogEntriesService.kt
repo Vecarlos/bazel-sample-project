@@ -77,7 +77,6 @@ class ComputationLogEntriesService(
         .build()
     return measurementLogEntriesService
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .createDuchyMeasurementLogEntry(internalRequest)
       .toSystemComputationLogEntry(computationParticipantKey.computationId)
   }

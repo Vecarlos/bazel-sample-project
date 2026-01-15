@@ -116,12 +116,12 @@ class RequisitionGrouperByReportId(
 ) :
   RequisitionGrouper(
     requisitionValidator,
-    requisitionsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
-    eventGroupsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES),
+    requisitionsClient.withWaitForReady(),
+    eventGroupsClient.withWaitForReady(),
     throttler,
   ) {
   private val readyRequisitionMetadataClient =
-    requisitionMetadataStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    requisitionMetadataStub.withWaitForReady()
 
   /**
    * Groups validated [Requisition]s by report ID and persists their metadata.

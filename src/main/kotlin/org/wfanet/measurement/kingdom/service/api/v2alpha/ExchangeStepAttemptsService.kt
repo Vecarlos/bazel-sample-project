@@ -102,7 +102,6 @@ class ExchangeStepAttemptsService(
       try {
         internalExchangeStepAttempts
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .appendLogEntry(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -139,7 +138,6 @@ class ExchangeStepAttemptsService(
       try {
         internalExchangeStepAttempts
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .finishExchangeStepAttempt(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -191,7 +189,6 @@ class ExchangeStepAttemptsService(
       try {
         internalExchangeSteps
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getExchangeStep(
             internalGetExchangeStepRequest {
               externalRecurringExchangeId = externalIds.externalRecurringExchangeId.value

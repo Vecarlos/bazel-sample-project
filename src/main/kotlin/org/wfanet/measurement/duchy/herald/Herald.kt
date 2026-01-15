@@ -95,7 +95,7 @@ class Herald(
 ) {
   private val semaphore = Semaphore(maxConcurrency)
   private val readySystemComputationsClient =
-    systemComputationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    systemComputationsClient.withWaitForReady()
 
   init {
     for (state in deletableComputationStates) {

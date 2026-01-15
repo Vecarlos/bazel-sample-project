@@ -34,7 +34,6 @@ class TestRequisitionStubFactory(
   ): RequisitionsCoroutineStub {
     return RequisitionsCoroutineStub(cmmsChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .withPrincipalName(fulfillerParams.dataProvider)
   }
 
@@ -46,7 +45,6 @@ class TestRequisitionStubFactory(
         duchyId to
           RequisitionFulfillmentCoroutineStub(duchies.getValue(duchyId))
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
             .withPrincipalName(fulfillerParams.dataProvider)
       }
       .toMap()

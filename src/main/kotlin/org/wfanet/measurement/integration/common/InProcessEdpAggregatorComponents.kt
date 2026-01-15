@@ -154,7 +154,6 @@ class InProcessEdpAggregatorComponents(
   private val workItemsClient: WorkItemsCoroutineStub by lazy {
     WorkItemsCoroutineStub(secureComputationPublicApi.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val edpAggregatorSystemApi by lazy {
@@ -164,13 +163,11 @@ class InProcessEdpAggregatorComponents(
   private val requisitionMetadataClient: RequisitionMetadataServiceCoroutineStub by lazy {
     RequisitionMetadataServiceCoroutineStub(edpAggregatorSystemApi.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val impressionMetadataClient: ImpressionMetadataServiceCoroutineStub by lazy {
     ImpressionMetadataServiceCoroutineStub(edpAggregatorSystemApi.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private lateinit var dataWatcher: DataWatcher
@@ -207,8 +204,7 @@ class InProcessEdpAggregatorComponents(
       workItemsClient = workItemsClient,
       workItemAttemptsClient =
         WorkItemAttemptsCoroutineStub(secureComputationPublicApi.publicApiChannel)
-          .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES),
+          .withWaitForReady(),
       queueSubscriber = subscriber,
       kmsClients = kmsClients.toMutableMap(),
       requisitionMetadataStub = requisitionMetadataClient,
@@ -263,7 +259,6 @@ class InProcessEdpAggregatorComponents(
         DataProvidersCoroutineStub(publicApiChannel)
           .withPrincipalName(edpResourceName)
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
       dataProvidersStub.replaceDataProviderCapabilities(
         replaceDataProviderCapabilitiesRequest {
           name = edpResourceName
@@ -308,7 +303,6 @@ class InProcessEdpAggregatorComponents(
         RequisitionsCoroutineStub(publicApiChannel)
           .withPrincipalName(edpResourceName)
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
 
       withTimeout(Duration.ofMinutes(2).toMillis()) {
         while (true) {
@@ -327,7 +321,6 @@ class InProcessEdpAggregatorComponents(
         EventGroupsCoroutineStub(publicApiChannel)
           .withPrincipalName(edpResourceName)
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
       val edpPrivateKey = getDataProviderPrivateEncryptionKey(edpAggregatorShortName)
 
       val requisitionsValidator = RequisitionsValidator(edpPrivateKey)

@@ -108,34 +108,28 @@ class InProcessEdpSimulator(
         certificatesStub =
           CertificatesCoroutineStub(kingdomPublicApiChannel)
             .withPrincipalName(resourceName)
-            .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES),
+            .withWaitForReady(),
         modelLinesStub =
           ModelLinesCoroutineStub(kingdomPublicApiChannel)
             .withPrincipalName(resourceName)
-            .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES),
+            .withWaitForReady(),
         dataProvidersStub =
           DataProvidersCoroutineStub(kingdomPublicApiChannel)
             .withPrincipalName(resourceName)
-            .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES),
+            .withWaitForReady(),
         eventGroupsStub =
           EventGroupsCoroutineStub(kingdomPublicApiChannel)
             .withPrincipalName(resourceName)
-            .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES),
+            .withWaitForReady(),
         requisitionsStub =
           RequisitionsCoroutineStub(kingdomPublicApiChannel)
             .withPrincipalName(resourceName)
-            .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES),
+            .withWaitForReady(),
         requisitionFulfillmentStubsByDuchyId =
           duchyPublicApiChannelMap.mapValues {
             RequisitionFulfillmentCoroutineStub(it.value)
               .withPrincipalName(resourceName)
               .withWaitForReady()
-              .withDeadlineAfter(10, TimeUnit.MINUTES)
           },
         syntheticDataTimeZone = eventQuery.timeZone,
         eventGroupsOptions = listOf(eventGroupOptions),

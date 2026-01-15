@@ -87,7 +87,7 @@ class ComputationsService(
   private val defaultLockDuration: Duration = Duration.ofMinutes(5),
 ) : ComputationsCoroutineImplBase(coroutineContext) {
   private val computationLogEntriesClient =
-    computationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    computationLogEntriesClient.withWaitForReady()
 
   override suspend fun claimWork(request: ClaimWorkRequest): ClaimWorkResponse {
     grpcRequire(request.owner.isNotEmpty()) { "owner is not specified" }
@@ -411,7 +411,7 @@ class ComputationsService(
    */
   private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
     try {
-      computationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).createComputationLogEntry(request)
+      computationLogEntriesClient.withWaitForReady().createComputationLogEntry(request)
     } catch (e: StatusException) {
       logger.log(Level.WARNING, e) { "Failed to update status change to the kingdom." }
     }

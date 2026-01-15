@@ -139,9 +139,9 @@ class HonestMajorityShareShuffleMill(
   override val endingStage = Stage.COMPLETE.toProtocolStage()
 
   private val readyCertificateClient =
-    certificateClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    certificateClient.withWaitForReady()
   private val readyWorkerStubs =
-    workerStubs.mapValues { it.value.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES) }
+    workerStubs.mapValues { it.value.withWaitForReady() }
 
   private val actions =
     mapOf(
@@ -344,7 +344,6 @@ class HonestMajorityShareShuffleMill(
       try {
         readyCertificateClient
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getCertificate(getCertificateRequest { name = dataProviderCertificateName })
       } catch (e: StatusException) {
         val message = "Fail to get certificate for $dataProviderCertificateName"

@@ -117,51 +117,42 @@ class InProcessDuchy(
     SystemComputationsCoroutineStub(kingdomSystemApiChannel)
       .withDuchyId(externalDuchyId)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemComputationLogEntriesClient by lazy {
     SystemComputationLogEntriesCoroutineStub(kingdomSystemApiChannel)
       .withDuchyId(externalDuchyId)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemComputationParticipantsClient by lazy {
     SystemComputationParticipantsCoroutineStub(kingdomSystemApiChannel)
       .withDuchyId(externalDuchyId)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemRequisitionsClient by lazy {
     SystemRequisitionsCoroutineStub(kingdomSystemApiChannel)
       .withDuchyId(externalDuchyId)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val certificateStub: CertificatesGrpcKt.CertificatesCoroutineStub by lazy {
     CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(DuchyKey(externalDuchyId).toName())
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val computationsClient by lazy {
     ComputationsCoroutineStub(computationsServer.channel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val computationStatsClient by lazy {
     ComputationStatsCoroutineStub(computationsServer.channel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val asyncComputationControlClient by lazy {
     AsyncComputationControlCoroutineStub(asyncComputationControlServer.channel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val continuationTokensClient by lazy {
     ContinuationTokensCoroutineStub(computationsServer.channel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   // TODO(@renjiez): Use real PrivateKeyStore when enabling HMSS.
@@ -226,8 +217,7 @@ class InProcessDuchy(
   private val computationDataClients by lazy {
     ComputationDataClients(
       ComputationsCoroutineStub(computationsServer.channel)
-        .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES),
+        .withWaitForReady(),
       duchyDependencies.storageClient,
     )
   }
@@ -287,7 +277,6 @@ class InProcessDuchy(
             SystemComputationControlCoroutineStub(channel)
               .withDuchyId(externalDuchyId)
               .withWaitForReady()
-              .withDeadlineAfter(10, TimeUnit.MINUTES)
           }
         val protocolsSetupConfig =
           when (externalDuchyId) {

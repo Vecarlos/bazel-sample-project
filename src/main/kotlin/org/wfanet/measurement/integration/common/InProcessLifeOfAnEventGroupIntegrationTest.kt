@@ -70,23 +70,19 @@ abstract class InProcessLifeOfAnEventGroupIntegrationTest {
   private val publicMeasurementConsumersClient by lazy {
     PublicMeasurementConsumersCoroutineStub(kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicEventGroupsClient by lazy {
     PublicEventGroupsCoroutineStub(kingdom.publicApiChannel)
       .withPrincipalName(edpResourceName)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicAccountsClient by lazy {
     PublicAccountsCoroutineStub(kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicApiKeysClient by lazy {
     PublicApiKeysCoroutineStub(kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private lateinit var mcResourceName: String

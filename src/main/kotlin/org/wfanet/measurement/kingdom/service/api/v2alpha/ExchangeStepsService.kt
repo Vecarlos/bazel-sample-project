@@ -113,7 +113,6 @@ class ExchangeStepsService(
     val internalResponse: InternalClaimReadyExchangeStepResponse =
       internalExchangeSteps
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .claimReadyExchangeStep(internalRequest)
     if (!internalResponse.hasExchangeStep()) {
       return ClaimReadyExchangeStepResponse.getDefaultInstance()
@@ -150,7 +149,6 @@ class ExchangeStepsService(
       try {
         internalRecurringExchanges
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getRecurringExchange(
             getRecurringExchangeRequest {
               externalRecurringExchangeId = ApiId(parentKey.recurringExchangeId).externalId.value
@@ -254,7 +252,6 @@ class ExchangeStepsService(
     val results: List<InternalExchangeStep> =
       internalExchangeSteps
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamExchangeSteps(streamExchangeStepsRequest)
         .toList()
 

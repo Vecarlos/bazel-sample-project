@@ -150,27 +150,22 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private val publicMeasurementsClient by lazy {
     MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicMeasurementConsumersClient by lazy {
     MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicCertificatesClient by lazy {
     CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicEventGroupsClient by lazy {
     EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val publicDataProvidersClient by lazy {
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private suspend fun warmUpSystemApi() {
@@ -180,7 +175,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       ComputationParticipantsCoroutineStub(inProcessCmmsComponents.kingdom.systemApiChannel)
         .withDuchyId(warmupDuchyId)
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
 
     repeat(5) {
       try {
@@ -236,7 +230,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       publicMeasurementsClient
         .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
     withTimeout(Duration.ofMinutes(2).toMillis()) {
       while (true) {
         val response =

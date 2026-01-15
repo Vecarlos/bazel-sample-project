@@ -157,7 +157,6 @@ class EventGroupsService(
       try {
         internalEventGroupsStub
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getEventGroup(internalRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -215,7 +214,6 @@ class EventGroupsService(
     return try {
       internalEventGroupsStub
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .createEventGroup(internalRequest)
         .toEventGroup()
     } catch (e: StatusException) {
@@ -283,7 +281,6 @@ class EventGroupsService(
         eventGroups +=
           internalEventGroupsStub
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
             .batchCreateEventGroups(internalRequest)
             .eventGroupsList
             .map { it.toEventGroup() }
@@ -318,7 +315,6 @@ class EventGroupsService(
     return try {
       internalEventGroupsStub
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .updateEventGroup(updateRequest)
         .toEventGroup()
     } catch (e: StatusException) {
@@ -381,7 +377,6 @@ class EventGroupsService(
         eventGroups +=
           internalEventGroupsStub
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
             .batchUpdateEventGroup(internalBatchRequest)
             .eventGroupsList
             .map { it.toEventGroup() }
@@ -466,7 +461,6 @@ class EventGroupsService(
     return try {
       internalEventGroupsStub
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .deleteEventGroup(deleteRequest)
         .toEventGroup()
     } catch (e: StatusException) {
@@ -514,7 +508,6 @@ class EventGroupsService(
       try {
         internalEventGroupsStub
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .streamEventGroups(internalRequest)
           .toList()
       } catch (e: StatusException) {

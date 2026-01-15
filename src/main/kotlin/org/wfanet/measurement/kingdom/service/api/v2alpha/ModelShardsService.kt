@@ -94,7 +94,6 @@ class ModelShardsService(
     return try {
       internalClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .createModelShard(createModelShardRequest)
         .toModelShard()
     } catch (e: StatusException) {
@@ -132,7 +131,6 @@ class ModelShardsService(
     try {
       internalClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .deleteModelShard(deleteModelShardRequest)
       return Empty.getDefaultInstance()
     } catch (e: StatusException) {
@@ -170,7 +168,6 @@ class ModelShardsService(
     val results: List<InternalModelShard> =
       internalClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamModelShards(listModelShardsPageToken.toStreamModelShardsRequest())
         .toList()
 

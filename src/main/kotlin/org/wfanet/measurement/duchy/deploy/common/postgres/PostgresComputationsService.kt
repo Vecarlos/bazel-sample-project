@@ -481,7 +481,6 @@ class PostgresComputationsService(
     try {
       computationLogEntriesClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .createComputationLogEntry(request)
     } catch (ignored: Exception) {
       logger.log(Level.WARNING, "Failed to update status change to the kingdom. $ignored")

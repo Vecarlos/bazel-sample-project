@@ -120,15 +120,12 @@ abstract class InProcessEventGroupsTest(
         val cmmsAccountsStub =
           AccountsGrpcKt.AccountsCoroutineStub(kingdom.publicApiChannel)
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
         val cmmsApiKeysStub =
           ApiKeysGrpcKt.ApiKeysCoroutineStub(kingdom.publicApiChannel)
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
         val cmmsMeasurementConsumersStub =
           MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub(kingdom.publicApiChannel)
             .withWaitForReady()
-            .withDeadlineAfter(10, TimeUnit.MINUTES)
         val resourceSetup =
           ResourceSetup(
             internalAccountsClient = kingdom.internalAccountsClient,

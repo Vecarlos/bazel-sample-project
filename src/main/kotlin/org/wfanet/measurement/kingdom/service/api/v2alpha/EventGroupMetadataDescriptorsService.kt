@@ -109,7 +109,6 @@ class EventGroupMetadataDescriptorsService(
       try {
         internalEventGroupMetadataDescriptorsStub
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .getEventGroupMetadataDescriptor(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -161,7 +160,6 @@ class EventGroupMetadataDescriptorsService(
       try {
         internalEventGroupMetadataDescriptorsStub
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .createEventGroupMetadataDescriptor(createRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -210,7 +208,6 @@ class EventGroupMetadataDescriptorsService(
       try {
         internalEventGroupMetadataDescriptorsStub
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .updateEventGroupMetadataDescriptor(updateRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -269,7 +266,6 @@ class EventGroupMetadataDescriptorsService(
     val results: List<InternalEventGroupMetadataDescriptor> =
       internalEventGroupMetadataDescriptorsStub
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamEventGroupMetadataDescriptors(streamRequest)
         .toList()
         .sortedBy { descriptor ->
@@ -319,7 +315,6 @@ class EventGroupMetadataDescriptorsService(
       try {
         internalEventGroupMetadataDescriptorsStub
           .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .streamEventGroupMetadataDescriptors(
             listEventGroupMetadataDescriptorsPageToken
               .toStreamEventGroupMetadataDescriptorsRequest()
@@ -465,32 +460,3 @@ private fun ListEventGroupMetadataDescriptorsPageToken
     }
   }
 }
-// --- INJECTED FOR CACHE TEST ---
-fun injectedFunction1() {
-    println("Injected function 1 executed")
-}
-fun injectedFunction2() {
-    println("Injected function 2 executed")
-}
-fun injectedFunction3() {
-    println("Injected function 3 executed")
-}
-fun injectedFunction4() {
-    println("Injected function 4 executed")
-}
-fun injectedFunction5() {
-    println("Injected function 5 executed")
-}
-fun injectedFunction6() {
-    println("Injected function 6 executed")
-}
-fun injectedFunction7() {
-    println("Injected function 7 executed")
-}
-fun injectedFunction8() {
-    println("Injected function 8 executed")
-}
-fun injectedFunction9() {
-    println("Injected function 9 executed")
-}
-// --- END INJECTED ---

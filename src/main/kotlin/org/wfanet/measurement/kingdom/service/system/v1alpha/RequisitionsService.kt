@@ -47,7 +47,6 @@ class RequisitionsService(
     val internalResponse =
       internalRequisitionsClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .fulfillRequisition(
           internalFulfillRequisitionRequest {
             externalRequisitionId = apiIdToExternalId(requisitionKey.requisitionId)

@@ -65,32 +65,27 @@ abstract class InProcessMeasurementSystemProberIntegrationTest(
   private val publicMeasurementsClient by lazy {
     MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicMeasurementConsumersClient by lazy {
     MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicEventGroupsClient by lazy {
     EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withPrincipalName(inProcessCmmsComponents.getMeasurementConsumerData().name)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicDataProvidersClient by lazy {
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val publicRequisitionsClient by lazy {
     RequisitionsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private lateinit var clock: TestClockWithNamedInstants

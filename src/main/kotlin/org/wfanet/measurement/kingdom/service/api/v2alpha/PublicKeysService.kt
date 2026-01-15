@@ -102,7 +102,6 @@ class PublicKeysService(
     try {
       internalPublicKeysStub
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .updatePublicKey(updateRequest)
     } catch (e: StatusException) {
       throw when (e.status.code) {

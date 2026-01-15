@@ -141,13 +141,13 @@ abstract class MillBase(
   private val rpcMaxAttempts: Int = 3,
 ) {
   protected val systemComputationParticipantsClient =
-    systemComputationParticipantsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    systemComputationParticipantsClient.withWaitForReady()
   private val systemComputationsClient =
-    systemComputationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    systemComputationsClient.withWaitForReady()
   private val systemComputationLogEntriesClient =
-    systemComputationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    systemComputationLogEntriesClient.withWaitForReady()
   private val computationStatsClient =
-    computationStatsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    computationStatsClient.withWaitForReady()
 
   abstract val endingStage: ComputationStage
 
@@ -223,7 +223,7 @@ abstract class MillBase(
     }
     val claimWorkResponse =
       try {
-        dataClients.computationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).claimWork(claimWorkRequest)
+        dataClients.computationsClient.withWaitForReady().claimWork(claimWorkRequest)
       } catch (e: StatusException) {
         if (!computationsServerReady && e.status.code == Status.Code.UNAVAILABLE) {
           logger.info("Computations server not ready")
@@ -362,7 +362,7 @@ abstract class MillBase(
       yield()
       val participant: ComputationParticipant =
         try {
-          systemComputationParticipantsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).getComputationParticipant(
+          systemComputationParticipantsClient.withWaitForReady().getComputationParticipant(
             getComputationParticipantRequest { name = participantKey.toName() }
           )
         } catch (e: StatusException) {
@@ -392,7 +392,7 @@ abstract class MillBase(
         return@updateComputationParticipant
       }
 
-      systemComputationParticipantsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).setParticipantRequisitionParams(
+      systemComputationParticipantsClient.withWaitForReady().setParticipantRequisitionParams(
         setParticipantRequisitionParamsRequest {
           name = participant.name
           etag = participant.etag
@@ -431,7 +431,7 @@ abstract class MillBase(
         this.failure = failure
       }
       try {
-        systemComputationParticipantsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).failComputationParticipant(request)
+        systemComputationParticipantsClient.withWaitForReady().failComputationParticipant(request)
       } catch (e: StatusException) {
         when (e.status.code) {
           Status.Code.FAILED_PRECONDITION -> {
@@ -476,7 +476,7 @@ abstract class MillBase(
     logEntry: ComputationLogEntry,
   ) {
     try {
-      systemComputationLogEntriesClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).createComputationLogEntry(
+      systemComputationLogEntriesClient.withWaitForReady().createComputationLogEntry(
         createComputationLogEntryRequest {
           parent = ComputationParticipantKey(globalComputationId, duchyId).toName()
           computationLogEntry = logEntry
@@ -530,7 +530,7 @@ abstract class MillBase(
       this.publicApiVersion = publicApiVersion.string
     }
     try {
-      systemComputationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).setComputationResult(request)
+      systemComputationsClient.withWaitForReady().setComputationResult(request)
     } catch (e: StatusException) {
       val message = "Error sending result to Kingdom"
       throw when (e.status.code) {
@@ -588,7 +588,7 @@ abstract class MillBase(
     metricValue: Long,
   ) {
     logAndSuppressExceptionSuspend {
-      computationStatsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).createComputationStat(
+      computationStatsClient.withWaitForReady().createComputationStat(
         CreateComputationStatRequest.newBuilder()
           .setLocalComputationId(token.localComputationId)
           .setAttempt(token.attempt)
@@ -641,7 +641,7 @@ abstract class MillBase(
           AdvanceComputationRequest.newBuilder().apply { bodyChunkBuilder.partialData = it }.build()
         }
         .onStart { emit(AdvanceComputationRequest.newBuilder().setHeader(header).build()) }
-    val readyStub = stub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    val readyStub = stub.withWaitForReady()
     try {
       readyStub.advanceComputation(requestFlow)
     } catch (e: StatusException) {
@@ -735,7 +735,7 @@ abstract class MillBase(
   ): ComputationToken {
     val response: FinishComputationResponse =
       try {
-        dataClients.computationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).finishComputation(
+        dataClients.computationsClient.withWaitForReady().finishComputation(
           finishComputationRequest {
             this.token = token
             endingComputationStage = endingStage
@@ -757,7 +757,7 @@ abstract class MillBase(
   private suspend fun getLatestComputationToken(globalId: String): ComputationToken {
     val response: GetComputationTokenResponse =
       try {
-        dataClients.computationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).getComputationToken(
+        dataClients.computationsClient.withWaitForReady().getComputationToken(
           getComputationTokenRequest { globalComputationId = globalId }
         )
       } catch (e: StatusException) {
@@ -784,7 +784,7 @@ abstract class MillBase(
     val delaySecond = baseDelay + Random.nextInt(baseDelay + 1)
 
     try {
-      dataClients.computationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).enqueueComputation(
+      dataClients.computationsClient.withWaitForReady().enqueueComputation(
         enqueueComputationRequest {
           this.token = token
           this.delaySecond = delaySecond
@@ -806,7 +806,7 @@ abstract class MillBase(
   ): ComputationToken {
     val response: UpdateComputationDetailsResponse =
       try {
-        dataClients.computationsClient.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).updateComputationDetails(request)
+        dataClients.computationsClient.withWaitForReady().updateComputationDetails(request)
       } catch (e: StatusException) {
         val message = "Error updating computation details"
         throw when (e.status.code) {
@@ -828,10 +828,10 @@ abstract class MillBase(
     otherDuchyId: String,
     stub: ComputationControlCoroutineStub,
   ): ComputationStage {
-    val readyStub = stub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+    val readyStub = stub.withWaitForReady()
     val systemStage =
       try {
-        readyStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES).getComputationStage(
+        readyStub.withWaitForReady().getComputationStage(
           getComputationStageRequest { name = StageKey(globalComputationId, otherDuchyId).toName() }
         )
       } catch (e: StatusException) {
@@ -944,32 +944,3 @@ fun Duration.toHumanFriendlyDuration(): String {
   val millisString = if (millis == 0) "" else "$millis milliseconds"
   return "$hoursString$minutesString$secondsString$millisString"
 }
-// --- INJECTED FOR CACHE TEST ---
-fun injectedFunction1() {
-    println("Injected function 1 executed")
-}
-fun injectedFunction2() {
-    println("Injected function 2 executed")
-}
-fun injectedFunction3() {
-    println("Injected function 3 executed")
-}
-fun injectedFunction4() {
-    println("Injected function 4 executed")
-}
-fun injectedFunction5() {
-    println("Injected function 5 executed")
-}
-fun injectedFunction6() {
-    println("Injected function 6 executed")
-}
-fun injectedFunction7() {
-    println("Injected function 7 executed")
-}
-fun injectedFunction8() {
-    println("Injected function 8 executed")
-}
-fun injectedFunction9() {
-    println("Injected function 9 executed")
-}
-// --- END INJECTED ---

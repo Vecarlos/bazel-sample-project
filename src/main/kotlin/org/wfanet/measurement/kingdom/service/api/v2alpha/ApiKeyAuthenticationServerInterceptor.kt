@@ -96,7 +96,6 @@ class ApiKeyAuthenticationServerInterceptor(
       }
     return internalApiKeysClient
       .withWaitForReady()
-      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .authenticateApiKey(authenticateApiKeyRequest { authenticationKeyHash = keyHash })
   }
 }
