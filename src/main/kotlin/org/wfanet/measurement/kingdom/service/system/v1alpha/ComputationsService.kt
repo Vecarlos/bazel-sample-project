@@ -114,7 +114,7 @@ class ComputationsService(
             if (cause !is StatusException) throw cause
             logger.log(
               Level.INFO,
-              "ComputationsService.kt: streamMeasurements failed: code={0}, description={1}",
+              "[COVDBG] ComputationsService.kt streamMeasurements failed: code={0}, description={1}",
               arrayOf(cause.status.code, cause.status.description ?: ""),
             )
             throw when (cause.status.code) {

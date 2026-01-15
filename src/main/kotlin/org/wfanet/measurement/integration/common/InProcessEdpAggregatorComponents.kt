@@ -374,6 +374,19 @@ class InProcessEdpAggregatorComponents(
             if (stopRequested) {
               return@launch
             }
+            if (e is StatusException) {
+              logger.log(
+                Level.INFO,
+                "[COVDBG] InProcessEdpAggregatorComponents.kt fetch loop failed: provider={0}, code={1}, description={2}",
+                arrayOf(edpResourceName, e.status.code, e.status.description ?: ""),
+              )
+            } else {
+              logger.log(
+                Level.INFO,
+                "[COVDBG] InProcessEdpAggregatorComponents.kt fetch loop failed: provider={0}, exception={1}",
+                arrayOf(edpResourceName, e::class.simpleName ?: e::class.java.name),
+              )
+            }
             if (!firstFetchReady.isCompleted) {
               logger.log(Level.INFO, e) { "Requisition fetcher not ready for $edpResourceName" }
             } else {

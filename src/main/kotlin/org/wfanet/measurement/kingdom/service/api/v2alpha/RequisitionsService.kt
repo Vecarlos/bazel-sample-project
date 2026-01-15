@@ -104,7 +104,7 @@ class RequisitionsService(
   private fun logStatus(operation: String, e: StatusException) {
     logger.log(
       Level.INFO,
-      "RequisitionsService.kt: $operation failed: code={0}, description={1}",
+      "[COVDBG] RequisitionsService.kt: $operation failed: code={0}, description={1}",
       arrayOf(e.status.code, e.status.description ?: ""),
     )
   }
