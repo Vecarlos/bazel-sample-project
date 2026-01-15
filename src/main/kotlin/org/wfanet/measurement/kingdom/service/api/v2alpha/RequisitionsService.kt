@@ -20,7 +20,6 @@ import com.google.protobuf.any
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -97,8 +96,7 @@ class RequisitionsService(
   internalRequisitionStub: RequisitionsCoroutineStub,
   coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : RequisitionsCoroutineImplBase(coroutineContext) {
-  private val internalRequisitionStub =
-    internalRequisitionStub.withWaitForReady().withDeadlineAfter(10, TimeUnit.MINUTES)
+  private val internalRequisitionStub = internalRequisitionStub.withWaitForReady()
 
   private enum class Permission {
     LIST,
@@ -168,10 +166,7 @@ class RequisitionsService(
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
     val internalRequisitions: List<InternalRequisition> =
       try {
-        internalRequisitionStub
-          .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
-          .streamRequisitions(internalRequest)
+        internalRequisitionStub.withWaitForReady().streamRequisitions(internalRequest)
           .toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
@@ -218,10 +213,7 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub
-          .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
-          .getRequisition(getRequest)
+        internalRequisitionStub.withWaitForReady().getRequisition(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -261,10 +253,7 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub
-          .withWaitForReady()
-          .withDeadlineAfter(10, TimeUnit.MINUTES)
-          .refuseRequisition(refuseRequest)
+        internalRequisitionStub.withWaitForReady().refuseRequisition(refuseRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -335,10 +324,7 @@ class RequisitionsService(
       etag = request.etag
     }
     try {
-      internalRequisitionStub
-        .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
-        .fulfillRequisition(fulfillRequest)
+      internalRequisitionStub.withWaitForReady().fulfillRequisition(fulfillRequest)
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND

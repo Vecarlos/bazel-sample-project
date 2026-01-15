@@ -16,7 +16,6 @@ package org.wfanet.measurement.kingdom.service.system.v1alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -77,7 +76,6 @@ class ComputationsService(
     try {
       return measurementsClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .getMeasurementByComputationId(internalRequest)
         .toSystemComputation()
     } catch (e: StatusException) {
@@ -169,7 +167,6 @@ class ComputationsService(
     try {
       return measurementsClient
         .withWaitForReady()
-        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .setMeasurementResult(internalRequest)
         .toSystemComputation()
     } catch (e: StatusException) {
