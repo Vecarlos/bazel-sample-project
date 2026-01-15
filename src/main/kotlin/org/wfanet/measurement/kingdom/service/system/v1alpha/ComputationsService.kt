@@ -207,6 +207,7 @@ class ComputationsService(
     try {
       return measurementsClient
         .withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamMeasurements(request)
     } catch (e: StatusException) {
       throw when (e.status.code) {
