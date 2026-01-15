@@ -23,8 +23,6 @@ import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.time.TimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -115,18 +113,18 @@ class RequisitionFetcher(
             e.status.code != Status.Code.DEADLINE_EXCEEDED &&
             e.status.code != Status.Code.ABORTED
           ) {
-            logger.log(
-              Level.INFO,
-              "[COVDBG] RequisitionFetcher.kt listRequisitions non-retryable: provider={0}, code={1}, description={2}",
-              arrayOf(dataProviderName, e.status.code, e.status.description ?: ""),
+            logger.info(
+              "[COVDBG] RequisitionFetcher.kt listRequisitions non-retryable: " +
+                "provider=$dataProviderName, code=${e.status.code}, " +
+                "description=${e.status.description ?: ""}"
             )
             throw Exception("Error listing requisitions", e)
           }
           if (attempt >= 3) {
-            logger.log(
-              Level.INFO,
-              "[COVDBG] RequisitionFetcher.kt listRequisitions retry exhausted: provider={0}, code={1}, description={2}",
-              arrayOf(dataProviderName, e.status.code, e.status.description ?: ""),
+            logger.info(
+              "[COVDBG] RequisitionFetcher.kt listRequisitions retry exhausted: " +
+                "provider=$dataProviderName, code=${e.status.code}, " +
+                "description=${e.status.description ?: ""}"
             )
             throw Exception("Error listing requisitions", e)
           }
