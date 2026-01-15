@@ -242,7 +242,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           readyMeasurementsClient.listMeasurements(
             listMeasurementsRequest {
               parent = measurementConsumerData.name
-              filter {
+              filter = filter {
                 states += Measurement.State.SUCCEEDED
                 states += Measurement.State.FAILED
                 states += Measurement.State.CANCELLED
