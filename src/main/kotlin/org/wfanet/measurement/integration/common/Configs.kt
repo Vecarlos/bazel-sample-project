@@ -19,6 +19,7 @@ import com.google.protobuf.Message
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.cert.X509Certificate
+import java.time.Duration
 import java.time.Instant
 import org.jetbrains.annotations.Blocking
 import org.wfanet.measurement.api.v2alpha.DataProviderCertificateKey
@@ -155,7 +156,8 @@ val ALL_EDP_WITHOUT_HMSS_CAPABILITIES_DISPLAY_NAMES = listOf("edp2")
 val ALL_EDP_DISPLAY_NAMES =
   ALL_EDP_WITH_HMSS_CAPABILITIES_DISPLAY_NAMES + ALL_EDP_WITHOUT_HMSS_CAPABILITIES_DISPLAY_NAMES
 
-const val DUCHY_MILL_PARALLELISM = 3
+const val DUCHY_MILL_PARALLELISM = 1
+val DUCHY_WORK_LOCK_DURATION: Duration = Duration.ofMinutes(5)
 
 const val MC_DISPLAY_NAME = "mc"
 

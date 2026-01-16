@@ -311,7 +311,7 @@ class InProcessDuchy(
             computationStatsClient = computationStatsClient,
             workerStubs = workerStubs,
             cryptoWorker = JniLiquidLegionsV2Encryption(),
-            workLockDuration = Duration.ofSeconds(1),
+            workLockDuration = DUCHY_WORK_LOCK_DURATION,
             parallelism = DUCHY_MILL_PARALLELISM,
           )
         val reachOnlyLiquidLegionsV2Mill =
@@ -328,7 +328,7 @@ class InProcessDuchy(
             computationStatsClient = computationStatsClient,
             workerStubs = workerStubs,
             cryptoWorker = JniReachOnlyLiquidLegionsV2Encryption(),
-            workLockDuration = Duration.ofSeconds(1),
+            workLockDuration = DUCHY_WORK_LOCK_DURATION,
             parallelism = DUCHY_MILL_PARALLELISM,
           )
         val honestMajorityShareShuffleMill =
@@ -347,7 +347,7 @@ class InProcessDuchy(
             workerStubs = workerStubs,
             cryptoWorker = JniHonestMajorityShareShuffleCryptor(),
             protocolSetupConfig = protocolsSetupConfig.honestMajorityShareShuffle,
-            workLockDuration = Duration.ofSeconds(1),
+            workLockDuration = DUCHY_WORK_LOCK_DURATION,
             privateKeyStore = privateKeyStore,
           )
         val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1))
