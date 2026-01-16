@@ -31,7 +31,6 @@ import org.wfanet.measurement.kingdom.deploy.common.DuchyIds
 import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.common.DuchyNotFoundException
 import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.common.KingdomInternalException
 import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.common.MeasurementNotFoundByComputationException
-import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.common.MeasurementStateIllegalException
 
 /**
  * Creates a DuchyMeasurementLogEntry and MeasurementLogEntry in the database.
@@ -63,22 +62,9 @@ class CreateDuchyMeasurementLogEntry(private val request: CreateDuchyMeasurement
         }
 
     when (measurementInfo.measurementState) {
-      Measurement.State.SUCCEEDED,
-      Measurement.State.FAILED,
-      Measurement.State.CANCELLED ->
-        throw MeasurementStateIllegalException(
-          measurementInfo.externalMeasurementConsumerId,
-          measurementInfo.externalMeasurementId,
-          measurementInfo.measurementState,
-        ) {
-          "Cannot create log entry for Measurement in terminal state."
-        }
-      Measurement.State.PENDING_COMPUTATION,
-      Measurement.State.PENDING_PARTICIPANT_CONFIRMATION,
-      Measurement.State.PENDING_REQUISITION_FULFILLMENT,
-      Measurement.State.PENDING_REQUISITION_PARAMS -> {}
       Measurement.State.UNRECOGNIZED,
       Measurement.State.STATE_UNSPECIFIED -> error("Unspecified state.")
+      else -> {}
     }
 
     val duchyId =

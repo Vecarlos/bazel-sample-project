@@ -21,8 +21,6 @@ import com.google.rpc.errorInfo
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.StatusRuntimeException
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.text.toLong
 import org.wfanet.measurement.api.v2alpha.AccountKey
 import org.wfanet.measurement.api.v2alpha.CanonicalExchangeKey
@@ -209,11 +207,6 @@ fun Status.toExternalStatusRuntimeException(
   internalApiException: StatusException
 ): StatusRuntimeException {
   val errorInfo = internalApiException.errorInfo
-  logger.log(
-    Level.INFO,
-    "[COVDBG] Errors.kt toExternalStatusRuntimeException: " +
-      "status=$code, has_error_info=${errorInfo != null}, domain=${errorInfo?.domain ?: "none"}",
-  )
   if (errorInfo == null || errorInfo.domain != ErrorCode.getDescriptor().fullName) {
     return withCause(internalApiException).asRuntimeException()
   }
@@ -855,6 +848,3 @@ fun Status.toExternalStatusRuntimeException(
       }
     )
 }
-
-private val logger: Logger =
-  Logger.getLogger("org.wfanet.measurement.kingdom.service.api.v2alpha.Errors")

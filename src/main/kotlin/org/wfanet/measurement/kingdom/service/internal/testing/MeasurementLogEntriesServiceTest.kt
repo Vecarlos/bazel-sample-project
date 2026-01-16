@@ -267,7 +267,7 @@ abstract class MeasurementLogEntriesServiceTest<T : MeasurementLogEntriesCorouti
   }
 
   @Test
-  fun `createMeasurementLogEntry fails Measurement in terminal states`() = runBlocking {
+  fun `createMeasurementLogEntry succeeds for Measurement in terminal states`() = runBlocking {
     val measurementConsumer =
       population.createMeasurementConsumer(measurementConsumersService, accountsService)
     val dataProvider = population.createDataProvider(dataProvidersService)
@@ -294,19 +294,31 @@ abstract class MeasurementLogEntriesServiceTest<T : MeasurementLogEntriesCorouti
       stageAttempt = duchyMeasurementLogEntryStageAttempt { stage = 1 }
     }
 
-    val exception =
-      assertFailsWith<StatusRuntimeException> {
-        measurementLogEntriesService.createDuchyMeasurementLogEntry(
-          createDuchyMeasurementLogEntryRequest {
-            externalComputationId = measurement.externalComputationId
-            externalDuchyId = DUCHIES[0].externalDuchyId
-            this.measurementLogEntryDetails = measurementLogEntryDetails
-            details = duchyMeasurementLogEntryDetails
-          }
-        )
-      }
+    val createdDuchyMeasurementLogEntry =
+      measurementLogEntriesService.createDuchyMeasurementLogEntry(
+        createDuchyMeasurementLogEntryRequest {
+          externalComputationId = measurement.externalComputationId
+          externalDuchyId = DUCHIES[0].externalDuchyId
+          this.measurementLogEntryDetails = measurementLogEntryDetails
+          details = duchyMeasurementLogEntryDetails
+        }
+      )
 
-    assertThat(exception.status.code).isEqualTo(Status.Code.FAILED_PRECONDITION)
+    val expectedDuchyMeasurementLogEntry = duchyMeasurementLogEntry {
+      externalDuchyId = DUCHIES[0].externalDuchyId
+      externalComputationLogEntryId = createdDuchyMeasurementLogEntry.externalComputationLogEntryId
+      logEntry = measurementLogEntry {
+        this.externalMeasurementId = measurement.externalMeasurementId
+        this.externalMeasurementConsumerId = measurement.externalMeasurementConsumerId
+        details = measurementLogEntryDetails
+        createTime = createdDuchyMeasurementLogEntry.logEntry.createTime
+      }
+      details = duchyMeasurementLogEntryDetails
+    }
+
+    assertThat(createdDuchyMeasurementLogEntry.externalComputationLogEntryId).isNotEqualTo(0L)
+    assertThat(createdDuchyMeasurementLogEntry.logEntry.createTime.seconds).isGreaterThan(0L)
+    assertThat(createdDuchyMeasurementLogEntry).isEqualTo(expectedDuchyMeasurementLogEntry)
   }
 
   @Test
