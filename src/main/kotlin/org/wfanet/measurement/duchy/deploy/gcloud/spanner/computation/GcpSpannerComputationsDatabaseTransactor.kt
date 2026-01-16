@@ -27,6 +27,7 @@ import java.time.Instant
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import org.wfanet.measurement.common.IdGenerator
 import org.wfanet.measurement.common.generateNewId
@@ -182,22 +183,23 @@ class GcpSpannerComputationsDatabaseTransactor<
           lockDuration,
         )
       }
-    return UnclaimedTasksQuery(
-        computationMutations.protocolEnumToLong(protocol),
-        prioritizedStages,
-        computationMutations::longValuesToComputationStageEnum,
-        computationMutations::computationStageEnumToLongValues,
-        clock.gcloudTimestamp(),
-      )
-      .execute(databaseClient)
-      // First the possible tasks to claim are selected from the computations table, then for each
-      // item in the list we try to claim the lock in a transaction which will only succeed if the
-      // lock is still available. This pattern means only the item which is being updated
-      // would need to be locked and not every possible computation that can be worked on.
-      .filter { claimSpecificTask(it) }
-      // If the value is null, no tasks were claimed.
-      .firstOrNull()
-      ?.globalId
+    val candidate =
+      UnclaimedTasksQuery(
+          computationMutations.protocolEnumToLong(protocol),
+          prioritizedStages,
+          computationMutations::longValuesToComputationStageEnum,
+          computationMutations::computationStageEnumToLongValues,
+          clock.gcloudTimestamp(),
+        )
+        .execute(databaseClient)
+        // LIMIT 1 ensures the flow completes without early cancellation.
+        .singleOrNull()
+
+    return if (candidate != null && claimSpecificTask(candidate)) {
+      candidate.globalId
+    } else {
+      null
+    }
   }
 
   /**
