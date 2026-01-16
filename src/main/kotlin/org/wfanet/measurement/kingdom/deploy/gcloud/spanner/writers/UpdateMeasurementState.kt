@@ -15,6 +15,8 @@
 package org.wfanet.measurement.kingdom.deploy.gcloud.spanner.writers
 
 import com.google.cloud.spanner.Value
+import java.util.logging.Level
+import java.util.logging.Logger
 import org.wfanet.measurement.common.identity.InternalId
 import org.wfanet.measurement.gcloud.spanner.bufferTo
 import org.wfanet.measurement.gcloud.spanner.set
@@ -32,6 +34,11 @@ internal fun SpannerWriter.TransactionScope.updateMeasurementState(
   measurementLogEntryDetails: MeasurementLogEntryDetails,
   details: MeasurementDetails? = null,
 ) {
+  logger.log(
+    Level.INFO,
+    "[COVDBG] UpdateMeasurementState measurement_id=$measurementId " +
+      "consumer_id=$measurementConsumerId prev=$previousState next=$nextState",
+  )
 
   updateMutation("Measurements") {
       set("MeasurementConsumerId" to measurementConsumerId)
@@ -59,3 +66,6 @@ internal fun SpannerWriter.TransactionScope.updateMeasurementState(
     previousMeasurementState = previousState,
   )
 }
+
+private val logger: Logger =
+  Logger.getLogger("org.wfanet.measurement.kingdom.deploy.gcloud.spanner.writers.UpdateMeasurementState")
