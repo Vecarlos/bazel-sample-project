@@ -18,6 +18,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.random.Random
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -133,6 +134,7 @@ abstract class InProcessReachMeasurementAccuracyTest(
         InProcessCmmsComponents.TRUSTED_CERTIFICATES,
         inProcessCmmsComponents.eventQuery,
         NoiseMechanism.CONTINUOUS_GAUSSIAN,
+        random = Random(1),
       )
   }
 

@@ -21,6 +21,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
+import kotlin.random.Random
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -291,6 +292,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         modelLineName = modelLineName,
         initialResultPollingDelay = Duration.ofSeconds(10),
         maximumResultPollingDelay = Duration.ofSeconds(10),
+        random = Random(1),
       )
   }
 

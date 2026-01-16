@@ -21,6 +21,7 @@ import com.google.type.interval
 import java.security.cert.X509Certificate
 import java.time.Duration
 import java.time.LocalDate
+import kotlin.random.Random
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import org.projectnessie.cel.Program
@@ -68,6 +69,7 @@ class EdpAggregatorMeasurementConsumerSimulator(
   initialResultPollingDelay: Duration = Duration.ofSeconds(1),
   maximumResultPollingDelay: Duration = Duration.ofMinutes(1),
   onMeasurementsCreated: (() -> Unit)? = null,
+  random: Random = Random.Default,
 ) :
   MeasurementConsumerSimulator(
     measurementConsumerData,
@@ -84,6 +86,7 @@ class EdpAggregatorMeasurementConsumerSimulator(
     onMeasurementsCreated = onMeasurementsCreated,
     reportName = reportName,
     modelLineName = modelLineName,
+    random = random,
   ) {
 
   override fun Flow<EventGroup>.filterEventGroups(): Flow<EventGroup> {

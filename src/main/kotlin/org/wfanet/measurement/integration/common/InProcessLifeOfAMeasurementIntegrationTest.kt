@@ -17,6 +17,7 @@ package org.wfanet.measurement.integration.common
 import java.time.Instant
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -145,6 +146,7 @@ abstract class InProcessLifeOfAMeasurementIntegrationTest(
         InProcessCmmsComponents.TRUSTED_CERTIFICATES,
         inProcessCmmsComponents.eventQuery,
         NoiseMechanism.CONTINUOUS_GAUSSIAN,
+        random = Random(1),
       )
   }
 
