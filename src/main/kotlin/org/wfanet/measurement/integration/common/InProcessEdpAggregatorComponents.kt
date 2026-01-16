@@ -44,6 +44,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
@@ -360,21 +361,18 @@ class InProcessEdpAggregatorComponents(
       firstFetchReadySignals += firstFetchReady
       val fetcherJob = backgroundScope.launch {
         while (isActive && !stopRequested) {
+          var stopNow = false
           try {
             requisitionFetcher.fetchAndStoreRequisitions()
             if (!firstFetchReady.isCompleted) {
               firstFetchReady.complete(Unit)
             }
           } catch (e: CancellationException) {
-            if (stopRequested) {
-              return@launch
-            }
-            throw e
+            stopNow = true
           } catch (e: Exception) {
             if (stopRequested) {
-              return@launch
-            }
-            if (!firstFetchReady.isCompleted) {
+              stopNow = true
+            } else if (!firstFetchReady.isCompleted) {
               logger.log(Level.INFO, e) { "Requisition fetcher not ready for $edpResourceName" }
             } else {
               logger.log(Level.WARNING, e) {
@@ -382,8 +380,11 @@ class InProcessEdpAggregatorComponents(
               }
             }
           }
-          if (!stopRequested) {
+          withContext(NonCancellable) {
             delay(1000)
+          }
+          if (stopNow || stopRequested || !isActive) {
+            return@launch
           }
         }
       }
