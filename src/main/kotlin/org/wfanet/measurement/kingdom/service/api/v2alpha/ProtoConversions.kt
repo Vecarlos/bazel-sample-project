@@ -230,16 +230,12 @@ private val logger: Logger =
 fun InternalMeasurement.State.toState(): State {
   val result =
     when (this) {
-      InternalMeasurement.State.PENDING_REQUISITION_PARAMS,
-      InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT ->
-        State.AWAITING_REQUISITION_FULFILLMENT
-      InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION,
-      InternalMeasurement.State.PENDING_COMPUTATION -> State.COMPUTING
+      InternalMeasurement.State.PENDING_REQUISITION_PARAMS, InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT -> State.AWAITING_REQUISITION_FULFILLMENT
+      InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION, InternalMeasurement.State.PENDING_COMPUTATION -> State.COMPUTING
       InternalMeasurement.State.SUCCEEDED -> State.SUCCEEDED
       InternalMeasurement.State.FAILED -> State.FAILED
       InternalMeasurement.State.CANCELLED -> State.CANCELLED
-      InternalMeasurement.State.STATE_UNSPECIFIED,
-      InternalMeasurement.State.UNRECOGNIZED -> State.STATE_UNSPECIFIED
+      InternalMeasurement.State.STATE_UNSPECIFIED, InternalMeasurement.State.UNRECOGNIZED -> State.STATE_UNSPECIFIED
     }
   logger.log(
     Level.INFO,
@@ -252,23 +248,12 @@ fun InternalMeasurement.State.toState(): State {
 fun State.toInternalState(): List<InternalMeasurement.State> {
   val result =
     when (this) {
-      State.AWAITING_REQUISITION_FULFILLMENT -> {
-        listOf(
-          InternalMeasurement.State.PENDING_REQUISITION_PARAMS,
-          InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT,
-        )
-      }
-      State.COMPUTING -> {
-        listOf(
-          InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION,
-          InternalMeasurement.State.PENDING_COMPUTATION,
-        )
-      }
+      State.AWAITING_REQUISITION_FULFILLMENT -> listOf(InternalMeasurement.State.PENDING_REQUISITION_PARAMS, InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT)
+      State.COMPUTING -> listOf(InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION, InternalMeasurement.State.PENDING_COMPUTATION)
       State.SUCCEEDED -> listOf(InternalMeasurement.State.SUCCEEDED)
       State.FAILED -> listOf(InternalMeasurement.State.FAILED)
       State.CANCELLED -> listOf(InternalMeasurement.State.CANCELLED)
-      State.STATE_UNSPECIFIED,
-      State.UNRECOGNIZED -> listOf(InternalMeasurement.State.STATE_UNSPECIFIED)
+      State.STATE_UNSPECIFIED, State.UNRECOGNIZED -> listOf(InternalMeasurement.State.STATE_UNSPECIFIED)
     }
   logger.log(
     Level.INFO,
