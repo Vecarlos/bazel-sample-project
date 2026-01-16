@@ -20,8 +20,6 @@ import com.google.rpc.status
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.protobuf.StatusProto
-import java.util.logging.Level
-import java.util.logging.Logger
 import org.wfanet.measurement.internal.duchy.ErrorCode
 
 sealed class DuchyInternalException(
@@ -38,11 +36,6 @@ sealed class DuchyInternalException(
     statusCode: Status.Code,
     message: String = this.message,
   ): StatusRuntimeException {
-    logger.log(
-      Level.INFO,
-      "[COVDBG] DuchyInternalException asStatusRuntimeException: " +
-        "code=$code, status=$statusCode, context=$context",
-    )
     val statusProto = status {
       code = statusCode.value()
       this.message = message
@@ -56,10 +49,6 @@ sealed class DuchyInternalException(
         )
     }
     return StatusProto.toStatusRuntimeException(statusProto)
-  }
-
-  companion object {
-    private val logger: Logger = Logger.getLogger(this::class.java.name)
   }
 }
 

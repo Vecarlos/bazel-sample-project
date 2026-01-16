@@ -226,19 +226,8 @@ class ComputationsService(
         request.token.computationDetails,
       )
     } catch (e: ComputationNotFoundException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt finishComputation not found: " +
-          "global_id=${request.token.globalComputationId}",
-      )
       throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
     } catch (e: ComputationTokenVersionMismatchException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt finishComputation token mismatch: " +
-          "global_id=${request.token.globalComputationId}, version=${e.version}, " +
-          "token_version=${e.tokenVersion}",
-      )
       throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
 
@@ -283,19 +272,8 @@ class ComputationsService(
         request.requisitionsList,
       )
     } catch (e: ComputationNotFoundException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt updateComputationDetails not found: " +
-          "global_id=${request.token.globalComputationId}",
-      )
       throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
     } catch (e: ComputationTokenVersionMismatchException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt updateComputationDetails token mismatch: " +
-          "global_id=${request.token.globalComputationId}, version=${e.version}, " +
-          "token_version=${e.tokenVersion}",
-      )
       throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
     return computationsDatabase
@@ -312,19 +290,8 @@ class ComputationsService(
         BlobRef(request.outputBlobId, request.blobPath),
       )
     } catch (e: ComputationNotFoundException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt recordOutputBlobPath not found: " +
-          "global_id=${request.token.globalComputationId}, blob_id=${request.outputBlobId}",
-      )
       throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
     } catch (e: ComputationTokenVersionMismatchException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt recordOutputBlobPath token mismatch: " +
-          "global_id=${request.token.globalComputationId}, version=${e.version}, " +
-          "token_version=${e.tokenVersion}",
-      )
       throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
     return computationsDatabase
@@ -357,19 +324,8 @@ class ComputationsService(
         lockExtension,
       )
     } catch (e: ComputationNotFoundException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt advanceComputationStage not found: " +
-          "global_id=${request.token.globalComputationId}, stage=${request.nextComputationStage}",
-      )
       throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
     } catch (e: ComputationTokenVersionMismatchException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt advanceComputationStage token mismatch: " +
-          "global_id=${request.token.globalComputationId}, version=${e.version}, " +
-          "token_version=${e.tokenVersion}",
-      )
       throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
 
@@ -404,27 +360,10 @@ class ComputationsService(
         request.expectedOwner,
       )
     } catch (e: ComputationNotFoundException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt enqueueComputation not found: " +
-          "global_id=${request.token.globalComputationId}",
-      )
       throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
     } catch (e: ComputationTokenVersionMismatchException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt enqueueComputation token mismatch: " +
-          "global_id=${request.token.globalComputationId}, version=${e.version}, " +
-          "token_version=${e.tokenVersion}",
-      )
       throw e.asStatusRuntimeException(Status.Code.ABORTED)
     } catch (e: ComputationLockOwnerMismatchException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt enqueueComputation lock owner mismatch: " +
-          "global_id=${request.token.globalComputationId}, expected=${e.expectedOwner}, " +
-          "actual=${e.actualOwner ?: "none"}",
-      )
       throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
     return EnqueueComputationResponse.getDefaultInstance()
@@ -474,11 +413,6 @@ class ComputationsService(
     try {
       computationLogEntriesClient.withWaitForReady().createComputationLogEntry(request)
     } catch (e: StatusException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] ComputationsService.kt sendStatusUpdateToKingdom failed: " +
-          "code=${e.status.code}, description=${e.status.description ?: ""}",
-      )
       logger.log(Level.WARNING, e) { "Failed to update status change to the kingdom." }
     }
   }

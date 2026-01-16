@@ -24,7 +24,6 @@ import com.google.protobuf.AbstractMessage
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
@@ -816,11 +815,6 @@ class GcpSpannerComputationsDatabaseTransactor<
             Difference: ${Duration.between(tokenTime, updateTime)}
           """
             .trimIndent()
-        logger.log(
-          Level.INFO,
-          "[COVDBG] GcpSpannerComputationsDatabaseTransactor token mismatch: " +
-            "computation_id=$localId, version=$version, token_version=$tokenVersion",
-        )
         throw ComputationTokenVersionMismatchException(
           computationId = localId,
           version = version,

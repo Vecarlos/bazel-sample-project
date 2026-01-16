@@ -18,7 +18,6 @@ import com.google.cloud.Timestamp
 import com.google.cloud.spanner.Options
 import com.google.cloud.spanner.SpannerException
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.logging.Level
 import java.util.logging.Logger
 import org.wfanet.measurement.common.identity.IdGenerator
 import org.wfanet.measurement.gcloud.spanner.AsyncDatabaseClient
@@ -70,11 +69,6 @@ abstract class SpannerWriter<T, R> {
     return try {
       runner.run { txn -> TransactionScope(txn, idGenerator).runTransaction() }
     } catch (e: SpannerException) {
-      logger.log(
-        Level.INFO,
-        "[COVDBG] SpannerWriter.kt $writerName SpannerException: code=${e.errorCode}",
-        e,
-      )
       handleSpannerException(e)
     }
   }

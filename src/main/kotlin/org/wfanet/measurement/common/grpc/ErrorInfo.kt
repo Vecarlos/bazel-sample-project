@@ -25,6 +25,8 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.StatusRuntimeException
 import io.grpc.protobuf.StatusProto
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /** [ErrorInfo] from status details. */
 val StatusException.errorInfo: ErrorInfo?
@@ -92,5 +94,12 @@ private fun getErrorInfo(status: Status, trailers: Metadata?): ErrorInfo? {
     StatusProto.fromStatusAndTrailers(status, trailers).detailsList.find {
       it.typeUrl.endsWith("/$errorInfoFullName")
     }
+  logger.log(
+    Level.INFO,
+    "[COVDBG] ErrorInfo.kt getErrorInfo: status=${status.code}, " +
+      "has_trailers=${trailers != null}, found=${errorInfoPacked != null}",
+  )
   return errorInfoPacked?.unpack(ErrorInfo::class.java)
 }
+
+private val logger: Logger = Logger.getLogger("org.wfanet.measurement.common.grpc.ErrorInfo")

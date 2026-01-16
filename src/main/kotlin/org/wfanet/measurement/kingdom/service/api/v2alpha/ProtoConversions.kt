@@ -18,8 +18,6 @@ import com.google.protobuf.any
 import com.google.protobuf.util.Timestamps
 import com.google.type.interval
 import java.time.ZoneOffset
-import java.util.logging.Level
-import java.util.logging.Logger
 import org.wfanet.measurement.api.Version
 import org.wfanet.measurement.api.v2alpha.Account
 import org.wfanet.measurement.api.v2alpha.CanonicalExchangeKey
@@ -223,9 +221,6 @@ val DEFAULT_DIRECT_POPULATION_PROTOCOL_CONFIG = direct {
   deterministicCount = ProtocolConfig.Direct.DeterministicCount.getDefaultInstance()
 }
 
-private val logger: Logger =
-  Logger.getLogger("org.wfanet.measurement.kingdom.service.api.v2alpha.ProtoConversions")
-
 /** Converts an internal [InternalMeasurement.State] to a public [State]. */
 fun InternalMeasurement.State.toState(): State {
   val result =
@@ -237,10 +232,6 @@ fun InternalMeasurement.State.toState(): State {
       InternalMeasurement.State.CANCELLED -> State.CANCELLED
       InternalMeasurement.State.STATE_UNSPECIFIED, InternalMeasurement.State.UNRECOGNIZED -> State.STATE_UNSPECIFIED
     }
-  logger.log(
-    Level.INFO,
-    "[COVDBG] ProtoConversions.kt toState: internal=$this, public=$result",
-  )
   return result
 }
 
@@ -255,10 +246,6 @@ fun State.toInternalState(): List<InternalMeasurement.State> {
       State.CANCELLED -> listOf(InternalMeasurement.State.CANCELLED)
       State.STATE_UNSPECIFIED, State.UNRECOGNIZED -> listOf(InternalMeasurement.State.STATE_UNSPECIFIED)
     }
-  logger.log(
-    Level.INFO,
-    "[COVDBG] ProtoConversions.kt toInternalState: public=$this, internal=$result",
-  )
   return result
 }
 

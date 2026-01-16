@@ -341,16 +341,10 @@ abstract class MillBase(
     callKingdom: suspend (participant: ComputationParticipant) -> Unit,
   ) {
     val participantKey = ComputationParticipantKey(token.globalComputationId, duchyId)
-    val globalId = token.globalComputationId
 
     var attempt = 1
     suspend fun prepareRetry(message: String, cause: StatusException) {
       if (attempt >= rpcMaxAttempts) {
-        logger.log(
-          Level.INFO,
-          "[COVDBG] MillBase updateComputationParticipant retry exhausted: " +
-            "global_id=$globalId, code=${cause.status.code}",
-        )
         throw ComputationDataClients.PermanentErrorException(message, cause)
       }
 
@@ -358,22 +352,10 @@ abstract class MillBase(
         Status.Code.UNAVAILABLE,
         Status.Code.DEADLINE_EXCEEDED,
         Status.Code.ABORTED -> {
-          logger.log(
-            Level.INFO,
-            "[COVDBG] MillBase updateComputationParticipant retrying: " +
-              "global_id=$globalId, code=${cause.status.code}, attempt=$attempt",
-          )
           delay(rpcRetryBackoff.durationForAttempt(attempt))
           attempt++
         }
-        else -> {
-          logger.log(
-            Level.INFO,
-            "[COVDBG] MillBase updateComputationParticipant permanent error: " +
-              "global_id=$globalId, code=${cause.status.code}",
-          )
-          throw ComputationDataClients.PermanentErrorException(message, cause)
-        }
+        else -> throw ComputationDataClients.PermanentErrorException(message, cause)
       }
     }
     while (true) {
@@ -962,32 +944,3 @@ fun Duration.toHumanFriendlyDuration(): String {
   val millisString = if (millis == 0) "" else "$millis milliseconds"
   return "$hoursString$minutesString$secondsString$millisString"
 }
-// --- INJECTED FOR CACHE TEST ---
-fun injectedFunction1() {
-    println("Injected function 1 executed")
-}
-fun injectedFunction2() {
-    println("Injected function 2 executed")
-}
-fun injectedFunction3() {
-    println("Injected function 3 executed")
-}
-fun injectedFunction4() {
-    println("Injected function 4 executed")
-}
-fun injectedFunction5() {
-    println("Injected function 5 executed")
-}
-fun injectedFunction6() {
-    println("Injected function 6 executed")
-}
-fun injectedFunction7() {
-    println("Injected function 7 executed")
-}
-fun injectedFunction8() {
-    println("Injected function 8 executed")
-}
-fun injectedFunction9() {
-    println("Injected function 9 executed")
-}
-// --- END INJECTED ---

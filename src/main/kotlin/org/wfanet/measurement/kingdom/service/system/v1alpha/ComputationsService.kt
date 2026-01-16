@@ -16,7 +16,6 @@ package org.wfanet.measurement.kingdom.service.system.v1alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
-import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -112,11 +111,6 @@ class ComputationsService(
         streamMeasurements(currentContinuationToken)
           .catch { cause ->
             if (cause !is StatusException) throw cause
-            logger.log(
-              Level.INFO,
-              "[COVDBG] ComputationsService.kt streamMeasurements failed: code={0}, description={1}",
-              arrayOf(cause.status.code, cause.status.description ?: ""),
-            )
             throw when (cause.status.code) {
                 Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
                 Status.Code.CANCELLED -> Status.CANCELLED

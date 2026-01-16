@@ -372,10 +372,6 @@ class RequisitionGrouperByReportId(
       val blob = readGroupedRequisitionBlob(groupId)
       if (blob != null) return@mapNotNull null
       val filteredRequisitions = hasMetadata(requisitions, requisitionsMetadata)
-      logger.info(
-        "[COVDBG] RequisitionGrouperByReportId recovering group: " +
-          "group_id=$groupId, requisitions=${filteredRequisitions.size}"
-      )
       val groupedRequisitions = groupValidRequisitions(filteredRequisitions, groupId)
       groupedRequisitions
     }
@@ -449,15 +445,7 @@ class RequisitionGrouperByReportId(
    */
   private suspend fun readGroupedRequisitionBlob(groupId: String): GroupedRequisitions? {
     val blobKey = "$storagePathPrefix/${groupId}"
-    val blob =
-      storageClient.getBlob(blobKey)
-        ?: run {
-          logger.info(
-            "[COVDBG] RequisitionGrouperByReportId missing grouped requisitions blob: " +
-              "group_id=$groupId, key=$blobKey"
-          )
-          return null
-        }
+    val blob = storageClient.getBlob(blobKey) ?: return null
     return Any.parseFrom(blob.read().flatten()).unpack(GroupedRequisitions::class.java)
   }
 
