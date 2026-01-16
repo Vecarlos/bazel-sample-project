@@ -94,7 +94,9 @@ class FailComputationParticipant(private val request: FailComputationParticipant
       Measurement.State.PENDING_COMPUTATION -> {}
       Measurement.State.FAILED,
       Measurement.State.SUCCEEDED,
-      Measurement.State.CANCELLED,
+      Measurement.State.CANCELLED -> {
+        return computationParticipant
+      }
       Measurement.State.STATE_UNSPECIFIED,
       Measurement.State.UNRECOGNIZED -> {
         throw MeasurementStateIllegalException(

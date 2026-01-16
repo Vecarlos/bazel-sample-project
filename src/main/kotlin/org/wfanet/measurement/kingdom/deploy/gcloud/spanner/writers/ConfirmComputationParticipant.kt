@@ -85,6 +85,13 @@ class ConfirmComputationParticipant(private val request: ConfirmComputationParti
     val measurementId = computationParticipantResult.measurementId
     val measurementConsumerId = computationParticipantResult.measurementConsumerId
     val measurementState = computationParticipantResult.measurementState
+    if (
+      measurementState == Measurement.State.SUCCEEDED ||
+        measurementState == Measurement.State.FAILED ||
+        measurementState == Measurement.State.CANCELLED
+    ) {
+      return computationParticipant
+    }
     if (measurementState != Measurement.State.PENDING_PARTICIPANT_CONFIRMATION) {
       throw MeasurementStateIllegalException(
         ExternalId(computationParticipant.externalMeasurementConsumerId),

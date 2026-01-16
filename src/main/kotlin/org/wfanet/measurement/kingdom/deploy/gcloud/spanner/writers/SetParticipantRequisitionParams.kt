@@ -104,13 +104,19 @@ class SetParticipantRequisitionParams(private val request: SetParticipantRequisi
     if (request.etag.isNotEmpty() && request.etag != computationParticipant.etag) {
       throw ComputationParticipantETagMismatchException(request.etag, computationParticipant.etag)
     }
+    val measurementState = computationParticipantResult.measurementState
     if (
-      computationParticipantResult.measurementState != Measurement.State.PENDING_REQUISITION_PARAMS
+      measurementState == Measurement.State.SUCCEEDED ||
+        measurementState == Measurement.State.FAILED ||
+        measurementState == Measurement.State.CANCELLED
     ) {
+      return computationParticipant
+    }
+    if (measurementState != Measurement.State.PENDING_REQUISITION_PARAMS) {
       throw MeasurementStateIllegalException(
         ExternalId(computationParticipant.externalMeasurementConsumerId),
         ExternalId(computationParticipant.externalMeasurementId),
-        computationParticipantResult.measurementState,
+        measurementState,
       )
     }
 
