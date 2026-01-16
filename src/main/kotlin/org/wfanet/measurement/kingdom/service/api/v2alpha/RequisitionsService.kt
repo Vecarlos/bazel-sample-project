@@ -169,6 +169,9 @@ class RequisitionsService(
         internalRequisitionStub.withWaitForReady().streamRequisitions(internalRequest)
           .toList()
       } catch (e: StatusException) {
+        if (e.status.code == Status.Code.CANCELLED) {
+          return ListRequisitionsResponse.getDefaultInstance()
+        }
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
