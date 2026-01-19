@@ -35,6 +35,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -99,6 +101,7 @@ class InProcessDuchy(
     ProviderRule<(String, SystemComputationLogEntriesCoroutineStub) -> DuchyDependencies>,
   private val trustedCertificates: Map<ByteString, X509Certificate>,
   val verboseGrpcLogging: Boolean = true,
+  private val millWorkMutex: Mutex? = null,
   daemonContext: CoroutineContext = Dispatchers.Default,
 ) : TestRule {
   data class DuchyDependencies(
@@ -351,10 +354,18 @@ class InProcessDuchy(
             privateKeyStore = privateKeyStore,
           )
         val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1))
-        throttler.loopOnReady {
+        val runMills = suspend {
           reachFrequencyLiquidLegionsV2Mill.claimAndProcessWork()
           reachOnlyLiquidLegionsV2Mill.claimAndProcessWork()
           honestMajorityShareShuffleMill.claimAndProcessWork()
+        }
+        throttler.loopOnReady {
+          val mutex = millWorkMutex
+          if (mutex == null) {
+            runMills()
+          } else {
+            mutex.withLock { runMills() }
+          }
         }
       }
   }

@@ -21,6 +21,7 @@ import java.security.cert.X509Certificate
 import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -104,6 +105,8 @@ class InProcessCmmsComponents(
     )
   }
 
+  private val millWorkMutex = Mutex()
+
   val duchies: List<InProcessDuchy> by lazy {
     ALL_DUCHY_NAMES.map {
       InProcessDuchy(
@@ -113,6 +116,7 @@ class InProcessCmmsComponents(
         duchyDependenciesRule = duchyDependenciesRule,
         trustedCertificates = TRUSTED_CERTIFICATES,
         verboseGrpcLogging = false,
+        millWorkMutex = millWorkMutex,
       )
     }
   }
