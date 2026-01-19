@@ -20,6 +20,8 @@ import io.grpc.Status
 import io.grpc.StatusException
 import java.security.cert.X509Certificate
 import java.util.logging.Level
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import org.wfanet.measurement.api.v2alpha.Certificate
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt
 import org.wfanet.measurement.api.v2alpha.DeterministicCount
@@ -78,7 +80,7 @@ class PopulationRequisitionFulfiller(
 
   /** A sequence of operations done in the simulator. */
   override suspend fun run() {
-    throttler.loopOnReady { executeRequisitionFulfillingWorkflow() }
+    throttler.loopOnReady { withContext(NonCancellable) { executeRequisitionFulfillingWorkflow() } }
   }
 
   /** Executes the requisition fulfillment workflow. */
