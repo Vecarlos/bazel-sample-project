@@ -118,6 +118,7 @@ class CertificatesService(
           .getCertificate(internalGetCertificateRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
+          Status.Code.CANCELLED -> Status.CANCELLED.withCause(e).asRuntimeException()
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
           else -> Status.UNKNOWN
         }.toExternalStatusRuntimeException(e)
