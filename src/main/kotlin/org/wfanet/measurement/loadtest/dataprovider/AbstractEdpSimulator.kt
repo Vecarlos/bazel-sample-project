@@ -35,8 +35,6 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.random.asJavaRandom
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -227,7 +225,7 @@ abstract class AbstractEdpSimulator(
     updateDataProvider()
 
     withContext(blockingCoroutineContext) { health.setHealthy(true) }
-    throttler.loopOnReady { withContext(NonCancellable) { executeRequisitionFulfillingWorkflow() } }
+    throttler.loopOnReady { executeRequisitionFulfillingWorkflow() }
   }
 
   private suspend fun updateDataProvider() {
