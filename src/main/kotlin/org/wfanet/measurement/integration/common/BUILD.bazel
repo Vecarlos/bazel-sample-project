@@ -441,6 +441,7 @@ kt_jvm_library(
         ":in_process_cmms_components",
         ":in_process_edp_aggregator_components",
         "//src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/server:duchy_data_server",
+        "//src/main/kotlin/org/wfanet/measurement/duchy/mill:mill_base",
         "//src/main/kotlin/org/wfanet/measurement/integration/deploy/gcloud:secure_computation_services_provider_rule",
         "//src/main/kotlin/org/wfanet/measurement/kingdom/deploy/common/service:data_services",
         "//src/main/kotlin/org/wfanet/measurement/loadtest/dataprovider:synthetic_data_generation",

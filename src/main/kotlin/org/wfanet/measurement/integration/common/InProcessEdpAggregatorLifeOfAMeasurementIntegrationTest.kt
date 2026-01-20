@@ -55,6 +55,7 @@ import org.wfanet.measurement.common.identity.withDuchyId
 import org.wfanet.measurement.common.identity.externalIdToApiId
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
+import org.wfanet.measurement.duchy.mill.toHumanFriendlyDuration
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
 import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMemoryVidIndexMap
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
@@ -142,6 +143,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
+    Duration.ofMillis(1).toHumanFriendlyDuration()
     runBlocking { awaitPublicApiReady(measurementConsumerData) }
     initMcSimulator()
   }
