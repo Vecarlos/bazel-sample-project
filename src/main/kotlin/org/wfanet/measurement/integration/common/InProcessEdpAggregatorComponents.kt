@@ -363,6 +363,11 @@ class InProcessEdpAggregatorComponents(
           edpResourceName,
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
+          requisitionStates =
+            listOf(
+              Requisition.State.UNFULFILLED,
+              Requisition.State.FULFILLED,
+            ),
         )
       requisitionFetchers += requisitionFetcher
       val firstFetchReady = CompletableDeferred<Unit>()

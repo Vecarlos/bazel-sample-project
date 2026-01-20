@@ -54,6 +54,7 @@ import org.wfanet.measurement.storage.StorageClient
  * @param storagePathPrefix the blob key prefix to use when storing a [Requisition]
  * @param requisitionGrouper the instance of [RequisitionGrouper] to use to group requisitions
  * @param responsePageSize
+ * @param requisitionStates states to include when listing requisitions from the Kingdom
  * @param metrics OpenTelemetry metrics instance for tracking operations
  */
 class RequisitionFetcher(
@@ -63,6 +64,7 @@ class RequisitionFetcher(
   private val storagePathPrefix: String,
   private val requisitionGrouper: RequisitionGrouper,
   private val responsePageSize: Int? = null,
+  private val requisitionStates: List<Requisition.State> = listOf(Requisition.State.UNFULFILLED),
   private val metrics: RequisitionFetcherMetrics = RequisitionFetcherMetrics.Default,
 ) {
 
@@ -128,7 +130,10 @@ class RequisitionFetcher(
       readyRequisitionsStub.listResources { pageToken: String ->
           val request = listRequisitionsRequest {
             parent = dataProviderName
-            filter = ListRequisitionsRequestKt.filter { states += Requisition.State.UNFULFILLED }
+            filter =
+              ListRequisitionsRequestKt.filter {
+                requisitionStates.forEach { state -> states += state }
+              }
             if (responsePageSize != null) {
               pageSize = responsePageSize
             }
