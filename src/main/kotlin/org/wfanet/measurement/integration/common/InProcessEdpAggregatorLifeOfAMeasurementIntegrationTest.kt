@@ -262,7 +262,11 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         delay(1000)
       }
     }
-    inProcessEdpAggregatorComponents.awaitRequisitionMetadata(reportName)
+    inProcessEdpAggregatorComponents.forceFetchRequisitionsOnce()
+    inProcessEdpAggregatorComponents.awaitRequisitionMetadata(
+      reportName,
+      timeout = Duration.ofMinutes(5),
+    )
   }
 
   private fun initMcSimulator() {
@@ -298,9 +302,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         maximumResultPollingDelay = Duration.ofSeconds(10),
         onMeasurementsCreated = {
           runBlocking {
-            inProcessEdpAggregatorComponents.awaitUnfulfilledRequisitions()
             inProcessEdpAggregatorComponents.forceFetchRequisitionsOnce()
-            inProcessEdpAggregatorComponents.awaitRequisitionMetadata(reportName)
           }
         },
         random = Random(1),
