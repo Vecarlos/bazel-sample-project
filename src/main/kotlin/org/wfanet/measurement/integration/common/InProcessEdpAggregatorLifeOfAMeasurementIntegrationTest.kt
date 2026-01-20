@@ -147,6 +147,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
+  private lateinit var reportName: String
 
   private val publicMeasurementsClient by lazy {
     MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
@@ -261,10 +262,17 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         delay(1000)
       }
     }
+    inProcessEdpAggregatorComponents.awaitRequisitionMetadata(reportName)
   }
 
   private fun initMcSimulator() {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+    reportName =
+      ReportKey(
+          MeasurementConsumerKey.fromName(measurementConsumerData.name)!!.measurementConsumerId,
+          "some-report-id",
+        )
+        .toName()
     mcSimulator =
       EdpAggregatorMeasurementConsumerSimulator(
         MeasurementConsumerData(
@@ -284,14 +292,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         NoiseMechanism.CONTINUOUS_GAUSSIAN,
         syntheticPopulationSpec,
         syntheticEventGroupMap,
-        ReportKey(
-            MeasurementConsumerKey.fromName(measurementConsumerData.name)!!.measurementConsumerId,
-            "some-report-id",
-          )
-          .toName(),
+        reportName,
         modelLineName = modelLineName,
         initialResultPollingDelay = Duration.ofSeconds(10),
         maximumResultPollingDelay = Duration.ofSeconds(10),
+        onMeasurementsCreated = {
+          runBlocking {
+            inProcessEdpAggregatorComponents.forceFetchRequisitionsOnce()
+            inProcessEdpAggregatorComponents.awaitRequisitionMetadata(reportName)
+          }
+        },
         random = Random(1),
       )
   }

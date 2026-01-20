@@ -51,6 +51,8 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.withContext
@@ -96,10 +98,12 @@ import org.wfanet.measurement.edpaggregator.v1alpha.CreateImpressionMetadataRequ
 import org.wfanet.measurement.edpaggregator.v1alpha.GroupedRequisitions
 import org.wfanet.measurement.edpaggregator.v1alpha.ImpressionMetadata
 import org.wfanet.measurement.edpaggregator.v1alpha.ImpressionMetadataServiceGrpcKt.ImpressionMetadataServiceCoroutineStub
+import org.wfanet.measurement.edpaggregator.v1alpha.ListRequisitionMetadataRequestKt
 import org.wfanet.measurement.edpaggregator.v1alpha.RequisitionMetadataServiceGrpcKt.RequisitionMetadataServiceCoroutineStub
 import org.wfanet.measurement.edpaggregator.v1alpha.ResultsFulfillerParams
 import org.wfanet.measurement.edpaggregator.v1alpha.createImpressionMetadataRequest
 import org.wfanet.measurement.edpaggregator.v1alpha.impressionMetadata
+import org.wfanet.measurement.edpaggregator.v1alpha.listRequisitionMetadataRequest
 import org.wfanet.measurement.gcloud.pubsub.Subscriber
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
@@ -246,6 +250,8 @@ class InProcessEdpAggregatorComponents(
     )
 
   private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
+  private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
+  private val requisitionFetchMutex = Mutex()
 
   fun startDaemons(
     kingdomChannel: Channel,
@@ -256,6 +262,7 @@ class InProcessEdpAggregatorComponents(
   ) = runBlocking {
     stopRequested = false
     fetcherJobs.clear()
+    requisitionFetchers.clear()
     resultFulfillerJob = null
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
@@ -357,13 +364,16 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
+      requisitionFetchers += requisitionFetcher
       val firstFetchReady = CompletableDeferred<Unit>()
       firstFetchReadySignals += firstFetchReady
       val fetcherJob = backgroundScope.launch {
         while (isActive && !stopRequested) {
           var stopNow = false
           try {
-            requisitionFetcher.fetchAndStoreRequisitions()
+            requisitionFetchMutex.withLock {
+              requisitionFetcher.fetchAndStoreRequisitions()
+            }
             if (!firstFetchReady.isCompleted) {
               firstFetchReady.complete(Unit)
             }
@@ -603,6 +613,43 @@ class InProcessEdpAggregatorComponents(
       resultFulfillerJob?.cancel()
       backgroundJob.cancel()
       backgroundJob.join()
+    }
+  }
+
+  suspend fun forceFetchRequisitionsOnce() {
+    requisitionFetchMutex.withLock {
+      requisitionFetchers.forEach { fetcher ->
+        try {
+          fetcher.fetchAndStoreRequisitions()
+        } catch (e: Exception) {
+          logger.log(Level.WARNING, e) { "Error forcing requisition fetch" }
+        }
+      }
+    }
+  }
+
+  suspend fun awaitRequisitionMetadata(
+    reportName: String,
+    timeout: Duration = Duration.ofMinutes(2),
+  ) {
+    val edpNames = edpResourceNameMap.values
+    withTimeout(timeout.toMillis()) {
+      while (true) {
+        for (edpResourceName in edpNames) {
+          val response =
+            requisitionMetadataClient.listRequisitionMetadata(
+              listRequisitionMetadataRequest {
+                parent = edpResourceName
+                filter = ListRequisitionMetadataRequestKt.filter { report = reportName }
+                pageSize = 1
+              }
+            )
+          if (response.requisitionMetadataCount > 0) {
+            return@withTimeout
+          }
+        }
+        delay(1_000L)
+      }
     }
   }
 
