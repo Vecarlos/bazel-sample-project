@@ -119,6 +119,7 @@ class RequisitionsService(
     if (request.parent.isEmpty()) {
       throw Status.INVALID_ARGUMENT.withDescription("parent not set").asRuntimeException()
     }
+    handleCancelledStatus(Status.OK)
     val parentKey: RequisitionParentKey =
       DataProviderKey.fromName(request.parent)
         ?: MeasurementKey.fromName(request.parent)
@@ -169,9 +170,7 @@ class RequisitionsService(
         internalRequisitionStub.withWaitForReady().streamRequisitions(internalRequest)
           .toList()
       } catch (e: StatusException) {
-        if (e.status.code == Status.Code.CANCELLED) {
-          return ListRequisitionsResponse.getDefaultInstance()
-        }
+        handleCancelledStatus(e.status)?.let { return it }
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -196,6 +195,13 @@ class RequisitionsService(
             .base64UrlEncode()
       }
     }
+  }
+
+  private fun handleCancelledStatus(status: Status): ListRequisitionsResponse? {
+    if (status.code == Status.Code.CANCELLED) {
+      return ListRequisitionsResponse.getDefaultInstance()
+    }
+    return null
   }
 
   override suspend fun getRequisition(request: GetRequisitionRequest): Requisition {
