@@ -63,6 +63,7 @@ import org.wfanet.measurement.api.v2alpha.DataProviderCertificateKey
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.ListRequisitionsRequestKt
 import org.wfanet.measurement.api.v2alpha.Requisition
 import org.wfanet.measurement.api.v2alpha.RequisitionKt
 import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub
@@ -252,6 +253,7 @@ class InProcessEdpAggregatorComponents(
   private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
   private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
   private val requisitionFetchMutex = Mutex()
+  private val requisitionsClients = mutableMapOf<String, RequisitionsCoroutineStub>()
 
   fun startDaemons(
     kingdomChannel: Channel,
@@ -263,6 +265,7 @@ class InProcessEdpAggregatorComponents(
     stopRequested = false
     fetcherJobs.clear()
     requisitionFetchers.clear()
+    requisitionsClients.clear()
     resultFulfillerJob = null
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
@@ -320,6 +323,7 @@ class InProcessEdpAggregatorComponents(
         RequisitionsCoroutineStub(publicApiChannel)
           .withPrincipalName(edpResourceName)
           .withWaitForReady()
+      requisitionsClients[edpResourceName] = requisitionsClient
 
       withTimeout(Duration.ofMinutes(2).toMillis()) {
         while (true) {
@@ -624,6 +628,41 @@ class InProcessEdpAggregatorComponents(
         } catch (e: Exception) {
           logger.log(Level.WARNING, e) { "Error forcing requisition fetch" }
         }
+      }
+    }
+  }
+
+  suspend fun awaitUnfulfilledRequisitions(timeout: Duration = Duration.ofMinutes(2)) {
+    val entries = requisitionsClients.toList()
+    if (entries.isEmpty()) {
+      return
+    }
+    withTimeout(timeout.toMillis()) {
+      while (true) {
+        var readyCount = 0
+        for ((edpResourceName, stub) in entries) {
+          try {
+            val response =
+              stub.listRequisitions(
+                listRequisitionsRequest {
+                  parent = edpResourceName
+                  filter = ListRequisitionsRequestKt.filter {
+                    states += Requisition.State.UNFULFILLED
+                  }
+                  pageSize = 1
+                }
+              )
+            if (response.requisitionsCount > 0) {
+              readyCount++
+            }
+          } catch (e: Exception) {
+            logger.log(Level.FINE, e) { "Requisitions not ready for $edpResourceName" }
+          }
+        }
+        if (readyCount == entries.size) {
+          return@withTimeout
+        }
+        delay(1_000L)
       }
     }
   }

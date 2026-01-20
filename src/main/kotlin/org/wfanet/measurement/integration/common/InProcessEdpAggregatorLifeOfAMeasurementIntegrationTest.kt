@@ -298,6 +298,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         maximumResultPollingDelay = Duration.ofSeconds(10),
         onMeasurementsCreated = {
           runBlocking {
+            inProcessEdpAggregatorComponents.awaitUnfulfilledRequisitions()
             inProcessEdpAggregatorComponents.forceFetchRequisitionsOnce()
             inProcessEdpAggregatorComponents.awaitRequisitionMetadata(reportName)
           }
