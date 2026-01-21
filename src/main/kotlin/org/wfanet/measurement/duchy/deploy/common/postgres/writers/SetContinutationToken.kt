@@ -61,26 +61,21 @@ class SetContinuationToken(private val continuationToken: String) : PostgresWrit
         bind("$3", Instant.now().truncatedTo(ChronoUnit.MICROS))
       }
 
-    transactionContext.run {
-      val newContinuationToken = decodeContinuationToken(continuationToken)
-      val oldContinuationToken =
-        ContinuationTokenReader().getContinuationToken(transactionContext)?.continuationToken?.let {
-          decodeContinuationToken(it)
-        }
-
-      if (
-        oldContinuationToken != null &&
-          Timestamps.compare(
-            newContinuationToken.lastSeenUpdateTime,
-            oldContinuationToken.lastSeenUpdateTime,
-          ) < 0
-      ) {
-        throw ContinuationTokenInvalidException(
-          continuationToken,
-          "ContinuationToken to set cannot have older timestamp.",
-        )
+    val newContinuationToken = decodeContinuationToken(continuationToken)
+    val oldContinuationToken =
+      ContinuationTokenReader().getContinuationToken(transactionContext)?.continuationToken?.let {
+        decodeContinuationToken(it)
       }
-      transactionContext.executeStatement(statement)
+
+    if (
+      oldContinuationToken != null &&
+        Timestamps.compare(
+          newContinuationToken.lastSeenUpdateTime,
+          oldContinuationToken.lastSeenUpdateTime,
+        ) < 0
+    ) {
+      return
     }
+    transactionContext.executeStatement(statement)
   }
 }
