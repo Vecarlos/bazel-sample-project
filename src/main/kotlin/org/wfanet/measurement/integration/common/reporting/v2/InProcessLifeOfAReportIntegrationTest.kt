@@ -454,67 +454,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     // Exercise PrincipalIdentity.fromHeaders deterministically.
     TrustedPrincipalCallCredentials.fromHeaders(Metadata())
 
-    // Trigger reporting metric flow so SetMeasurementResults and MetricsService are exercised.
-    val eventGroups = listEventGroups()
-    if (eventGroups.isEmpty()) {
-      return
-    }
-    val warmupReportingSetsClient =
-      publicReportingSetsClient
-        .withCallCredentials(credentials)
-        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
-    val warmupMetricsClient =
-      publicMetricsClient
-        .withCallCredentials(credentials)
-        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
-    try {
-      val createdReportingSet =
-        warmupReportingSetsClient.createReportingSet(
-          createReportingSetRequest {
-            parent = measurementConsumerData.name
-            reportingSet =
-              reportingSet {
-                displayName = "coverage-warmup"
-                primitive = ReportingSetKt.primitive {
-                  cmmsEventGroups += eventGroups.first().cmmsEventGroup
-                }
-              }
-            reportingSetId = "coverage-warmup-set"
-          }
-        )
-      val createdMetric =
-        warmupMetricsClient.createMetric(
-          createMetricRequest {
-            parent = measurementConsumerData.name
-            metricId = "coverage-warmup-metric"
-            metric =
-              metric {
-                reportingSet = createdReportingSet.name
-                timeInterval = interval {
-                  startTime = timestamp { seconds = 1615791600 }
-                  endTime = timestamp { seconds = 1615964400 }
-                }
-                metricSpec = metricSpec {
-                  populationCount = MetricSpec.PopulationCountParams.getDefaultInstance()
-                }
-                modelLine = inProcessCmmsComponents.modelLineResourceName
-              }
-          }
-        )
-      warmupMetricsClient.listMetrics(
-        listMetricsRequest {
-          parent = measurementConsumerData.name
-          pageSize = 1
-        }
-      )
-      warmupMetricsClient.getMetric(getMetricRequest { name = createdMetric.name })
-    } catch (_: StatusException) {
-      // Ignore warmup failures to avoid test flakiness.
-      return
-    } catch (_: StatusRuntimeException) {
-      // Ignore warmup failures to avoid test flakiness.
-      return
-    }
+    // Skip reporting metric warmup to avoid mutating test data or spending privacy budget.
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
