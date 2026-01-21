@@ -25,12 +25,15 @@ import com.google.type.date
 import com.google.type.dateTime
 import com.google.type.interval
 import com.google.type.timeZone
+import io.grpc.Metadata
 import io.grpc.Status
+import io.grpc.StatusException
 import io.grpc.StatusRuntimeException
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Deferred
@@ -62,7 +65,10 @@ import org.wfanet.measurement.access.v1alpha.policy
 import org.wfanet.measurement.access.v1alpha.principal
 import org.wfanet.measurement.access.v1alpha.role
 import org.wfanet.measurement.api.v2alpha.DataProviderCertificateKey
+import org.wfanet.measurement.api.v2alpha.DataProviderKey
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
+import org.wfanet.measurement.api.v2alpha.EventGroupKey
+import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub as CmmsEventGroupsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupKt as CmmsEventGroupKt
 import org.wfanet.measurement.api.v2alpha.EventMessageDescriptor
 import org.wfanet.measurement.api.v2alpha.Measurement
@@ -74,11 +80,14 @@ import org.wfanet.measurement.api.v2alpha.RequisitionSpecKt
 import org.wfanet.measurement.api.v2alpha.eventGroup as cmmsEventGroup
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.Person
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
+import org.wfanet.measurement.api.v2alpha.getEventGroupRequest
 import org.wfanet.measurement.api.v2alpha.getDataProviderRequest
 import org.wfanet.measurement.api.v2alpha.getMeasurementConsumerRequest
+import org.wfanet.measurement.api.v2alpha.listEventGroupsRequest as cmmsListEventGroupsRequest
 import org.wfanet.measurement.api.v2alpha.listMeasurementsRequest
 import org.wfanet.measurement.api.v2alpha.testing.MeasurementResultSubject.Companion.assertThat
 import org.wfanet.measurement.api.withAuthenticationKey
+import org.wfanet.measurement.common.identity.TrustedPrincipalCallCredentials
 import org.wfanet.measurement.common.OpenEndTimeRange
 import org.wfanet.measurement.common.base64UrlEncode
 import org.wfanet.measurement.common.crypto.readCertificateCollection
@@ -160,6 +169,7 @@ import org.wfanet.measurement.reporting.v2alpha.invalidateMetricRequest
 import org.wfanet.measurement.reporting.v2alpha.listEventGroupsRequest
 import org.wfanet.measurement.reporting.v2alpha.listImpressionQualificationFiltersRequest
 import org.wfanet.measurement.reporting.v2alpha.listImpressionQualificationFiltersResponse
+import org.wfanet.measurement.reporting.v2alpha.listMetricsRequest
 import org.wfanet.measurement.reporting.v2alpha.listReportsRequest
 import org.wfanet.measurement.reporting.v2alpha.metric
 import org.wfanet.measurement.reporting.v2alpha.metricCalculationSpec
@@ -373,10 +383,16 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     )
 
     credentials = TrustedPrincipalAuthInterceptor.Credentials(principal, setOf("reporting.*"))
-    warmUpCoverage(accessChannel)
+    runBlocking { warmUpCoverage(accessChannel, measurementConsumerData) }
   }
 
-  private fun warmUpCoverage(accessChannel: io.grpc.Channel) {
+  private suspend fun warmUpCoverage(
+    accessChannel: io.grpc.Channel,
+    measurementConsumerData: MeasurementConsumerData,
+  ) {
+    if (!coverageWarmUpDone.compareAndSet(false, true)) {
+      return
+    }
     AccessInternalErrors.getReason(Status.UNKNOWN.asException())
     Status.UNKNOWN.toExternalStatusRuntimeException(Status.UNKNOWN.asException())
 
@@ -393,6 +409,98 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       // Ignored: this is only to exercise deterministic coverage paths.
     }
 
+    // Exercise API key auth and event group error mapping in kingdom public API.
+    val kingdomEventGroupsClient =
+      CmmsEventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+        .withWaitForReady()
+    try {
+      kingdomEventGroupsClient
+        .withAuthenticationKey("coverage-warmup-invalid-key")
+        .listEventGroups(
+          cmmsListEventGroupsRequest {
+            parent = measurementConsumerData.name
+            pageSize = 1
+          }
+        )
+    } catch (e: StatusException) {
+      if (e.status.code != Status.Code.UNAUTHENTICATED &&
+        e.status.code != Status.Code.CANCELLED
+      ) {
+        throw e
+      }
+    }
+    val dataProviderName = inProcessCmmsComponents.getDataProviderResourceNames().firstOrNull()
+    val dataProviderId = DataProviderKey.fromName(dataProviderName ?: "")?.dataProviderId
+    if (!dataProviderId.isNullOrEmpty()) {
+      val invalidEventGroupName =
+        EventGroupKey(dataProviderId = dataProviderId, eventGroupId = "coverage-warmup").toName()
+      try {
+        kingdomEventGroupsClient
+          .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+          .getEventGroup(getEventGroupRequest { name = invalidEventGroupName })
+      } catch (e: StatusException) {
+        if (e.status.code != Status.Code.NOT_FOUND &&
+          e.status.code != Status.Code.PERMISSION_DENIED
+        ) {
+          throw e
+        }
+      }
+    }
+
+    // Exercise PrincipalIdentity.fromHeaders deterministically.
+    TrustedPrincipalCallCredentials.fromHeaders(Metadata())
+
+    // Trigger reporting metric flow so SetMeasurementResults and MetricsService are exercised.
+    val eventGroups = listEventGroups()
+    if (eventGroups.isEmpty()) {
+      return
+    }
+    val reportingSet =
+      publicReportingSetsClient
+        .withCallCredentials(credentials)
+        .createReportingSet(
+          createReportingSetRequest {
+            parent = measurementConsumerData.name
+            reportingSet =
+              reportingSet {
+                displayName = "coverage-warmup"
+                primitive = ReportingSetKt.primitive {
+                  cmmsEventGroups += eventGroups.first().cmmsEventGroup
+                }
+              }
+            reportingSetId = "coverage-warmup-set"
+          }
+        )
+    val createdMetric =
+      publicMetricsClient
+        .withCallCredentials(credentials)
+        .createMetric(
+          createMetricRequest {
+            parent = measurementConsumerData.name
+            metricId = "coverage-warmup-metric"
+            metric =
+              metric {
+                reportingSet = reportingSet.name
+                timeInterval = interval {
+                  startTime = timestamp { seconds = 1615791600 }
+                  endTime = timestamp { seconds = 1615964400 }
+                }
+                metricSpec = metricSpec {
+                  populationCount = MetricSpec.PopulationCountParams.getDefaultInstance()
+                }
+                modelLine = inProcessCmmsComponents.modelLineResourceName
+              }
+          }
+        )
+    publicMetricsClient
+      .withCallCredentials(credentials)
+      .listMetrics(
+        listMetricsRequest {
+          parent = measurementConsumerData.name
+          pageSize = 1
+        }
+      )
+    pollForCompletedMetric(createdMetric.name)
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
@@ -3356,6 +3464,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
   }
 
   companion object {
+    private val coverageWarmUpDone = AtomicBoolean(false)
+
     private val SECRETS_DIR: File =
       getRuntimePath(
           Paths.get("wfa_measurement_system", "src", "main", "k8s", "testing", "secretfiles")

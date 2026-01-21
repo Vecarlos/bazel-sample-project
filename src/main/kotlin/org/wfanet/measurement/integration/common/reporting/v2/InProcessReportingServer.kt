@@ -228,7 +228,7 @@ class InProcessReportingServer(
             measurementConsumerConfig.apiKey
           ),
           EventGroup.getDescriptor(),
-          Duration.ofSeconds(5),
+          Duration.ofHours(1),
           knownEventGroupMetadataTypes,
         )
       }) {
