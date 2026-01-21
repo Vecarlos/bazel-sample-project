@@ -99,12 +99,12 @@ class SetMeasurementResults(private val request: BatchSetMeasurementResultsReque
           request.measurementResultsList.map { it.cmmsMeasurementId },
         )
         .collect { metricReaderResult ->
-          if (metricReaderResult.metric.state == Metric.State.RUNNING) {
-            val measurementStates =
-              metricReaderResult.metric.weightedMeasurementsList.map { it.measurement.state }
-            if (measurementStates.all { it == Measurement.State.SUCCEEDED }) {
-              add(metricReaderResult.metricId)
-            }
+          val measurementStates =
+            metricReaderResult.metric.weightedMeasurementsList.map { it.measurement.state }
+          val allMeasurementsSucceeded =
+            measurementStates.all { it == Measurement.State.SUCCEEDED }
+          if (metricReaderResult.metric.state == Metric.State.RUNNING && allMeasurementsSucceeded) {
+            add(metricReaderResult.metricId)
           }
         }
     }
