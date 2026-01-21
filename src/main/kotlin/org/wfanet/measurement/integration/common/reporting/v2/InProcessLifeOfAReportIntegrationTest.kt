@@ -102,6 +102,12 @@ import org.wfanet.measurement.integration.common.AccessServicesFactory
 import org.wfanet.measurement.integration.common.InProcessCmmsComponents
 import org.wfanet.measurement.integration.common.InProcessDuchy
 import org.wfanet.measurement.integration.common.PERMISSIONS_CONFIG
+import org.wfanet.measurement.internal.reporting.v2.BatchSetMeasurementResultsRequestKt
+import org.wfanet.measurement.internal.reporting.v2.DeterministicCountDistinct
+import org.wfanet.measurement.internal.reporting.v2.MeasurementKt as InternalMeasurementKt
+import org.wfanet.measurement.internal.reporting.v2.NoiseMechanism
+import org.wfanet.measurement.internal.reporting.v2.batchGetMetricsRequest
+import org.wfanet.measurement.internal.reporting.v2.batchSetMeasurementResultsRequest
 import org.wfanet.measurement.internal.reporting.v2.ListImpressionQualificationFiltersPageTokenKt
 import org.wfanet.measurement.internal.reporting.v2.getBasicReportRequest as internalGetBasicReportRequest
 import org.wfanet.measurement.internal.reporting.v2.listImpressionQualificationFiltersPageToken
@@ -112,6 +118,7 @@ import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerDa
 import org.wfanet.measurement.reporting.deploy.v2.common.service.Services
 import org.wfanet.measurement.reporting.job.BasicReportsReportsJob
 import org.wfanet.measurement.reporting.service.api.v2alpha.BasicReportKey
+import org.wfanet.measurement.reporting.service.api.v2alpha.MetricKey
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportingSetKey
 import org.wfanet.measurement.reporting.v2alpha.BasicReport
@@ -392,6 +399,86 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     } catch (_: StatusRuntimeException) {
       // Ignored: this is only to exercise deterministic coverage paths.
     }
+
+    if (!reportingCoverageWarmUpDone) {
+      reportingCoverageWarmUpDone = true
+      runBlocking { warmUpReportingCoverage() }
+    }
+  }
+
+  private suspend fun warmUpReportingCoverage() {
+    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+    val eventGroups = listEventGroups()
+    if (eventGroups.isEmpty()) {
+      return
+    }
+
+    val createdReportingSet =
+      createPrimitiveReportingSets(
+          listOf(eventGroups.first() to ""),
+          measurementConsumerData.name,
+        )
+        .single()
+
+    val createdMetric =
+      publicMetricsClient
+        .withCallCredentials(credentials)
+        .createMetric(
+          createMetricRequest {
+            parent = measurementConsumerData.name
+            metricId = "coverage-warmup-metric"
+            metric = metric {
+              reportingSet = createdReportingSet.name
+              timeInterval = EVENT_RANGE.toInterval()
+              metricSpec = metricSpec {
+                reach = MetricSpecKt.reachParams { privacyParams = DP_PARAMS }
+                vidSamplingInterval = VID_SAMPLING_INTERVAL
+              }
+            }
+          }
+        )
+
+    // Trigger sync of RUNNING metrics to hit deterministic coverage paths.
+    publicMetricsClient
+      .withCallCredentials(credentials)
+      .getMetric(getMetricRequest { name = createdMetric.name })
+
+    val metricKey = MetricKey.fromName(createdMetric.name) ?: return
+    val internalMetrics =
+      reportingServer.internalMetricsClient.batchGetMetrics(
+        batchGetMetricsRequest {
+          cmmsMeasurementConsumerId = metricKey.cmmsMeasurementConsumerId
+          externalMetricIds += metricKey.metricId
+        }
+      )
+    val measurementIds =
+      internalMetrics.metricsList
+        .flatMap { it.weightedMeasurementsList }
+        .mapNotNull { it.measurement.cmmsMeasurementId.takeIf { id -> id.isNotBlank() } }
+    if (measurementIds.isEmpty()) {
+      return
+    }
+
+    reportingServer.internalMeasurementsClient.batchSetMeasurementResults(
+      batchSetMeasurementResultsRequest {
+        cmmsMeasurementConsumerId = metricKey.cmmsMeasurementConsumerId
+        measurementResults +=
+          measurementIds.map { measurementId ->
+            BatchSetMeasurementResultsRequestKt.measurementResult {
+              cmmsMeasurementId = measurementId
+              results +=
+                InternalMeasurementKt.result {
+                  reach =
+                    InternalMeasurementKt.ResultKt.reach {
+                      value = 1
+                      noiseMechanism = NoiseMechanism.GEOMETRIC
+                      deterministicCountDistinct = DeterministicCountDistinct.getDefaultInstance()
+                    }
+                }
+            }
+          }
+      }
+    )
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
@@ -3427,5 +3514,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
     }
+
+    @Volatile private var reportingCoverageWarmUpDone: Boolean = false
   }
 }
