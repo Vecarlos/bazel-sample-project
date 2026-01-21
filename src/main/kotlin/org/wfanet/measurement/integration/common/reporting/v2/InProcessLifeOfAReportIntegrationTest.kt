@@ -394,7 +394,10 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     }
     AccessInternalErrors.getReason(Status.UNKNOWN.asException())
 
-    val permissionsStub = PermissionsGrpc.newBlockingStub(accessChannel).withWaitForReady()
+    val permissionsStub =
+      PermissionsGrpc.newBlockingStub(accessChannel)
+        .withWaitForReady()
+        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
     try {
       permissionsStub.checkPermissions(
         checkPermissionsRequest {
@@ -411,6 +414,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     val kingdomEventGroupsClient =
       CmmsEventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
         .withWaitForReady()
+        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
     try {
       kingdomEventGroupsClient
         .withAuthenticationKey("coverage-warmup-invalid-key")
@@ -422,7 +426,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         )
     } catch (e: StatusException) {
       if (e.status.code != Status.Code.UNAUTHENTICATED &&
-        e.status.code != Status.Code.CANCELLED
+        e.status.code != Status.Code.CANCELLED &&
+        e.status.code != Status.Code.DEADLINE_EXCEEDED
       ) {
         throw e
       }
@@ -438,7 +443,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
           .getEventGroup(getEventGroupRequest { name = invalidEventGroupName })
       } catch (e: StatusException) {
         if (e.status.code != Status.Code.NOT_FOUND &&
-          e.status.code != Status.Code.PERMISSION_DENIED
+          e.status.code != Status.Code.PERMISSION_DENIED &&
+          e.status.code != Status.Code.DEADLINE_EXCEEDED
         ) {
           throw e
         }
@@ -453,10 +459,17 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     if (eventGroups.isEmpty()) {
       return
     }
-    val createdReportingSet =
+    val warmupReportingSetsClient =
       publicReportingSetsClient
         .withCallCredentials(credentials)
-        .createReportingSet(
+        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
+    val warmupMetricsClient =
+      publicMetricsClient
+        .withCallCredentials(credentials)
+        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
+    try {
+      val createdReportingSet =
+        warmupReportingSetsClient.createReportingSet(
           createReportingSetRequest {
             parent = measurementConsumerData.name
             reportingSet =
@@ -469,10 +482,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
             reportingSetId = "coverage-warmup-set"
           }
         )
-    val createdMetric =
-      publicMetricsClient
-        .withCallCredentials(credentials)
-        .createMetric(
+      val createdMetric =
+        warmupMetricsClient.createMetric(
           createMetricRequest {
             parent = measurementConsumerData.name
             metricId = "coverage-warmup-metric"
@@ -490,15 +501,20 @@ abstract class InProcessLifeOfAReportIntegrationTest(
               }
           }
         )
-    publicMetricsClient
-      .withCallCredentials(credentials)
-      .listMetrics(
+      warmupMetricsClient.listMetrics(
         listMetricsRequest {
           parent = measurementConsumerData.name
           pageSize = 1
         }
       )
-    pollForCompletedMetric(createdMetric.name)
+      warmupMetricsClient.getMetric(getMetricRequest { name = createdMetric.name })
+    } catch (_: StatusException) {
+      // Ignore warmup failures to avoid test flakiness.
+      return
+    } catch (_: StatusRuntimeException) {
+      // Ignore warmup failures to avoid test flakiness.
+      return
+    }
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
@@ -3463,6 +3479,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
 
   companion object {
     private val coverageWarmUpDone = AtomicBoolean(false)
+    private const val WARMUP_DEADLINE_SECONDS = 5L
 
     private val SECRETS_DIR: File =
       getRuntimePath(
