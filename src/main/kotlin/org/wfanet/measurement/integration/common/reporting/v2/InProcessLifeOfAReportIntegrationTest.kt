@@ -453,7 +453,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     if (eventGroups.isEmpty()) {
       return
     }
-    val reportingSet =
+    val createdReportingSet =
       publicReportingSetsClient
         .withCallCredentials(credentials)
         .createReportingSet(
@@ -478,7 +478,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
             metricId = "coverage-warmup-metric"
             metric =
               metric {
-                reportingSet = reportingSet.name
+                reportingSet = createdReportingSet.name
                 timeInterval = interval {
                   startTime = timestamp { seconds = 1615791600 }
                   endTime = timestamp { seconds = 1615964400 }
