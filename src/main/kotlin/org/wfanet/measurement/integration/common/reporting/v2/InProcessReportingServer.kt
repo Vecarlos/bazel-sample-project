@@ -146,7 +146,7 @@ class InProcessReportingServer(
     InternalMeasurementConsumersCoroutineStub(internalApiChannel)
       .withWaitForReady()
   }
-  val internalMeasurementsClient by lazy {
+  private val internalMeasurementsClient by lazy {
     InternalMeasurementsCoroutineStub(internalApiChannel)
       .withWaitForReady()
   }
@@ -154,7 +154,7 @@ class InProcessReportingServer(
     InternalMetricCalculationSpecsCoroutineStub(internalApiChannel)
       .withWaitForReady()
   }
-  val internalMetricsClient by lazy {
+  private val internalMetricsClient by lazy {
     InternalMetricsCoroutineStub(internalApiChannel)
       .withWaitForReady()
   }
