@@ -413,12 +413,21 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       return
     }
 
+    val reportingSetId = "coverage-warmup-reporting-set"
     val createdReportingSet =
-      createPrimitiveReportingSets(
-          listOf(eventGroups.first() to ""),
-          measurementConsumerData.name,
+      publicReportingSetsClient
+        .withCallCredentials(credentials)
+        .createReportingSet(
+          createReportingSetRequest {
+            parent = measurementConsumerData.name
+            this.reportingSet = reportingSet {
+              displayName = reportingSetId
+              primitive =
+                ReportingSetKt.primitive { cmmsEventGroups += eventGroups.first().cmmsEventGroup }
+            }
+            this.reportingSetId = reportingSetId
+          }
         )
-        .single()
 
     val createdMetric =
       publicMetricsClient
