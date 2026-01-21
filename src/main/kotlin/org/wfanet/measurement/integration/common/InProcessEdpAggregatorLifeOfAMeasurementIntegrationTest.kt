@@ -34,7 +34,9 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
+import org.wfanet.measurement.api.v2alpha.DataProviderKey
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
+import org.wfanet.measurement.api.v2alpha.EventGroupKey
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.ListMeasurementsRequestKt
 import org.wfanet.measurement.api.v2alpha.Measurement
@@ -47,13 +49,16 @@ import org.wfanet.measurement.api.v2alpha.differentialPrivacyParams
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticEventGroupSpec
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
+import org.wfanet.measurement.api.v2alpha.getEventGroupRequest
 import org.wfanet.measurement.api.v2alpha.listEventGroupsRequest
 import org.wfanet.measurement.api.v2alpha.listMeasurementsRequest
 import org.wfanet.measurement.api.withAuthenticationKey
+import org.wfanet.measurement.common.identity.TrustedPrincipalCallCredentials
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.identity.withDuchyId
 import org.wfanet.measurement.common.identity.externalIdToApiId
 import org.wfanet.measurement.common.parseTextProto
+import io.grpc.Metadata
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.duchy.mill.toHumanFriendlyDuration
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
@@ -145,6 +150,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     )
     Duration.ofMillis(1).toHumanFriendlyDuration()
     runBlocking { awaitPublicApiReady(measurementConsumerData) }
+    runBlocking { coverageWarmUp(measurementConsumerData) }
     initMcSimulator()
   }
 
@@ -226,6 +232,48 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         delay(1_000L)
       }
     }
+  }
+
+  private suspend fun coverageWarmUp(measurementConsumerData: MeasurementConsumerData) {
+    // Hit API key auth error path deterministically.
+    try {
+      publicEventGroupsClient
+        .withAuthenticationKey("coverage-warmup-invalid-key")
+        .listEventGroups(
+          listEventGroupsRequest {
+            parent = measurementConsumerData.name
+            pageSize = 1
+          }
+        )
+    } catch (e: StatusException) {
+      if (e.status.code != Status.Code.UNAUTHENTICATED &&
+        e.status.code != Status.Code.CANCELLED
+      ) {
+        throw e
+      }
+    }
+
+    // Hit EventGroupsService error mapping with a valid key and invalid name.
+    val dataProviderName =
+      inProcessCmmsComponents.edpDisplayNameToResourceMap.values.firstOrNull() ?: return
+    val dataProviderId = DataProviderKey.fromName(dataProviderName)?.dataProviderId ?: return
+    val invalidEventGroupName =
+      EventGroupKey(dataProviderId = dataProviderId, eventGroupId = "coverage-warmup")
+        .toName()
+    try {
+      publicEventGroupsClient
+        .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+        .getEventGroup(getEventGroupRequest { name = invalidEventGroupName })
+    } catch (e: StatusException) {
+      if (e.status.code != Status.Code.NOT_FOUND &&
+        e.status.code != Status.Code.PERMISSION_DENIED
+      ) {
+        throw e
+      }
+    }
+
+    // Exercise PrincipalIdentity.fromHeaders deterministically.
+    TrustedPrincipalCallCredentials.fromHeaders(Metadata())
   }
 
   private suspend fun awaitMeasurementsFinal(runId: String, expectedCount: Int) {
