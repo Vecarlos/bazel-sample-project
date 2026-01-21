@@ -25,12 +25,11 @@ import io.grpc.StatusException
 import io.netty.handler.ssl.ClientAuth
 import java.io.File
 import java.nio.file.Paths
-import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
-import kotlin.random.asKotlinRandom
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
@@ -117,6 +116,10 @@ class InProcessReportingServer(
   private val populationDataProviderName: String,
   private val verboseGrpcLogging: Boolean = true,
 ) : TestRule {
+  private val metricCalculationRandom = Random(1)
+  private val metricsServiceRandom = Random(2)
+  private val reportsServiceRandom = Random(3)
+  private val basicReportsServiceRandom = Random(4)
   private val publicKingdomMeasurementConsumersClient =
     PublicKingdomMeasurementConsumersCoroutineStub(kingdomPublicApiChannel)
       .withWaitForReady()
@@ -317,7 +320,7 @@ class InProcessReportingServer(
                 publicKingdomModelLinesClient,
                 METRIC_SPEC_CONFIG,
                 authorization,
-                SecureRandom().asKotlinRandom(),
+                metricCalculationRandom,
                 measurementConsumerConfigs,
               )
               .withTrustedPrincipalAuthentication(),
@@ -335,7 +338,7 @@ class InProcessReportingServer(
                 publicKingdomModelLinesClient,
                 authorization,
                 encryptionKeyPairStore,
-                SecureRandom().asKotlinRandom(),
+                metricsServiceRandom,
                 SECRETS_DIR,
                 trustedCertificates,
                 defaultVidModelLine = defaultModelLineName,
@@ -356,7 +359,7 @@ class InProcessReportingServer(
                   .withWaitForReady(),
                 METRIC_SPEC_CONFIG,
                 authorization,
-                SecureRandom().asKotlinRandom(),
+                reportsServiceRandom,
               )
               .withTrustedPrincipalAuthentication(),
             BasicReportsService(
@@ -369,7 +372,7 @@ class InProcessReportingServer(
                 publicKingdomModelLinesClient,
                 EventMessageDescriptor(eventDescriptor),
                 METRIC_SPEC_CONFIG,
-                SecureRandom().asKotlinRandom(),
+                basicReportsServiceRandom,
                 authorization,
                 measurementConsumerConfigs,
                 emptyList(),
