@@ -16,6 +16,7 @@ package org.wfanet.measurement.integration.common
 
 import com.google.protobuf.Descriptors
 import io.grpc.Channel
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -88,40 +89,70 @@ class InProcessKingdom(
     get() = kingdomDataServices.knownEventGroupMetadataTypes
 
   private val internalApiChannel by lazy { internalDataServer.channel }
-  private val internalApiKeysClient by lazy { InternalApiKeysCoroutineStub(internalApiChannel) }
+  private val internalApiKeysClient by lazy {
+    InternalApiKeysCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
   private val internalMeasurementsClient by lazy {
     InternalMeasurementsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalPublicKeysClient by lazy {
     InternalPublicKeysCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalMeasurementLogEntriesClient by lazy {
     InternalMeasurementLogEntriesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalComputationParticipantsClient by lazy {
     InternalComputationParticipantsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalRequisitionsClient by lazy {
     InternalRequisitionsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalMeasurementConsumersClient by lazy {
     InternalMeasurementConsumersCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalEventGroupsClient by lazy {
     InternalEventGroupsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalEventGroupMetadataDescriptorsClient by lazy {
     InternalEventGroupMetadataDescriptorsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalExchangeStepAttemptsClient by lazy {
     InternalExchangeStepAttemptsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val internalExchangeStepsClient by lazy {
     InternalExchangeStepsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
-  private val internalExchangesClient by lazy { InternalExchangesCoroutineStub(internalApiChannel) }
+  private val internalExchangesClient by lazy {
+    InternalExchangesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
   private val internalRecurringExchangesClient by lazy {
     InternalRecurringExchangesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   private val internalDataServer =
@@ -224,37 +255,67 @@ class InProcessKingdom(
     get() = PanelMatchResourceSetup(internalApiChannel)
 
   /** Provides access to Account and DataProvider creation in place of the Kingdom's operator. */
-  val internalAccountsClient by lazy { InternalAccountsCoroutineStub(internalApiChannel) }
-  val internalDataProvidersClient by lazy { InternalDataProvidersCoroutineStub(internalApiChannel) }
+  val internalAccountsClient by lazy {
+    InternalAccountsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
+  val internalDataProvidersClient by lazy {
+    InternalDataProvidersCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
 
   /** Provides access to Duchy Certificate creation without having multiple Duchy clients. */
-  val internalCertificatesClient by lazy { InternalCertificatesCoroutineStub(internalApiChannel) }
+  val internalCertificatesClient by lazy {
+    InternalCertificatesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
 
   /** Provides access to ModelProvider creation. */
   val internalModelProvidersClient by lazy {
     org.wfanet.measurement.internal.kingdom.ModelProvidersGrpcKt.ModelProvidersCoroutineStub(
       internalApiChannel
     )
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelRollout creation. */
   private val internalModelRolloutsClient by lazy {
     InternalModelRolloutsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelRelease creation. */
   private val internalModelReleasesClient by lazy {
     InternalModelReleasesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
 
   /** Provides access to ModelSuite creation. */
-  val internalModelSuitesClient by lazy { InternalModelSuitesCoroutineStub(internalApiChannel) }
+  val internalModelSuitesClient by lazy {
+    InternalModelSuitesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
 
   /** Provides access to ModelLine creation. */
-  val internalModelLinesClient by lazy { InternalModelLinesCoroutineStub(internalApiChannel) }
+  val internalModelLinesClient by lazy {
+    InternalModelLinesCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
 
   /** Provides access to Population creation. */
-  val internalPopulationsClient by lazy { InternalPopulationsCoroutineStub(internalApiChannel) }
+  val internalPopulationsClient by lazy {
+    InternalPopulationsCoroutineStub(internalApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
 
   override fun apply(statement: Statement, description: Description): Statement {
     return chainRulesSequentially(internalDataServer, systemApiServer, publicApiServer)

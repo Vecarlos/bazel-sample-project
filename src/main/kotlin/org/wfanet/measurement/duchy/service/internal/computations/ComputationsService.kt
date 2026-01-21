@@ -19,6 +19,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -408,7 +409,8 @@ class ComputationsService(
    */
   private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
     try {
-      computationLogEntriesClient.createComputationLogEntry(request)
+      computationLogEntriesClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES).createComputationLogEntry(request)
     } catch (e: StatusException) {
       logger.log(Level.WARNING, e) { "Failed to update status change to the kingdom." }
     }

@@ -16,6 +16,7 @@ package org.wfanet.measurement.kingdom.service.system.v1alpha
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -74,7 +75,10 @@ class ComputationsService(
         .apply { externalComputationId = apiIdToExternalId(computationKey.computationId) }
         .build()
     try {
-      return measurementsClient.getMeasurementByComputationId(internalRequest).toSystemComputation()
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES)
+        .getMeasurementByComputationId(internalRequest)
+        .toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -162,7 +166,10 @@ class ComputationsService(
       publicApiVersion = request.publicApiVersion
     }
     try {
-      return measurementsClient.setMeasurementResult(internalRequest).toSystemComputation()
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES)
+        .setMeasurementResult(internalRequest)
+        .toSystemComputation()
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED
@@ -196,7 +203,9 @@ class ComputationsService(
       limit = streamingLimit
     }
     try {
-      return measurementsClient.streamMeasurements(request)
+      return measurementsClient.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
+        .streamMeasurements(request)
     } catch (e: StatusException) {
       throw when (e.status.code) {
           Status.Code.DEADLINE_EXCEEDED -> Status.DEADLINE_EXCEEDED

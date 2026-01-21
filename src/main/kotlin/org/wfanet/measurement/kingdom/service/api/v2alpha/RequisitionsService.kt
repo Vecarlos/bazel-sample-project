@@ -20,9 +20,11 @@ import com.google.protobuf.any
 import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import org.wfanet.measurement.api.Version
 import org.wfanet.measurement.api.v2alpha.CanonicalRequisitionKey
@@ -165,7 +167,9 @@ class RequisitionsService(
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
     val internalRequisitions: List<InternalRequisition> =
       try {
-        internalRequisitionStub.streamRequisitions(internalRequest).toList()
+        delay(10_000)
+        internalRequisitionStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).streamRequisitions(internalRequest).toList()
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -211,7 +215,8 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub.getRequisition(getRequest)
+        internalRequisitionStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getRequisition(getRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -251,7 +256,8 @@ class RequisitionsService(
 
     val result =
       try {
-        internalRequisitionStub.refuseRequisition(refuseRequest)
+        internalRequisitionStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).refuseRequisition(refuseRequest)
       } catch (e: StatusException) {
         throw when (e.status.code) {
           Status.Code.INVALID_ARGUMENT -> Status.INVALID_ARGUMENT
@@ -322,7 +328,8 @@ class RequisitionsService(
       etag = request.etag
     }
     try {
-      internalRequisitionStub.fulfillRequisition(fulfillRequest)
+      internalRequisitionStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES).fulfillRequisition(fulfillRequest)
     } catch (e: StatusException) {
       throw when (e.status.code) {
         Status.Code.NOT_FOUND -> Status.NOT_FOUND

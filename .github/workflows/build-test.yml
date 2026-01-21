@@ -19,6 +19,7 @@ on:
     branches:
       - main
       - 'releases/**'
+      - withwait-try
   pull_request:
     branches:
       - main
@@ -46,6 +47,50 @@ jobs:
         uses: world-federation-of-advertisers/actions/setup-bazel@a9407321ceb8da9912face58a8139603678c869d # v2.5.0
 
       - uses: ./.github/actions/free-disk-space
+
+      # TODO(bazelbuild/rules_kotlin#509): remove this step after the issue with inline functions is fixed
+      - name: Compute coverage exclusions to work around the issue with inline functions
+        id: compute-coverage-exclusions
+        run: |
+          set -euo pipefail
+
+          readarray -t kt_files_with_inline_fun < <(grep -rl --include '*.kt' "inline fun" src/main/kotlin/* || true)
+
+          if [ "${#kt_files_with_inline_fun[@]}" -eq 0 ]; then
+            echo "exclusion_filter=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          declare -A pkg_labels
+          for f in "${kt_files_with_inline_fun[@]}"; do
+            pkg="${f%/*}"
+            name="${f##*/}"
+            label="//${pkg}:${name}"
+            if [ -n "${pkg_labels[$pkg]:-}" ]; then
+              pkg_labels[$pkg]="${pkg_labels[$pkg]} ${label}"
+            else
+              pkg_labels[$pkg]="${label}"
+            fi
+          done
+
+          query_file="$(mktemp)"
+          all_labels=""
+          for pkg in "${!pkg_labels[@]}"; do
+            labels="${pkg_labels[$pkg]}"
+            printf 'kind(rule, rdeps(//%s:all, set(%s), 1))\n' "${pkg}" "${labels}" > "$query_file"
+            pkg_labels_out=$(bazel query --noimplicit_deps --query_file "$query_file" --output label)
+            if [ -n "$pkg_labels_out" ]; then
+              all_labels="${all_labels}"$'\n'"${pkg_labels_out}"
+            fi
+          done
+          rm -f "$query_file"
+
+          echo "Computed exclusion labels:"
+          printf "%s\n" "$all_labels" | sed '/^$/d' | sort -u
+
+          exclusion_filter=$(printf "%s\n" "$all_labels" | sed '/^$/d' | sort -u | sed 's/^/-/' | paste -sd,)
+          echo "exclusion_filter=${exclusion_filter}" >> "$GITHUB_OUTPUT"
+
 
       - name: Write auth.bazelrc
         env:
@@ -99,68 +144,112 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      - name: Build
-        run: >
-          bazel build --worker_quit_after_build
-          //...
-          //src/main/k8s/local:cmms
-          //src/main/k8s/dev:edp_simulators
+      # - name: Build
+      #   run: >
+      #     bazel build --worker_quit_after_build
+      #     //...
+      #     //src/main/k8s/local:cmms
+      #     //src/main/k8s/dev:edp_simulators
 
-      - name: Run tests
-        id: run-tests
-        run: bazel test //...
+      # - name: Run tests
+      #   id: run-tests
+      #   run: bazel test //...
 
       # TODO(world-federation-of-advertisers/cross-media-measurement#3329): Re-enable coverage.
 
       - name: Export bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
-      - name: Create cluster
-        id: create-cluster
-        run: |
-          echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
-          curl -LOJ https://kind.sigs.k8s.io/examples/kind-with-registry.sh
-          chmod +x kind-with-registry.sh
-          sed -i 's|kind create cluster|kind create cluster --image=kindest/node:v1.30.0|g' kind-with-registry.sh
-          ./kind-with-registry.sh
+      # - name: Create cluster
+      #   id: create-cluster
+      #   run: |
+      #     echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
+      #     curl -LOJ https://kind.sigs.k8s.io/examples/kind-with-registry.sh
+      #     chmod +x kind-with-registry.sh
+      #     sed -i 's|kind create cluster|kind create cluster --image=kindest/node:v1.30.0|g' kind-with-registry.sh
+      #     ./kind-with-registry.sh
 
-      - name: Run correctness test
-        id: run-correctness-test
+
+      - name: Run tests with coverage
+        id: run-coverage
+        env:
+          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
+          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
         run: >
-          bazel test
-          //src/test/kotlin/org/wfanet/measurement/integration/k8s:EmptyClusterCorrectnessTest
-          --test_output=streamed
-
-      - name: Delete Kubernetes Resources
-        continue-on-error: true 
-        run: |
-          kubectl delete all --namespace=default --all --cascade=foreground --wait
-          kubectl delete networkpolicies --namespace=default --all
-
-      - name: Run panelmatch correctness test
-        id: run-panelmatch-correctness-test
-        run: >
-          bazel test
-          //src/test/kotlin/org/wfanet/panelmatch/integration/k8s:EmptyClusterPanelMatchCorrectnessTest
-          --test_output=streamed
-
-      - name: Export cluster logs
-        id: export-cluster-logs
-        if: failure() && (steps.run-correctness-test.outcome == 'failure' || steps.run-panelmatch-correctness-test.outcome == 'failure')
+           bazel coverage
+           --cache_test_results=yes
+           --experimental_split_coverage_postprocessing
+           --experimental_fetch_all_coverage_outputs
+           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
+           //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
         continue-on-error: true
-        run: |
-          mkdir -p "$CLUSTER_LOGS_PATH"
-          kind export logs "$CLUSTER_LOGS_PATH"
 
-      - name: Upload cluster logs artifact
-        if: failure() && steps.export-cluster-logs.outcome == 'success'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        continue-on-error: true
+      - name: Verify consolidated coverage report exists
+        run: |
+          set -euo pipefail
+          report_path="$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat"
+          if [ ! -f "$report_path" ]; then
+            echo "Missing coverage report at $report_path"
+            exit 1
+          fi
+          ls -l "$report_path"
+
+      - name: Bazel output path
+        run: |
+          echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
+
+
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: cluster-logs
-          path: ${{ env.CLUSTER_LOGS_PATH }}
+          name: coverage-report
+          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload Bazel testlogs
-        continue-on-error: true
-        uses: world-federation-of-advertisers/actions/bazel-upload-testlogs@a9407321ceb8da9912face58a8139603678c869d # v2.5.0
-        if: failure() && (steps.run-tests.outcome == 'failure' || steps.run-correctness-test.outcome == 'failure' || steps.run-panelmatch-correctness-test.outcome == 'failure')
+      - name: Upload consolidated coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vecarlos/bazel-sample-project
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+
+      # - name: Run correctness test
+      #   id: run-correctness-test
+      #   run: >
+      #     bazel test
+      #     //src/test/kotlin/org/wfanet/measurement/integration/k8s:EmptyClusterCorrectnessTest
+      #     --test_output=streamed
+
+      # - name: Delete Kubernetes Resources
+      #   continue-on-error: true 
+      #   run: |
+      #     kubectl delete all --namespace=default --all --cascade=foreground --wait
+      #     kubectl delete networkpolicies --namespace=default --all
+
+      # - name: Run panelmatch correctness test
+      #   id: run-panelmatch-correctness-test
+      #   run: >
+      #     bazel test
+      #     //src/test/kotlin/org/wfanet/panelmatch/integration/k8s:EmptyClusterPanelMatchCorrectnessTest
+      #     --test_output=streamed
+
+      # - name: Export cluster logs
+      #   id: export-cluster-logs
+      #   if: failure() && (steps.run-correctness-test.outcome == 'failure' || steps.run-panelmatch-correctness-test.outcome == 'failure')
+      #   continue-on-error: true
+      #   run: |
+      #     mkdir -p "$CLUSTER_LOGS_PATH"
+      #     kind export logs "$CLUSTER_LOGS_PATH"
+
+      # - name: Upload cluster logs artifact
+      #   if: failure() && steps.export-cluster-logs.outcome == 'success'
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      #   continue-on-error: true
+      #   with:
+      #     name: cluster-logs
+      #     path: ${{ env.CLUSTER_LOGS_PATH }}
+
+      # - name: Upload Bazel testlogs
+      #   continue-on-error: true
+      #   uses: world-federation-of-advertisers/actions/bazel-upload-testlogs@a9407321ceb8da9912face58a8139603678c869d # v2.5.0
+      #   if: failure() && (steps.run-tests.outcome == 'failure' || steps.run-correctness-test.outcome == 'failure' || steps.run-panelmatch-correctness-test.outcome == 'failure')

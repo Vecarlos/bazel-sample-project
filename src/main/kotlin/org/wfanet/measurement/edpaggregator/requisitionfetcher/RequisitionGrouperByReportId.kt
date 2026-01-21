@@ -19,6 +19,7 @@ import com.google.protobuf.Any
 import com.google.type.Interval
 import com.google.type.interval
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -460,7 +461,8 @@ class RequisitionGrouperByReportId(
             this.pageToken = pageToken
           }
           val response: ListRequisitionMetadataResponse =
-            requisitionMetadataStub.listRequisitionMetadata(request)
+            requisitionMetadataStub.withWaitForReady()
+              .withDeadlineAfter(1, TimeUnit.MINUTES).listRequisitionMetadata(request)
           ResourceList(response.requisitionMetadataList, response.nextPageToken)
         }
         .flattenConcat()
@@ -495,7 +497,8 @@ class RequisitionGrouperByReportId(
       requisitionMetadata = metadata
       requestId = createRequisitionMetadataRequestId
     }
-    return requisitionMetadataStub.createRequisitionMetadata(request)
+    return requisitionMetadataStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createRequisitionMetadata(request)
   }
 
   /**
@@ -517,7 +520,8 @@ class RequisitionGrouperByReportId(
       etag = requisitionMetadata.etag
       refusalMessage = message
     }
-    requisitionMetadataStub.refuseRequisitionMetadata(request)
+    requisitionMetadataStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).refuseRequisitionMetadata(request)
   }
 
   private fun getReportId(requisition: Requisition): String {

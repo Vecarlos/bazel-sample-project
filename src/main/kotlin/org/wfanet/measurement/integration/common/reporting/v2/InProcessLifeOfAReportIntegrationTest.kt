@@ -28,6 +28,7 @@ import com.google.type.timeZone
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Deferred
@@ -284,7 +285,9 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       inProcessCmmsComponents.getMeasurementConsumerData()
     val accessChannel = reportingServer.accessChannel
 
-    val rolesStub = RolesGrpc.newBlockingStub(accessChannel)
+    val rolesStub =
+      RolesGrpc.newBlockingStub(accessChannel).withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES)
     val mcResourceType = "halo.wfanet.org/MeasurementConsumer"
     val mcUserRole =
       rolesStub.createRole(
@@ -316,7 +319,9 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         }
       )
 
-    val principalsStub = PrincipalsGrpc.newBlockingStub(accessChannel)
+    val principalsStub =
+      PrincipalsGrpc.newBlockingStub(accessChannel).withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES)
     val principal =
       principalsStub.createPrincipal(
         createPrincipalRequest {
@@ -331,7 +336,9 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         }
       )
 
-    val policiesStub = PoliciesGrpc.newBlockingStub(accessChannel)
+    val policiesStub =
+      PoliciesGrpc.newBlockingStub(accessChannel).withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES)
     policiesStub.createPolicy(
       createPolicyRequest {
         policyId = "test-mc-policy"
@@ -364,38 +371,55 @@ abstract class InProcessLifeOfAReportIntegrationTest(
 
   private val publicKingdomMeasurementConsumersClient by lazy {
     MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicDataProvidersClient by lazy {
-    DataProvidersCoroutineStub(reportingServer.publicApiChannel)
+    DataProvidersCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicEventGroupsClient by lazy {
-    EventGroupsCoroutineStub(reportingServer.publicApiChannel)
+    EventGroupsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicMetricCalculationSpecsClient by lazy {
-    MetricCalculationSpecsCoroutineStub(reportingServer.publicApiChannel)
+    MetricCalculationSpecsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
-  private val publicMetricsClient by lazy { MetricsCoroutineStub(reportingServer.publicApiChannel) }
+  private val publicMetricsClient by lazy {
+    MetricsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
+  }
 
-  private val publicReportsClient by lazy { ReportsCoroutineStub(reportingServer.publicApiChannel) }
+  private val publicReportsClient by lazy {
+    ReportsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
+  }
 
   private val publicReportingSetsClient by lazy {
-    ReportingSetsCoroutineStub(reportingServer.publicApiChannel)
+    ReportingSetsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicBasicReportsClient by lazy {
-    BasicReportsCoroutineStub(reportingServer.publicApiChannel)
+    BasicReportsCoroutineStub(reportingServer.publicApiChannel).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicImpressionQualificationFiltersClient by lazy {
     ImpressionQualificationFiltersCoroutineStub(reportingServer.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private val publicMeasurementsClient by lazy {
     MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
   private suspend fun listMeasurements(): List<Measurement> {
@@ -403,6 +427,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
 
     return publicMeasurementsClient
       .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
+      .withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
       .listMeasurements(listMeasurementsRequest { parent = measurementConsumerData.name })
       .measurementsList
   }

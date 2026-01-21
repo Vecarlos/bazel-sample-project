@@ -16,6 +16,7 @@ package org.wfanet.measurement.duchy.service.internal.computationcontrol
 
 import io.grpc.Status
 import io.grpc.StatusException
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -119,7 +120,8 @@ class AsyncComputationControlService(
             .asRuntimeException()
         }
         token =
-          computationsClient.advanceComputationStage(
+          computationsClient.withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES).advanceComputationStage(
             computationToken = token,
             inputsToNextStage = token.outputPathList(),
             stage = stages.nextStage(token.computationStage, role),
@@ -151,7 +153,8 @@ class AsyncComputationControlService(
     } else {
       val response =
         try {
-          computationsClient.recordOutputBlobPath(
+          computationsClient.withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES).recordOutputBlobPath(
             recordOutputBlobPathRequest {
               this.token = token
               outputBlobId = outputBlob.blobId
@@ -173,7 +176,8 @@ class AsyncComputationControlService(
     // Advance the computation to next stage if all blob paths are present.
     if (!token.outputPathList().any(String::isEmpty)) {
       try {
-        computationsClient.advanceComputationStage(
+        computationsClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).advanceComputationStage(
           computationToken = token,
           inputsToNextStage = token.outputPathList(),
           stage = stages.nextStage(token.computationStage, role),
@@ -220,7 +224,8 @@ class AsyncComputationControlService(
   private suspend fun getComputationToken(globalComputationId: String): ComputationToken? {
     val response =
       try {
-        computationsClient.getComputationToken(
+        computationsClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).getComputationToken(
           getComputationTokenRequest { this.globalComputationId = globalComputationId }
         )
       } catch (e: StatusException) {

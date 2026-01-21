@@ -27,6 +27,7 @@ import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.math.pow
@@ -213,7 +214,8 @@ abstract class MillBase(
     }
     val claimWorkResponse =
       try {
-        dataClients.computationsClient.claimWork(claimWorkRequest)
+        dataClients.computationsClient.withWaitForReady()
+          .withDeadlineAfter(1, TimeUnit.MINUTES).claimWork(claimWorkRequest)
       } catch (e: StatusException) {
         if (!computationsServerReady && e.status.code == Status.Code.UNAVAILABLE) {
           logger.info("Computations server not ready")

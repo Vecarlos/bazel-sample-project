@@ -22,6 +22,7 @@ import com.google.protobuf.kotlin.unpack
 import io.grpc.Status
 import io.grpc.StatusException
 import java.util.AbstractMap
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.min
@@ -133,7 +134,8 @@ class MeasurementsService(
 
     val internalMeasurement =
       try {
-        internalMeasurementsStub.getMeasurement(internalGetMeasurementRequest)
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).getMeasurement(internalGetMeasurementRequest)
       } catch (ex: StatusException) {
         when (ex.status.code) {
           Status.Code.NOT_FOUND -> throw Status.NOT_FOUND.toExternalStatusRuntimeException(ex)
@@ -170,7 +172,8 @@ class MeasurementsService(
       }
     val dataProviderCapabilities: List<InternalDataProviderCapabilities> =
       try {
-          internalDataProvidersStub.batchGetDataProviders(
+          internalDataProvidersStub.withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES).batchGetDataProviders(
             batchGetDataProvidersRequest {
               this.externalDataProviderIds += externalDataProviderIds.map { it.value }
             }
@@ -195,7 +198,8 @@ class MeasurementsService(
 
     val internalMeasurement =
       try {
-        internalMeasurementsStub.createMeasurement(internalRequest)
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).createMeasurement(internalRequest)
       } catch (ex: StatusException) {
         when (ex.status.code) {
           Status.Code.INVALID_ARGUMENT ->
@@ -227,7 +231,8 @@ class MeasurementsService(
     }
 
     val results: List<InternalMeasurement> =
-      internalMeasurementsStub
+      internalMeasurementsStub.withWaitForReady()
+        .withDeadlineAfter(10, TimeUnit.MINUTES)
         .streamMeasurements(listMeasurementsPageToken.toStreamMeasurementsRequest())
         .toList()
 
@@ -272,7 +277,8 @@ class MeasurementsService(
 
     val internalMeasurement =
       try {
-        internalMeasurementsStub.cancelMeasurement(internalCancelMeasurementRequest)
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES).cancelMeasurement(internalCancelMeasurementRequest)
       } catch (ex: StatusException) {
         when (ex.status.code) {
           Status.Code.INVALID_ARGUMENT ->
@@ -325,7 +331,8 @@ class MeasurementsService(
         }
     val allDataProviderCapabilities: Map<ExternalId, InternalDataProviderCapabilities> =
       try {
-          internalDataProvidersStub.batchGetDataProviders(
+          internalDataProvidersStub.withWaitForReady()
+            .withDeadlineAfter(10, TimeUnit.MINUTES).batchGetDataProviders(
             batchGetDataProvidersRequest {
               this.externalDataProviderIds += allExternalDataProviderIds.map { it.value }
             }
@@ -391,7 +398,8 @@ class MeasurementsService(
 
     val internalMeasurements =
       try {
-        internalMeasurementsStub
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .batchCreateMeasurements(
             batchCreateMeasurementsRequest {
               externalMeasurementConsumerId = apiIdToExternalId(parentKey.measurementConsumerId)
@@ -455,7 +463,8 @@ class MeasurementsService(
 
     val internalMeasurements =
       try {
-        internalMeasurementsStub
+        internalMeasurementsStub.withWaitForReady()
+          .withDeadlineAfter(10, TimeUnit.MINUTES)
           .batchGetMeasurements(
             batchGetMeasurementsRequest {
               this.externalMeasurementConsumerId = externalMeasurementConsumerId

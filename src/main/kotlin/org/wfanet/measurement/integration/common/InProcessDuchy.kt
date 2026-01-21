@@ -24,6 +24,7 @@ import io.grpc.testing.GrpcCleanupRule
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -113,30 +114,54 @@ class InProcessDuchy(
   }
 
   private val systemComputationsClient by lazy {
-    SystemComputationsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemComputationsCoroutineStub(kingdomSystemApiChannel)
+      .withDuchyId(externalDuchyId)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemComputationLogEntriesClient by lazy {
-    SystemComputationLogEntriesCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemComputationLogEntriesCoroutineStub(kingdomSystemApiChannel)
+      .withDuchyId(externalDuchyId)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val systemComputationParticipantsClient by lazy {
-    SystemComputationParticipantsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemComputationParticipantsCoroutineStub(kingdomSystemApiChannel)
+      .withDuchyId(externalDuchyId)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
   }
   private val systemRequisitionsClient by lazy {
-    SystemRequisitionsCoroutineStub(kingdomSystemApiChannel).withDuchyId(externalDuchyId)
+    SystemRequisitionsCoroutineStub(kingdomSystemApiChannel)
+      .withDuchyId(externalDuchyId)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val certificateStub: CertificatesGrpcKt.CertificatesCoroutineStub by lazy {
     CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
       .withPrincipalName(DuchyKey(externalDuchyId).toName())
   }
-  private val computationsClient by lazy { ComputationsCoroutineStub(computationsServer.channel) }
+  private val computationsClient by lazy {
+    ComputationsCoroutineStub(computationsServer.channel)
+      .withWaitForReady()
+      .withDeadlineAfter(30, TimeUnit.MINUTES)
+  }
   private val computationStatsClient by lazy {
     ComputationStatsCoroutineStub(computationsServer.channel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val asyncComputationControlClient by lazy {
     AsyncComputationControlCoroutineStub(asyncComputationControlServer.channel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
   private val continuationTokensClient by lazy {
     ContinuationTokensCoroutineStub(computationsServer.channel)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   // TODO(@renjiez): Use real PrivateKeyStore when enabling HMSS.
@@ -200,7 +225,9 @@ class InProcessDuchy(
 
   private val computationDataClients by lazy {
     ComputationDataClients(
-      ComputationsCoroutineStub(computationsServer.channel),
+      ComputationsCoroutineStub(computationsServer.channel)
+        .withWaitForReady()
+        .withDeadlineAfter(30, TimeUnit.MINUTES),
       duchyDependencies.storageClient,
     )
   }
@@ -255,9 +282,12 @@ class InProcessDuchy(
       daemonScope.launch(CoroutineName("$externalDuchyId Mill")) {
         val signingKey = SigningKeyHandle(consentSignal509Cert, signingPrivateKey)
         val workerStubs =
-          ALL_DUCHY_NAMES.minus(externalDuchyId).associateWith {
+        ALL_DUCHY_NAMES.minus(externalDuchyId).associateWith {
             val channel = computationControlChannel(it)
-            SystemComputationControlCoroutineStub(channel).withDuchyId(externalDuchyId)
+            SystemComputationControlCoroutineStub(channel)
+              .withDuchyId(externalDuchyId)
+              .withWaitForReady()
+              .withDeadlineAfter(30, TimeUnit.MINUTES)
           }
         val protocolsSetupConfig =
           when (externalDuchyId) {

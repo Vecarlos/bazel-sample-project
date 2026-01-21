@@ -22,6 +22,7 @@ import java.security.cert.CertPathValidatorException
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.flowOf
@@ -252,7 +253,11 @@ class HonestMajorityShareShuffleMill(
     }
 
     val peerDuchyId = peerDuchyId(role)
-    val peerDuchyStub = workerStubs[peerDuchyId] ?: error("$peerDuchyId stub not found")
+    val peerDuchyStub =
+      workerStubs[peerDuchyId]
+        ?.withWaitForReady()
+        ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+        ?: error("$peerDuchyId stub not found")
     val peerDuchyStage =
       getComputationStageInOtherDuchy(token.globalComputationId, peerDuchyId, peerDuchyStub)
         .honestMajorityShareShuffle
@@ -336,7 +341,8 @@ class HonestMajorityShareShuffleMill(
     val dataProviderCertificateName = secretSeed.dataProviderCertificate
     val dataProviderCertificate =
       try {
-        certificateClient.getCertificate(
+        certificateClient.withWaitForReady()
+          .withDeadlineAfter(30, TimeUnit.MINUTES).getCertificate(
           getCertificateRequest { name = dataProviderCertificateName }
         )
       } catch (e: StatusException) {
@@ -466,7 +472,11 @@ class HonestMajorityShareShuffleMill(
     }
 
     val aggregatorId = protocolSetupConfig.aggregatorDuchyId
-    val aggregatorStub = workerStubs[aggregatorId] ?: error("$aggregatorId stub not found")
+    val aggregatorStub =
+      workerStubs[aggregatorId]
+        ?.withWaitForReady()
+        ?.withDeadlineAfter(30, TimeUnit.MINUTES)
+        ?: error("$aggregatorId stub not found")
     val aggregatorStage =
       getComputationStageInOtherDuchy(token.globalComputationId, aggregatorId, aggregatorStub)
         .honestMajorityShareShuffle
@@ -610,6 +620,8 @@ class HonestMajorityShareShuffleMill(
   private fun peerDuchyStub(role: RoleInComputation): ComputationControlCoroutineStub {
     val peerDuchyId = peerDuchyId(role)
     return workerStubs[peerDuchyId]
+      ?.withWaitForReady()
+      ?.withDeadlineAfter(30, TimeUnit.MINUTES)
       ?: throw PermanentErrorException(
         "No ComputationControlService stub for the peer duchy '$peerDuchyId'"
       )

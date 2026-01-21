@@ -23,6 +23,7 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import java.util.logging.Level
 import java.util.logging.Logger
+import java.util.concurrent.TimeUnit
 import kotlin.time.TimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -109,7 +110,8 @@ class RequisitionFetcher(
           }
           val response: ListRequisitionsResponse =
             try {
-              requisitionsStub.listRequisitions(request)
+              requisitionsStub.withWaitForReady()
+                .withDeadlineAfter(30, TimeUnit.MINUTES).listRequisitions(request)
             } catch (e: StatusException) {
               throw Exception("Error listing requisitions", e)
             }
