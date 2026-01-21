@@ -552,6 +552,9 @@ kt_jvm_library(
 kt_jvm_library(
     name = "internal_status_conversion",
     srcs = ["Errors.kt"],
+    visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/integration/common/reporting/v2:__pkg__",
+    ],
     deps = [
         "//src/main/kotlin/org/wfanet/measurement/common/grpc:error_info",
         "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:proto_conversions",
