@@ -167,7 +167,7 @@ class RequisitionsService(
       buildInternalStreamRequisitionsRequest(request.filter, parentKey, pageSize, pageToken)
     val internalRequisitions: List<InternalRequisition> =
       try {
-        delay(10_000)
+        delay(10000)
         internalRequisitionStub.withWaitForReady()
           .withDeadlineAfter(10, TimeUnit.MINUTES).streamRequisitions(internalRequest).toList()
       } catch (e: StatusException) {

@@ -65,6 +65,8 @@ import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.MeasurementKt
 import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.ModelLinesGrpcKt.ModelLinesCoroutineStub
+import org.wfanet.measurement.api.v2alpha.ModelSuitesGrpcKt.ModelSuitesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.RequisitionSpecKt
 import org.wfanet.measurement.api.v2alpha.eventGroup as cmmsEventGroup
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.Person
@@ -323,7 +325,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       PrincipalsGrpc.newBlockingStub(accessChannel).withWaitForReady()
         .withDeadlineAfter(1, TimeUnit.MINUTES)
     val principal =
-      principalsStub.createPrincipal(
+      principalsStub.withWaitForReady()
+        .withDeadlineAfter(1, TimeUnit.MINUTES).createPrincipal(
         createPrincipalRequest {
           principalId = "mc-user"
           this.principal = principal {
@@ -339,7 +342,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     val policiesStub =
       PoliciesGrpc.newBlockingStub(accessChannel).withWaitForReady()
         .withDeadlineAfter(1, TimeUnit.MINUTES)
-    policiesStub.createPolicy(
+    policiesStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createPolicy(
       createPolicyRequest {
         policyId = "test-mc-policy"
         policy = policy {
@@ -352,7 +356,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
         }
       }
     )
-    policiesStub.createPolicy(
+    policiesStub.withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES).createPolicy(
       createPolicyRequest {
         policyId = "test-root-policy"
         policy = policy {
@@ -372,6 +377,18 @@ abstract class InProcessLifeOfAReportIntegrationTest(
   private val publicKingdomMeasurementConsumersClient by lazy {
     MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
       .withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
+  }
+
+  private val publicKingdomModelSuitesClient by lazy {
+    ModelSuitesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName).withWaitForReady()
+      .withDeadlineAfter(1, TimeUnit.MINUTES)
+  }
+
+  private val publicKingdomModelLinesClient by lazy {
+    ModelLinesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+      .withPrincipalName(inProcessCmmsComponents.modelProviderResourceName).withWaitForReady()
       .withDeadlineAfter(1, TimeUnit.MINUTES)
   }
 
