@@ -96,7 +96,6 @@ import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.testing.chainRulesSequentially
 import org.wfanet.measurement.common.toInterval
-import org.wfanet.measurement.kingdom.service.api.v2alpha.toExternalStatusRuntimeException
 import org.wfanet.measurement.config.reporting.EncryptionKeyPairConfigKt.keyPair
 import org.wfanet.measurement.config.reporting.EncryptionKeyPairConfigKt.principalKeyPairs
 import org.wfanet.measurement.config.reporting.MeasurementConsumerConfig
@@ -394,7 +393,6 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       return
     }
     AccessInternalErrors.getReason(Status.UNKNOWN.asException())
-    Status.UNKNOWN.toExternalStatusRuntimeException(Status.UNKNOWN.asException())
 
     val permissionsStub = PermissionsGrpc.newBlockingStub(accessChannel).withWaitForReady()
     try {
