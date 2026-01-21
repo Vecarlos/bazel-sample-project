@@ -25,6 +25,8 @@ import com.google.type.date
 import com.google.type.dateTime
 import com.google.type.interval
 import com.google.type.timeZone
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -45,11 +47,14 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.wfanet.measurement.access.client.v1alpha.TrustedPrincipalAuthInterceptor
 import org.wfanet.measurement.access.service.PermissionKey
+import org.wfanet.measurement.access.service.internal.Errors as AccessInternalErrors
 import org.wfanet.measurement.access.v1alpha.PoliciesGrpc
 import org.wfanet.measurement.access.v1alpha.PolicyKt
 import org.wfanet.measurement.access.v1alpha.PrincipalKt
+import org.wfanet.measurement.access.v1alpha.PermissionsGrpc
 import org.wfanet.measurement.access.v1alpha.PrincipalsGrpc
 import org.wfanet.measurement.access.v1alpha.RolesGrpc
+import org.wfanet.measurement.access.v1alpha.checkPermissionsRequest
 import org.wfanet.measurement.access.v1alpha.createPolicyRequest
 import org.wfanet.measurement.access.v1alpha.createPrincipalRequest
 import org.wfanet.measurement.access.v1alpha.createRoleRequest
@@ -82,6 +87,7 @@ import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.testing.chainRulesSequentially
 import org.wfanet.measurement.common.toInterval
+import org.wfanet.measurement.kingdom.service.api.v2alpha.toExternalStatusRuntimeException
 import org.wfanet.measurement.config.reporting.EncryptionKeyPairConfigKt.keyPair
 import org.wfanet.measurement.config.reporting.EncryptionKeyPairConfigKt.principalKeyPairs
 import org.wfanet.measurement.config.reporting.MeasurementConsumerConfig
@@ -367,6 +373,25 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     )
 
     credentials = TrustedPrincipalAuthInterceptor.Credentials(principal, setOf("reporting.*"))
+    warmUpCoverage(accessChannel)
+  }
+
+  private fun warmUpCoverage(accessChannel: io.grpc.Channel) {
+    AccessInternalErrors.getReason(Status.UNKNOWN.asException())
+    Status.UNKNOWN.toExternalStatusRuntimeException(Status.UNKNOWN.asException())
+
+    val permissionsStub = PermissionsGrpc.newBlockingStub(accessChannel).withWaitForReady()
+    try {
+      permissionsStub.checkPermissions(
+        checkPermissionsRequest {
+          principal = "principals/coverage-warmup"
+          permissions += "permissions/coverage.warmup"
+          protectedResource = "reporting.halo-cmm.org/Root"
+        }
+      )
+    } catch (_: StatusRuntimeException) {
+      // Ignored: this is only to exercise deterministic coverage paths.
+    }
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
