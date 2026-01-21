@@ -368,6 +368,7 @@ class InProcessEdpAggregatorComponents(
               Requisition.State.UNFULFILLED,
               Requisition.State.FULFILLED,
             ),
+          minRequisitionsToFetch = 1,
         )
       requisitionFetchers += requisitionFetcher
       val firstFetchReady = CompletableDeferred<Unit>()

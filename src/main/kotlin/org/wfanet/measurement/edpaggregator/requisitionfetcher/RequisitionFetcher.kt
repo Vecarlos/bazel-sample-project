@@ -55,6 +55,7 @@ import org.wfanet.measurement.storage.StorageClient
  * @param requisitionGrouper the instance of [RequisitionGrouper] to use to group requisitions
  * @param responsePageSize
  * @param requisitionStates states to include when listing requisitions from the Kingdom
+ * @param minRequisitionsToFetch minimum requisitions to fetch before proceeding to grouping
  * @param metrics OpenTelemetry metrics instance for tracking operations
  */
 class RequisitionFetcher(
@@ -65,8 +66,12 @@ class RequisitionFetcher(
   private val requisitionGrouper: RequisitionGrouper,
   private val responsePageSize: Int? = null,
   private val requisitionStates: List<Requisition.State> = listOf(Requisition.State.UNFULFILLED),
+  private val minRequisitionsToFetch: Int = 0,
   private val metrics: RequisitionFetcherMetrics = RequisitionFetcherMetrics.Default,
 ) {
+  init {
+    require(minRequisitionsToFetch >= 0) { "minRequisitionsToFetch must be >= 0" }
+  }
 
   /**
    * Fetches and stores unfulfilled requisitions from a data provider.
@@ -102,8 +107,7 @@ class RequisitionFetcher(
    */
   @OptIn(ExperimentalCoroutinesApi::class) // For `flattenConcat`.
   private suspend fun fetchRequisitions(): List<Requisition> = withFetchTelemetry {
-    val readyRequisitionsStub =
-      requisitionsStub.withWaitForReady()
+    val readyRequisitionsStub = requisitionsStub.withWaitForReady()
     suspend fun listRequisitionsWithRetry(
       request: ListRequisitionsRequest
     ): ListRequisitionsResponse {
@@ -126,8 +130,9 @@ class RequisitionFetcher(
         }
       }
     }
-    val requisitions: Flow<Requisition> =
-      readyRequisitionsStub.listResources { pageToken: String ->
+    suspend fun listAllRequisitions(): List<Requisition> {
+      val requisitions: Flow<Requisition> =
+        readyRequisitionsStub.listResources { pageToken: String ->
           val request = listRequisitionsRequest {
             parent = dataProviderName
             filter =
@@ -144,7 +149,24 @@ class RequisitionFetcher(
         }
         .flattenConcat()
 
-    requisitions.toList()
+      return requisitions.toList()
+    }
+
+    var requisitions = listAllRequisitions()
+    if (minRequisitionsToFetch <= 0 || requisitions.size >= minRequisitionsToFetch) {
+      return@withFetchTelemetry requisitions
+    }
+
+    var attempt = 1
+    while (attempt <= EMPTY_FETCH_RETRY_ATTEMPTS &&
+      requisitions.size < minRequisitionsToFetch
+    ) {
+      delay(EMPTY_FETCH_RETRY_DELAY_MILLIS)
+      requisitions = listAllRequisitions()
+      attempt++
+    }
+
+    requisitions
   }
 
   /**
@@ -471,5 +493,8 @@ class RequisitionFetcher(
     private const val EVENT_STORAGE_WRITE_FAILED = "requisition_fetcher.storage_write_failed"
 
     private const val UNKNOWN_REPORT_ID = "unknown"
+
+    private const val EMPTY_FETCH_RETRY_ATTEMPTS = 5
+    private const val EMPTY_FETCH_RETRY_DELAY_MILLIS = 1000L
   }
 }
