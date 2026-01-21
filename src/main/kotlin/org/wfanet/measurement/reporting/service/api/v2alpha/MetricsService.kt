@@ -1930,18 +1930,14 @@ class MetricsService(
     measurementConsumerCreds: MeasurementConsumerCredentials,
   ): List<Metric> {
     // Only syncs pending measurements which can only be in metrics that are still running.
+    val runningMetrics = metricsByState[InternalMetric.State.RUNNING].orEmpty()
     val toBeSyncedInternalMeasurements: List<InternalMeasurement> =
-      if (metricsByState.containsKey(InternalMetric.State.RUNNING)) {
-        metricsByState
-          .getValue(InternalMetric.State.RUNNING)
-          .flatMap { internalMetric -> internalMetric.weightedMeasurementsList }
-          .map { weightedMeasurement -> weightedMeasurement.measurement }
-          .filter { internalMeasurement ->
-            internalMeasurement.state == InternalMeasurement.State.PENDING
-          }
-      } else {
-        emptyList()
-      }
+      runningMetrics
+        .flatMap { internalMetric -> internalMetric.weightedMeasurementsList }
+        .map { weightedMeasurement -> weightedMeasurement.measurement }
+        .filter { internalMeasurement ->
+          internalMeasurement.state == InternalMeasurement.State.PENDING
+        }
 
     val anyMeasurementUpdated: Boolean =
       measurementSupplier.syncInternalMeasurements(
