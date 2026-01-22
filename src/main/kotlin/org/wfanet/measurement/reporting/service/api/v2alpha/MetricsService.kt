@@ -1940,10 +1940,33 @@ class MetricsService(
         }
 
     val anyMeasurementUpdated: Boolean =
-      measurementSupplier.syncInternalMeasurements(
-        toBeSyncedInternalMeasurements,
-        measurementConsumerCreds,
-      )
+      try {
+        measurementSupplier.syncInternalMeasurements(
+          toBeSyncedInternalMeasurements,
+          measurementConsumerCreds,
+        )
+      } catch (e: Exception) {
+        val pendingIds =
+          toBeSyncedInternalMeasurements.take(10).joinToString(",") {
+            it.cmmsMeasurementId
+          }
+        val pendingSuffix =
+          if (toBeSyncedInternalMeasurements.size > 10) {
+            " (+${toBeSyncedInternalMeasurements.size - 10} more)"
+          } else {
+            ""
+          }
+        logger.log(
+          Level.SEVERE,
+          "[COVDBG] MetricsService syncInternalMeasurements failed: " +
+            "consumer_id=${measurementConsumerCreds.resourceKey.measurementConsumerId}, " +
+            "running_metrics=${runningMetrics.size}, " +
+            "pending_measurements=${toBeSyncedInternalMeasurements.size}, " +
+            "pending_ids=[$pendingIds]$pendingSuffix",
+          e,
+        )
+        throw e
+      }
 
     return buildList {
       for (state in metricsByState.keys) {
