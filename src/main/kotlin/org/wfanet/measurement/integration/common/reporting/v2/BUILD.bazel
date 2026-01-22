@@ -18,7 +18,6 @@ kt_jvm_library(
     ],
     deps = [
         ":in_process_reporting_server",
-        "//src/main/kotlin/org/wfanet/measurement/access/service/internal:errors",
         "//src/main/kotlin/org/wfanet/measurement/access/client/v1alpha:trusted_principal_auth_interceptor",
         "//src/main/kotlin/org/wfanet/measurement/api/v2alpha/testing",
         "//src/main/kotlin/org/wfanet/measurement/dataprovider:measurement_results",
@@ -31,7 +30,6 @@ kt_jvm_library(
         "//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:internal_status_conversion",
         "//src/main/kotlin/org/wfanet/measurement/reporting/deploy/v2/common/server:internal_reporting_server",
         "//src/main/kotlin/org/wfanet/measurement/reporting/job:basic_reports_reports_job",
-        "//src/main/proto/wfa/measurement/access/v1alpha:permissions_service_kt_jvm_grpc_proto",
         "//src/main/proto/wfa/measurement/api/v2alpha:event_group_kt_jvm_proto",
         "//src/main/proto/wfa/measurement/api/v2alpha:measurement_consumers_service_kt_jvm_grpc_proto",
         "//src/main/proto/wfa/measurement/api/v2alpha:measurement_kt_jvm_proto",

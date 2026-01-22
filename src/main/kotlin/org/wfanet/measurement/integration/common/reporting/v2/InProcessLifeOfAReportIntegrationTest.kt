@@ -25,15 +25,9 @@ import com.google.type.date
 import com.google.type.dateTime
 import com.google.type.interval
 import com.google.type.timeZone
-import io.grpc.Metadata
-import io.grpc.Status
-import io.grpc.StatusException
-import io.grpc.StatusRuntimeException
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Deferred
@@ -50,14 +44,11 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.wfanet.measurement.access.client.v1alpha.TrustedPrincipalAuthInterceptor
 import org.wfanet.measurement.access.service.PermissionKey
-import org.wfanet.measurement.access.service.internal.Errors as AccessInternalErrors
 import org.wfanet.measurement.access.v1alpha.PoliciesGrpc
 import org.wfanet.measurement.access.v1alpha.PolicyKt
 import org.wfanet.measurement.access.v1alpha.PrincipalKt
-import org.wfanet.measurement.access.v1alpha.PermissionsGrpc
 import org.wfanet.measurement.access.v1alpha.PrincipalsGrpc
 import org.wfanet.measurement.access.v1alpha.RolesGrpc
-import org.wfanet.measurement.access.v1alpha.checkPermissionsRequest
 import org.wfanet.measurement.access.v1alpha.createPolicyRequest
 import org.wfanet.measurement.access.v1alpha.createPrincipalRequest
 import org.wfanet.measurement.access.v1alpha.createRoleRequest
@@ -65,10 +56,7 @@ import org.wfanet.measurement.access.v1alpha.policy
 import org.wfanet.measurement.access.v1alpha.principal
 import org.wfanet.measurement.access.v1alpha.role
 import org.wfanet.measurement.api.v2alpha.DataProviderCertificateKey
-import org.wfanet.measurement.api.v2alpha.DataProviderKey
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
-import org.wfanet.measurement.api.v2alpha.EventGroupKey
-import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub as CmmsEventGroupsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupKt as CmmsEventGroupKt
 import org.wfanet.measurement.api.v2alpha.EventMessageDescriptor
 import org.wfanet.measurement.api.v2alpha.Measurement
@@ -80,14 +68,11 @@ import org.wfanet.measurement.api.v2alpha.RequisitionSpecKt
 import org.wfanet.measurement.api.v2alpha.eventGroup as cmmsEventGroup
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.Person
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
-import org.wfanet.measurement.api.v2alpha.getEventGroupRequest
 import org.wfanet.measurement.api.v2alpha.getDataProviderRequest
 import org.wfanet.measurement.api.v2alpha.getMeasurementConsumerRequest
-import org.wfanet.measurement.api.v2alpha.listEventGroupsRequest as cmmsListEventGroupsRequest
 import org.wfanet.measurement.api.v2alpha.listMeasurementsRequest
 import org.wfanet.measurement.api.v2alpha.testing.MeasurementResultSubject.Companion.assertThat
 import org.wfanet.measurement.api.withAuthenticationKey
-import org.wfanet.measurement.common.identity.TrustedPrincipalCallCredentials
 import org.wfanet.measurement.common.OpenEndTimeRange
 import org.wfanet.measurement.common.base64UrlEncode
 import org.wfanet.measurement.common.crypto.readCertificateCollection
@@ -382,79 +367,6 @@ abstract class InProcessLifeOfAReportIntegrationTest(
     )
 
     credentials = TrustedPrincipalAuthInterceptor.Credentials(principal, setOf("reporting.*"))
-    runBlocking { warmUpCoverage(accessChannel, measurementConsumerData) }
-  }
-
-  private suspend fun warmUpCoverage(
-    accessChannel: io.grpc.Channel,
-    measurementConsumerData: MeasurementConsumerData,
-  ) {
-    if (!coverageWarmUpDone.compareAndSet(false, true)) {
-      return
-    }
-    AccessInternalErrors.getReason(Status.UNKNOWN.asException())
-
-    val permissionsStub =
-      PermissionsGrpc.newBlockingStub(accessChannel)
-        .withWaitForReady()
-        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
-    try {
-      permissionsStub.checkPermissions(
-        checkPermissionsRequest {
-          principal = "principals/coverage-warmup"
-          permissions += "permissions/coverage.warmup"
-          protectedResource = "reporting.halo-cmm.org/Root"
-        }
-      )
-    } catch (_: StatusRuntimeException) {
-      // Ignored: this is only to exercise deterministic coverage paths.
-    }
-
-    // Exercise API key auth and event group error mapping in kingdom public API.
-    val kingdomEventGroupsClient =
-      CmmsEventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
-        .withWaitForReady()
-        .withDeadlineAfter(WARMUP_DEADLINE_SECONDS, TimeUnit.SECONDS)
-    try {
-      kingdomEventGroupsClient
-        .withAuthenticationKey("coverage-warmup-invalid-key")
-        .listEventGroups(
-          cmmsListEventGroupsRequest {
-            parent = measurementConsumerData.name
-            pageSize = 1
-          }
-        )
-    } catch (e: StatusException) {
-      if (e.status.code != Status.Code.UNAUTHENTICATED &&
-        e.status.code != Status.Code.CANCELLED &&
-        e.status.code != Status.Code.DEADLINE_EXCEEDED
-      ) {
-        throw e
-      }
-    }
-    val dataProviderName = inProcessCmmsComponents.getDataProviderResourceNames().firstOrNull()
-    val dataProviderId = DataProviderKey.fromName(dataProviderName ?: "")?.dataProviderId
-    if (!dataProviderId.isNullOrEmpty()) {
-      val invalidEventGroupName =
-        EventGroupKey(dataProviderId = dataProviderId, eventGroupId = "coverage-warmup").toName()
-      try {
-        kingdomEventGroupsClient
-          .withAuthenticationKey(measurementConsumerData.apiAuthenticationKey)
-          .getEventGroup(getEventGroupRequest { name = invalidEventGroupName })
-      } catch (e: StatusException) {
-        if (e.status.code != Status.Code.NOT_FOUND &&
-          e.status.code != Status.Code.PERMISSION_DENIED &&
-          e.status.code != Status.Code.DEADLINE_EXCEEDED
-        ) {
-          throw e
-        }
-      }
-    }
-
-    // Exercise PrincipalIdentity.fromHeaders deterministically.
-    TrustedPrincipalCallCredentials.fromHeaders(Metadata())
-
-    // Skip reporting metric warmup to avoid mutating test data or spending privacy budget.
   }
 
   private val publicKingdomMeasurementConsumersClient by lazy {
@@ -3418,9 +3330,6 @@ abstract class InProcessLifeOfAReportIntegrationTest(
   }
 
   companion object {
-    private val coverageWarmUpDone = AtomicBoolean(false)
-    private const val WARMUP_DEADLINE_SECONDS = 5L
-
     private val SECRETS_DIR: File =
       getRuntimePath(
           Paths.get("wfa_measurement_system", "src", "main", "k8s", "testing", "secretfiles")

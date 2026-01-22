@@ -1215,55 +1215,42 @@ class MetricsService(
   }
 
   override suspend fun getMetric(request: GetMetricRequest): Metric {
-    val isDebugMetric = request.name.endsWith("/metrics/abc")
-    if (isDebugMetric) {
-      System.err.println("[COVDBG] MetricsService getMetric start: name=${request.name}")
-    }
-    try {
-      val metricKey =
-        grpcRequireNotNull(MetricKey.fromName(request.name)) {
-          "Metric name is either unspecified or invalid."
-        }
-
-      val measurementConsumerName: String = metricKey.parentKey.toName()
-      authorization.check(listOf(request.name, measurementConsumerName), Permission.GET)
-
-      val measurementConsumerConfig =
-        measurementConsumerConfigs.configsMap[measurementConsumerName]
-          ?: throw Status.INTERNAL.withDescription("Config not found for $measurementConsumerName")
-            .asRuntimeException()
-      val measurementConsumerCredentials =
-        MeasurementConsumerCredentials.fromConfig(metricKey.parentKey, measurementConsumerConfig)
-
-      val internalMetric: InternalMetric =
-        try {
-            batchGetInternalMetrics(
-              metricKey.parentKey.measurementConsumerId,
-              listOf(metricKey.metricId),
-            )
-          } catch (e: StatusException) {
-            throw when (e.status.code) {
-                Status.Code.NOT_FOUND ->
-                  Status.NOT_FOUND.withDescription("Metric ${request.name} not found")
-                else -> Status.INTERNAL
-              }
-              .withCause(e)
-              .asRuntimeException()
-          }
-          .single()
-      return syncAndConvertInternalMetricsToPublicMetrics(
-          mapOf(internalMetric.state to listOf(internalMetric)),
-          measurementConsumerCredentials,
-        )
-        .single()
-    } catch (e: Exception) {
-      logger.log(Level.SEVERE, "[COVDBG] MetricsService getMetric failed: name=${request.name}", e)
-      if (isDebugMetric) {
-        System.err.println("[COVDBG] MetricsService getMetric failed: name=${request.name}")
-        e.printStackTrace()
+    val metricKey =
+      grpcRequireNotNull(MetricKey.fromName(request.name)) {
+        "Metric name is either unspecified or invalid."
       }
-      throw e
-    }
+
+    val measurementConsumerName: String = metricKey.parentKey.toName()
+    authorization.check(listOf(request.name, measurementConsumerName), Permission.GET)
+
+    val measurementConsumerConfig =
+      measurementConsumerConfigs.configsMap[measurementConsumerName]
+        ?: throw Status.INTERNAL.withDescription("Config not found for $measurementConsumerName")
+          .asRuntimeException()
+    val measurementConsumerCredentials =
+      MeasurementConsumerCredentials.fromConfig(metricKey.parentKey, measurementConsumerConfig)
+
+    val internalMetric: InternalMetric =
+      try {
+          batchGetInternalMetrics(
+            metricKey.parentKey.measurementConsumerId,
+            listOf(metricKey.metricId),
+          )
+        } catch (e: StatusException) {
+          throw when (e.status.code) {
+              Status.Code.NOT_FOUND ->
+                Status.NOT_FOUND.withDescription("Metric ${request.name} not found")
+              else -> Status.INTERNAL
+            }
+            .withCause(e)
+            .asRuntimeException()
+        }
+        .single()
+    return syncAndConvertInternalMetricsToPublicMetrics(
+        mapOf(internalMetric.state to listOf(internalMetric)),
+        measurementConsumerCredentials,
+      )
+      .single()
   }
 
   override suspend fun batchGetMetrics(request: BatchGetMetricsRequest): BatchGetMetricsResponse {
@@ -1953,33 +1940,10 @@ class MetricsService(
         }
 
     val anyMeasurementUpdated: Boolean =
-      try {
-        measurementSupplier.syncInternalMeasurements(
-          toBeSyncedInternalMeasurements,
-          measurementConsumerCreds,
-        )
-      } catch (e: Exception) {
-        val pendingIds =
-          toBeSyncedInternalMeasurements.take(10).joinToString(",") {
-            it.cmmsMeasurementId
-          }
-        val pendingSuffix =
-          if (toBeSyncedInternalMeasurements.size > 10) {
-            " (+${toBeSyncedInternalMeasurements.size - 10} more)"
-          } else {
-            ""
-          }
-        logger.log(
-          Level.SEVERE,
-          "[COVDBG] MetricsService syncInternalMeasurements failed: " +
-            "consumer_id=${measurementConsumerCreds.resourceKey.measurementConsumerId}, " +
-            "running_metrics=${runningMetrics.size}, " +
-            "pending_measurements=${toBeSyncedInternalMeasurements.size}, " +
-            "pending_ids=[$pendingIds]$pendingSuffix",
-          e,
-        )
-        throw e
-      }
+      measurementSupplier.syncInternalMeasurements(
+        toBeSyncedInternalMeasurements,
+        measurementConsumerCreds,
+      )
 
     return buildList {
       for (state in metricsByState.keys) {
