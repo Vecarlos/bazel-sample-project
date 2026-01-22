@@ -17,10 +17,15 @@
 package org.wfanet.measurement.integration.common
 
 import com.google.protobuf.ByteString
+import io.grpc.ConnectivityState
+import io.grpc.ManagedChannel
 import java.security.cert.X509Certificate
 import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -375,6 +380,8 @@ class InProcessCmmsComponents(
   }
 
   fun startDaemons() = runBlocking {
+    awaitChannelReady(kingdom.publicApiChannel)
+    awaitChannelReady(kingdom.systemApiChannel)
     // Create all resources
     createAllResources()
     // Start daemons. Mills and EDP simulators can only be started after resources have been
@@ -389,6 +396,7 @@ class InProcessCmmsComponents(
       it.startHerald()
       it.startMill(duchyCertMap)
     }
+    duchies.forEach { awaitChannelReady(it.publicApiChannel) }
     populationRequisitionFulfiller.start()
   }
 
@@ -415,6 +423,19 @@ class InProcessCmmsComponents(
 
   override fun apply(statement: Statement, description: Description): Statement {
     return ruleChain.apply(statement, description)
+  }
+
+  private suspend fun awaitChannelReady(channel: io.grpc.Channel, timeoutMillis: Long = 30_000L) {
+    val managedChannel = channel as? ManagedChannel ?: return
+    withTimeout(timeoutMillis) {
+      var state = managedChannel.getState(true)
+      while (state != ConnectivityState.READY) {
+        suspendCancellableCoroutine<Unit> { continuation ->
+          managedChannel.notifyWhenStateChanged(state) { continuation.resume(Unit) }
+        }
+        state = managedChannel.getState(true)
+      }
+    }
   }
 
   companion object {

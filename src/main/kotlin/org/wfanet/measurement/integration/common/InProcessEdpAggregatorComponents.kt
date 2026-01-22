@@ -26,6 +26,8 @@ import com.google.protobuf.timestamp
 import com.google.type.Interval
 import com.google.type.interval
 import io.grpc.Channel
+import io.grpc.ConnectivityState
+import io.grpc.ManagedChannel
 import io.grpc.StatusException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -37,16 +39,19 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withContext
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -250,6 +255,8 @@ class InProcessEdpAggregatorComponents(
   ) = runBlocking {
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
+    awaitChannelReady(publicApiChannel)
+    duchyChannelMap.values.forEach { awaitChannelReady(it) }
     edpResourceNameMap =
       edpAggregatorShortNames.associateWith { edpAggregatorShortName ->
         edpDisplayNameToResourceMap.getValue(edpAggregatorShortName).name
@@ -539,6 +546,19 @@ class InProcessEdpAggregatorComponents(
 
   fun stopDaemons() {
     backgroundJob.cancel()
+  }
+
+  private suspend fun awaitChannelReady(channel: Channel, timeoutMillis: Long = 30_000L) {
+    val managedChannel = channel as? ManagedChannel ?: return
+    withTimeout(timeoutMillis) {
+      var state = managedChannel.getState(true)
+      while (state != ConnectivityState.READY) {
+        suspendCancellableCoroutine<Unit> { continuation ->
+          managedChannel.notifyWhenStateChanged(state) { continuation.resume(Unit) }
+        }
+        state = managedChannel.getState(true)
+      }
+    }
   }
 
   override fun apply(statement: Statement, description: Description): Statement {
