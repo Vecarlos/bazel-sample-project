@@ -97,14 +97,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       "edpa-eg-reference-id-2" to syntheticEventGroupSpec,
     )
 
-  private val workItemIdCounter = AtomicInteger(0)
-  private val requestIdCounter = AtomicInteger(0)
-  private val groupIdCounter = AtomicInteger(0)
-
-  private fun nextWorkItemId(): String = "work-item-${workItemIdCounter.incrementAndGet()}"
-  private fun nextRequestId(): String = "request-${requestIdCounter.incrementAndGet()}"
-  private fun nextGroupId(): String = "group-${groupIdCounter.incrementAndGet()}"
-
   @get:Rule
   val inProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents =
     InProcessEdpAggregatorComponents(
@@ -114,9 +106,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       syntheticEventGroupMap = syntheticEventGroupMap,
       syntheticPopulationSpec = syntheticPopulationSpec,
       modelLineInfoMap = modelLineInfoMap,
-      workItemIdGenerator = ::nextWorkItemId,
-      requisitionMetadataRequestIdGenerator = ::nextRequestId,
-      requisitionGroupIdGenerator = ::nextGroupId,
+      workItemIdGenerator = Companion::nextWorkItemId,
+      requisitionMetadataRequestIdGenerator = Companion::nextRequestId,
+      requisitionGroupIdGenerator = Companion::nextGroupId,
       requisitionFetcherLoopIterations = 0,
     )
 
@@ -261,6 +253,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
+    private val workItemIdCounter = AtomicInteger(0)
+    private val requestIdCounter = AtomicInteger(0)
+    private val groupIdCounter = AtomicInteger(0)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
     // Epsilon can vary from 0.0001 to 1.0, delta = 1e-15 is a realistic value.
@@ -332,6 +327,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
     }
+
+    private fun nextWorkItemId(): String = "work-item-${workItemIdCounter.incrementAndGet()}"
+    private fun nextRequestId(): String = "request-${requestIdCounter.incrementAndGet()}"
+    private fun nextGroupId(): String = "group-${groupIdCounter.incrementAndGet()}"
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
   }
