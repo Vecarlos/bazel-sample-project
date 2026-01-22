@@ -109,7 +109,6 @@ class RequisitionGrouperByReportId(
   private val storageClient: StorageClient,
   private val responsePageSize: Int,
   private val storagePathPrefix: String,
-  private val groupIdGenerator: () -> String = { UUID.randomUUID().toString() },
   throttler: Throttler,
   eventGroupsClient: EventGroupsCoroutineStub,
   requisitionsClient: RequisitionsCoroutineStub,
@@ -299,7 +298,7 @@ class RequisitionGrouperByReportId(
     val unregisteredRequisitionsByReportId: List<Requisition> =
       requisitionsByReportId.filter { it.name !in existingCmmsRequisitionName }
     if (unregisteredRequisitionsByReportId.isEmpty()) return null
-    val requisitionGroupId = groupIdGenerator()
+    val requisitionGroupId = UUID.randomUUID().toString()
     val reportValidationOutcome =
       validateRequisitionsByReport(reportId, unregisteredRequisitionsByReportId)
     val groupedRequisitions =

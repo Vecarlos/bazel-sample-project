@@ -158,8 +158,7 @@ abstract class MeasurementConsumerSimulator(
       )
       .toName(),
   private val modelLineName: String = "some-model-line",
-  private val onMeasurementsCreated: (suspend () -> Unit)? = null,
-  private val random: Random = Random.Default,
+  private val onMeasurementsCreated: (() -> Unit)? = null,
 ) {
   /** Cache of resource name to [Certificate]. */
   private val certificateCache = mutableMapOf<String, Certificate>()
@@ -913,7 +912,7 @@ abstract class MeasurementConsumerSimulator(
         }
         .take(maxDataProviders)
         .map { (dataProviderKey, eventGroups) ->
-          val nonce = random.nextLong()
+          val nonce = Random.nextLong()
           nonceHashes.add(Hashing.hashSha256(nonce))
           val dataProvider = keyToDataProviderMap.getValue(dataProviderKey)
           buildRequisitionInfo(
@@ -937,7 +936,7 @@ abstract class MeasurementConsumerSimulator(
     newMeasurementSpec:
       (packedMeasurementPublicKey: ProtoAny, nonceHashes: List<ByteString>) -> MeasurementSpec,
   ): MeasurementInfo {
-    val nonce = random.nextLong()
+    val nonce = Random.nextLong()
     val nonceHashes = mutableListOf<ByteString>()
     nonceHashes.add(Hashing.hashSha256(nonce))
     val populationDataProvider = getDataProvider(populationData.populationDataProviderName)

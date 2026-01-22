@@ -16,10 +16,7 @@ package org.wfanet.measurement.integration.common
 
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.time.Duration
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
-import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -106,10 +103,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       syntheticEventGroupMap = syntheticEventGroupMap,
       syntheticPopulationSpec = syntheticPopulationSpec,
       modelLineInfoMap = modelLineInfoMap,
-      workItemIdGenerator = Companion::nextWorkItemId,
-      requisitionMetadataRequestIdGenerator = Companion::nextRequestId,
-      requisitionGroupIdGenerator = Companion::nextGroupId,
-      requisitionFetcherLoopIterations = 0,
     )
 
   @Before
@@ -179,13 +172,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
-        random = Random(1),
-        onMeasurementsCreated = {
-          inProcessEdpAggregatorComponents.runRequisitionFetchers(
-            iterations = 10,
-            interval = Duration.ofSeconds(1),
-          )
-        },
       )
   }
 
@@ -253,9 +239,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
-    private val workItemIdCounter = AtomicInteger(0)
-    private val requestIdCounter = AtomicInteger(0)
-    private val groupIdCounter = AtomicInteger(0)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
     // Epsilon can vary from 0.0001 to 1.0, delta = 1e-15 is a realistic value.
@@ -327,10 +310,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
     }
-
-    private fun nextWorkItemId(): String = "work-item-${workItemIdCounter.incrementAndGet()}"
-    private fun nextRequestId(): String = "request-${requestIdCounter.incrementAndGet()}"
-    private fun nextGroupId(): String = "group-${groupIdCounter.incrementAndGet()}"
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
   }
