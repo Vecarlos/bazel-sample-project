@@ -343,6 +343,8 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
+      // Prime the fetcher once to reduce timing variability before the background loop starts.
+      requisitionFetcher.fetchAndStoreRequisitions()
       backgroundScope.launch {
         while (true) {
           delay(1000)
