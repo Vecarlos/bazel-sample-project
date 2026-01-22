@@ -186,16 +186,16 @@ class RequisitionFetcherFunction : HttpFunction {
 
     val requisitionGrouper =
       RequisitionGrouperByReportId(
-        requisitionsValidator,
-        dataProviderConfig.dataProvider,
-        requisitionBlobPrefix,
-        requisitionMetadataStub,
-        storageClient,
-        pageSize,
-        dataProviderConfig.storagePathPrefix,
-        MinimumIntervalThrottler(Clock.systemUTC(), grpcRequestInterval),
-        eventGroupsStub,
-        requisitionsStub,
+        requisitionValidator = requisitionsValidator,
+        dataProviderName = dataProviderConfig.dataProvider,
+        blobUriPrefix = requisitionBlobPrefix,
+        requisitionMetadataStub = requisitionMetadataStub,
+        storageClient = storageClient,
+        responsePageSize = pageSize,
+        storagePathPrefix = dataProviderConfig.storagePathPrefix,
+        throttler = MinimumIntervalThrottler(Clock.systemUTC(), grpcRequestInterval),
+        eventGroupsClient = eventGroupsStub,
+        requisitionsClient = requisitionsStub,
       )
 
     return RequisitionFetcher(

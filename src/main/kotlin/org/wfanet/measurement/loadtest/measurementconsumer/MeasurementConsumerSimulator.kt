@@ -158,7 +158,7 @@ abstract class MeasurementConsumerSimulator(
       )
       .toName(),
   private val modelLineName: String = "some-model-line",
-  private val onMeasurementsCreated: (() -> Unit)? = null,
+  private val onMeasurementsCreated: (suspend () -> Unit)? = null,
   private val random: Random = Random.Default,
 ) {
   /** Cache of resource name to [Certificate]. */

@@ -16,6 +16,8 @@ package org.wfanet.measurement.integration.common
 
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
 import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
@@ -95,6 +97,14 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       "edpa-eg-reference-id-2" to syntheticEventGroupSpec,
     )
 
+  private val workItemIdCounter = AtomicInteger(0)
+  private val requestIdCounter = AtomicInteger(0)
+  private val groupIdCounter = AtomicInteger(0)
+
+  private fun nextWorkItemId(): String = "work-item-${workItemIdCounter.incrementAndGet()}"
+  private fun nextRequestId(): String = "request-${requestIdCounter.incrementAndGet()}"
+  private fun nextGroupId(): String = "group-${groupIdCounter.incrementAndGet()}"
+
   @get:Rule
   val inProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents =
     InProcessEdpAggregatorComponents(
@@ -104,6 +114,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       syntheticEventGroupMap = syntheticEventGroupMap,
       syntheticPopulationSpec = syntheticPopulationSpec,
       modelLineInfoMap = modelLineInfoMap,
+      workItemIdGenerator = ::nextWorkItemId,
+      requisitionMetadataRequestIdGenerator = ::nextRequestId,
+      requisitionGroupIdGenerator = ::nextGroupId,
+      requisitionFetcherLoopIterations = 0,
     )
 
   @Before
@@ -174,6 +188,12 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           .toName(),
         modelLineName = modelLineName,
         random = Random(1),
+        onMeasurementsCreated = {
+          inProcessEdpAggregatorComponents.runRequisitionFetchers(
+            iterations = 10,
+            interval = Duration.ofSeconds(1),
+          )
+        },
       )
   }
 

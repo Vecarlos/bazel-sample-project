@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.isActive
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -120,6 +121,11 @@ class InProcessEdpAggregatorComponents(
   private val syntheticPopulationSpec: SyntheticPopulationSpec,
   private val syntheticEventGroupMap: Map<String, SyntheticEventGroupSpec>,
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
+  private val workItemIdGenerator: () -> String = { "work-item-" + UUID.randomUUID().toString() },
+  private val requisitionMetadataRequestIdGenerator: () -> String = { UUID.randomUUID().toString() },
+  private val requisitionGroupIdGenerator: () -> String = { UUID.randomUUID().toString() },
+  private val requisitionFetcherLoopIterations: Int? = null,
+  private val requisitionFetcherLoopDelay: Duration = Duration.ofSeconds(1),
 ) : TestRule {
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
@@ -129,6 +135,8 @@ class InProcessEdpAggregatorComponents(
   private lateinit var publicApiChannel: Channel
 
   private lateinit var duchyChannelMap: Map<String, Channel>
+
+  private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
 
   private val internalSecureComputationServicesRule:
     ProviderRule<InternalSecureComputationApiServices> =
@@ -279,7 +287,12 @@ class InProcessEdpAggregatorComponents(
     }
 
     dataWatcher =
-      DataWatcher(workItemsClient, watchedPaths, idTokenProvider = TestIdTokenProvider())
+      DataWatcher(
+        workItemsClient,
+        watchedPaths,
+        workItemIdGenerator = workItemIdGenerator,
+        idTokenProvider = TestIdTokenProvider(),
+      )
 
     val subscribingStorageClient = DataWatcherSubscribingStorageClient(storageClient, "file:///")
     subscribingStorageClient.subscribe(dataWatcher)
@@ -306,6 +319,7 @@ class InProcessEdpAggregatorComponents(
           subscribingStorageClient,
           50,
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
+          requisitionGroupIdGenerator,
           throttler,
           eventGroupsClient,
           requisitionsClient,
@@ -319,12 +333,8 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
-        }
-      }
+      requisitionFetchers += requisitionFetcher
+      startRequisitionFetcherLoop(requisitionFetcher)
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler, 500)
@@ -364,6 +374,41 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
+  }
+
+  fun triggerRequisitionFetchers(iterations: Int, interval: Duration = Duration.ZERO) {
+    if (iterations <= 0) return
+    backgroundScope.launch { runRequisitionFetchers(iterations, interval) }
+  }
+
+  suspend fun runRequisitionFetchers(iterations: Int, interval: Duration = Duration.ZERO) {
+    if (iterations <= 0) return
+    repeat(iterations) {
+      requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
+      if (!interval.isZero) {
+        delay(interval.toMillis())
+      }
+    }
+  }
+
+  private fun startRequisitionFetcherLoop(requisitionFetcher: RequisitionFetcher) {
+    val iterations = requisitionFetcherLoopIterations
+    if (iterations != null && iterations <= 0) return
+    backgroundScope.launch {
+      if (iterations == null) {
+        while (isActive) {
+          delay(requisitionFetcherLoopDelay.toMillis())
+          requisitionFetcher.fetchAndStoreRequisitions()
+        }
+      } else {
+        repeat(iterations) {
+          requisitionFetcher.fetchAndStoreRequisitions()
+          if (!requisitionFetcherLoopDelay.isZero) {
+            delay(requisitionFetcherLoopDelay.toMillis())
+          }
+        }
+      }
+    }
   }
 
   private suspend fun refuseRequisition(
@@ -435,7 +480,7 @@ class InProcessEdpAggregatorComponents(
         createImpressionMetadataRequest {
           parent = dataProviderName
           this.impressionMetadata = it
-          requestId = UUID.randomUUID().toString()
+          requestId = requisitionMetadataRequestIdGenerator()
         }
       )
     }
