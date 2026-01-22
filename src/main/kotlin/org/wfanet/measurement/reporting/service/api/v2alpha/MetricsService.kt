@@ -1215,6 +1215,10 @@ class MetricsService(
   }
 
   override suspend fun getMetric(request: GetMetricRequest): Metric {
+    val isDebugMetric = request.name.endsWith("/metrics/abc")
+    if (isDebugMetric) {
+      System.err.println("[COVDBG] MetricsService getMetric start: name=${request.name}")
+    }
     try {
       val metricKey =
         grpcRequireNotNull(MetricKey.fromName(request.name)) {
@@ -1254,6 +1258,10 @@ class MetricsService(
         .single()
     } catch (e: Exception) {
       logger.log(Level.SEVERE, "[COVDBG] MetricsService getMetric failed: name=${request.name}", e)
+      if (isDebugMetric) {
+        System.err.println("[COVDBG] MetricsService getMetric failed: name=${request.name}")
+        e.printStackTrace()
+      }
       throw e
     }
   }
