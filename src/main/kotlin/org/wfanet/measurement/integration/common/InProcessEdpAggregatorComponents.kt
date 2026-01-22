@@ -257,6 +257,8 @@ class InProcessEdpAggregatorComponents(
     duchyChannelMap = duchyMap
     awaitChannelReady(publicApiChannel)
     duchyChannelMap.values.forEach { awaitChannelReady(it) }
+    awaitChannelReady(secureComputationPublicApi.publicApiChannel)
+    awaitChannelReady(edpAggregatorSystemApi.publicApiChannel)
     edpResourceNameMap =
       edpAggregatorShortNames.associateWith { edpAggregatorShortName ->
         edpDisplayNameToResourceMap.getValue(edpAggregatorShortName).name
