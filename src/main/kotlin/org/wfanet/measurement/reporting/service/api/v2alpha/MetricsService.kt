@@ -1215,42 +1215,47 @@ class MetricsService(
   }
 
   override suspend fun getMetric(request: GetMetricRequest): Metric {
-    val metricKey =
-      grpcRequireNotNull(MetricKey.fromName(request.name)) {
-        "Metric name is either unspecified or invalid."
-      }
-
-    val measurementConsumerName: String = metricKey.parentKey.toName()
-    authorization.check(listOf(request.name, measurementConsumerName), Permission.GET)
-
-    val measurementConsumerConfig =
-      measurementConsumerConfigs.configsMap[measurementConsumerName]
-        ?: throw Status.INTERNAL.withDescription("Config not found for $measurementConsumerName")
-          .asRuntimeException()
-    val measurementConsumerCredentials =
-      MeasurementConsumerCredentials.fromConfig(metricKey.parentKey, measurementConsumerConfig)
-
-    val internalMetric: InternalMetric =
-      try {
-          batchGetInternalMetrics(
-            metricKey.parentKey.measurementConsumerId,
-            listOf(metricKey.metricId),
-          )
-        } catch (e: StatusException) {
-          throw when (e.status.code) {
-              Status.Code.NOT_FOUND ->
-                Status.NOT_FOUND.withDescription("Metric ${request.name} not found")
-              else -> Status.INTERNAL
-            }
-            .withCause(e)
-            .asRuntimeException()
+    try {
+      val metricKey =
+        grpcRequireNotNull(MetricKey.fromName(request.name)) {
+          "Metric name is either unspecified or invalid."
         }
+
+      val measurementConsumerName: String = metricKey.parentKey.toName()
+      authorization.check(listOf(request.name, measurementConsumerName), Permission.GET)
+
+      val measurementConsumerConfig =
+        measurementConsumerConfigs.configsMap[measurementConsumerName]
+          ?: throw Status.INTERNAL.withDescription("Config not found for $measurementConsumerName")
+            .asRuntimeException()
+      val measurementConsumerCredentials =
+        MeasurementConsumerCredentials.fromConfig(metricKey.parentKey, measurementConsumerConfig)
+
+      val internalMetric: InternalMetric =
+        try {
+            batchGetInternalMetrics(
+              metricKey.parentKey.measurementConsumerId,
+              listOf(metricKey.metricId),
+            )
+          } catch (e: StatusException) {
+            throw when (e.status.code) {
+                Status.Code.NOT_FOUND ->
+                  Status.NOT_FOUND.withDescription("Metric ${request.name} not found")
+                else -> Status.INTERNAL
+              }
+              .withCause(e)
+              .asRuntimeException()
+          }
+          .single()
+      return syncAndConvertInternalMetricsToPublicMetrics(
+          mapOf(internalMetric.state to listOf(internalMetric)),
+          measurementConsumerCredentials,
+        )
         .single()
-    return syncAndConvertInternalMetricsToPublicMetrics(
-        mapOf(internalMetric.state to listOf(internalMetric)),
-        measurementConsumerCredentials,
-      )
-      .single()
+    } catch (e: Exception) {
+      logger.log(Level.SEVERE, "[COVDBG] MetricsService getMetric failed: name=${request.name}", e)
+      throw e
+    }
   }
 
   override suspend fun batchGetMetrics(request: BatchGetMetricsRequest): BatchGetMetricsResponse {
