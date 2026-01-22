@@ -18,6 +18,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -126,6 +127,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     initMcSimulator()
+    // Allow background daemons to finish their initial sync before running tests.
+    runBlocking { delay(STARTUP_SETTLE_DELAY_MILLIS) }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -250,6 +253,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
+    private const val STARTUP_SETTLE_DELAY_MILLIS = 10_000L
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
     // Epsilon can vary from 0.0001 to 1.0, delta = 1e-15 is a realistic value.
