@@ -29,6 +29,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
@@ -201,6 +202,16 @@ class InProcessDuchy(
     return delayMillis.coerceAtMost(maxMillis)
   }
 
+  private suspend fun warmUpHerald(herald: Herald) {
+    withTimeoutOrNull(HERALD_WARMUP_TIMEOUT_MILLIS) {
+      try {
+        herald.syncStatuses()
+      } catch (_: Exception) {
+        // Best-effort warm-up; failures here shouldn't stop the daemon.
+      }
+    }
+  }
+
   // TODO(@renjiez): Use real PrivateKeyStore when enabling HMSS.
   private val privateKeyStore by lazy {
     val keyUri = FakeKmsClient.KEY_URI_PREFIX + "kek"
@@ -296,6 +307,7 @@ class InProcessDuchy(
             protocolsSetupConfig = protocolsSetupConfig,
             clock = Clock.systemUTC(),
           )
+        warmUpHerald(herald)
         herald.continuallySyncStatuses()
       }
   }
@@ -387,6 +399,9 @@ class InProcessDuchy(
             workLockDuration = Duration.ofSeconds(1),
             privateKeyStore = privateKeyStore,
           )
+        reachFrequencyLiquidLegionsV2Mill.claimAndProcessWork()
+        reachOnlyLiquidLegionsV2Mill.claimAndProcessWork()
+        honestMajorityShareShuffleMill.claimAndProcessWork()
         val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1))
         throttler.loopOnReady {
           reachFrequencyLiquidLegionsV2Mill.claimAndProcessWork()
@@ -436,5 +451,6 @@ class InProcessDuchy(
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private const val COMPUTATIONS_READY_TIMEOUT_MILLIS = 30_000L
+    private const val HERALD_WARMUP_TIMEOUT_MILLIS = 3_000L
   }
 }
