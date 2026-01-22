@@ -19,6 +19,7 @@ import io.grpc.Channel
 import java.security.cert.X509Certificate
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -56,26 +57,36 @@ class InProcessPopulationRequisitionFulfiller(
   private val modelRolloutsClient by lazy {
     ModelRolloutsGrpcKt.ModelRolloutsCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val modelReleasesClient by lazy {
     ModelReleasesGrpcKt.ModelReleasesCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val populationsClient by lazy {
     PopulationsGrpcKt.PopulationsCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val certificatesClient by lazy {
     CertificatesGrpcKt.CertificatesCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   private val requisitionsClient by lazy {
     RequisitionsGrpcKt.RequisitionsCoroutineStub(kingdomPublicApiChannel)
       .withPrincipalName(resourceName)
+      .withWaitForReady()
+      .withDeadlineAfter(10, TimeUnit.MINUTES)
   }
 
   fun start() {
