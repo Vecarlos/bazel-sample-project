@@ -18,8 +18,11 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
+import io.grpc.Status
+import io.grpc.StatusException
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -40,6 +43,7 @@ import org.wfanet.measurement.api.v2alpha.differentialPrivacyParams
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticEventGroupSpec
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
+import org.wfanet.measurement.api.v2alpha.getMeasurementConsumerRequest
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
@@ -127,8 +131,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     initMcSimulator()
-    // Allow background daemons to finish their initial sync before running tests.
-    runBlocking { delay(STARTUP_SETTLE_DELAY_MILLIS) }
+    runBlocking { waitForKingdomReady(measurementConsumerData) }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -187,6 +190,40 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           .toName(),
         modelLineName = modelLineName,
       )
+  }
+
+  private suspend fun waitForKingdomReady(measurementConsumerData: MeasurementConsumerData) {
+    val request = getMeasurementConsumerRequest { name = measurementConsumerData.name }
+    val authKey = measurementConsumerData.apiAuthenticationKey
+    withTimeout(STARTUP_WAIT_TIMEOUT_MILLIS) {
+      var attempt = 0
+      while (true) {
+        try {
+          publicMeasurementConsumersClient
+            .withAuthenticationKey(authKey)
+            .withDeadlineAfter(10, TimeUnit.SECONDS)
+            .getMeasurementConsumer(request)
+          return@withTimeout
+        } catch (e: StatusException) {
+          if (
+            e.status.code != Status.Code.UNAVAILABLE &&
+              e.status.code != Status.Code.DEADLINE_EXCEEDED &&
+              e.status.code != Status.Code.CANCELLED
+          ) {
+            throw e
+          }
+        }
+        delay(waitDelayMillis(attempt))
+        attempt++
+      }
+    }
+  }
+
+  private fun waitDelayMillis(attempt: Int): Long {
+    val baseMillis = 250L
+    val maxMillis = 2_000L
+    val delayMillis = baseMillis * (1L shl attempt.coerceAtMost(3))
+    return delayMillis.coerceAtMost(maxMillis)
   }
 
   @After
@@ -253,7 +290,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
-    private const val STARTUP_SETTLE_DELAY_MILLIS = 10_000L
+    private const val STARTUP_WAIT_TIMEOUT_MILLIS = 30_000L
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
     // Epsilon can vary from 0.0001 to 1.0, delta = 1e-15 is a realistic value.
