@@ -170,7 +170,7 @@ class InProcessDuchy(
   }
 
   private suspend fun waitForComputationsReady() {
-    val request = getComputationTokenRequest { globalComputationId = 0L }
+    val request = getComputationTokenRequest { globalComputationId = "0" }
     withTimeout(COMPUTATIONS_READY_TIMEOUT_MILLIS) {
       var attempt = 0
       while (true) {
@@ -435,5 +435,6 @@ class InProcessDuchy(
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
+    private const val COMPUTATIONS_READY_TIMEOUT_MILLIS = 30_000L
   }
 }
