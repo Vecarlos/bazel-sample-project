@@ -27,6 +27,8 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
@@ -74,6 +76,7 @@ import org.wfanet.measurement.internal.duchy.AsyncComputationControlGrpcKt.Async
 import org.wfanet.measurement.internal.duchy.ComputationStatsGrpcKt.ComputationStatsCoroutineStub
 import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoroutineStub
 import org.wfanet.measurement.internal.duchy.ContinuationTokensGrpcKt.ContinuationTokensCoroutineStub
+import org.wfanet.measurement.internal.duchy.getComputationTokenRequest
 import org.wfanet.measurement.storage.StorageClient
 import org.wfanet.measurement.storage.testing.InMemoryStorageClient
 import org.wfanet.measurement.system.v1alpha.ComputationControlGrpcKt.ComputationControlCoroutineStub as SystemComputationControlCoroutineStub
@@ -81,6 +84,8 @@ import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.Computa
 import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineStub as SystemComputationParticipantsCoroutineStub
 import org.wfanet.measurement.system.v1alpha.ComputationsGrpcKt.ComputationsCoroutineStub as SystemComputationsCoroutineStub
 import org.wfanet.measurement.system.v1alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub as SystemRequisitionsCoroutineStub
+import io.grpc.Status
+import io.grpc.StatusException
 
 /**
  * TestRule that starts and stops all Duchy gRPC services and daemons.
@@ -162,6 +167,38 @@ class InProcessDuchy(
     ContinuationTokensCoroutineStub(computationsServer.channel)
       .withWaitForReady()
       .withDeadlineAfter(10, TimeUnit.MINUTES)
+  }
+
+  private suspend fun waitForComputationsReady() {
+    val request = getComputationTokenRequest { globalComputationId = 0L }
+    withTimeout(COMPUTATIONS_READY_TIMEOUT_MILLIS) {
+      var attempt = 0
+      while (true) {
+        try {
+          computationsClient.withDeadlineAfter(10, TimeUnit.SECONDS).getComputationToken(request)
+        } catch (e: StatusException) {
+          if (e.status.code == Status.Code.NOT_FOUND) {
+            return@withTimeout
+          }
+          if (
+            e.status.code != Status.Code.UNAVAILABLE &&
+              e.status.code != Status.Code.DEADLINE_EXCEEDED &&
+              e.status.code != Status.Code.CANCELLED
+          ) {
+            throw e
+          }
+        }
+        delay(computationsWaitDelayMillis(attempt))
+        attempt++
+      }
+    }
+  }
+
+  private fun computationsWaitDelayMillis(attempt: Int): Long {
+    val baseMillis = 250L
+    val maxMillis = 2_000L
+    val delayMillis = baseMillis * (1L shl attempt.coerceAtMost(3))
+    return delayMillis.coerceAtMost(maxMillis)
   }
 
   // TODO(@renjiez): Use real PrivateKeyStore when enabling HMSS.
@@ -280,9 +317,10 @@ class InProcessDuchy(
       )
     millJob =
       daemonScope.launch(CoroutineName("$externalDuchyId Mill")) {
+        waitForComputationsReady()
         val signingKey = SigningKeyHandle(consentSignal509Cert, signingPrivateKey)
         val workerStubs =
-        ALL_DUCHY_NAMES.minus(externalDuchyId).associateWith {
+          ALL_DUCHY_NAMES.minus(externalDuchyId).associateWith {
             val channel = computationControlChannel(it)
             SystemComputationControlCoroutineStub(channel)
               .withDuchyId(externalDuchyId)
