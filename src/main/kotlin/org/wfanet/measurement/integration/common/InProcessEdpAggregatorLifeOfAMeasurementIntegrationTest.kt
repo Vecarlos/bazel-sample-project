@@ -17,6 +17,7 @@ package org.wfanet.measurement.integration.common
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
+import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -172,6 +173,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
+        random = Random(1),
       )
   }
 

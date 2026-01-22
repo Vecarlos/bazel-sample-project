@@ -21,6 +21,7 @@ import java.time.Duration
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
+import kotlin.random.Random
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.DataProvider
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
@@ -85,6 +86,7 @@ class EventQueryMeasurementConsumerSimulator(
   private val eventRange: OpenEndTimeRange = DEFAULT_EVENT_RANGE,
   initialResultPollingDelay: Duration = Duration.ofSeconds(1),
   maximumResultPollingDelay: Duration = Duration.ofMinutes(1),
+  random: Random = Random.Default,
 ) :
   MeasurementConsumerSimulator(
     measurementConsumerData,
@@ -98,6 +100,7 @@ class EventQueryMeasurementConsumerSimulator(
     expectedDirectNoiseMechanism,
     initialResultPollingDelay,
     maximumResultPollingDelay,
+    random = random,
   ) {
 
   override fun Flow<EventGroup>.filterEventGroups(): Flow<EventGroup> {
