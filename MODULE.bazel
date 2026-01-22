@@ -374,6 +374,18 @@ pip.parse(
     python_version = PYTHON_VERSION,
     requirements_lock = "//:requirements_lock.txt",
 )
+
+local_runtime_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_repo",
+)
+
+local_runtime_repo(
+    name = "system_python",
+    interpreter_path = "python3.11",  # or "python3" if that's what exists in CI
+    on_failure = "fail",
+)
+
 use_repo(pip, "pip")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
@@ -436,4 +448,9 @@ http_archive(
 single_version_override(
     module_name = "boringssl",
     version = BORINGSSL_VERSION,
+)
+
+single_version_override(
+    module_name = "protobuf",
+    version = "32.0",
 )
