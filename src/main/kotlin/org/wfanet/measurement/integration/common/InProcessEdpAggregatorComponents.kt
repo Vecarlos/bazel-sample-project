@@ -366,6 +366,24 @@ class InProcessEdpAggregatorComponents(
     backgroundScope.launch { resultFulfillerApp.run() }
   }
 
+  fun startRequisitionFetchers(
+    iterations: Int,
+    interval: Duration = Duration.ZERO,
+  ): Job {
+    return backgroundScope.launch {
+      requisitionFetchers.forEach { requisitionFetcher ->
+        launch {
+          repeat(iterations) {
+            requisitionFetcher.fetchAndStoreRequisitions()
+            if (!interval.isZero) {
+              delay(interval.toMillis())
+            }
+          }
+        }
+      }
+    }
+  }
+
   suspend fun runRequisitionFetchers(iterations: Int, interval: Duration = Duration.ZERO) {
     if (iterations <= 0) return
     repeat(iterations) {

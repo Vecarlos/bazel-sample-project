@@ -16,9 +16,9 @@ package org.wfanet.measurement.integration.common
 
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.time.Duration
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Job
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -147,6 +147,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
 
+  private var requisitionFetcherJob: Job? = null
+
   private fun initMcSimulator() {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     mcSimulator =
@@ -175,10 +177,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           .toName(),
         modelLineName = modelLineName,
         onMeasurementsCreated = {
-          inProcessEdpAggregatorComponents.runRequisitionFetchers(
-            iterations = 5,
-            interval = Duration.ofSeconds(1),
-          )
+          if (requisitionFetcherJob == null) {
+            requisitionFetcherJob =
+              inProcessEdpAggregatorComponents.startRequisitionFetchers(
+                iterations = 300,
+                interval = java.time.Duration.ofSeconds(1),
+              )
+          }
         },
       )
   }
