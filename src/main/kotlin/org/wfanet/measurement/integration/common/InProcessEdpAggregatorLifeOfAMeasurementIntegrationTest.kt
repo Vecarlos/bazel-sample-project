@@ -193,6 +193,22 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   private fun touchErrorInfoConversions() {
     if (errorInfoTouched) return
+    val missingInfoException = Status.INVALID_ARGUMENT.asException()
+    Status.INVALID_ARGUMENT.withDescription("bad request")
+      .toExternalStatusRuntimeException(missingInfoException)
+    val wrongDomainInfo = errorInfo {
+      domain = "wrong.domain"
+      reason = ErrorCode.REQUIRED_FIELD_NOT_SET.name
+      metadata["field_name"] = "foo"
+    }
+    val wrongDomainStatus = status {
+      code = Status.INVALID_ARGUMENT.code.value()
+      message = "internal"
+      details += Any.pack(wrongDomainInfo)
+    }
+    val wrongDomainException = StatusProto.toStatusException(wrongDomainStatus)
+    Status.INVALID_ARGUMENT.withDescription("bad request")
+      .toExternalStatusRuntimeException(wrongDomainException)
     val internalInfo = errorInfo {
       domain = ErrorCode.getDescriptor().fullName
       reason = ErrorCode.REQUIRED_FIELD_NOT_SET.name
