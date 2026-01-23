@@ -125,7 +125,6 @@ class InProcessEdpAggregatorComponents(
   private val autoStartDataWatcher: Boolean = true,
   private val autoStartResultsFulfiller: Boolean = true,
   private val resultsFulfillerMaxMessages: Int? = null,
-  private val resultsFulfillerIdleTimeout: Duration = Duration.ZERO,
 ) : TestRule {
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
@@ -385,19 +384,11 @@ class InProcessEdpAggregatorComponents(
   fun startResultsFulfiller(maxMessages: Int? = resultsFulfillerMaxMessages): Job {
     return backgroundScope.launch {
       if (maxMessages != null) {
-        resultFulfillerApp.runWithLimit(maxMessages, resultsFulfillerIdleTimeout)
+        resultFulfillerApp.runWithLimit(maxMessages)
       } else {
         resultFulfillerApp.run()
       }
     }
-  }
-
-  suspend fun runResultsFulfiller(
-    maxMessages: Int,
-    idleTimeout: Duration = resultsFulfillerIdleTimeout,
-  ) {
-    if (maxMessages <= 0) return
-    resultFulfillerApp.runWithLimit(maxMessages, idleTimeout)
   }
 
   fun startRequisitionFetchers(
@@ -427,24 +418,6 @@ class InProcessEdpAggregatorComponents(
       }
     }
   }
-
-  fun startDeterministicStepper(
-    iterations: Int,
-    interval: Duration,
-    maxMessagesPerIteration: Int = 1,
-    resultsIdleTimeout: Duration = Duration.ofSeconds(1),
-  ): Job {
-    return backgroundScope.launch {
-      repeat(iterations) {
-        runRequisitionFetchers(iterations = 1)
-        runResultsFulfiller(maxMessages = maxMessagesPerIteration, idleTimeout = resultsIdleTimeout)
-        if (!interval.isZero) {
-          delay(interval.toMillis())
-        }
-      }
-    }
-  }
-
 
   private fun startRequisitionFetcherLoop(requisitionFetcher: RequisitionFetcher) {
     val iterations = requisitionFetcherLoopIterations
