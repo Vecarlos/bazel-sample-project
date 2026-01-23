@@ -180,6 +180,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
+        maximumResultPollingDelay = java.time.Duration.ofSeconds(5),
         onMeasurementsCreated = {
           if (!dataWatcherStarted) {
             inProcessEdpAggregatorComponents.startDataWatcher()
@@ -187,10 +188,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           }
         },
         onResultPolling = {
-          inProcessEdpAggregatorComponents.runRequisitionFetchers(iterations = 1)
+          inProcessEdpAggregatorComponents.runRequisitionFetchers(iterations = 3)
           inProcessEdpAggregatorComponents.runResultsFulfiller(
-            maxMessages = 5,
-            idleTimeout = java.time.Duration.ofMillis(200),
+            maxMessages = 50,
+            idleTimeout = java.time.Duration.ofSeconds(1),
           )
         },
       )
