@@ -1394,23 +1394,23 @@ abstract class MeasurementConsumerSimulator(
     }
   }
 
-  private suspend inline fun pollForResult(getResult: () -> Result?): Result {
+  private suspend fun pollForResult(getResult: suspend () -> Result?): Result {
     return pollForResult(getResult) { it != null }!!
   }
 
-  private suspend inline fun <T> pollForResults(getResults: () -> List<T>): List<T> {
+  private suspend fun <T> pollForResults(getResults: suspend () -> List<T>): List<T> {
     return pollForResult(getResults) { it.isNotEmpty() }
   }
 
-  private suspend inline fun <T> pollForResultOrNull(
+  private suspend fun <T> pollForResultOrNull(
     timeout: Duration,
-    getResult: () -> T,
+    getResult: suspend () -> T,
     done: (T) -> Boolean,
   ): T? {
-    return withTimeoutOrNull(timeout) { pollForResult(getResult, done) }
+    return withTimeoutOrNull(timeout.toMillis()) { pollForResult(getResult, done) }
   }
 
-  private suspend inline fun <T> pollForResult(getResult: () -> T, done: (T) -> Boolean): T {
+  private suspend fun <T> pollForResult(getResult: suspend () -> T, done: (T) -> Boolean): T {
     val backoff =
       ExponentialBackoff(initialDelay = initialResultPollingDelay, randomnessFactor = 0.0)
     var attempt = 1
