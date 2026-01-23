@@ -247,14 +247,14 @@ class InProcessEdpAggregatorComponents(
     kingdomChannel: Channel,
     measurementConsumerData: MeasurementConsumerData,
     edpDisplayNameToResourceMap: Map<String, Resource>,
-    edpAggregatorShortNames: List<String>,
+    edpShortNames: List<String>,
     duchyMap: Map<String, Channel>,
   ) = runBlocking {
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
-    this.edpAggregatorShortNames = edpAggregatorShortNames
+    edpAggregatorShortNames = edpShortNames
     edpResourceNameMap =
-      edpAggregatorShortNames.associateWith { edpAggregatorShortName ->
+      edpShortNames.associateWith { edpAggregatorShortName ->
         edpDisplayNameToResourceMap.getValue(edpAggregatorShortName).name
       }
     edpResourceNameMap.toList().forEach { (edpAggregatorShortName, edpResourceName) ->
