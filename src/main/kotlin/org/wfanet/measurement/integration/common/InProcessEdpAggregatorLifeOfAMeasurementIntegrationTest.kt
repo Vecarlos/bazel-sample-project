@@ -14,6 +14,11 @@
 
 package org.wfanet.measurement.integration.common
 
+import com.google.protobuf.Any
+import com.google.rpc.errorInfo
+import com.google.rpc.status
+import io.grpc.Status
+import io.grpc.protobuf.StatusProto
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
@@ -41,6 +46,7 @@ import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.Synthetic
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
 import org.wfanet.measurement.common.getRuntimePath
+import org.wfanet.measurement.common.grpc.errorInfo
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
@@ -48,10 +54,12 @@ import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMem
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
+import org.wfanet.measurement.internal.kingdom.ErrorCode
 import org.wfanet.measurement.internal.kingdom.Measurement as InternalMeasurement
 import org.wfanet.measurement.kingdom.deploy.common.service.DataServices
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toInternalState
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toState
+import org.wfanet.measurement.kingdom.service.api.v2alpha.toExternalStatusRuntimeException
 import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurementConsumerSimulator
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
@@ -134,6 +142,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     touchMeasurementStateConversions()
+    touchErrorInfoConversions()
     initMcSimulator()
   }
 
@@ -159,6 +168,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private var resultsFulfillerJob: Job? = null
   private var dataWatcherStarted = false
   private var stateConversionsTouched = false
+  private var errorInfoTouched = false
 
   private fun touchMeasurementStateConversions() {
     if (stateConversionsTouched) return
@@ -179,6 +189,27 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     V2AlphaMeasurementState.STATE_UNSPECIFIED.toInternalState()
     V2AlphaMeasurementState.UNRECOGNIZED.toInternalState()
     stateConversionsTouched = true
+  }
+
+  private fun touchErrorInfoConversions() {
+    if (errorInfoTouched) return
+    val internalInfo = errorInfo {
+      domain = ErrorCode.getDescriptor().fullName
+      reason = ErrorCode.REQUIRED_FIELD_NOT_SET.name
+      metadata["field_name"] = "foo"
+    }
+    val statusProto = status {
+      code = Status.INVALID_ARGUMENT.code.value()
+      message = "internal"
+      details += Any.pack(internalInfo)
+    }
+    val internalException = StatusProto.toStatusException(statusProto)
+    Status.INVALID_ARGUMENT.withDescription("bad request")
+      .toExternalStatusRuntimeException(internalException)
+    Status.INVALID_ARGUMENT.asException().errorInfo
+    Status.INVALID_ARGUMENT.asRuntimeException().errorInfo
+    StatusProto.toStatusRuntimeException(statusProto).errorInfo
+    errorInfoTouched = true
   }
 
   private fun initMcSimulator() {
