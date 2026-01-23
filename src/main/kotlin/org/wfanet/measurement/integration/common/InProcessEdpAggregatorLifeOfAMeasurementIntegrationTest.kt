@@ -154,7 +154,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private var requisitionFetcherJob: Job? = null
   private var resultsFulfillerJob: Job? = null
   private var dataWatcherStarted = false
-  private var groupedRequisitionsReady = false
 
   private fun initMcSimulator() {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
@@ -197,12 +196,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
                 iterations = 300,
                 interval = java.time.Duration.ofSeconds(1),
               )
-          }
-          if (!groupedRequisitionsReady) {
-            inProcessEdpAggregatorComponents.waitForGroupedRequisitions(
-              timeout = java.time.Duration.ofSeconds(60),
-            )
-            groupedRequisitionsReady = true
           }
         },
       )
