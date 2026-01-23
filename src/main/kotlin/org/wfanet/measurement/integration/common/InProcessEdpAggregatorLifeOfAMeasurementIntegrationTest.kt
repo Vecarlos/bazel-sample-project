@@ -15,6 +15,7 @@
 package org.wfanet.measurement.integration.common
 
 import com.google.protobuf.Any
+import com.google.protobuf.kotlin.toByteString
 import com.google.rpc.errorInfo
 import com.google.rpc.status
 import io.grpc.Channel
@@ -37,6 +38,7 @@ import org.junit.runners.model.Statement
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
+import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineImplBase
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.ListRequisitionsRequest
 import org.wfanet.measurement.api.v2alpha.Measurement.State as V2AlphaMeasurementState
@@ -46,6 +48,7 @@ import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCorouti
 import org.wfanet.measurement.api.v2alpha.PopulationSpec
 import org.wfanet.measurement.api.v2alpha.ProtocolConfig.NoiseMechanism
 import org.wfanet.measurement.api.v2alpha.Requisition
+import org.wfanet.measurement.api.v2alpha.eventGroup
 import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as PublicRequisitionsService
 import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.differentialPrivacyParams
@@ -73,8 +76,16 @@ import org.wfanet.measurement.duchy.storage.RequisitionStore
 import org.wfanet.measurement.duchy.toProtocolStage
 import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionFetcher
 import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionGrouper
+import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionGrouperByReportId
 import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionsValidator
+import org.wfanet.measurement.edpaggregator.requisitionfetcher.testing.TestRequisitionData
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
+import org.wfanet.measurement.edpaggregator.v1alpha.GroupedRequisitions
+import org.wfanet.measurement.edpaggregator.v1alpha.RequisitionMetadata
+import org.wfanet.measurement.edpaggregator.v1alpha.RequisitionMetadataServiceGrpcKt.RequisitionMetadataServiceCoroutineImplBase
+import org.wfanet.measurement.edpaggregator.v1alpha.RequisitionMetadataServiceGrpcKt.RequisitionMetadataServiceCoroutineStub
+import org.wfanet.measurement.edpaggregator.v1alpha.listRequisitionMetadataResponse
+import org.wfanet.measurement.edpaggregator.v1alpha.requisitionMetadata
 import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMemoryVidIndexMap
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
@@ -304,6 +315,36 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         computationDetails = coverageComputationDetails
         blobs += newEmptyOutputBlobMetadata(1L)
       }
+    val grouperStoragePathPrefix = "coverage-grouper"
+    val grouperBlobUriPrefix = "coverage://"
+    val grouperReportId = TestRequisitionData.MEASUREMENT_SPEC.reportingMetadata.report
+    val grouperMissingGroupId = "coverage-group-missing"
+    val grouperPresentGroupId = "coverage-group-present"
+    val grouperStorageClient = FileSystemStorageClient(tempPath.toFile())
+    val grouperBlobKey = "$grouperStoragePathPrefix/$grouperPresentGroupId"
+    val grouperMetadataList =
+      listOf(
+        requisitionMetadata {
+          state = RequisitionMetadata.State.STORED
+          cmmsRequisition = TestRequisitionData.REQUISITION.name
+          blobUri = "$grouperBlobUriPrefix/$grouperStoragePathPrefix/$grouperMissingGroupId"
+          blobTypeUrl = "type.googleapis.com/coverage"
+          groupId = grouperMissingGroupId
+          report = grouperReportId
+        },
+        requisitionMetadata {
+          state = RequisitionMetadata.State.STORED
+          cmmsRequisition = "${TestRequisitionData.EDP_NAME}/requisitions/other"
+          blobUri = "$grouperBlobUriPrefix/$grouperStoragePathPrefix/$grouperPresentGroupId"
+          blobTypeUrl = "type.googleapis.com/coverage"
+          groupId = grouperPresentGroupId
+          report = grouperReportId
+        },
+      )
+    grouperStorageClient.writeBlob(
+      grouperBlobKey,
+      Any.pack(GroupedRequisitions.getDefaultInstance()).toByteString(),
+    )
     withGrpcTestServer(
       addServices = {
         addService(
@@ -316,6 +357,37 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           object : PublicRequisitionsService() {
             override suspend fun listRequisitions(request: ListRequisitionsRequest) =
               throw Status.INVALID_ARGUMENT.asException()
+
+            override suspend fun refuseRequisition(
+              request: org.wfanet.measurement.api.v2alpha.RefuseRequisitionRequest
+            ) = Requisition.getDefaultInstance()
+          }
+        )
+        addService(
+          object : EventGroupsCoroutineImplBase() {
+            override suspend fun getEventGroup(
+              request: org.wfanet.measurement.api.v2alpha.GetEventGroupRequest
+            ) =
+              eventGroup {
+                name = request.name
+                eventGroupReferenceId = "coverage-event-group-ref"
+              }
+          }
+        )
+        addService(
+          object : RequisitionMetadataServiceCoroutineImplBase() {
+            override suspend fun listRequisitionMetadata(
+              request: org.wfanet.measurement.edpaggregator.v1alpha.ListRequisitionMetadataRequest
+            ) =
+              listRequisitionMetadataResponse { requisitionMetadata += grouperMetadataList }
+
+            override suspend fun createRequisitionMetadata(
+              request: org.wfanet.measurement.edpaggregator.v1alpha.CreateRequisitionMetadataRequest
+            ) = request.requisitionMetadata
+
+            override suspend fun refuseRequisitionMetadata(
+              request: org.wfanet.measurement.edpaggregator.v1alpha.RefuseRequisitionMetadataRequest
+            ) = RequisitionMetadata.getDefaultInstance()
           }
         )
         addService(
@@ -347,6 +419,12 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         computationStage = coverageComputationStage,
       )
       touchAsyncComputationControlRetry(channel, asyncComputationToken)
+      touchRequisitionGrouperByReportId(
+        channel,
+        grouperStorageClient,
+        grouperStoragePathPrefix,
+        grouperBlobUriPrefix,
+      )
     }
     touchSpannerComputationsTransactorVersionMismatch(coverageComputationDetails)
   }
@@ -526,6 +604,33 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
     try {
       runBlocking { computationsStub.updateComputationDetails(staleRequest) }
+    } catch (_: Exception) {
+    }
+  }
+
+  private fun touchRequisitionGrouperByReportId(
+    channel: Channel,
+    storageClient: FileSystemStorageClient,
+    storagePathPrefix: String,
+    blobUriPrefix: String,
+  ) {
+    val validator = RequisitionsValidator(TestRequisitionData.EDP_DATA.privateEncryptionKey)
+    val throttler = MinimumIntervalThrottler(java.time.Clock.systemUTC(), java.time.Duration.ZERO)
+    val grouper =
+      RequisitionGrouperByReportId(
+        requisitionValidator = validator,
+        dataProviderName = TestRequisitionData.EDP_NAME,
+        blobUriPrefix = blobUriPrefix,
+        requisitionMetadataStub = RequisitionMetadataServiceCoroutineStub(channel),
+        storageClient = storageClient,
+        responsePageSize = 100,
+        storagePathPrefix = storagePathPrefix,
+        throttler = throttler,
+        eventGroupsClient = EventGroupsCoroutineStub(channel),
+        requisitionsClient = RequisitionsCoroutineStub(channel),
+      )
+    try {
+      runBlocking { grouper.groupRequisitions(listOf(TestRequisitionData.REQUISITION)) }
     } catch (_: Exception) {
     }
   }
