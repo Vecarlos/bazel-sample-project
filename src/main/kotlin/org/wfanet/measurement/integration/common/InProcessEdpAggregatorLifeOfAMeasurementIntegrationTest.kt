@@ -17,6 +17,7 @@ package org.wfanet.measurement.integration.common
 import com.google.protobuf.Any
 import com.google.rpc.errorInfo
 import com.google.rpc.status
+import io.grpc.Channel
 import io.grpc.Status
 import io.grpc.protobuf.StatusProto
 import java.nio.file.Path
@@ -31,39 +32,71 @@ import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.ListRequisitionsRequest
 import org.wfanet.measurement.api.v2alpha.Measurement.State as V2AlphaMeasurementState
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.PopulationSpec
 import org.wfanet.measurement.api.v2alpha.ProtocolConfig.NoiseMechanism
+import org.wfanet.measurement.api.v2alpha.Requisition
+import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as PublicRequisitionsService
+import org.wfanet.measurement.api.v2alpha.RequisitionsGrpcKt.RequisitionsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.differentialPrivacyParams
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticEventGroupSpec
 import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.SyntheticPopulationSpec
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
+import org.wfanet.measurement.api.v2alpha.listRequisitionsRequest
+import org.wfanet.measurement.api.v2alpha.withDataProviderPrincipal
+import org.wfanet.measurement.common.ExponentialBackoff
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.grpc.errorInfo
+import org.wfanet.measurement.common.grpc.testing.GrpcTestServerRule
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
+import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
+import org.wfanet.measurement.duchy.db.computation.ComputationDataClients
+import org.wfanet.measurement.duchy.mill.Certificate
+import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionFetcher
+import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionGrouper
+import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionsValidator
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
 import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMemoryVidIndexMap
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
+import org.wfanet.measurement.internal.duchy.ComputationStage
+import org.wfanet.measurement.internal.duchy.ComputationStatsGrpcKt.ComputationStatsCoroutineStub
+import org.wfanet.measurement.internal.duchy.ComputationToken
+import org.wfanet.measurement.internal.duchy.ComputationTypeEnum.ComputationType
+import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoroutineStub as InternalComputationsCoroutineStub
+import org.wfanet.measurement.internal.duchy.computationToken
 import org.wfanet.measurement.internal.kingdom.ErrorCode
+import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as InternalRequisitionsService
+import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineStub as InternalRequisitionsCoroutineStub
+import org.wfanet.measurement.internal.kingdom.StreamRequisitionsRequest
 import org.wfanet.measurement.internal.kingdom.Measurement as InternalMeasurement
 import org.wfanet.measurement.kingdom.deploy.common.service.DataServices
+import org.wfanet.measurement.kingdom.service.api.v2alpha.RequisitionsService
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toInternalState
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toState
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toExternalStatusRuntimeException
 import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurementConsumerSimulator
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
+import org.wfanet.measurement.storage.filesystem.FileSystemStorageClient
 import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
+import org.wfanet.measurement.system.v1alpha.ComputationParticipant
+import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineImplBase
+import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineStub
+import org.wfanet.measurement.system.v1alpha.ComputationsGrpcKt.ComputationsCoroutineStub as SystemComputationsCoroutineStub
+import org.wfanet.measurement.system.v1alpha.GetComputationParticipantRequest
 
 /**
  * Test that everything is wired up properly.
@@ -144,6 +177,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     touchMeasurementStateConversions()
     touchErrorInfoConversions()
     initMcSimulator()
+    if (!coverageTouchesDone) {
+      coverageTouchesDone = true
+      runCoverageTouches(edpDisplayNameToResourceMap.getValue("edp1").name)
+    }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -226,6 +263,169 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     Status.INVALID_ARGUMENT.asRuntimeException().errorInfo
     StatusProto.toStatusRuntimeException(statusProto).errorInfo
     errorInfoTouched = true
+  }
+
+  private fun runCoverageTouches(dataProviderName: String) {
+    withGrpcTestServer(
+      addServices = {
+        addService(
+          object : InternalRequisitionsService() {
+            override fun streamRequisitions(request: StreamRequisitionsRequest) =
+              throw Status.INVALID_ARGUMENT.asException()
+          }
+        )
+        addService(
+          object : PublicRequisitionsService() {
+            override suspend fun listRequisitions(request: ListRequisitionsRequest) =
+              throw Status.INVALID_ARGUMENT.asException()
+          }
+        )
+        addService(
+          object : ComputationParticipantsCoroutineImplBase() {
+            override suspend fun getComputationParticipant(
+              request: GetComputationParticipantRequest
+            ): ComputationParticipant = throw Status.UNAVAILABLE.asException()
+          }
+        )
+      }
+    ) { channel ->
+      touchRequisitionsServiceErrorHandling(channel, dataProviderName)
+      touchRequisitionFetcherErrorHandling(channel, dataProviderName)
+      touchMillRetryHandling(channel)
+    }
+  }
+
+  private fun withGrpcTestServer(
+    addServices: GrpcTestServerRule.Builder.() -> Unit,
+    block: (Channel) -> Unit,
+  ) {
+    val rule = GrpcTestServerRule(addServices = addServices)
+    val statement =
+      object : Statement() {
+        override fun evaluate() {
+          block(rule.channel)
+        }
+      }
+    rule
+      .apply(
+        statement,
+        Description.createTestDescription(
+          InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest::class.java,
+          "coverage-touches",
+        ),
+      )
+      .evaluate()
+  }
+
+  private fun touchRequisitionsServiceErrorHandling(channel: Channel, dataProviderName: String) {
+    val stub = InternalRequisitionsCoroutineStub(channel)
+    val service = RequisitionsService(stub)
+    val request = listRequisitionsRequest { parent = dataProviderName }
+    try {
+      withDataProviderPrincipal(dataProviderName) {
+        runBlocking { service.listRequisitions(request) }
+      }
+    } catch (_: Exception) {
+    }
+  }
+
+  private fun touchRequisitionFetcherErrorHandling(channel: Channel, dataProviderName: String) {
+    val stub = RequisitionsCoroutineStub(channel)
+    val storageClient = FileSystemStorageClient(tempPath.toFile())
+    val validator = RequisitionsValidator(InProcessCmmsComponents.MC_ENCRYPTION_PRIVATE_KEY)
+    val throttler = MinimumIntervalThrottler(java.time.Clock.systemUTC(), java.time.Duration.ZERO)
+    val grouper =
+      object :
+        RequisitionGrouper(
+          validator,
+          stub,
+          EventGroupsCoroutineStub(channel),
+          throttler,
+        ) {
+        override suspend fun createGroupedRequisitions(
+          requisitions: List<Requisition>
+        ): List<org.wfanet.measurement.edpaggregator.v1alpha.GroupedRequisitions> = emptyList()
+      }
+    val fetcher =
+      RequisitionFetcher(
+        requisitionsStub = stub,
+        storageClient = storageClient,
+        dataProviderName = dataProviderName,
+        storagePathPrefix = "coverage-touches",
+        requisitionGrouper = grouper,
+      )
+    try {
+      runBlocking { fetcher.fetchAndStoreRequisitions() }
+    } catch (_: Exception) {
+    }
+  }
+
+  private fun touchMillRetryHandling(channel: Channel) {
+    val dataClients =
+      ComputationDataClients(
+        InternalComputationsCoroutineStub(channel),
+        FileSystemStorageClient(tempPath.toFile()),
+      )
+    val certificate =
+      Certificate(
+        "coverage-cert",
+        InProcessCmmsComponents.TRUSTED_CERTIFICATES.values.first(),
+      )
+    val mill =
+      CoverageMill(
+        dataClients = dataClients,
+        systemComputationParticipantsClient = ComputationParticipantsCoroutineStub(channel),
+        systemComputationsClient = SystemComputationsCoroutineStub(channel),
+        systemComputationLogEntriesClient = ComputationLogEntriesCoroutineStub(channel),
+        computationStatsClient = ComputationStatsCoroutineStub(channel),
+        signingKey = InProcessCmmsComponents.MC_ENTITY_CONTENT.signingKey,
+        consentSignalCert = certificate,
+      )
+    val token = computationToken { globalComputationId = "coverage-touch" }
+    try {
+      runBlocking { mill.touchUpdateComputationParticipant(token) }
+    } catch (_: ComputationDataClients.PermanentErrorException) {
+    }
+  }
+
+  private class CoverageMill(
+    dataClients: ComputationDataClients,
+    systemComputationParticipantsClient: ComputationParticipantsCoroutineStub,
+    systemComputationsClient: SystemComputationsCoroutineStub,
+    systemComputationLogEntriesClient: ComputationLogEntriesCoroutineStub,
+    computationStatsClient: ComputationStatsCoroutineStub,
+    signingKey: org.wfanet.measurement.common.crypto.SigningKeyHandle,
+    consentSignalCert: Certificate,
+  ) :
+    org.wfanet.measurement.duchy.mill.MillBase(
+      millId = "coverage-mill",
+      duchyId = "coverage-duchy",
+      signingKey = signingKey,
+      consentSignalCert = consentSignalCert,
+      dataClients = dataClients,
+      systemComputationParticipantsClient = systemComputationParticipantsClient,
+      systemComputationsClient = systemComputationsClient,
+      systemComputationLogEntriesClient = systemComputationLogEntriesClient,
+      computationStatsClient = computationStatsClient,
+      computationType = ComputationType.UNSPECIFIED,
+      workLockDuration = java.time.Duration.ofSeconds(1),
+      requestChunkSizeBytes = 1,
+      maximumAttempts = 1,
+      clock = java.time.Clock.systemUTC(),
+      rpcRetryBackoff =
+        ExponentialBackoff(
+          initialDelay = java.time.Duration.ofMillis(1),
+          randomnessFactor = 0.0,
+        ),
+      rpcMaxAttempts = 2,
+    ) {
+    override val endingStage: ComputationStage = ComputationStage.getDefaultInstance()
+
+    override suspend fun processComputationImpl(token: ComputationToken) = Unit
+
+    suspend fun touchUpdateComputationParticipant(token: ComputationToken) {
+      updateComputationParticipant(token) {}
+    }
   }
 
   private fun initMcSimulator() {
@@ -338,6 +538,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
+    private var coverageTouchesDone = false
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
     // Epsilon can vary from 0.0001 to 1.0, delta = 1e-15 is a realistic value.
