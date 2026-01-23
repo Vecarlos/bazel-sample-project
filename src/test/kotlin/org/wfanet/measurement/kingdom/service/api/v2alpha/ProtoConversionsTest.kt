@@ -19,6 +19,7 @@ import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.wfanet.measurement.api.v2alpha.Measurement.State as V2AlphaMeasurementState
 import org.wfanet.measurement.api.v2alpha.ExchangeWorkflow.Party as V2AlphaParty
 import org.wfanet.measurement.api.v2alpha.ExchangeWorkflowKt.StepKt.copyFromPreviousExchangeStep as v2AlphaCopyFromPreviousExchangeStorageStep
 import org.wfanet.measurement.api.v2alpha.ExchangeWorkflowKt.StepKt.copyFromSharedStorageStep as v2AlphaCopyFromSharedStorageStep
@@ -28,6 +29,7 @@ import org.wfanet.measurement.api.v2alpha.ExchangeWorkflowKt.step as v2AlphaStep
 import org.wfanet.measurement.api.v2alpha.exchangeWorkflow as v2AlphaWorkflow
 import org.wfanet.measurement.internal.kingdom.ExchangeWorkflow.Party as InternalParty
 import org.wfanet.measurement.internal.kingdom.ExchangeWorkflow.Step as InternalExchangeStep
+import org.wfanet.measurement.internal.kingdom.Measurement as InternalMeasurement
 import org.wfanet.measurement.internal.kingdom.ExchangeWorkflowKt.step as internalStep
 import org.wfanet.measurement.internal.kingdom.copy
 import org.wfanet.measurement.internal.kingdom.exchangeWorkflow as internalWorkflow
@@ -190,6 +192,53 @@ class ProtoConversionsTest {
             )
         }
       )
+  }
+
+  @Test
+  fun `InternalMeasurement State toState maps consistently`() {
+    assertThat(InternalMeasurement.State.PENDING_REQUISITION_PARAMS.toState())
+      .isEqualTo(V2AlphaMeasurementState.AWAITING_REQUISITION_FULFILLMENT)
+    assertThat(InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT.toState())
+      .isEqualTo(V2AlphaMeasurementState.AWAITING_REQUISITION_FULFILLMENT)
+    assertThat(InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION.toState())
+      .isEqualTo(V2AlphaMeasurementState.COMPUTING)
+    assertThat(InternalMeasurement.State.PENDING_COMPUTATION.toState())
+      .isEqualTo(V2AlphaMeasurementState.COMPUTING)
+    assertThat(InternalMeasurement.State.SUCCEEDED.toState())
+      .isEqualTo(V2AlphaMeasurementState.SUCCEEDED)
+    assertThat(InternalMeasurement.State.FAILED.toState()).isEqualTo(V2AlphaMeasurementState.FAILED)
+    assertThat(InternalMeasurement.State.CANCELLED.toState())
+      .isEqualTo(V2AlphaMeasurementState.CANCELLED)
+    assertThat(InternalMeasurement.State.STATE_UNSPECIFIED.toState())
+      .isEqualTo(V2AlphaMeasurementState.STATE_UNSPECIFIED)
+    assertThat(InternalMeasurement.State.UNRECOGNIZED.toState())
+      .isEqualTo(V2AlphaMeasurementState.STATE_UNSPECIFIED)
+  }
+
+  @Test
+  fun `Measurement State toInternalState maps consistently`() {
+    assertThat(V2AlphaMeasurementState.AWAITING_REQUISITION_FULFILLMENT.toInternalState())
+      .containsExactly(
+        InternalMeasurement.State.PENDING_REQUISITION_PARAMS,
+        InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT,
+      )
+      .inOrder()
+    assertThat(V2AlphaMeasurementState.COMPUTING.toInternalState())
+      .containsExactly(
+        InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION,
+        InternalMeasurement.State.PENDING_COMPUTATION,
+      )
+      .inOrder()
+    assertThat(V2AlphaMeasurementState.SUCCEEDED.toInternalState())
+      .containsExactly(InternalMeasurement.State.SUCCEEDED)
+    assertThat(V2AlphaMeasurementState.FAILED.toInternalState())
+      .containsExactly(InternalMeasurement.State.FAILED)
+    assertThat(V2AlphaMeasurementState.CANCELLED.toInternalState())
+      .containsExactly(InternalMeasurement.State.CANCELLED)
+    assertThat(V2AlphaMeasurementState.STATE_UNSPECIFIED.toInternalState())
+      .containsExactly(InternalMeasurement.State.STATE_UNSPECIFIED)
+    assertThat(V2AlphaMeasurementState.UNRECOGNIZED.toInternalState())
+      .containsExactly(InternalMeasurement.State.STATE_UNSPECIFIED)
   }
 }
 

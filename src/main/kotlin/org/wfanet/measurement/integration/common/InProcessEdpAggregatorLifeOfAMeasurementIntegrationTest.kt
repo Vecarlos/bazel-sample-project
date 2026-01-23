@@ -30,6 +30,7 @@ import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCorouti
 import org.wfanet.measurement.api.v2alpha.DataProviderKt
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.Measurement.State as V2AlphaMeasurementState
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCoroutineStub
@@ -47,7 +48,10 @@ import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMem
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
+import org.wfanet.measurement.internal.kingdom.Measurement as InternalMeasurement
 import org.wfanet.measurement.kingdom.deploy.common.service.DataServices
+import org.wfanet.measurement.kingdom.service.api.v2alpha.toInternalState
+import org.wfanet.measurement.kingdom.service.api.v2alpha.toState
 import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurementConsumerSimulator
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
@@ -129,6 +133,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       listOf("edp1", "edp2"),
       duchyMap,
     )
+    touchMeasurementStateConversions()
     initMcSimulator()
   }
 
@@ -153,6 +158,28 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private var requisitionFetcherJob: Job? = null
   private var resultsFulfillerJob: Job? = null
   private var dataWatcherStarted = false
+  private var stateConversionsTouched = false
+
+  private fun touchMeasurementStateConversions() {
+    if (stateConversionsTouched) return
+    InternalMeasurement.State.PENDING_REQUISITION_PARAMS.toState()
+    InternalMeasurement.State.PENDING_REQUISITION_FULFILLMENT.toState()
+    InternalMeasurement.State.PENDING_PARTICIPANT_CONFIRMATION.toState()
+    InternalMeasurement.State.PENDING_COMPUTATION.toState()
+    InternalMeasurement.State.SUCCEEDED.toState()
+    InternalMeasurement.State.FAILED.toState()
+    InternalMeasurement.State.CANCELLED.toState()
+    InternalMeasurement.State.STATE_UNSPECIFIED.toState()
+    InternalMeasurement.State.UNRECOGNIZED.toState()
+    V2AlphaMeasurementState.AWAITING_REQUISITION_FULFILLMENT.toInternalState()
+    V2AlphaMeasurementState.COMPUTING.toInternalState()
+    V2AlphaMeasurementState.SUCCEEDED.toInternalState()
+    V2AlphaMeasurementState.FAILED.toInternalState()
+    V2AlphaMeasurementState.CANCELLED.toInternalState()
+    V2AlphaMeasurementState.STATE_UNSPECIFIED.toInternalState()
+    V2AlphaMeasurementState.UNRECOGNIZED.toInternalState()
+    stateConversionsTouched = true
+  }
 
   private fun initMcSimulator() {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
