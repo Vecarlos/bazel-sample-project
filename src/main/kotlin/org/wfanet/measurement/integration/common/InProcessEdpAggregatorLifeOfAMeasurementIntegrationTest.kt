@@ -107,7 +107,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       requisitionFetcherLoopIterations = 0,
       autoStartDataWatcher = false,
       autoStartResultsFulfiller = false,
-      resultsFulfillerMaxMessages = 500,
+      resultsFulfillerMaxMessages = 1000,
+      resultsFulfillerIdleTimeout = java.time.Duration.ofSeconds(60),
     )
 
   @Before

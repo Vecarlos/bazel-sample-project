@@ -25,6 +25,7 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.withTimeoutOrNull
 import org.wfanet.measurement.common.grpc.errorInfo
 import org.wfanet.measurement.queue.QueueSubscriber
 import org.wfanet.measurement.securecomputation.controlplane.v1alpha.WorkItem
@@ -62,7 +63,7 @@ abstract class BaseTeeApplication(
   }
 
   /** Runs the application for a bounded number of messages, then returns. */
-  suspend fun runWithLimit(maxMessages: Int) {
+  suspend fun runWithLimit(maxMessages: Int, idleTimeout: java.time.Duration = java.time.Duration.ZERO) {
     if (maxMessages <= 0) return
     logger.info(
       "Starting BaseTeeApplication for subscription: $subscriptionId (maxMessages=$maxMessages)"
@@ -70,16 +71,18 @@ abstract class BaseTeeApplication(
     val messageChannel: ReceiveChannel<QueueSubscriber.QueueMessage<WorkItem>> =
       queueSubscriber.subscribe(subscriptionId, parser)
     var messageCount = 0
-    for (message: QueueSubscriber.QueueMessage<WorkItem> in messageChannel) {
+    while (messageCount < maxMessages) {
+      val message =
+        if (idleTimeout.isZero) {
+          messageChannel.receiveCatching().getOrNull()
+        } else {
+          withTimeoutOrNull(idleTimeout.toMillis()) { messageChannel.receiveCatching().getOrNull() }
+        } ?: break
       messageCount++
       logger.info("Received message #$messageCount with ackId: ${message.ackId}")
       processMessage(message)
-      if (messageCount >= maxMessages) {
-        messageChannel.cancel()
-        break
-      }
     }
-    queueSubscriber.close()
+    messageChannel.cancel()
   }
 
   /**

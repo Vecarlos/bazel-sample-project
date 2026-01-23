@@ -125,6 +125,7 @@ class InProcessEdpAggregatorComponents(
   private val autoStartDataWatcher: Boolean = true,
   private val autoStartResultsFulfiller: Boolean = true,
   private val resultsFulfillerMaxMessages: Int? = null,
+  private val resultsFulfillerIdleTimeout: Duration = Duration.ZERO,
 ) : TestRule {
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
@@ -384,7 +385,7 @@ class InProcessEdpAggregatorComponents(
   fun startResultsFulfiller(maxMessages: Int? = resultsFulfillerMaxMessages): Job {
     return backgroundScope.launch {
       if (maxMessages != null) {
-        resultFulfillerApp.runWithLimit(maxMessages)
+        resultFulfillerApp.runWithLimit(maxMessages, resultsFulfillerIdleTimeout)
       } else {
         resultFulfillerApp.run()
       }
