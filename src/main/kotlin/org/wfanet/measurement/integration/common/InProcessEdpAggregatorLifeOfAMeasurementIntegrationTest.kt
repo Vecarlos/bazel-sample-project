@@ -62,7 +62,15 @@ import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
 import org.wfanet.measurement.duchy.db.computation.ComputationDataClients
+import org.wfanet.measurement.duchy.db.computation.testing.FakeComputationsDatabase
 import org.wfanet.measurement.duchy.mill.Certificate
+import org.wfanet.measurement.duchy.service.internal.computationcontrol.AsyncComputationControlService
+import org.wfanet.measurement.duchy.service.internal.computations.ComputationsService
+import org.wfanet.measurement.duchy.service.internal.computations.newEmptyOutputBlobMetadata
+import org.wfanet.measurement.duchy.service.internal.computations.toGetComputationTokenResponse
+import org.wfanet.measurement.duchy.storage.ComputationStore
+import org.wfanet.measurement.duchy.storage.RequisitionStore
+import org.wfanet.measurement.duchy.toProtocolStage
 import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionFetcher
 import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionGrouper
 import org.wfanet.measurement.edpaggregator.requisitionfetcher.RequisitionsValidator
@@ -73,10 +81,21 @@ import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
 import org.wfanet.measurement.internal.duchy.ComputationStage
 import org.wfanet.measurement.internal.duchy.ComputationStatsGrpcKt.ComputationStatsCoroutineStub
+import org.wfanet.measurement.internal.duchy.ComputationDetails
 import org.wfanet.measurement.internal.duchy.ComputationToken
 import org.wfanet.measurement.internal.duchy.ComputationTypeEnum.ComputationType
+import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoroutineImplBase
 import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoroutineStub as InternalComputationsCoroutineStub
 import org.wfanet.measurement.internal.duchy.computationToken
+import org.wfanet.measurement.internal.duchy.advanceComputationRequest
+import org.wfanet.measurement.internal.duchy.computationDetails
+import org.wfanet.measurement.internal.duchy.GetComputationTokenRequest
+import org.wfanet.measurement.internal.duchy.LiquidLegionsSketchAggregationV2Kt
+import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathRequest
+import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathResponse
+import org.wfanet.measurement.internal.duchy.RoleInComputation
+import org.wfanet.measurement.internal.duchy.updateComputationDetailsRequest
+import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2.Stage as Llv2Stage
 import org.wfanet.measurement.internal.kingdom.ErrorCode
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as InternalRequisitionsService
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineStub as InternalRequisitionsCoroutineStub
@@ -266,6 +285,20 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   }
 
   private fun runCoverageTouches(dataProviderName: String) {
+    val coverageComputationDetails = computationDetails {
+      liquidLegionsV2 =
+        LiquidLegionsSketchAggregationV2Kt.computationDetails {
+          role = RoleInComputation.AGGREGATOR
+        }
+    }
+    val coverageComputationStage = Llv2Stage.WAIT_EXECUTION_PHASE_ONE_INPUTS.toProtocolStage()
+    val asyncComputationToken =
+      computationToken {
+        globalComputationId = "coverage-async-computation"
+        computationStage = coverageComputationStage
+        computationDetails = coverageComputationDetails
+        blobs += newEmptyOutputBlobMetadata(1L)
+      }
     withGrpcTestServer(
       addServices = {
         addService(
@@ -287,11 +320,28 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
             ): ComputationParticipant = throw Status.UNAVAILABLE.asException()
           }
         )
+        addService(
+          object : ComputationsCoroutineImplBase() {
+            override suspend fun getComputationToken(
+              request: GetComputationTokenRequest
+            ) = asyncComputationToken.toGetComputationTokenResponse()
+
+            override suspend fun recordOutputBlobPath(
+              request: RecordOutputBlobPathRequest
+            ): RecordOutputBlobPathResponse = throw Status.UNAVAILABLE.asException()
+          }
+        )
       }
     ) { channel ->
       touchRequisitionsServiceErrorHandling(channel, dataProviderName)
       touchRequisitionFetcherErrorHandling(channel, dataProviderName)
       touchMillRetryHandling(channel)
+      touchComputationsServiceErrorHandling(
+        channel,
+        computationDetails = coverageComputationDetails,
+        computationStage = coverageComputationStage,
+      )
+      touchAsyncComputationControlRetry(channel, asyncComputationToken)
     }
   }
 
@@ -385,6 +435,65 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     try {
       runBlocking { mill.touchUpdateComputationParticipant(token) }
     } catch (_: ComputationDataClients.PermanentErrorException) {
+    }
+  }
+
+  private fun touchComputationsServiceErrorHandling(
+    channel: Channel,
+    computationDetails: ComputationDetails,
+    computationStage: ComputationStage,
+  ) {
+    val computationsDatabase = FakeComputationsDatabase()
+    computationsDatabase.addComputation(
+      localId = 1L,
+      stage = computationStage,
+      computationDetails = computationDetails,
+    )
+    val storedToken = computationsDatabase[1L]!!
+    val staleToken = storedToken.copy { version = storedToken.version + 1 }
+    val storageClient = FileSystemStorageClient(tempPath.toFile())
+    val service =
+      ComputationsService(
+        computationsDatabase = computationsDatabase,
+        computationLogEntriesClient = ComputationLogEntriesCoroutineStub(channel),
+        computationStore = ComputationStore(storageClient),
+        requisitionStore = RequisitionStore(storageClient),
+        duchyName = "coverage-duchy",
+      )
+    val request = updateComputationDetailsRequest {
+      token = staleToken
+      details = computationDetails
+    }
+    try {
+      runBlocking { service.updateComputationDetails(request) }
+    } catch (_: Exception) {
+    }
+  }
+
+  private fun touchAsyncComputationControlRetry(
+    channel: Channel,
+    token: ComputationToken,
+  ) {
+    val controlService =
+      AsyncComputationControlService(
+        computationsClient = InternalComputationsCoroutineStub(channel),
+        maxAdvanceAttempts = 2,
+        advanceRetryBackoff =
+          ExponentialBackoff(
+            initialDelay = java.time.Duration.ofMillis(1),
+            randomnessFactor = 0.0,
+          ),
+      )
+    val outputBlobId = token.blobsList.first().blobId
+    val request = advanceComputationRequest {
+      globalComputationId = token.globalComputationId
+      computationStage = token.computationStage
+      blobId = outputBlobId
+      blobPath = "coverage-async-blob"
+    }
+    try {
+      runBlocking { controlService.advanceComputation(request) }
+    } catch (_: Exception) {
     }
   }
 
