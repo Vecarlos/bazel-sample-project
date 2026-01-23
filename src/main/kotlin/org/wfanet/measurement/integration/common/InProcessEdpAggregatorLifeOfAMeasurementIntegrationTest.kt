@@ -16,6 +16,7 @@ package org.wfanet.measurement.integration.common
 
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -103,6 +104,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       syntheticEventGroupMap = syntheticEventGroupMap,
       syntheticPopulationSpec = syntheticPopulationSpec,
       modelLineInfoMap = modelLineInfoMap,
+      requisitionFetcherLoopIterations = 0,
     )
 
   @Before
@@ -172,6 +174,12 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
+        onMeasurementsCreated = {
+          inProcessEdpAggregatorComponents.runRequisitionFetchers(
+            iterations = 5,
+            interval = Duration.ofSeconds(1),
+          )
+        },
       )
   }
 

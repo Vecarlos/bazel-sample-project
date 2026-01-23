@@ -120,6 +120,8 @@ class InProcessEdpAggregatorComponents(
   private val syntheticPopulationSpec: SyntheticPopulationSpec,
   private val syntheticEventGroupMap: Map<String, SyntheticEventGroupSpec>,
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
+  private val requisitionFetcherLoopIterations: Int? = null,
+  private val requisitionFetcherLoopDelay: Duration = Duration.ofSeconds(1),
 ) : TestRule {
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
@@ -129,6 +131,8 @@ class InProcessEdpAggregatorComponents(
   private lateinit var publicApiChannel: Channel
 
   private lateinit var duchyChannelMap: Map<String, Channel>
+
+  private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
 
   private val internalSecureComputationServicesRule:
     ProviderRule<InternalSecureComputationApiServices> =
@@ -319,12 +323,8 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        while (true) {
-          delay(1000)
-          requisitionFetcher.fetchAndStoreRequisitions()
-        }
-      }
+      requisitionFetchers += requisitionFetcher
+      startRequisitionFetcherLoop(requisitionFetcher)
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler, 500)
@@ -364,6 +364,34 @@ class InProcessEdpAggregatorComponents(
       }
     }
     backgroundScope.launch { resultFulfillerApp.run() }
+  }
+
+  suspend fun runRequisitionFetchers(iterations: Int, interval: Duration = Duration.ZERO) {
+    if (iterations <= 0) return
+    repeat(iterations) {
+      requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
+      if (!interval.isZero) {
+        delay(interval.toMillis())
+      }
+    }
+  }
+
+  private fun startRequisitionFetcherLoop(requisitionFetcher: RequisitionFetcher) {
+    val iterations = requisitionFetcherLoopIterations
+    if (iterations != null && iterations <= 0) return
+    backgroundScope.launch {
+      if (iterations == null) {
+        while (true) {
+          delay(requisitionFetcherLoopDelay.toMillis())
+          requisitionFetcher.fetchAndStoreRequisitions()
+        }
+      } else {
+        repeat(iterations) {
+          delay(requisitionFetcherLoopDelay.toMillis())
+          requisitionFetcher.fetchAndStoreRequisitions()
+        }
+      }
+    }
   }
 
   private suspend fun refuseRequisition(

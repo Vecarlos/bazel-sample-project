@@ -85,6 +85,7 @@ class EventQueryMeasurementConsumerSimulator(
   private val eventRange: OpenEndTimeRange = DEFAULT_EVENT_RANGE,
   initialResultPollingDelay: Duration = Duration.ofSeconds(1),
   maximumResultPollingDelay: Duration = Duration.ofMinutes(1),
+  onMeasurementsCreated: (suspend () -> Unit)? = null,
 ) :
   MeasurementConsumerSimulator(
     measurementConsumerData,
@@ -98,6 +99,7 @@ class EventQueryMeasurementConsumerSimulator(
     expectedDirectNoiseMechanism,
     initialResultPollingDelay,
     maximumResultPollingDelay,
+    onMeasurementsCreated = onMeasurementsCreated,
   ) {
 
   override fun Flow<EventGroup>.filterEventGroups(): Flow<EventGroup> {

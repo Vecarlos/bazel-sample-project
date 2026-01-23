@@ -232,12 +232,6 @@ java_test(
         "cpu:2",
         "no-remote-exec",
     ],
-    # Keep coroutines scheduling deterministic for coverage stability.
-    jvm_flags = [
-        "-Dkotlinx.coroutines.scheduler.core.pool.size=1",
-        "-Dkotlinx.coroutines.scheduler.max.pool.size=1",
-        "-Dkotlinx.coroutines.io.parallelism=1",
-    ],
     test_class = "org.wfanet.measurement.integration.deploy.gcloud.GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest",
     runtime_deps = [
         ":gcloud_edp_aggregator_life_of_a_measurement_integration_test",
