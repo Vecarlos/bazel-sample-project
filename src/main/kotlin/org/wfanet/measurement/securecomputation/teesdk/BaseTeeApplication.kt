@@ -61,6 +61,27 @@ abstract class BaseTeeApplication(
     receiveAndProcessMessages()
   }
 
+  /** Runs the application for a bounded number of messages, then returns. */
+  suspend fun runWithLimit(maxMessages: Int) {
+    if (maxMessages <= 0) return
+    logger.info(
+      "Starting BaseTeeApplication for subscription: $subscriptionId (maxMessages=$maxMessages)"
+    )
+    val messageChannel: ReceiveChannel<QueueSubscriber.QueueMessage<WorkItem>> =
+      queueSubscriber.subscribe(subscriptionId, parser)
+    var messageCount = 0
+    for (message: QueueSubscriber.QueueMessage<WorkItem> in messageChannel) {
+      messageCount++
+      logger.info("Received message #$messageCount with ackId: ${message.ackId}")
+      processMessage(message)
+      if (messageCount >= maxMessages) {
+        messageChannel.cancel()
+        break
+      }
+    }
+    queueSubscriber.close()
+  }
+
   /**
    * Begins listening for messages on the specified queue. Each message is processed as it arrives.
    * If an error occurs during the message flow, it is logged and handling continues.

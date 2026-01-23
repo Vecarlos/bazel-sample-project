@@ -105,6 +105,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       syntheticPopulationSpec = syntheticPopulationSpec,
       modelLineInfoMap = modelLineInfoMap,
       requisitionFetcherLoopIterations = 0,
+      autoStartDataWatcher = false,
+      autoStartResultsFulfiller = false,
+      resultsFulfillerMaxMessages = 500,
     )
 
   @Before
@@ -148,6 +151,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   }
 
   private var requisitionFetcherJob: Job? = null
+  private var resultsFulfillerJob: Job? = null
+  private var dataWatcherStarted = false
 
   private fun initMcSimulator() {
     val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
@@ -177,6 +182,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           .toName(),
         modelLineName = modelLineName,
         onMeasurementsCreated = {
+          if (!dataWatcherStarted) {
+            inProcessEdpAggregatorComponents.startDataWatcher()
+            dataWatcherStarted = true
+          }
+          if (resultsFulfillerJob == null) {
+            resultsFulfillerJob = inProcessEdpAggregatorComponents.startResultsFulfiller()
+          }
           if (requisitionFetcherJob == null) {
             requisitionFetcherJob =
               inProcessEdpAggregatorComponents.startRequisitionFetchers(

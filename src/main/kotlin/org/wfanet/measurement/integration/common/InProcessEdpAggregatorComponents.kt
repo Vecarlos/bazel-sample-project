@@ -122,6 +122,9 @@ class InProcessEdpAggregatorComponents(
   private val modelLineInfoMap: Map<String, ModelLineInfo>,
   private val requisitionFetcherLoopIterations: Int? = null,
   private val requisitionFetcherLoopDelay: Duration = Duration.ofSeconds(1),
+  private val autoStartDataWatcher: Boolean = true,
+  private val autoStartResultsFulfiller: Boolean = true,
+  private val resultsFulfillerMaxMessages: Int? = null,
 ) : TestRule {
 
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
@@ -133,6 +136,8 @@ class InProcessEdpAggregatorComponents(
   private lateinit var duchyChannelMap: Map<String, Channel>
 
   private val requisitionFetchers = mutableListOf<RequisitionFetcher>()
+  private lateinit var subscribingStorageClient: DataWatcherSubscribingStorageClient
+  private var dataWatcherStarted = false
 
   private val internalSecureComputationServicesRule:
     ProviderRule<InternalSecureComputationApiServices> =
@@ -285,8 +290,10 @@ class InProcessEdpAggregatorComponents(
     dataWatcher =
       DataWatcher(workItemsClient, watchedPaths, idTokenProvider = TestIdTokenProvider())
 
-    val subscribingStorageClient = DataWatcherSubscribingStorageClient(storageClient, "file:///")
-    subscribingStorageClient.subscribe(dataWatcher)
+    subscribingStorageClient = DataWatcherSubscribingStorageClient(storageClient, "file:///")
+    if (autoStartDataWatcher) {
+      startDataWatcher()
+    }
     kmsClients =
       edpResourceNameMap.toList().associate { (edpAggregatorShortName, edpResourceName) ->
         edpResourceName to kmsClient
@@ -363,7 +370,25 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+    if (autoStartResultsFulfiller) {
+      startResultsFulfiller()
+    }
+  }
+
+  fun startDataWatcher() {
+    if (dataWatcherStarted) return
+    subscribingStorageClient.subscribe(dataWatcher)
+    dataWatcherStarted = true
+  }
+
+  fun startResultsFulfiller(maxMessages: Int? = resultsFulfillerMaxMessages): Job {
+    return backgroundScope.launch {
+      if (maxMessages != null) {
+        resultFulfillerApp.runWithLimit(maxMessages)
+      } else {
+        resultFulfillerApp.run()
+      }
+    }
   }
 
   fun startRequisitionFetchers(
