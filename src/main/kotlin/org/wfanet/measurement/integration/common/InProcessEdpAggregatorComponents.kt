@@ -131,6 +131,7 @@ class InProcessEdpAggregatorComponents(
   private val storageClient: StorageClient = FileSystemStorageClient(storagePath.toFile())
 
   private lateinit var edpResourceNameMap: Map<String, String>
+  private lateinit var edpAggregatorShortNames: List<String>
 
   private lateinit var publicApiChannel: Channel
 
@@ -251,6 +252,7 @@ class InProcessEdpAggregatorComponents(
   ) = runBlocking {
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
+    this.edpAggregatorShortNames = edpAggregatorShortNames
     edpResourceNameMap =
       edpAggregatorShortNames.associateWith { edpAggregatorShortName ->
         edpDisplayNameToResourceMap.getValue(edpAggregatorShortName).name
@@ -417,6 +419,28 @@ class InProcessEdpAggregatorComponents(
       if (!interval.isZero) {
         delay(interval.toMillis())
       }
+    }
+  }
+
+  suspend fun waitForGroupedRequisitions(
+    minPerEdp: Int = 1,
+    timeout: Duration = Duration.ofSeconds(60),
+    pollInterval: Duration = Duration.ofMillis(200),
+  ) {
+    val deadlineNanos = System.nanoTime() + timeout.toNanos()
+    while (true) {
+      val ready =
+        edpAggregatorShortNames.all { shortName ->
+          val prefix = "${REQUISITION_STORAGE_PREFIX}-$shortName/"
+          storageClient.listBlobs(prefix).toList().size >= minPerEdp
+        }
+      if (ready) return
+      if (System.nanoTime() >= deadlineNanos) {
+        throw IllegalStateException(
+          "Timed out waiting for grouped requisitions (minPerEdp=$minPerEdp)"
+        )
+      }
+      delay(pollInterval.toMillis())
     }
   }
 
