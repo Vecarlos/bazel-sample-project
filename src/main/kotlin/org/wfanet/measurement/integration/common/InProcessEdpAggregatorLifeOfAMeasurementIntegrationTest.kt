@@ -18,7 +18,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.Job
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -150,8 +149,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
 
-  private var requisitionFetcherJob: Job? = null
-  private var resultsFulfillerJob: Job? = null
   private var dataWatcherStarted = false
 
   private fun initMcSimulator() {
@@ -181,21 +178,19 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
+        maximumResultPollingDelay = java.time.Duration.ofSeconds(5),
         onMeasurementsCreated = {
           if (!dataWatcherStarted) {
             inProcessEdpAggregatorComponents.startDataWatcher()
             dataWatcherStarted = true
           }
-          if (resultsFulfillerJob == null) {
-            resultsFulfillerJob = inProcessEdpAggregatorComponents.startResultsFulfiller()
-          }
-          if (requisitionFetcherJob == null) {
-            requisitionFetcherJob =
-              inProcessEdpAggregatorComponents.startRequisitionFetchers(
-                iterations = 300,
-                interval = java.time.Duration.ofSeconds(1),
-              )
-          }
+        },
+        onResultPolling = {
+          inProcessEdpAggregatorComponents.runRequisitionFetchers(iterations = 1)
+          inProcessEdpAggregatorComponents.runResultsFulfiller(
+            maxMessages = 50,
+            idleTimeout = java.time.Duration.ofSeconds(1),
+          )
         },
       )
   }

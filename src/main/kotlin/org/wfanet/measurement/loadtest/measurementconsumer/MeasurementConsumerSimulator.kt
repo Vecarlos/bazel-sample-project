@@ -498,7 +498,9 @@ abstract class MeasurementConsumerSimulator(
 
     // Get the CMMS computed result and compare it with the expected result.
     val reachOnlyResult =
-      pollForResultOrNull(REACH_ONLY_POLL_TIMEOUT, ::getReachResult) { it != null }
+      pollForResultOrNull(REACH_ONLY_POLL_TIMEOUT, { getReachResult(measurementName) }) {
+        it != null
+      }
     checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
 
     val expectedResult: Result = getExpectedResult(measurementInfo)
@@ -530,9 +532,9 @@ abstract class MeasurementConsumerSimulator(
 
     // Get the CMMS computed result and compare it with the expected result.
     val reachAndFrequencyResult =
-      pollForResultOrNull(REACH_AND_FREQUENCY_POLL_TIMEOUT, ::getReachAndFrequencyResult) {
-        it != null
-      }
+      pollForResultOrNull(REACH_AND_FREQUENCY_POLL_TIMEOUT, {
+        getReachAndFrequencyResult(measurementName)
+      }) { it != null }
     checkNotNull(reachAndFrequencyResult) {
       "Timed out waiting for response to reach-and-frequency request"
     }
@@ -1398,6 +1400,14 @@ abstract class MeasurementConsumerSimulator(
 
   private suspend inline fun <T> pollForResults(getResults: () -> List<T>): List<T> {
     return pollForResult(getResults) { it.isNotEmpty() }
+  }
+
+  private suspend inline fun <T> pollForResultOrNull(
+    timeout: Duration,
+    getResult: () -> T,
+    done: (T) -> Boolean,
+  ): T? {
+    return withTimeoutOrNull(timeout) { pollForResult(getResult, done) }
   }
 
   private suspend inline fun <T> pollForResult(getResult: () -> T, done: (T) -> Boolean): T {
