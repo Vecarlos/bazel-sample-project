@@ -193,8 +193,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           if (requisitionFetcherJob == null) {
             requisitionFetcherJob =
               inProcessEdpAggregatorComponents.startRequisitionFetchers(
-                iterations = 300,
-                interval = java.time.Duration.ofSeconds(1),
+                iterations = 600,
+                interval = java.time.Duration.ofMillis(500),
               )
           }
         },
