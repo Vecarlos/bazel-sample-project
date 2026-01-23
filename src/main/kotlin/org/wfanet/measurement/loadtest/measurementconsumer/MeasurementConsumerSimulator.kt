@@ -159,7 +159,6 @@ abstract class MeasurementConsumerSimulator(
       .toName(),
   private val modelLineName: String = "some-model-line",
   private val onMeasurementsCreated: (suspend () -> Unit)? = null,
-  private val onResultPolling: (suspend () -> Unit)? = null,
 ) {
   /** Cache of resource name to [Certificate]. */
   private val certificateCache = mutableMapOf<String, Certificate>()
@@ -1414,7 +1413,6 @@ abstract class MeasurementConsumerSimulator(
       ExponentialBackoff(initialDelay = initialResultPollingDelay, randomnessFactor = 0.0)
     var attempt = 1
     while (true) {
-      onResultPolling?.invoke()
       val result = getResult()
       if (done(result)) {
         return result

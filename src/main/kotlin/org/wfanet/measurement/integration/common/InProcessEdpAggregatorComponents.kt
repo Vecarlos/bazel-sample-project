@@ -428,6 +428,22 @@ class InProcessEdpAggregatorComponents(
     }
   }
 
+  fun startDeterministicStepper(
+    iterations: Int,
+    interval: Duration,
+    maxMessagesPerIteration: Int = 1,
+    resultsIdleTimeout: Duration = Duration.ofSeconds(1),
+  ): Job {
+    return backgroundScope.launch {
+      repeat(iterations) {
+        runRequisitionFetchers(iterations = 1)
+        runResultsFulfiller(maxMessages = maxMessagesPerIteration, idleTimeout = resultsIdleTimeout)
+        if (!interval.isZero) {
+          delay(interval.toMillis())
+        }
+      }
+    }
+  }
 
 
   private fun startRequisitionFetcherLoop(requisitionFetcher: RequisitionFetcher) {

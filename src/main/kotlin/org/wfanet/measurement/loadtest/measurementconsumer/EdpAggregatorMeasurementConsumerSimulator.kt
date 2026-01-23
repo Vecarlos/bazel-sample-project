@@ -68,7 +68,6 @@ class EdpAggregatorMeasurementConsumerSimulator(
   initialResultPollingDelay: Duration = Duration.ofSeconds(1),
   maximumResultPollingDelay: Duration = Duration.ofMinutes(1),
   onMeasurementsCreated: (suspend () -> Unit)? = null,
-  onResultPolling: (suspend () -> Unit)? = null,
 ) :
   MeasurementConsumerSimulator(
     measurementConsumerData,
@@ -83,7 +82,6 @@ class EdpAggregatorMeasurementConsumerSimulator(
     initialResultPollingDelay,
     maximumResultPollingDelay,
     onMeasurementsCreated = onMeasurementsCreated,
-    onResultPolling = onResultPolling,
     reportName = reportName,
     modelLineName = modelLineName,
   ) {
