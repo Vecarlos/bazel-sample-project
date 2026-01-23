@@ -498,9 +498,7 @@ abstract class MeasurementConsumerSimulator(
 
     // Get the CMMS computed result and compare it with the expected result.
     val reachOnlyResult =
-      pollForResultOrNull(REACH_ONLY_POLL_TIMEOUT, { getReachResult(measurementName) }) {
-        it != null
-      }
+      pollForResultOrNull(REACH_ONLY_POLL_TIMEOUT, ::getReachResult) { it != null }
     checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
 
     val expectedResult: Result = getExpectedResult(measurementInfo)
@@ -532,9 +530,9 @@ abstract class MeasurementConsumerSimulator(
 
     // Get the CMMS computed result and compare it with the expected result.
     val reachAndFrequencyResult =
-      pollForResultOrNull(REACH_AND_FREQUENCY_POLL_TIMEOUT, {
-        getReachAndFrequencyResult(measurementName)
-      }) { it != null }
+      pollForResultOrNull(REACH_AND_FREQUENCY_POLL_TIMEOUT, ::getReachAndFrequencyResult) {
+        it != null
+      }
     checkNotNull(reachAndFrequencyResult) {
       "Timed out waiting for response to reach-and-frequency request"
     }
@@ -1394,23 +1392,15 @@ abstract class MeasurementConsumerSimulator(
     }
   }
 
-  private suspend fun pollForResult(getResult: suspend () -> Result?): Result {
+  private suspend inline fun pollForResult(getResult: () -> Result?): Result {
     return pollForResult(getResult) { it != null }!!
   }
 
-  private suspend fun <T> pollForResults(getResults: suspend () -> List<T>): List<T> {
+  private suspend inline fun <T> pollForResults(getResults: () -> List<T>): List<T> {
     return pollForResult(getResults) { it.isNotEmpty() }
   }
 
-  private suspend fun <T> pollForResultOrNull(
-    timeout: Duration,
-    getResult: suspend () -> T,
-    done: (T) -> Boolean,
-  ): T? {
-    return withTimeoutOrNull(timeout.toMillis()) { pollForResult(getResult, done) }
-  }
-
-  private suspend fun <T> pollForResult(getResult: suspend () -> T, done: (T) -> Boolean): T {
+  private suspend inline fun <T> pollForResult(getResult: () -> T, done: (T) -> Boolean): T {
     val backoff =
       ExponentialBackoff(initialDelay = initialResultPollingDelay, randomnessFactor = 0.0)
     var attempt = 1

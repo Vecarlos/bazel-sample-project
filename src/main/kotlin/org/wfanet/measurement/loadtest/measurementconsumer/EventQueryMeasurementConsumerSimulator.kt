@@ -86,7 +86,6 @@ class EventQueryMeasurementConsumerSimulator(
   initialResultPollingDelay: Duration = Duration.ofSeconds(1),
   maximumResultPollingDelay: Duration = Duration.ofMinutes(1),
   onMeasurementsCreated: (suspend () -> Unit)? = null,
-  onResultPolling: (suspend () -> Unit)? = null,
 ) :
   MeasurementConsumerSimulator(
     measurementConsumerData,
@@ -101,7 +100,6 @@ class EventQueryMeasurementConsumerSimulator(
     initialResultPollingDelay,
     maximumResultPollingDelay,
     onMeasurementsCreated = onMeasurementsCreated,
-    onResultPolling = onResultPolling,
   ) {
 
   override fun Flow<EventGroup>.filterEventGroups(): Flow<EventGroup> {

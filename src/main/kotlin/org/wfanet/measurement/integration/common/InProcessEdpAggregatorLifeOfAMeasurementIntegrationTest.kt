@@ -18,6 +18,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Job
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -106,7 +107,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       requisitionFetcherLoopIterations = 0,
       autoStartDataWatcher = false,
       autoStartResultsFulfiller = false,
-      resultsFulfillerMaxMessages = 500,
+      resultsFulfillerMaxMessages = 1000,
+      resultsFulfillerIdleTimeout = java.time.Duration.ofSeconds(60),
     )
 
   @Before
@@ -149,6 +151,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
 
+  private var deterministicStepperJob: Job? = null
   private var dataWatcherStarted = false
 
   private fun initMcSimulator() {
@@ -178,19 +181,20 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           )
           .toName(),
         modelLineName = modelLineName,
-        maximumResultPollingDelay = java.time.Duration.ofSeconds(5),
         onMeasurementsCreated = {
           if (!dataWatcherStarted) {
             inProcessEdpAggregatorComponents.startDataWatcher()
             dataWatcherStarted = true
           }
-        },
-        onResultPolling = {
-          inProcessEdpAggregatorComponents.runRequisitionFetchers(iterations = 1)
-          inProcessEdpAggregatorComponents.runResultsFulfiller(
-            maxMessages = 50,
-            idleTimeout = java.time.Duration.ofSeconds(1),
-          )
+          if (deterministicStepperJob == null) {
+            deterministicStepperJob =
+              inProcessEdpAggregatorComponents.startDeterministicStepper(
+                iterations = 200,
+                interval = java.time.Duration.ofMillis(500),
+                maxMessagesPerIteration = 1,
+                resultsIdleTimeout = java.time.Duration.ofSeconds(1),
+              )
+          }
         },
       )
   }
