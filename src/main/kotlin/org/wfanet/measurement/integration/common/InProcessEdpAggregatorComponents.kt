@@ -391,6 +391,11 @@ class InProcessEdpAggregatorComponents(
     }
   }
 
+  suspend fun runResultsFulfiller(maxMessages: Int, idleTimeout: Duration = Duration.ZERO) {
+    if (maxMessages <= 0) return
+    resultFulfillerApp.runWithLimit(maxMessages, idleTimeout)
+  }
+
   fun startRequisitionFetchers(
     iterations: Int,
     interval: Duration = Duration.ZERO,

@@ -34,6 +34,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import org.wfanet.measurement.api.v2alpha.Certificate
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.CustomDirectMethodologyKt
@@ -159,6 +160,7 @@ abstract class MeasurementConsumerSimulator(
       .toName(),
   private val modelLineName: String = "some-model-line",
   private val onMeasurementsCreated: (suspend () -> Unit)? = null,
+  private val onResultPolling: (suspend () -> Unit)? = null,
 ) {
   /** Cache of resource name to [Certificate]. */
   private val certificateCache = mutableMapOf<String, Certificate>()
@@ -495,14 +497,8 @@ abstract class MeasurementConsumerSimulator(
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-    var reachOnlyResult = getReachResult(measurementName)
-    var attemptCount = 0
-    while (reachOnlyResult == null && (attemptCount < 6)) {
-      attemptCount++
-      logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
-      delay(Duration.ofSeconds(30))
-      reachOnlyResult = getReachResult(measurementName)
-    }
+    val reachOnlyResult =
+      pollForResultOrNull(REACH_ONLY_POLL_TIMEOUT, ::getReachResult) { it != null }
     checkNotNull(reachOnlyResult) { "Timed out waiting for response to reach-only request" }
 
     val expectedResult: Result = getExpectedResult(measurementInfo)
@@ -533,14 +529,10 @@ abstract class MeasurementConsumerSimulator(
     onMeasurementsCreated?.invoke()
 
     // Get the CMMS computed result and compare it with the expected result.
-    var reachAndFrequencyResult = getReachAndFrequencyResult(measurementName)
-    var attemptCount = 0
-    while (reachAndFrequencyResult == null && (attemptCount < 4)) {
-      attemptCount++
-      logger.info("Computation not done yet, wait for another 30 seconds.  Attempt $attemptCount")
-      delay(Duration.ofSeconds(30))
-      reachAndFrequencyResult = getReachAndFrequencyResult(measurementName)
-    }
+    val reachAndFrequencyResult =
+      pollForResultOrNull(REACH_AND_FREQUENCY_POLL_TIMEOUT, ::getReachAndFrequencyResult) {
+        it != null
+      }
     checkNotNull(reachAndFrequencyResult) {
       "Timed out waiting for response to reach-and-frequency request"
     }
@@ -1413,6 +1405,7 @@ abstract class MeasurementConsumerSimulator(
       ExponentialBackoff(initialDelay = initialResultPollingDelay, randomnessFactor = 0.0)
     var attempt = 1
     while (true) {
+      onResultPolling?.invoke()
       val result = getResult()
       if (done(result)) {
         return result
@@ -1429,6 +1422,8 @@ abstract class MeasurementConsumerSimulator(
   companion object {
     // For a 99.9999% Confidence Interval.
     private const val CONFIDENCE_INTERVAL_MULTIPLIER = 5.0
+    private val REACH_ONLY_POLL_TIMEOUT = Duration.ofMinutes(3)
+    private val REACH_AND_FREQUENCY_POLL_TIMEOUT = Duration.ofMinutes(2)
     private val DEFAULT_VID_SAMPLING_INTERVAL = vidSamplingInterval {
       start = 0.2f
       width = 0.5f
