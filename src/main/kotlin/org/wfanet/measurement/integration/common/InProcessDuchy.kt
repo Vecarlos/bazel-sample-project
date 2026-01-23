@@ -349,6 +349,10 @@ class InProcessDuchy(
   val publicApiChannel: Channel
     get() = requisitionFulfillmentServer.channel
 
+  /** Provides a gRPC channel to the duchy's internal Computations service. */
+  val computationsChannel: Channel
+    get() = computationsServer.channel
+
   override fun apply(statement: Statement, description: Description) =
     object : Statement() {
       override fun evaluate() {

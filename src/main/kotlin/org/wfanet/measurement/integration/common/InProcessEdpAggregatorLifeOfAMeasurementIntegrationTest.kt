@@ -90,6 +90,7 @@ import org.wfanet.measurement.internal.duchy.advanceComputationRequest
 import org.wfanet.measurement.internal.duchy.computationDetails
 import org.wfanet.measurement.internal.duchy.computationToken
 import org.wfanet.measurement.internal.duchy.copy
+import org.wfanet.measurement.internal.duchy.createComputationRequest
 import org.wfanet.measurement.internal.duchy.GetComputationTokenRequest
 import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathRequest
 import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathResponse
@@ -285,13 +286,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     errorInfoTouched = true
   }
 
-  private fun runCoverageTouches(dataProviderName: String) {
-    val coverageComputationDetails = computationDetails {
+  private fun buildCoverageComputationDetails(): ComputationDetails =
+    computationDetails {
       liquidLegionsV2 =
         LiquidLegionsSketchAggregationV2Kt.computationDetails {
           role = RoleInComputation.AGGREGATOR
         }
     }
+
+  private fun runCoverageTouches(dataProviderName: String) {
+    val coverageComputationDetails = buildCoverageComputationDetails()
     val coverageComputationStage = Llv2Stage.WAIT_EXECUTION_PHASE_ONE_INPUTS.toProtocolStage()
     val asyncComputationToken =
       computationToken {
@@ -344,6 +348,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
       touchAsyncComputationControlRetry(channel, asyncComputationToken)
     }
+    touchSpannerComputationsTransactorVersionMismatch(coverageComputationDetails)
   }
 
   private fun withGrpcTestServer(
@@ -494,6 +499,33 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
     try {
       runBlocking { controlService.advanceComputation(request) }
+    } catch (_: Exception) {
+    }
+  }
+
+  private fun touchSpannerComputationsTransactorVersionMismatch(
+    computationDetails: ComputationDetails,
+  ) {
+    val duchy = inProcessCmmsComponents.duchies.first()
+    val computationsStub = InternalComputationsCoroutineStub(duchy.computationsChannel)
+    val globalComputationId = "coverage-spanner-${coverageComputationIdCounter++}"
+    val createRequest = createComputationRequest {
+      computationType = ComputationType.LIQUID_LEGIONS_SKETCH_AGGREGATION_V2
+      this.globalComputationId = globalComputationId
+      this.computationDetails = computationDetails
+    }
+    val createdToken = runBlocking { computationsStub.createComputation(createRequest).token }
+    val updateRequest = updateComputationDetailsRequest {
+      token = createdToken
+      details = computationDetails
+    }
+    runBlocking { computationsStub.updateComputationDetails(updateRequest) }
+    val staleRequest = updateComputationDetailsRequest {
+      token = createdToken
+      details = computationDetails
+    }
+    try {
+      runBlocking { computationsStub.updateComputationDetails(staleRequest) }
     } catch (_: Exception) {
     }
   }
@@ -649,6 +681,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   companion object {
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private var coverageTouchesDone = false
+    private var coverageComputationIdCounter = 0
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
     // Epsilon can vary from 0.0001 to 1.0, delta = 1e-15 is a realistic value.
