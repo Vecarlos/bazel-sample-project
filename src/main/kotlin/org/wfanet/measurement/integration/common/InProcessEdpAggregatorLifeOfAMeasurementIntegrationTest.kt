@@ -86,15 +86,16 @@ import org.wfanet.measurement.internal.duchy.ComputationToken
 import org.wfanet.measurement.internal.duchy.ComputationTypeEnum.ComputationType
 import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoroutineImplBase
 import org.wfanet.measurement.internal.duchy.ComputationsGrpcKt.ComputationsCoroutineStub as InternalComputationsCoroutineStub
-import org.wfanet.measurement.internal.duchy.computationToken
 import org.wfanet.measurement.internal.duchy.advanceComputationRequest
 import org.wfanet.measurement.internal.duchy.computationDetails
+import org.wfanet.measurement.internal.duchy.computationToken
+import org.wfanet.measurement.internal.duchy.copy
 import org.wfanet.measurement.internal.duchy.GetComputationTokenRequest
-import org.wfanet.measurement.internal.duchy.LiquidLegionsSketchAggregationV2Kt
 import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathRequest
 import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathResponse
-import org.wfanet.measurement.internal.duchy.RoleInComputation
 import org.wfanet.measurement.internal.duchy.updateComputationDetailsRequest
+import org.wfanet.measurement.internal.duchy.config.RoleInComputation
+import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2Kt
 import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2.Stage as Llv2Stage
 import org.wfanet.measurement.internal.kingdom.ErrorCode
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as InternalRequisitionsService
