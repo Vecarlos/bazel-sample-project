@@ -392,6 +392,14 @@ class InProcessEdpAggregatorComponents(
     }
   }
 
+  suspend fun runResultsFulfiller(
+    maxMessages: Int,
+    idleTimeout: Duration = resultsFulfillerIdleTimeout,
+  ) {
+    if (maxMessages <= 0) return
+    resultFulfillerApp.runWithLimit(maxMessages, idleTimeout)
+  }
+
   fun startRequisitionFetchers(
     iterations: Int,
     interval: Duration = Duration.ZERO,
@@ -416,6 +424,23 @@ class InProcessEdpAggregatorComponents(
       requisitionFetchers.forEach { it.fetchAndStoreRequisitions() }
       if (!interval.isZero) {
         delay(interval.toMillis())
+      }
+    }
+  }
+
+  fun startDeterministicStepper(
+    iterations: Int,
+    interval: Duration,
+    maxMessagesPerIteration: Int = 1,
+    resultsIdleTimeout: Duration = Duration.ofSeconds(1),
+  ): Job {
+    return backgroundScope.launch {
+      repeat(iterations) {
+        runRequisitionFetchers(iterations = 1)
+        runResultsFulfiller(maxMessages = maxMessagesPerIteration, idleTimeout = resultsIdleTimeout)
+        if (!interval.isZero) {
+          delay(interval.toMillis())
+        }
       }
     }
   }

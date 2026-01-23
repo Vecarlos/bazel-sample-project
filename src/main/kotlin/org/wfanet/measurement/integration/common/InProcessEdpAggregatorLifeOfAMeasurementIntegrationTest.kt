@@ -151,8 +151,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
 
-  private var requisitionFetcherJob: Job? = null
-  private var resultsFulfillerJob: Job? = null
+  private var deterministicStepperJob: Job? = null
   private var dataWatcherStarted = false
 
   private fun initMcSimulator() {
@@ -187,14 +186,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
             inProcessEdpAggregatorComponents.startDataWatcher()
             dataWatcherStarted = true
           }
-          if (resultsFulfillerJob == null) {
-            resultsFulfillerJob = inProcessEdpAggregatorComponents.startResultsFulfiller()
-          }
-          if (requisitionFetcherJob == null) {
-            requisitionFetcherJob =
-              inProcessEdpAggregatorComponents.startRequisitionFetchers(
-                iterations = 300,
-                interval = java.time.Duration.ofSeconds(1),
+          if (deterministicStepperJob == null) {
+            deterministicStepperJob =
+              inProcessEdpAggregatorComponents.startDeterministicStepper(
+                iterations = 200,
+                interval = java.time.Duration.ofMillis(500),
+                maxMessagesPerIteration = 1,
+                resultsIdleTimeout = java.time.Duration.ofSeconds(1),
               )
           }
         },
