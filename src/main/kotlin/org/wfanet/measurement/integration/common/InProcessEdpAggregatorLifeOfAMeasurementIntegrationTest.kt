@@ -341,10 +341,12 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           report = grouperReportId
         },
       )
-    grouperStorageClient.writeBlob(
-      grouperBlobKey,
-      Any.pack(GroupedRequisitions.getDefaultInstance()).toByteString(),
-    )
+    runBlocking {
+      grouperStorageClient.writeBlob(
+        grouperBlobKey,
+        Any.pack(GroupedRequisitions.getDefaultInstance()).toByteString(),
+      )
+    }
     withGrpcTestServer(
       addServices = {
         addService(
