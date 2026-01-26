@@ -443,7 +443,6 @@ kt_jvm_library(
         "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation:computation",
         "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing:testing",
         "//src/main/kotlin/org/wfanet/measurement/duchy/mill:mill_base",
-        "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal:internal_exception",
         "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol:async_computation_control_service",
         "//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations:computations",
         "//src/main/kotlin/org/wfanet/measurement/duchy/storage:computation_store",

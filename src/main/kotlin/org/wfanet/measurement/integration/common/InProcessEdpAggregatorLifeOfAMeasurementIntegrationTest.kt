@@ -27,6 +27,7 @@ import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.junit.After
 import org.junit.Before
@@ -46,7 +47,7 @@ import org.wfanet.measurement.api.v2alpha.ListRequisitionsRequest
 import org.wfanet.measurement.api.v2alpha.Measurement.State as V2AlphaMeasurementState
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumerKey
 import org.wfanet.measurement.api.v2alpha.MeasurementConsumersGrpcKt.MeasurementConsumersCoroutineStub
-import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCoroutineStub
+import org.wfanet.measurement.api.v2alpha.MeasurementsGrpcKt.MeasurementsCoroutineStub as PublicMeasurementsCoroutineStub
 import org.wfanet.measurement.api.v2alpha.PopulationSpec
 import org.wfanet.measurement.api.v2alpha.ProtocolConfig.NoiseMechanism
 import org.wfanet.measurement.api.v2alpha.Requisition
@@ -72,7 +73,6 @@ import org.wfanet.measurement.duchy.db.computation.ComputationDataClients
 import org.wfanet.measurement.duchy.db.computation.ComputationsDatabase
 import org.wfanet.measurement.duchy.db.computation.testing.FakeComputationsDatabase
 import org.wfanet.measurement.duchy.mill.Certificate
-import org.wfanet.measurement.duchy.service.internal.ComputationNotFoundException
 import org.wfanet.measurement.duchy.service.internal.computationcontrol.AsyncComputationControlService
 import org.wfanet.measurement.duchy.service.internal.computations.ComputationsService
 import org.wfanet.measurement.duchy.service.internal.computations.newEmptyOutputBlobMetadata
@@ -117,7 +117,7 @@ import org.wfanet.measurement.internal.duchy.config.RoleInComputation
 import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2Kt
 import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2.Stage as Llv2Stage
 import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineImplBase
-import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineStub
+import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineStub as InternalMeasurementsCoroutineStub
 import org.wfanet.measurement.internal.kingdom.StreamMeasurementsRequest
 import org.wfanet.measurement.internal.kingdom.ErrorCode
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as InternalRequisitionsService
@@ -230,7 +230,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
 
   private val publicMeasurementsClient by lazy {
-    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    PublicMeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicMeasurementConsumersClient by lazy {
     MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
@@ -430,8 +430,10 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         )
         addService(
           object : MeasurementsCoroutineImplBase() {
-            override fun streamMeasurements(request: StreamMeasurementsRequest) =
-              flow {
+            override fun streamMeasurements(
+              request: StreamMeasurementsRequest
+            ): Flow<org.wfanet.measurement.internal.kingdom.Measurement> =
+              flow<org.wfanet.measurement.internal.kingdom.Measurement> {
                 when (++measurementsStreamCallCount) {
                   1 -> throw Status.DEADLINE_EXCEEDED.asException()
                   2 -> throw Status.CANCELLED.asException()
@@ -612,7 +614,11 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       requisitions: List<RequisitionEntry>,
     ) {
       if (token.localId == 999L) {
-        throw ComputationNotFoundException(token.globalId)
+        val exception =
+          Class.forName("org.wfanet.measurement.duchy.service.internal.ComputationNotFoundException")
+            .getConstructor(Long::class.javaPrimitiveType)
+            .newInstance(token.localId) as Throwable
+        throw exception
       }
       delegate.updateComputationDetails(token, computationDetails, requisitions)
     }
@@ -648,7 +654,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private fun touchSystemComputationsServiceStreamErrors(channel: Channel) {
     val service =
       SystemComputationsService(
-        measurementsClient = MeasurementsCoroutineStub(channel),
+        measurementsClient = InternalMeasurementsCoroutineStub(channel),
         duchyIdentityProvider = {
           DuchyIdentity(inProcessCmmsComponents.duchies.first().externalDuchyId)
         },
