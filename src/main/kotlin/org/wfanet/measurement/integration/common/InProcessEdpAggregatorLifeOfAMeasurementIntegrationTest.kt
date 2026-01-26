@@ -26,6 +26,8 @@ import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -64,9 +66,13 @@ import org.wfanet.measurement.common.grpc.testing.GrpcTestServerRule
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
+import org.wfanet.measurement.common.identity.DuchyIdentity
+import org.wfanet.measurement.duchy.db.computation.ComputationEditToken
 import org.wfanet.measurement.duchy.db.computation.ComputationDataClients
+import org.wfanet.measurement.duchy.db.computation.ComputationsDatabase
 import org.wfanet.measurement.duchy.db.computation.testing.FakeComputationsDatabase
 import org.wfanet.measurement.duchy.mill.Certificate
+import org.wfanet.measurement.duchy.service.internal.ComputationNotFoundException
 import org.wfanet.measurement.duchy.service.internal.computationcontrol.AsyncComputationControlService
 import org.wfanet.measurement.duchy.service.internal.computations.ComputationsService
 import org.wfanet.measurement.duchy.service.internal.computations.newEmptyOutputBlobMetadata
@@ -105,10 +111,14 @@ import org.wfanet.measurement.internal.duchy.createComputationRequest
 import org.wfanet.measurement.internal.duchy.GetComputationTokenRequest
 import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathRequest
 import org.wfanet.measurement.internal.duchy.RecordOutputBlobPathResponse
+import org.wfanet.measurement.internal.duchy.RequisitionEntry
 import org.wfanet.measurement.internal.duchy.updateComputationDetailsRequest
 import org.wfanet.measurement.internal.duchy.config.RoleInComputation
 import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2Kt
 import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggregationV2.Stage as Llv2Stage
+import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineImplBase
+import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineStub
+import org.wfanet.measurement.internal.kingdom.StreamMeasurementsRequest
 import org.wfanet.measurement.internal.kingdom.ErrorCode
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as InternalRequisitionsService
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineStub as InternalRequisitionsCoroutineStub
@@ -119,6 +129,7 @@ import org.wfanet.measurement.kingdom.service.api.v2alpha.RequisitionsService
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toInternalState
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toState
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toExternalStatusRuntimeException
+import org.wfanet.measurement.kingdom.service.system.v1alpha.ComputationsService as SystemComputationsService
 import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurementConsumerSimulator
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
@@ -129,6 +140,7 @@ import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.Compu
 import org.wfanet.measurement.system.v1alpha.ComputationParticipantsGrpcKt.ComputationParticipantsCoroutineStub
 import org.wfanet.measurement.system.v1alpha.ComputationsGrpcKt.ComputationsCoroutineStub as SystemComputationsCoroutineStub
 import org.wfanet.measurement.system.v1alpha.GetComputationParticipantRequest
+import org.wfanet.measurement.system.v1alpha.streamActiveComputationsRequest
 
 /**
  * Test that everything is wired up properly.
@@ -348,6 +360,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
     }
     var requisitionsServiceCallCount = 0
+    var measurementsStreamCallCount = 0
     withGrpcTestServer(
       addServices = {
         addService(
@@ -355,7 +368,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
             override fun streamRequisitions(request: StreamRequisitionsRequest) =
               when (++requisitionsServiceCallCount) {
                 1 -> throw Status.INVALID_ARGUMENT.asException()
-                else -> throw Status.DEADLINE_EXCEEDED.asException()
+                2 -> throw Status.DEADLINE_EXCEEDED.asException()
+                else -> throw Status.CANCELLED.asException()
               }
           }
         )
@@ -414,6 +428,18 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
             ): RecordOutputBlobPathResponse = throw Status.UNAVAILABLE.asException()
           }
         )
+        addService(
+          object : MeasurementsCoroutineImplBase() {
+            override fun streamMeasurements(request: StreamMeasurementsRequest) =
+              flow {
+                when (++measurementsStreamCallCount) {
+                  1 -> throw Status.DEADLINE_EXCEEDED.asException()
+                  2 -> throw Status.CANCELLED.asException()
+                  else -> throw Status.UNKNOWN.asException()
+                }
+              }
+          }
+        )
       }
     ) { channel ->
       touchRequisitionsServiceErrorHandling(channel, dataProviderName)
@@ -425,6 +451,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         computationStage = coverageComputationStage,
       )
       touchAsyncComputationControlRetry(channel, asyncComputationToken)
+      touchSystemComputationsServiceStreamErrors(channel)
       touchRequisitionGrouperByReportId(
         channel,
         grouperStorageClient,
@@ -461,7 +488,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     val stub = InternalRequisitionsCoroutineStub(channel)
     val service = RequisitionsService(stub)
     val request = listRequisitionsRequest { parent = dataProviderName }
-    repeat(2) {
+    repeat(3) {
       try {
         withDataProviderPrincipal(dataProviderName) {
           runBlocking { service.listRequisitions(request) }
@@ -535,13 +562,14 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     computationDetails: ComputationDetails,
     computationStage: ComputationStage,
   ) {
-    val computationsDatabase = FakeComputationsDatabase()
-    computationsDatabase.addComputation(
+    val baseDatabase = FakeComputationsDatabase()
+    val computationsDatabase = CoverageComputationsDatabase(baseDatabase)
+    baseDatabase.addComputation(
       localId = 1L,
       stage = computationStage,
       computationDetails = computationDetails,
     )
-    val storedToken = computationsDatabase[1L]!!
+    val storedToken = baseDatabase[1L]!!
     val staleToken = storedToken.copy { version = storedToken.version + 1 }
     val storageClient = FileSystemStorageClient(tempPath.toFile())
     val service =
@@ -559,6 +587,34 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     try {
       runBlocking { service.updateComputationDetails(request) }
     } catch (_: Exception) {
+    }
+    val missingToken =
+      storedToken.copy {
+        localComputationId = 999L
+        globalComputationId = "missing-computation"
+      }
+    val missingRequest = updateComputationDetailsRequest {
+      token = missingToken
+      details = computationDetails
+    }
+    try {
+      runBlocking { service.updateComputationDetails(missingRequest) }
+    } catch (_: Exception) {
+    }
+  }
+
+  private class CoverageComputationsDatabase(
+    private val delegate: FakeComputationsDatabase
+  ) : ComputationsDatabase by delegate {
+    override suspend fun updateComputationDetails(
+      token: ComputationEditToken<ComputationType, ComputationStage>,
+      computationDetails: ComputationDetails,
+      requisitions: List<RequisitionEntry>,
+    ) {
+      if (token.localId == 999L) {
+        throw ComputationNotFoundException(token.globalId)
+      }
+      delegate.updateComputationDetails(token, computationDetails, requisitions)
     }
   }
 
@@ -586,6 +642,24 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     try {
       runBlocking { controlService.advanceComputation(request) }
     } catch (_: Exception) {
+    }
+  }
+
+  private fun touchSystemComputationsServiceStreamErrors(channel: Channel) {
+    val service =
+      SystemComputationsService(
+        measurementsClient = MeasurementsCoroutineStub(channel),
+        duchyIdentityProvider = {
+          DuchyIdentity(inProcessCmmsComponents.duchies.first().externalDuchyId)
+        },
+      )
+    repeat(3) {
+      try {
+        runBlocking {
+          service.streamActiveComputations(streamActiveComputationsRequest {}).collect {}
+        }
+      } catch (_: Exception) {
+      }
     }
   }
 
