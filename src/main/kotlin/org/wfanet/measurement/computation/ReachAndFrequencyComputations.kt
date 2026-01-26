@@ -21,6 +21,7 @@ import kotlin.math.min
 object ReachAndFrequencyComputations {
   private const val L0_SENSITIVITY = 1
   private const val L_INFINITE_SENSITIVITY = 1L
+
   @VisibleForTesting
   fun clampNoisedValue(noisedValue: Long): Long = if (noisedValue < 0L) 0L else noisedValue
 

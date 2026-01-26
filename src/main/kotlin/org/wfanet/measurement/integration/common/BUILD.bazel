@@ -440,6 +440,7 @@ kt_jvm_library(
         ":all_kingdom_services",
         ":in_process_cmms_components",
         ":in_process_edp_aggregator_components",
+        "//src/main/kotlin/org/wfanet/measurement/computation:reach_and_frequency_computations",
         "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation:computation",
         "//src/main/kotlin/org/wfanet/measurement/duchy/db/computation/testing:testing",
         "//src/main/kotlin/org/wfanet/measurement/duchy/mill:mill_base",

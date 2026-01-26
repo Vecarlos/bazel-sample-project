@@ -47,6 +47,17 @@ kt_jvm_library(
 kt_jvm_library(
     name = "reach_and_frequency_computations",
     srcs = ["ReachAndFrequencyComputations.kt"],
+    visibility = [
+        "//src/main/kotlin/org/wfanet/measurement/duchy/mill/trustee:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/compute/protocols/direct:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/fulfillers:__subpackages__",
+        "//src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/common:__pkg__",
+        "//src/main/kotlin/org/wfanet/measurement/integration/common:__pkg__",
+        "//src/test/kotlin/org/wfanet/measurement/computation:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/duchy/mill/trustee:__subpackages__",
+        "//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:__subpackages__",
+    ],
     deps = [
         ":differential_privacy_params",
         ":k_anonymity_params",

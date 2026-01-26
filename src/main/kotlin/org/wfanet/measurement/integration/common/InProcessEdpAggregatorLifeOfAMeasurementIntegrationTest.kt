@@ -68,6 +68,7 @@ import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
 import org.wfanet.measurement.common.identity.DuchyIdentity
+import org.wfanet.measurement.computation.ReachAndFrequencyComputations
 import org.wfanet.measurement.duchy.db.computation.ComputationEditToken
 import org.wfanet.measurement.duchy.db.computation.ComputationDataClients
 import org.wfanet.measurement.duchy.db.computation.ComputationsDatabase
@@ -462,6 +463,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
     }
     touchSpannerComputationsTransactorVersionMismatch(coverageComputationDetails)
+    touchReachAndFrequencyClamp()
   }
 
   private fun withGrpcTestServer(
@@ -694,6 +696,11 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       runBlocking { computationsStub.updateComputationDetails(staleRequest) }
     } catch (_: Exception) {
     }
+  }
+
+  private fun touchReachAndFrequencyClamp() {
+    ReachAndFrequencyComputations.clampNoisedValue(-1L)
+    ReachAndFrequencyComputations.clampNoisedValue(1L)
   }
 
   private fun touchRequisitionGrouperByReportId(
