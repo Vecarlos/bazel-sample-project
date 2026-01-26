@@ -14,6 +14,11 @@
 
 package org.wfanet.measurement.integration.common
 
+import com.google.cloud.Timestamp
+import com.google.cloud.spanner.CommitResponse
+import com.google.cloud.spanner.ErrorCode as SpannerErrorCode
+import com.google.cloud.spanner.SpannerException
+import com.google.cloud.spanner.SpannerExceptionFactory
 import com.google.protobuf.Any
 import com.google.protobuf.kotlin.toByteString
 import com.google.rpc.errorInfo
@@ -67,6 +72,9 @@ import org.wfanet.measurement.common.grpc.testing.GrpcTestServerRule
 import org.wfanet.measurement.common.parseTextProto
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
+import org.wfanet.measurement.common.identity.IdGenerator
+import org.wfanet.measurement.common.identity.ExternalId
+import org.wfanet.measurement.common.identity.InternalId
 import org.wfanet.measurement.common.identity.DuchyIdentity
 import org.wfanet.measurement.computation.ReachAndFrequencyComputations
 import org.wfanet.measurement.duchy.db.computation.ComputationEditToken
@@ -96,7 +104,9 @@ import org.wfanet.measurement.edpaggregator.v1alpha.requisitionMetadata
 import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMemoryVidIndexMap
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
+import org.wfanet.measurement.gcloud.spanner.AsyncDatabaseClient
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
+import org.wfanet.measurement.gcloud.spanner.TransactionWork
 import org.wfanet.measurement.internal.duchy.ComputationStage
 import org.wfanet.measurement.internal.duchy.ComputationStatsGrpcKt.ComputationStatsCoroutineStub
 import org.wfanet.measurement.internal.duchy.ComputationDetails
@@ -120,12 +130,13 @@ import org.wfanet.measurement.internal.duchy.protocol.LiquidLegionsSketchAggrega
 import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineImplBase
 import org.wfanet.measurement.internal.kingdom.MeasurementsGrpcKt.MeasurementsCoroutineStub as InternalMeasurementsCoroutineStub
 import org.wfanet.measurement.internal.kingdom.StreamMeasurementsRequest
-import org.wfanet.measurement.internal.kingdom.ErrorCode
+import org.wfanet.measurement.internal.kingdom.ErrorCode as KingdomErrorCode
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineImplBase as InternalRequisitionsService
 import org.wfanet.measurement.internal.kingdom.RequisitionsGrpcKt.RequisitionsCoroutineStub as InternalRequisitionsCoroutineStub
 import org.wfanet.measurement.internal.kingdom.StreamRequisitionsRequest
 import org.wfanet.measurement.internal.kingdom.Measurement as InternalMeasurement
 import org.wfanet.measurement.kingdom.deploy.common.service.DataServices
+import org.wfanet.measurement.kingdom.deploy.gcloud.spanner.writers.SpannerWriter
 import org.wfanet.measurement.kingdom.service.api.v2alpha.RequisitionsService
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toInternalState
 import org.wfanet.measurement.kingdom.service.api.v2alpha.toState
@@ -280,7 +291,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       .toExternalStatusRuntimeException(missingInfoException)
     val wrongDomainInfo = errorInfo {
       domain = "wrong.domain"
-      reason = ErrorCode.REQUIRED_FIELD_NOT_SET.name
+      reason = KingdomErrorCode.REQUIRED_FIELD_NOT_SET.name
       metadata["field_name"] = "foo"
     }
     val wrongDomainStatus = status {
@@ -292,8 +303,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     Status.INVALID_ARGUMENT.withDescription("bad request")
       .toExternalStatusRuntimeException(wrongDomainException)
     val internalInfo = errorInfo {
-      domain = ErrorCode.getDescriptor().fullName
-      reason = ErrorCode.REQUIRED_FIELD_NOT_SET.name
+      domain = KingdomErrorCode.getDescriptor().fullName
+      reason = KingdomErrorCode.REQUIRED_FIELD_NOT_SET.name
       metadata["field_name"] = "foo"
     }
     val statusProto = status {
@@ -464,6 +475,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
     touchSpannerComputationsTransactorVersionMismatch(coverageComputationDetails)
     touchReachAndFrequencyClamp()
+    touchSpannerWriterException()
   }
 
   private fun withGrpcTestServer(
@@ -701,6 +713,46 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private fun touchReachAndFrequencyClamp() {
     ReachAndFrequencyComputations.clampNoisedValue(-1L)
     ReachAndFrequencyComputations.clampNoisedValue(1L)
+  }
+
+  private fun touchSpannerWriterException() {
+    val exception =
+      SpannerExceptionFactory.newSpannerException(
+        SpannerErrorCode.INVALID_ARGUMENT,
+        "coverage-spanner-writer",
+      )
+    val runner =
+      object : AsyncDatabaseClient.TransactionRunner {
+        override suspend fun <R> run(doWork: TransactionWork<R>): R {
+          throw exception
+        }
+
+        override suspend fun getCommitTimestamp(): Timestamp = Timestamp.now()
+
+        override suspend fun getCommitResponse(): CommitResponse = CommitResponse(Timestamp.now())
+
+        override fun close() {}
+      }
+    val writer =
+      object : SpannerWriter<Int, Int>() {
+        override suspend fun TransactionScope.runTransaction(): Int = 1
+
+        override fun ResultScope<Int>.buildResult(): Int = 1
+
+        suspend fun touch(idGenerator: IdGenerator) {
+          runTransactionWithRunner(runner, idGenerator)
+        }
+      }
+    val idGenerator =
+      object : IdGenerator {
+        override fun generateInternalId(): InternalId = InternalId(1L)
+
+        override fun generateExternalId(): ExternalId = ExternalId(1L)
+      }
+    try {
+      runBlocking { writer.touch(idGenerator) }
+    } catch (_: SpannerException) {
+    }
   }
 
   private fun touchRequisitionGrouperByReportId(
