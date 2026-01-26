@@ -347,12 +347,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         Any.pack(GroupedRequisitions.getDefaultInstance()).toByteString(),
       )
     }
+    var requisitionsServiceCallCount = 0
     withGrpcTestServer(
       addServices = {
         addService(
           object : InternalRequisitionsService() {
             override fun streamRequisitions(request: StreamRequisitionsRequest) =
-              throw Status.INVALID_ARGUMENT.asException()
+              when (++requisitionsServiceCallCount) {
+                1 -> throw Status.INVALID_ARGUMENT.asException()
+                else -> throw Status.DEADLINE_EXCEEDED.asException()
+              }
           }
         )
         addService(
@@ -396,7 +400,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           object : ComputationParticipantsCoroutineImplBase() {
             override suspend fun getComputationParticipant(
               request: GetComputationParticipantRequest
-            ): ComputationParticipant = throw Status.UNAVAILABLE.asException()
+            ): ComputationParticipant = ComputationParticipant.getDefaultInstance()
           }
         )
         addService(
@@ -457,11 +461,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     val stub = InternalRequisitionsCoroutineStub(channel)
     val service = RequisitionsService(stub)
     val request = listRequisitionsRequest { parent = dataProviderName }
-    try {
-      withDataProviderPrincipal(dataProviderName) {
-        runBlocking { service.listRequisitions(request) }
+    repeat(2) {
+      try {
+        withDataProviderPrincipal(dataProviderName) {
+          runBlocking { service.listRequisitions(request) }
+        }
+      } catch (_: Exception) {
       }
-    } catch (_: Exception) {
     }
   }
 
@@ -673,7 +679,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     override suspend fun processComputationImpl(token: ComputationToken) = Unit
 
     suspend fun touchUpdateComputationParticipant(token: ComputationToken) {
-      updateComputationParticipant(token) {}
+      updateComputationParticipant(token) { throw Status.UNAVAILABLE.asException() }
     }
   }
 
