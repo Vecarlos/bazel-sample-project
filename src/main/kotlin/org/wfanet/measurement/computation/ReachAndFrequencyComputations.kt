@@ -15,11 +15,14 @@
 package org.wfanet.measurement.computation
 
 import com.google.privacy.differentialprivacy.GaussianNoise
+import org.jetbrains.annotations.VisibleForTesting
 import kotlin.math.min
 
 object ReachAndFrequencyComputations {
   private const val L0_SENSITIVITY = 1
   private const val L_INFINITE_SENSITIVITY = 1L
+  @VisibleForTesting
+  fun clampNoisedValue(noisedValue: Long): Long = if (noisedValue < 0L) 0L else noisedValue
 
   /**
    * Computes the reach, applying differential privacy noise if parameters are provided.
@@ -162,7 +165,7 @@ object ReachAndFrequencyComputations {
                   dpParams.epsilon,
                   dpParams.delta,
                 )
-              if (noisedValue < 0) 0L else noisedValue
+              clampNoisedValue(noisedValue)
             }
             .toLongArray()
 
