@@ -357,7 +357,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
           report = grouperReportId
         },
         requisitionMetadata {
-          state = RequisitionMetadata.State.QUEUED
+          state = RequisitionMetadata.State.STORED
           cmmsRequisition = "${TestRequisitionData.EDP_NAME}/requisitions/other"
           blobUri = "$grouperBlobUriPrefix/$grouperStoragePathPrefix/$grouperPresentGroupId"
           blobTypeUrl = "type.googleapis.com/coverage"
