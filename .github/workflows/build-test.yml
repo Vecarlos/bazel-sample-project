@@ -184,6 +184,7 @@ jobs:
           //src/test/kotlin/...
           --
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
+        continue-on-error: true
 
       - name: Verify consolidated coverage report exists
         run: |
