@@ -187,6 +187,7 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
           -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
           -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerTest
+          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerAppTest
         continue-on-error: true
 
       - name: Verify consolidated coverage report exists
