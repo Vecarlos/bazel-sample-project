@@ -184,11 +184,13 @@ jobs:
           //src/test/kotlin/...
           --
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
-          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
-          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
+
         continue-on-error: true
 #          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerTest
 #          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerAppTest
+#          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
+#          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
+        
 
       - name: Verify consolidated coverage report exists
         run: |
