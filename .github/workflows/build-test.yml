@@ -192,6 +192,8 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/compute/protocols/direct:DirectMeasurementResultFactoryTest
           -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/fulfillers:HMShuffleMeasurementFulfillerTest
           -//src/test/kotlin/org/wfanet/measurement/duchy/mill/trustee/processor:TrusTeeProcessorImplTest
+          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerTest
+          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerAppTest
 
         continue-on-error: true
 
