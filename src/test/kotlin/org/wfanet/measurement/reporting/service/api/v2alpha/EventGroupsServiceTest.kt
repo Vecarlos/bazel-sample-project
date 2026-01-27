@@ -153,7 +153,7 @@ class EventGroupsServiceTest {
       CelEnvCacheProvider(
         EventGroupMetadataDescriptorsCoroutineStub(grpcTestServerRule.channel),
         EventGroup.getDescriptor(),
-        Duration.ofSeconds(5),
+        CACHE_REFRESH_INTERVAL,
         emptyList(),
       )
 
@@ -411,7 +411,7 @@ class EventGroupsServiceTest {
       CelEnvCacheProvider(
         EventGroupMetadataDescriptorsCoroutineStub(grpcTestServerRule.channel),
         EventGroup.getDescriptor(),
-        Duration.ofSeconds(5),
+        CACHE_REFRESH_INTERVAL,
         listOf(TestMetadataMessage.getDescriptor().file),
       )
     service =
@@ -828,6 +828,8 @@ class EventGroupsServiceTest {
   companion object {
     private const val DEFAULT_PAGE_SIZE = 50
     private const val MAX_PAGE_SIZE = 1000
+    // Keep refresh interval effectively disabled to avoid nondeterministic background sync in tests.
+    private val CACHE_REFRESH_INTERVAL = Duration.ofDays(3650)
 
     private const val API_AUTHENTICATION_KEY = "nR5QPN7ptx"
     private val CONFIG = measurementConsumerConfig { apiKey = API_AUTHENTICATION_KEY }
