@@ -186,7 +186,7 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
           -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
           -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
-          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerAppTest
+          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerTest
 
         continue-on-error: true
 
