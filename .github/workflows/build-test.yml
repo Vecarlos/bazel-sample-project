@@ -186,9 +186,6 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
           -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
           -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
-          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/compute/protocols/direct:DirectReachAndFrequencyResultBuilderTest
-          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/compute/protocols/direct:DirectReachResultBuilderTest
-          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/compute/protocols/direct:DirectMeasurementResultFactoryTest
           -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller/fulfillers:HMShuffleMeasurementFulfillerTest
           -//src/test/kotlin/org/wfanet/measurement/duchy/mill/trustee/processor:TrusTeeProcessorImplTest
           -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerTest
