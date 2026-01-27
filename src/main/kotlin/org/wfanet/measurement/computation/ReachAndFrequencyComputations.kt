@@ -15,6 +15,7 @@
 package org.wfanet.measurement.computation
 
 import com.google.privacy.differentialprivacy.GaussianNoise
+import kotlin.math.max
 import kotlin.math.min
 
 object ReachAndFrequencyComputations {
@@ -64,8 +65,7 @@ object ReachAndFrequencyComputations {
             dpParams.delta,
           )
         val scaledNoisedReach =
-          if (noisedReachInSample < 0) 0L
-          else (noisedReachInSample / vidSamplingIntervalWidth).toLong()
+          max(0L, (noisedReachInSample / vidSamplingIntervalWidth).toLong())
         min(scaledNoisedReach, maxPossibleScaledReach)
       }
     }
@@ -162,7 +162,7 @@ object ReachAndFrequencyComputations {
                   dpParams.epsilon,
                   dpParams.delta,
                 )
-              if (noisedValue < 0) 0L else noisedValue
+              max(0L, noisedValue)
             }
             .toLongArray()
 
