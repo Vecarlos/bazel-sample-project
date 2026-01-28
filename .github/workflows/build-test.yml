@@ -191,6 +191,7 @@ jobs:
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
+      
 #          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerTest
 #          -//src/test/kotlin/org/wfanet/measurement/edpaggregator/resultsfulfiller:ResultsFulfillerAppTest
 #          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
