@@ -191,6 +191,7 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest
+          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
         continue-on-error: true
       #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest
 #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest
