@@ -192,7 +192,7 @@ jobs:
           
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
         continue-on-error: true
-          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
+#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
 
 #        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest No cambio cov
 
