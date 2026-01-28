@@ -197,7 +197,7 @@ jobs:
 #          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
 #          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
 #  GCloudInProcessAccessCliIntegrationTest
-#      GCloudInProcessReportingEventGroupsTest
+#  GCloudInProcessReportingEventGroupsTest
 
       - name: Verify consolidated coverage report exists
         run: |
