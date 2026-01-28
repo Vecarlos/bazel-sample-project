@@ -187,7 +187,6 @@ jobs:
 #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest
 #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
-      #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest
 #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
@@ -198,6 +197,7 @@ jobs:
 #          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api:CelEnvProviderTest
 #          -//src/test/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:EventGroupsServiceTest
 #  GCloudInProcessAccessCliIntegrationTest
+#      GCloudInProcessReportingEventGroupsTest
 
       - name: Verify consolidated coverage report exists
         run: |
