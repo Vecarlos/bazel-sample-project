@@ -21,3 +21,11 @@ coverage:
     project:
       default:
         informational: true
+      unit:
+        flags:
+          - unit
+        informational: true
+      integration:
+        flags:
+          - integration
+        informational: true
