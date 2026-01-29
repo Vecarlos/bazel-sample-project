@@ -16,6 +16,7 @@
 
 package org.wfanet.measurement.integration.deploy.gcloud
 
+import java.time.Duration
 import org.junit.ClassRule
 import org.wfanet.measurement.common.db.r2dbc.postgres.testing.PostgresDatabaseProviderRule
 import org.wfanet.measurement.duchy.deploy.common.postgres.testing.Schemata.DUCHY_CHANGELOG_PATH
@@ -38,6 +39,8 @@ class GCloudInProcessLifeOfAReportV2IntegrationTest :
       IMPRESSION_QUALIFICATION_FILTER_MAPPING,
     ),
   ) {
+  override val celEnvCacheRefreshInterval: Duration = Duration.ofDays(3650)
+
   companion object {
     @get:ClassRule @JvmStatic val spannerEmulator = SpannerEmulatorRule()
 

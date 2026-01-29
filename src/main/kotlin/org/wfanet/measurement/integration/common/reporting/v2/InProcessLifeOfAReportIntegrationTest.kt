@@ -27,6 +27,7 @@ import com.google.type.interval
 import com.google.type.timeZone
 import java.io.File
 import java.nio.file.Paths
+import java.time.Duration
 import java.time.LocalDate
 import kotlin.math.max
 import kotlin.test.assertNotNull
@@ -203,6 +204,8 @@ abstract class InProcessLifeOfAReportIntegrationTest(
 
   private lateinit var measurementConsumerConfig: MeasurementConsumerConfig
 
+  protected open val celEnvCacheRefreshInterval: Duration = Duration.ofSeconds(5)
+
   private val reportingServerRule =
     object : TestRule {
       lateinit var reportingServer: InProcessReportingServer
@@ -248,6 +251,7 @@ abstract class InProcessLifeOfAReportIntegrationTest(
           verboseGrpcLogging = false,
           populationDataProviderName =
             inProcessCmmsComponents.getPopulationData().populationDataProviderName,
+          celEnvCacheRefreshInterval = celEnvCacheRefreshInterval,
         )
       }
 

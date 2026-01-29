@@ -115,6 +115,7 @@ class InProcessReportingServer(
   private val defaultModelLineName: String,
   private val populationDataProviderName: String,
   private val verboseGrpcLogging: Boolean = true,
+  private val celEnvCacheRefreshInterval: Duration = Duration.ofSeconds(5),
 ) : TestRule {
   private val publicKingdomMeasurementConsumersClient =
     PublicKingdomMeasurementConsumersCoroutineStub(kingdomPublicApiChannel)
@@ -203,7 +204,7 @@ class InProcessReportingServer(
             measurementConsumerConfig.apiKey
           ),
           EventGroup.getDescriptor(),
-          Duration.ofSeconds(5),
+          celEnvCacheRefreshInterval,
           knownEventGroupMetadataTypes,
         )
       }) {
