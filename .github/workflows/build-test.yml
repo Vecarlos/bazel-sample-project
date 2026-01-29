@@ -188,7 +188,7 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
         continue-on-error: true
-        #           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
+#        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
         #5
         #        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest  No cambio cov
         #        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest      No cambio cov
@@ -210,59 +210,32 @@ jobs:
 #  GCloudInProcessAccessCliIntegrationTest
 #  GCloudInProcessReportingEventGroupsTest
 
-      - name: Save unit coverage report
+      - name: Verify consolidated coverage report exists
         run: |
           set -euo pipefail
-          cp "$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat" \
-            "$BAZEL_OUTPUT_PATH/_coverage/coverage-unit.dat"
-
-      - name: Run integration tests with coverage
-        id: run-coverage-integration
-        env:
-          COVERAGE_EXCLUSIONS: ${{ steps.compute-coverage-exclusions.outputs.exclusion_filter }}
-          USE_CACHE: ${{ inputs.disable-cache-for-coverage && 'no' || 'yes' }}
-        run: >
-          bazel coverage
-          --cache_test_results=yes
-          --experimental_split_coverage_postprocessing
-          --experimental_fetch_all_coverage_outputs
-          --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
-        continue-on-error: true
-
-      - name: Save integration coverage report
-        run: |
-          set -euo pipefail
-          cp "$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat" \
-            "$BAZEL_OUTPUT_PATH/_coverage/coverage-integration.dat"
+          report_path="$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat"
+          if [ ! -f "$report_path" ]; then
+            echo "Missing coverage report at $report_path"
+            exit 1
+          fi
+          ls -l "$report_path"
 
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
 
-      - name: Upload coverage reports as artifact
+      - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
-          path: |
-            ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/coverage-unit.dat
-            ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/coverage-integration.dat
+          name: coverage-report
+          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload unit coverage to Codecov
+      - name: Upload consolidated coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/coverage-unit.dat
-          flags: unit
+          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload integration coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/coverage-integration.dat
-          flags: integration

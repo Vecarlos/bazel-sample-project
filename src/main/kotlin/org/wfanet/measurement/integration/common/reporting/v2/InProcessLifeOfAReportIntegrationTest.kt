@@ -1698,24 +1698,17 @@ abstract class InProcessLifeOfAReportIntegrationTest(
       }
     }
 
-    val deferred: MutableList<Deferred<Report>> = mutableListOf()
     repeat(numReports) {
-      deferred.add(
-        async {
-          publicReportsClient
-            .withCallCredentials(credentials)
-            .createReport(
-              createReportRequest {
-                parent = measurementConsumerData.name
-                this.report = report
-                reportId = "report$it"
-              }
-            )
-        }
-      )
+      publicReportsClient
+        .withCallCredentials(credentials)
+        .createReport(
+          createReportRequest {
+            parent = measurementConsumerData.name
+            this.report = report
+            reportId = "report$it"
+          }
+        )
     }
-
-    deferred.awaitAll()
     val retrievedReports =
       publicReportsClient
         .withCallCredentials(credentials)
