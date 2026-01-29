@@ -17,9 +17,13 @@ coverage:
   status:
     patch:
       default:
+        flags:
+          - unit
         informational: true
     project:
       default:
+        flags:
+          - unit
         informational: true
       unit:
         flags:
