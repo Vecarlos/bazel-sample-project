@@ -144,30 +144,10 @@ jobs:
       - name: Check lockfile
         run: bazel mod deps
 
-      # - name: Build
-      #   run: >
-      #     bazel build --worker_quit_after_build
-      #     //...
-      #     //src/main/k8s/local:cmms
-      #     //src/main/k8s/dev:edp_simulators
-
-      # - name: Run tests
-      #   id: run-tests
-      #   run: bazel test //...
-
-      # TODO(world-federation-of-advertisers/cross-media-measurement#3329): Re-enable coverage.
 
       - name: Export bazel output path
         run: echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
-      # - name: Create cluster
-      #   id: create-cluster
-      #   run: |
-      #     echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
-      #     curl -LOJ https://kind.sigs.k8s.io/examples/kind-with-registry.sh
-      #     chmod +x kind-with-registry.sh
-      #     sed -i 's|kind create cluster|kind create cluster --image=kindest/node:v1.30.0|g' kind-with-registry.sh
-      #     ./kind-with-registry.sh
 
 
       - name: Run tests with coverage
@@ -182,6 +162,7 @@ jobs:
           --experimental_fetch_all_coverage_outputs
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS},-//src/main/kotlin/org/wfanet/measurement/reporting/service/api:.*,-//src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha:.*,-//src/main/kotlin/org/wfanet/measurement/kingdom/service/system/v1alpha:.* ,-//src/main/kotlin/org/wfanet/measurement/eventdataprovider/requisition/v2alpha/shareshuffle:.*,-//src/main/kotlin/org/wfanet/measurement/duchy/service/internal:.*,-//src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol:.*,-//src/main/kotlin/org/wfanet/measurement/duchy/herald:.*,-//src/main/kotlin/org/wfanet/measurement/duchy/mill:.*,-//src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres:.*,-//src/main/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:.*"
           //src/test/kotlin/...
+          //src/test/python/...
           --
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest
@@ -224,31 +205,19 @@ jobs:
 #  GCloudInProcessAccessCliIntegrationTest
 #  GCloudInProcessReportingEventGroupsTest
 
-      - name: Verify consolidated coverage report exists
-        run: |
-          set -euo pipefail
-          report_path="$BAZEL_OUTPUT_PATH/_coverage/_coverage_report.dat"
-          if [ ! -f "$report_path" ]; then
-            echo "Missing coverage report at $report_path"
-            exit 1
-          fi
-          ls -l "$report_path"
 
       - name: Bazel output path
         run: |
           echo "BAZEL_OUTPUT_PATH=$(bazel info output_path)" >> $GITHUB_ENV
 
+      - name: Get bazel-testlogs path
+        run: echo "BAZEL_TESTLOGS_PATH=$(bazel info bazel-testlogs)" >> $GITHUB_ENV
 
-      - name: Upload coverage report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
 
-      - name: Upload consolidated coverage to Codecov
+      - name: Upload all coverage.dat files to Codecov
         uses: codecov/codecov-action@v5
         with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: vecarlos/bazel-sample-project
-          files: ${{ env.BAZEL_OUTPUT_PATH }}/_coverage/_coverage_report.dat
+         fail_ci_if_error: true
+         token: ${{ secrets.CODECOV_TOKEN }}
+         slug: vecarlos/bazel-sample-project
+         directory: ${{ env.BAZEL_TESTLOGS_PATH }}
