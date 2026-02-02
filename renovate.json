@@ -1,4 +1,4 @@
 {
   "enabledManagers": [ "github-actions" ],
-  "pinDigests": false 
+  "pinDigests": false
 }
