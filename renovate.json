@@ -1,9 +1,13 @@
 {
-  "packageRules": [
+  "customManagers": [
     {
-      "matchManagers": ["bazel-module"],
-      "matchDatasources": ["maven"],
-      "versioning": "maven"
+      "customType": "regex",
+      "fileMatch": ["(^|/)MODULE\\.bazel$"],
+      "matchStrings": [
+        "\"(?<depName>[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+):(?<currentValue>[^\"\\s]+)\""
+      ],
+      "datasourceTemplate": "maven",
+      "versioningTemplate": "maven"
     }
   ]
 }
