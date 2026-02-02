@@ -1,4 +1,13 @@
 {
-  "pinDigests": true,
-  "enabledManagers": ["github-actions", "bazel-module"]
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["(^|/)MODULE\\.bazel$"],
+      "matchStrings": [
+        "\"(?<depName>[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+):(?<currentValue>[^\"\\s]+)\""
+      ],
+      "datasourceTemplate": "maven",
+      "versioningTemplate": "maven"
+    }
+  ]
 }
