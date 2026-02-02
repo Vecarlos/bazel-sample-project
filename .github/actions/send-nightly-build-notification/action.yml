@@ -35,7 +35,7 @@ runs:
   using: "composite"
   steps:
     - name: Post message to a Slack channel
-      uses: slackapi/slack-github-action@v2.1.1
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
       with:
         errors: false #avoid failing the job if the step fails
         method: chat.postMessage
