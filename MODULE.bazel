@@ -207,31 +207,31 @@ bazel_dep(
 )
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
-maven.artifact(
-    artifact = "beam-runners-google-cloud-dataflow-java",
-    exclusions = ["org.apache.beam:beam-sdks-java-io-kafka"],
-    group = "org.apache.beam",
-)
-maven.artifact(
-    artifact = "beam-sdks-java-io-google-cloud-platform",
-    exclusions = [
-        # Prevent netty-tcnative being used instead of Conscrypt.
-        "io.netty:netty-tcnative-boringssl-static",
-    ],
-    group = "org.apache.beam",
-)
+#maven.artifact(
+#    artifact = "beam-runners-google-cloud-dataflow-java",
+#    exclusions = ["org.apache.beam:beam-sdks-java-io-kafka"],
+#    group = "org.apache.beam",
+#)
+#maven.artifact(
+#    artifact = "beam-sdks-java-io-google-cloud-platform",
+#    exclusions = [
+#        # Prevent netty-tcnative being used instead of Conscrypt.
+#        "io.netty:netty-tcnative-boringssl-static",
+#    ],
+#    group = "org.apache.beam",
+#)
 maven.install(
     artifacts = [
         "com.google.crypto.tink:tink-awskms:1.11.0",
         "com.google.crypto.tink:tink-gcpkms:1.9.0",
-        "com.squareup.okhttp3:okhttp",
-        "com.squareup.okhttp3:okhttp-tls",
+#        "com.squareup.okhttp3:okhttp",
+#        "com.squareup.okhttp3:okhttp-tls",
         "com.google.privacy.differentialprivacy:differentialprivacy:4.0.0",
 
         # OpenTelemetry SDK metrics (sdk is available from common-jvm, but sdk-metrics is not exposed)
-        "io.opentelemetry:opentelemetry-sdk-metrics",
-        "io.opentelemetry:opentelemetry-sdk-logs",
-        "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure",
+#        "io.opentelemetry:opentelemetry-sdk-metrics",
+#        "io.opentelemetry:opentelemetry-sdk-logs",
+#        "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure",
 
         # OpenTelemetry instrumentation (only alpha versions available)
         "io.opentelemetry.instrumentation:opentelemetry-grpc-1.6:2.0.0-alpha",
@@ -245,8 +245,8 @@ maven.install(
         "com.google.cloud.opentelemetry:exporter-auto:0.36.0-alpha",
 
         # OpenTelemetry logging exporter (console/stdout - Google Cloud will collect from stdout)
-        "io.opentelemetry:opentelemetry-exporter-logging",
-        "io.opentelemetry:opentelemetry-extension-kotlin",
+#        "io.opentelemetry:opentelemetry-exporter-logging",
+#        "io.opentelemetry:opentelemetry-extension-kotlin",
 #        "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
 #        "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
 
@@ -258,37 +258,37 @@ maven.install(
         "it.unimi.dsi:fastutil:8.5.12",
 
         # Google Cloud
-        "com.google.cloud:google-cloud-bigquerystorage",
-        "com.google.cloud:google-cloud-security-private-ca",
+#        "com.google.cloud:google-cloud-bigquerystorage",
+#        "com.google.cloud:google-cloud-security-private-ca",
         "com.google.cloud.functions.invoker:java-function-invoker:1.4.0",
-        "com.google.cloud:google-cloud-secretmanager",
-        "com.google.cloud:google-cloud-logging",
+#        "com.google.cloud:google-cloud-secretmanager",
+#        "com.google.cloud:google-cloud-logging",
         # TODO(googleapis/java-cloud-bom#5279): Remove when managed by BOM.
         "com.google.apis:google-api-services-storage:v1-rev20240706-2.0.0",
 
         # AWS
-        "software.amazon.awssdk:acmpca",
+#        "software.amazon.awssdk:acmpca",
 
         # Apache Beam
-        "org.apache.beam:beam-runners-direct-java",
-        "org.apache.beam:beam-runners-spark",
-        "org.apache.beam:beam-sdks-java-core",
+#        "org.apache.beam:beam-runners-direct-java",
+#        "org.apache.beam:beam-runners-spark",
+#        "org.apache.beam:beam-sdks-java-core",
 
         # CEL
-        "org.projectnessie.cel:cel-core",
-        "org.projectnessie.cel:cel-generated-pb",
+#        "org.projectnessie.cel:cel-core",
+#        "org.projectnessie.cel:cel-generated-pb",
 
         # Bouncy Castle
         "org.bouncycastle:bcpkix-jdk18on:1.79",
 
         # Apache Commons Math/Numbers
-        "org.apache.commons:commons-numbers-core",
-        "org.apache.commons:commons-numbers-gamma",
+#        "org.apache.commons:commons-numbers-core",
+#        "org.apache.commons:commons-numbers-gamma",
         "org.apache.commons:commons-math3:3.6.1",
     ],
     boms = [
         "com.squareup.okhttp3:okhttp-bom:4.12.0",
-        "org.apache.beam:beam-sdks-java-bom:" + APACHE_BEAM_VERSION,
+#        "org.apache.beam:beam-sdks-java-bom:" + APACHE_BEAM_VERSION,
         "org.projectnessie.cel:cel-bom:0.5.0",
         "org.apache.commons:commons-numbers-bom:1.2",
     ],
