@@ -297,8 +297,12 @@ maven.install(
         # OpenTelemetry logging exporter (console/stdout - Google Cloud will collect from stdout)
         "io.opentelemetry:opentelemetry-exporter-logging",
         "io.opentelemetry:opentelemetry-extension-kotlin",
-        "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
-        "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
+#        "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
+#        "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
+
+        "io.kubernetes:client-java:21.0.1",
+        "io.kubernetes:client-java-extended:21.0.1",
+
         "joda-time:joda-time:2.10.10",
         "org.slf4j:slf4j-simple:1.7.32",
         "it.unimi.dsi:fastutil:8.5.12",
