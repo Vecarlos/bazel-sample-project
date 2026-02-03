@@ -10,12 +10,5 @@
       "versioningTemplate": "maven"
     }
   ],
-  "ignoreDeps": ["common-jvm"],
-  "packageRules": [
-    {
-      "matchManagers": ["bazelisk"],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
-    }
-  ]
+  "ignoreDeps": ["common-jvm"]
 }
