@@ -18,8 +18,7 @@
     },
     {
       "matchManagers": ["terraform"],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
+      "allowedVersions": "<6.0.0"
     }
   ]
 }
