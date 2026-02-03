@@ -17,8 +17,16 @@
       "allowedVersions": "<8.0.0"
     },
     {
+      "description": "Limitar AWS a versión 5.x",
       "matchManagers": ["terraform"],
+      "matchPackageNames": ["hashicorp/aws", "aws"],
       "allowedVersions": "<6.0.0"
+    },
+    {
+      "description": "Limitar Helm a versión 2.x",
+      "matchManagers": ["terraform"],
+      "matchPackageNames": ["hashicorp/helm", "helm"],
+      "allowedVersions": "<3.0.0"
     }
   ]
 }
