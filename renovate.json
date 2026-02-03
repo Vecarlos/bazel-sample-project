@@ -10,7 +10,12 @@
       "versioningTemplate": "maven"
     }
   ],
-  "ignoreDeps": ["common-jvm"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["common-jvm"],
+      "enabled": false
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["bazelisk"],
