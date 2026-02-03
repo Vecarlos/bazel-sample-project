@@ -9,5 +9,13 @@
       "datasourceTemplate": "maven",
       "versioningTemplate": "maven"
     }
+  ],
+  "ignoreDeps": ["common-jvm"],
+  "packageRules": [
+    {
+      "matchManagers": ["bazelisk"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
   ]
 }
