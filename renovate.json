@@ -20,7 +20,6 @@
       "description": "AWS Provider y Modulos: Quedarse en v5 (Bloquear v6+)",
       "matchManagers": ["terraform"],
       "matchPackageNames": ["hashicorp/aws", "aws"],
-      "matchPackagePatterns": ["^terraform-aws-modules/", ".*aws.*"],
       "allowedVersions": "<6.0.0"
     },
     {
