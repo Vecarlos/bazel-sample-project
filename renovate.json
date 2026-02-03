@@ -10,6 +10,7 @@
       "versioningTemplate": "maven"
     }
   ],
+  "ignoreDeps": ["common-jvm"],
   "packageRules": [
     {
       "matchManagers": ["bazelisk"],
