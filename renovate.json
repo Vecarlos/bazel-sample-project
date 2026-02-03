@@ -14,7 +14,6 @@
   "packageRules": [
     {
       "matchManagers": ["bazelisk"],
-      "matchPackageNames": ["bazel"],
       "matchUpdateTypes": ["major"],
       "enabled": false
     },
