@@ -41,7 +41,7 @@ jobs:
     steps:
       - name: compute notes start commitish
         id: compute-notes-start-commitish
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           NOTES_START_COMMITISH: ${{ inputs.notes-start-commitish }}
         with:
