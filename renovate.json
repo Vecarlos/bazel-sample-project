@@ -15,6 +15,11 @@
     {
       "matchManagers": ["bazelisk"],
       "allowedVersions": "<8.0.0"
+    },
+    {
+      "matchManagers": ["terraform"],
+      "matchPackageNames": ["aws"],
+      "allowedVersions": "<6.0.0"
     }
   ]
 }
