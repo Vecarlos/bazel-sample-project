@@ -3,7 +3,8 @@
     {
       "matchManagers": ["bazelisk"],
       "matchPackageNames": ["bazel"],
-      "allowedVersions": "<8.0.0"
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ]
 }
