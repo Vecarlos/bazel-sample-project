@@ -13,8 +13,11 @@
   "ignoreDeps": ["common-jvm"],
   "packageRules": [
     {
+      "description": "Ignorar major updates para Bazel (Mantiene v7.x)",
       "matchManagers": ["bazelisk"],
-      "allowedVersions": "<8.0.0"
+      "matchPackageNames": ["bazel"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     },
     {
       "description": "Limitar AWS a versión 5.x",
