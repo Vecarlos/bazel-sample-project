@@ -20,6 +20,7 @@
       "description": "Limitar AWS a versión 5.x",
       "matchManagers": ["terraform"],
       "matchPackageNames": ["hashicorp/aws", "aws"],
+      "matchPackagePatterns": ["^terraform-aws-modules/", ".*aws.*"],
       "matchUpdateTypes": ["major"],
       "enabled": false
     },
