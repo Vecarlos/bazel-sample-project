@@ -15,11 +15,6 @@
     {
       "matchManagers": ["bazelisk"],
       "allowedVersions": "<8.0.0"
-    },
-    {
-      "matchManagers": ["terraform"],
-      "matchDepNames": ["hashicorp/aws"],
-      "allowedVersions": "<6.0.0"
     }
   ]
 }
