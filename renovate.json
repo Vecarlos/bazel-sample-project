@@ -12,12 +12,6 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["common-jvm"],
-      "enabled": false
-    }
-  ],
-  "packageRules": [
-    {
       "matchManagers": ["bazelisk"],
       "matchUpdateTypes": ["major"],
       "enabled": false
