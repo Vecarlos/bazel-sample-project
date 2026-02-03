@@ -14,16 +14,17 @@
   "packageRules": [
     {
       "matchManagers": ["bazelisk"],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
+      "allowedVersions": "<8.0.0"
     },
     {
+      "description": "Limitar AWS a versión 5.x",
       "matchManagers": ["terraform"],
       "matchPackageNames": ["hashicorp/aws", "aws"],
       "matchUpdateTypes": ["major"],
       "enabled": false
     },
     {
+      "description": "Limitar Helm a versión 2.x",
       "matchManagers": ["terraform"],
       "matchPackageNames": ["hashicorp/helm", "helm"],
       "matchUpdateTypes": ["major"],
