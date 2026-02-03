@@ -1,8 +1,21 @@
 {
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["(^|/)MODULE\\.bazel$"],
+      "matchStrings": [
+        "\"(?<depName>[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+):(?<currentValue>[^\"\\s]+)\""
+      ],
+      "datasourceTemplate": "maven",
+      "versioningTemplate": "maven"
+    }
+  ],
+  "ignoreDeps": ["common-jvm"],
   "packageRules": [
     {
       "matchManagers": ["bazelisk"],
-      "allowedVersions": "<8.0.0"
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ]
 }
