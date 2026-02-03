@@ -17,19 +17,17 @@
       "allowedVersions": "<8.0.0"
     },
     {
-      "description": "Limitar AWS a versión 5.x",
+      "description": "AWS Provider y Modulos: Quedarse en v5 (Bloquear v6+)",
       "matchManagers": ["terraform"],
       "matchPackageNames": ["hashicorp/aws", "aws"],
       "matchPackagePatterns": ["^terraform-aws-modules/", ".*aws.*"],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
+      "allowedVersions": "<6.0.0"
     },
     {
-      "description": "Limitar Helm a versión 2.x",
+      "description": "Helm: Quedarse en v2 (Bloquear v3+)",
       "matchManagers": ["terraform"],
       "matchPackageNames": ["hashicorp/helm", "helm"],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
+      "allowedVersions": "<3.0.0"
     }
   ]
 }
