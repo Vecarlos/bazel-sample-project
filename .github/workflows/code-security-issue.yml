@@ -54,7 +54,7 @@ jobs:
           echo "$HTML_CONTENT" > ./_site/alerts_tracking.html
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: "./_site"
 
