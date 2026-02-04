@@ -35,7 +35,7 @@ permissions:
 
 jobs:
   compute-notes-start-commitish:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       commitish: ${{ steps.compute-notes-start-commitish.outputs.commitish }}
     steps:
@@ -73,7 +73,7 @@ jobs:
             core.setOutput('commitish', startCommitish);
 
   compute-milestone-name:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       name: ${{ steps.compute-milestone-name.outputs.name }}
     steps:
@@ -92,7 +92,7 @@ jobs:
           echo "name=${name}" | tee -a $GITHUB_OUTPUT
           
   compute-release-target:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       sha: ${{ steps.compute-release-target.outputs.sha }}
     steps:
