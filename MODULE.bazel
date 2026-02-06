@@ -493,32 +493,3 @@ single_version_override(
     module_name = "boringssl",
     version = BORINGSSL_VERSION,
 )
-
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.parse(
-    hub_name = "pip",
-    python_version = "3.11",
-    requirements_lock = "//:requirements.txt",
-)
-use_repo(pip, "pip")
-pip.parse(
-    hub_name = "pytype_pip",
-    python_version = "3.11",
-    requirements_lock = "//tools/pytype:pytype_requirements.txt",
-)
-use_repo(pip, "pytype_pip")
-
-http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-    name = "ninja_build",
-    build_file_content = """
-filegroup(
-    name = "ninja_binary",
-    srcs = ["ninja"],
-    visibility = ["//visibility:public"],
-)
-    """,
-    sha256 = "b901ba96e486dce377f9a070ed4ef3f79deb45f4ffe2938f8e7ddc69cfb3df77",
-    url = "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip",
-    strip_prefix = "",
-)
