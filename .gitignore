@@ -19,6 +19,3 @@
 
 # Authentication credentials
 /auth.bazelrc
-
-
-/tools/pytype

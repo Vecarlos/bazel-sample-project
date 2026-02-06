@@ -135,16 +135,6 @@ bazel_dep(
     repo_name = "bazel_gazelle",
 )
 bazel_dep(
-    name = "rules_proto",
-    version = "7.1.0",
-)
-
-bazel_dep(
-    name = "rules_cc",
-    version = "0.1.1",
-)
-
-bazel_dep(
     name = "rules_java",
     version = "8.15.2",
 )
@@ -216,18 +206,6 @@ bazel_dep(
     version = "0.12.0",
 )
 
-bazel_dep(
-    name = "protobuf",
-    version = "29.3",
-    repo_name = "com_google_protobuf",
-)
-
-bazel_dep(
-    name = "googletest",
-    version = "1.15.2",
-    repo_name = "com_google_googletest",
-)
-
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.artifact(
     artifact = "beam-runners-google-cloud-dataflow-java",
@@ -242,36 +220,8 @@ maven.artifact(
     ],
     group = "org.apache.beam",
 )
-maven.artifact(
-    testonly = True,
-    artifact = "mockito-core",
-    group = "org.mockito",
-    version = "5.12.0",
-)
-
-maven.artifact(
-    testonly = True,
-    artifact = "mockito-inline",
-    group = "org.mockito",
-    version = "5.2.0",
-)
-
-maven.artifact(
-    testonly = True,
-    artifact = "mockito-kotlin",
-    group = "org.mockito.kotlin",
-    version = "5.4.0",
-)
-
 maven.install(
     artifacts = [
-        "io.grpc:grpc-netty-shaded:1.62.2",
-        "io.grpc:grpc-okhttp:1.62.2",
-        "io.grpc:grpc-kotlin-stub:1.4.1",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
-
-        "io.netty:netty-handler:4.1.91.Final",
-
         "com.google.crypto.tink:tink-awskms:1.11.0",
         "com.google.crypto.tink:tink-gcpkms:1.9.0",
         "com.squareup.okhttp3:okhttp",
@@ -297,12 +247,8 @@ maven.install(
         # OpenTelemetry logging exporter (console/stdout - Google Cloud will collect from stdout)
         "io.opentelemetry:opentelemetry-exporter-logging",
         "io.opentelemetry:opentelemetry-extension-kotlin",
-#        "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
-#        "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
-
-        "io.kubernetes:client-java:21.0.1",
-        "io.kubernetes:client-java-extended:21.0.1",
-
+        "io.kubernetes:client-java:" + K8S_CLIENT_VERSION,
+        "io.kubernetes:client-java-extended:" + K8S_CLIENT_VERSION,
         "joda-time:joda-time:2.10.10",
         "org.slf4j:slf4j-simple:1.7.32",
         "it.unimi.dsi:fastutil:8.5.12",
