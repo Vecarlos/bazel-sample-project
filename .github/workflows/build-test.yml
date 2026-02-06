@@ -19,7 +19,7 @@ on:
     branches:
       - main
       - 'releases/**'
-      - coverage_try_4
+      - coverage_fluctuation_without_fix
   pull_request:
     branches:
       - main
