@@ -169,6 +169,7 @@ jobs:
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
+          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest 
         continue-on-error: true
         #        ,-//src/main/kotlin/org/wfanet/measurement/integration/common/reporting/v2:.*
         #        ,-//src/main/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:.* solver.py /report_conversion.py report.py /post_process_report_result.py
