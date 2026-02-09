@@ -161,7 +161,7 @@ jobs:
           --experimental_split_coverage_postprocessing
           --experimental_fetch_all_coverage_outputs
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
-          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+          //src/test/kotlin/...
         continue-on-error: true
         #        ,-//src/main/kotlin/org/wfanet/measurement/integration/common/reporting/v2:.*
         #        ,-//src/main/kotlin/org/wfanet/measurement/reporting/service/api/v2alpha:.* solver.py /report_conversion.py report.py /post_process_report_result.py
