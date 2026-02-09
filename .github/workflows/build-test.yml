@@ -164,7 +164,6 @@ jobs:
           //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
           --
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
-          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
         continue-on-error: true
 #        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest NV
 #          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NV
@@ -173,8 +172,9 @@ jobs:
 #          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NV
 #          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
 #          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
-
+#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest NV
+#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
+  
 
 
 
