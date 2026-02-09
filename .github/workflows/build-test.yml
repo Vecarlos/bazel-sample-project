@@ -163,7 +163,6 @@ jobs:
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
           --
-          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest
           -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest
@@ -172,7 +171,8 @@ jobs:
 #          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NV
 #        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest NV
 #        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest
+#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NV
+#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest
 
 
 
