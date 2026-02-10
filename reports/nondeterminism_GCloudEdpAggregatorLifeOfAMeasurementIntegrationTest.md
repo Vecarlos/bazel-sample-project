@@ -2,106 +2,80 @@
 
 ## Contexto
 - Test: `//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest`
-- Log analizado: `build_logs (9).txt`
-- Síntoma observado en el log: warnings de gRPC con `FAILED_PRECONDITION: Measurement in wrong state. state=SUCCEEDED`.
+- Logs comparados:
+  - `GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest_commit2.txt`
+  - `GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest_commit3.txt`
 
-## Evidencia en log
-En `build_logs (9).txt` aparecen warnings como:
+## Variación observada entre commits (evidencia en logs)
+
+### A) `FAILED_PRECONDITION: Measurement in wrong state. state=SUCCEEDED`
+Aparece en **ambos** logs (commit2 y commit3), por lo tanto **no explica diferencias** entre ellos, pero sí explica variación general de coverage.
+
+- commit2: líneas ~17652 y ~25318
+- commit3: líneas ~17545 y ~24490
+
+Esto corresponde al warning:
 ```
-WARNING: Failed to update status change to the kingdom.
+Failed to update status change to the kingdom.
 io.grpc.StatusException: FAILED_PRECONDITION: Measurement in wrong state. state=SUCCEEDED
 ```
 
-Ejemplos de contexto (ubicaciones aproximadas en el log):
-- Cerca de las líneas ~17588
-- Cerca de las líneas ~24461
+### B) `ABORTED: Failed to update because of editVersion mismatch` (solo commit2)
+Solo aparece en **commit2**, no en commit3.
 
-## Flujo exacto en código (ruta de ejecución)
+En `commit2`:
+```
+advanceComputation attempt #1 failed; retrying
+Caused by: io.grpc.StatusException: ABORTED: Failed to update because of editVersion mismatch.
+```
 
-### 1) Duchy intenta registrar log de estado
-Archivo:
+Esto indica que en commit2 se ejecutó el camino de **editVersion mismatch** y el **retry**, mientras que en commit3 no.
+
+## Ruta de código exacta (bajo nivel)
+
+### 1) Log tardío de estado → `FAILED_PRECONDITION` (ambos commits)
+- Envío del log (Duchy):
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations/ComputationsService.kt:409`
+- Validación y rechazo (Kingdom):
+  - `src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/writers/CreateDuchyMeasurementLogEntry.kt:65-75`
+  - `src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/SpannerMeasurementLogEntriesService.kt:63-67`
+
+**Causa del no determinismo**: el log llega después de que el Measurement ya está en `SUCCEEDED`.
+
+### 2) EditVersion mismatch → `ABORTED` + retry (solo commit2)
+- Comparación de versión y throw:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/spanner/computation/GcpSpannerComputationsDatabaseTransactor.kt`
+- Excepción específica:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/DuchyInternalException.kt`
+  - `ComputationTokenVersionMismatchException`
+- Traducción a `ABORTED`:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations/ComputationsService.kt`
+- Retry:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol/AsyncComputationControlService.kt`
+
+**Causa del no determinismo**: dos escrituras concurrentes con `editVersion` distinto → una corrida entra en mismatch/ABORTED, otra no.
+
+## Relación con variación de Codecov
+Los cambios de coverage observados en Codecov (ej. commit `21a15ab` vs `031a27d`) son **congruentes** con la presencia o ausencia del camino de `ABORTED`:
+
+### Explicados por el `ABORTED` (solo commit2)
+- `src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/spanner/computation/GcpSpannerComputationsDatabaseTransactor.kt`
+- `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/DuchyInternalException.kt`
+- `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol/AsyncComputationControlService.kt`
 - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations/ComputationsService.kt`
 
-Método (envía el log y registra el warning si falla):
-- `sendStatusUpdateToKingdom` (`ComputationsService.kt:409`)
+Estos archivos suben/bajan cobertura dependiendo de si el mismatch se ejecuta.
 
-```kotlin
-private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
-  try {
-    computationLogEntriesClient.createComputationLogEntry(request)
-  } catch (e: StatusException) {
-    logger.log(Level.WARNING, e) { "Failed to update status change to the kingdom." }
-  }
-}
-```
+### No explicados por estos logs
+En los logs de este test **no hay evidencia directa** para:
+- `src/main/kotlin/org/wfanet/measurement/common/grpc/ErrorInfo.kt`
+- `src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/Errors.kt`
+- `src/main/kotlin/org/wfanet/measurement/kingdom/service/api/v2alpha/RequisitionsService.kt`
 
-### 2) Este método se llama desde transiciones de computación
-Mismo archivo `ComputationsService.kt`:
-- `claimWork` → `sendStatusUpdateToKingdom` (`ComputationsService.kt:102`)
-- `createComputation` → (`ComputationsService.kt:147`)
-- `advanceComputationStage` → (`ComputationsService.kt:329`)
-- `finishComputation` → (`ComputationsService.kt:231`)
-
-Eso significa que **cada transición o claim** intenta escribir un log en Kingdom.
-
-### 3) Kingdom valida el estado y rechaza si ya está terminal
-Validación en:
-- `src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/writers/CreateDuchyMeasurementLogEntry.kt:65-75`
-
-```kotlin
-when (measurementInfo.measurementState) {
-  Measurement.State.SUCCEEDED,
-  Measurement.State.FAILED,
-  Measurement.State.CANCELLED ->
-    throw MeasurementStateIllegalException(...)
-  // estados pendientes permiten log
-}
-```
-
-Transformación a gRPC error:
-- `src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/SpannerMeasurementLogEntriesService.kt:63-67`
-
-```kotlin
-throw e.asStatusRuntimeException(
-  Status.Code.FAILED_PRECONDITION,
-  "Measurement in wrong state. state=${e.state}",
-)
-```
-
-## Causa real del no determinismo
-El log se envía **sin sincronizar** con el momento exacto en que el Measurement pasa a estado terminal en Kingdom.
-
-En algunas corridas:
-- el log llega **antes** del `SUCCEEDED` → no hay error.
-
-En otras corridas:
-- el log llega **después** → Kingdom lo rechaza con `FAILED_PRECONDITION`.
-
-Esto es un **race de timing** entre:
-- los daemons y mills del Duchy,
-- y la transición final del estado en Kingdom.
-
-## Por qué ese race existe en este test
-El test levanta varios componentes concurrentes:
-
-Archivo:
-- `src/main/kotlin/org/wfanet/measurement/integration/common/InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.kt`
-
-En `@Before setup()`:
-- `inProcessCmmsComponents.startDaemons()`
-- `inProcessEdpAggregatorComponents.startDaemons(...)`
-
-Además, los mills trabajan en paralelo con:
-- `DUCHY_MILL_PARALLELISM = 3` (`src/main/kotlin/org/wfanet/measurement/integration/common/Configs.kt:155`)
-- Usado en `InProcessDuchy` (`src/main/kotlin/org/wfanet/measurement/integration/common/InProcessDuchy.kt:270-301`)
-
-Esto introduce **concurrencia real** y, por ende, orden variable de eventos.
+Si esas variaciones aparecen en Codecov, probablemente vienen de otros tests o de rutas no logueadas en estos archivos.
 
 ## Resumen técnico
-- **No determinismo real**: logs de estado llegan tarde.
-- **Punto exacto del error**: `CreateDuchyMeasurementLogEntry.kt:65-75` → `FAILED_PRECONDITION`.
-- **Origen**: `sendStatusUpdateToKingdom` se ejecuta en cada transición sin verificar el estado terminal.
-- **Condición**: concurrencia y orden variable por daemons/mills paralelos.
-
-## Impacto
-Estas rutas de error (y sus clases) se ejecutan **de forma intermitente**, lo cual altera qué líneas se consideran cubiertas en cada corrida de `bazel coverage`.
+- **Determinístico**: el test ejecuta siempre la lógica principal.
+- **No determinístico**:
+  - Log tardío de estado (`FAILED_PRECONDITION: Measurement in wrong state`) → aparece siempre pero en distintos puntos.
+  - Mismatch de `editVersion` → aparece solo en algunas corridas (commit2 sí, commit3 no), causando cambios claros en coverage.
