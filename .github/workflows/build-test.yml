@@ -177,6 +177,7 @@ jobs:
 #          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest NVS
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NVS
 #        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest VS
+#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest
 
 
 
