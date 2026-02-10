@@ -163,26 +163,26 @@ jobs:
           --instrumentation_filter="//src/main/kotlin/.*,//src/main/python/.*,//src/main/cc/.*,-@.*,-src/main/.*/testing.*,-src/main/.*/loadtest.*,${COVERAGE_EXCLUSIONS}"
           //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest
         continue-on-error: true
-#        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NV
-#        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest NV
-#        -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest V
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest NV
-#          -//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest NV
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud/...
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest V
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest NV
+#-//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest NV
 
-#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest VS
-#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest NVS
-#        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NVS
-#        //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest VS
-#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NVS
-
-#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest
-#           //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest
-#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest NVS
-#          //src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NVS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest VS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAnEventGroupIntegrationTest NVS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NVS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest VS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NVS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest NVS
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NVS
 
 
 
