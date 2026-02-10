@@ -2,101 +2,102 @@
 
 ## Contexto
 - Test: `//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest`
-- Log analizado: `build_logs (10).txt`
-- Síntomas observados en el log:
-  - `FAILED_PRECONDITION: Measurement in wrong state. state=SUCCEEDED`
-  - `FAILED_PRECONDITION: ContinuationToken to set cannot have older timestamp.`
+- Logs comparados:
+  - `GCloudInProcessLifeOfAReportV2IntegrationTest_commit2.txt`
+  - `GCloudInProcessLifeOfAReportV2IntegrationTest_commit3.txt`
 
-## Evidencia en log (extractos)
+## Diferencias observadas en logs (commit2 vs commit3)
 
-### A) Log tardío de estado de Measurement
-Ejemplo en `build_logs (10).txt`:
+### A) Log tardío de estado en Kingdom (aparece en ambos)
+En ambos logs aparece repetidamente:
 ```
-WARNING: Failed to update status change to the kingdom. io.grpc.StatusException: FAILED_PRECONDITION: Measurement in wrong state. state=SUCCEEDED
+Failed to update status change to the kingdom.
+FAILED_PRECONDITION: Measurement in wrong state. state=SUCCEEDED
 ```
+Esto es no determinista a nivel de timing, pero **no explica la variación entre commits**, porque ocurre en ambos.
 
-Aparece repetidamente (p.ej. líneas ~9329, ~151412, ~160661, ~170148, etc.).
-
-### B) Continuation token fuera de orden
-Ejemplo en `build_logs (10).txt`:
+### B) EditVersion mismatch + retry (solo commit3)
+En `commit3` aparece:
 ```
-WARNING: Failure happened during setContinuationToken
-io.grpc.StatusException: FAILED_PRECONDITION: ContinuationToken to set cannot have older timestamp.
+advanceComputation attempt #1 failed; retrying
+Caused by: io.grpc.StatusException: ABORTED: Failed to update because of editVersion mismatch.
 ```
+En `commit2` **no aparece** este bloque.
 
-Aparece cerca de las líneas ~95793–95795.
-
-## Causa 1: `Measurement in wrong state` (race de estados)
-
-### Flujo exacto en código
-1) Duchy envía log de estado:
-- `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/PostgresComputationsService.kt:479`
-
-```kotlin
-private suspend fun sendStatusUpdateToKingdom(request: CreateComputationLogEntryRequest) {
-  try {
-    computationLogEntriesClient.createComputationLogEntry(request)
-  } catch (ignored: Exception) {
-    logger.log(Level.WARNING, "Failed to update status change to the kingdom. $ignored")
-  }
-}
+### C) Continuation token fuera de orden (solo commit3)
+En `commit3` aparece:
 ```
-
-2) Este método se dispara desde transiciones reales:
-- `claimWork` → `PostgresComputationsService.kt:192`
-- `finishComputation` → `PostgresComputationsService.kt:299`
-- `advanceComputationStage` → `PostgresComputationsService.kt:401`
-
-3) Kingdom rechaza si ya está terminal:
-- `CreateDuchyMeasurementLogEntry.kt:65-75` → lanza `MeasurementStateIllegalException`
-- `SpannerMeasurementLogEntriesService.kt:63-67` → `FAILED_PRECONDITION` con “Measurement in wrong state”
-
-### Por qué es no determinista
-Los daemons y mills corren en paralelo. Dependiendo del orden real de ejecución:
-- Si el log llega antes del `SUCCEEDED` → OK.
-- Si llega después → `FAILED_PRECONDITION`.
-
-Eso hace que la ruta de error se ejecute intermitentemente, cambiando coverage.
-
-## Causa 2: `ContinuationToken` fuera de orden (race de tokens)
-
-### Flujo exacto en código
-1) Herald marca un token como procesado y lo intenta setear:
-- `src/main/kotlin/org/wfanet/measurement/duchy/herald/ContinuationTokenManager.kt:100-109`
-
-```kotlin
-try {
-  continuationTokenClient.setContinuationToken(setRequest)
-} catch (e: StatusException) {
-  if (e.status.code == Status.Code.FAILED_PRECONDITION) {
-    logger.log(Level.WARNING, e) { "Failure happened during setContinuationToken" }
-  } else {
-    throw SetContinuationTokenException(...)
-  }
-}
+Failure happened during setContinuationToken
+FAILED_PRECONDITION: ContinuationToken to set cannot have older timestamp.
 ```
+En `commit2` **no aparece** este bloque.
 
-2) Validación en Postgres (rechaza tokens viejos):
-- `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/writers/SetContinutationToken.kt:71-81`
+## Causas de no determinismo (bajo nivel)
 
-```kotlin
-if (oldContinuationToken != null &&
-    newContinuationToken.lastSeenUpdateTime < oldContinuationToken.lastSeenUpdateTime) {
-  throw ContinuationTokenInvalidException(...)
-}
-```
+### 1) Log tardío de estado → `FAILED_PRECONDITION`
+**Responsable:** log de estado enviado desde Duchy sin sincronización con el estado terminal del Measurement.
 
-3) La excepción se traduce a gRPC FAILED_PRECONDITION:
-- `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/PostgresContinuationTokensService.kt:45-52`
+- Envío del log:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/PostgresComputationsService.kt`
+  - `sendStatusUpdateToKingdom()`
+- Validación y rechazo en Kingdom:
+  - `src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/writers/CreateDuchyMeasurementLogEntry.kt`
+  - `src/main/kotlin/org/wfanet/measurement/kingdom/deploy/gcloud/spanner/SpannerMeasurementLogEntriesService.kt`
 
-### Por qué es no determinista
-`ContinuationTokenManager` asume que los tokens llegan en orden, pero el procesamiento
-puede completarse fuera de orden por concurrencia, entonces intenta setear un token
-más viejo → `FAILED_PRECONDITION`.
+**Por qué varía:**
+El log llega antes o después del `SUCCEEDED` según el timing de los daemons. Ese orden no está sincronizado.
 
-## Resumen técnico
-- **Causa 1 (estado SUCCEEDED)**: log tardío de transición de computación → Kingdom rechaza
-  si el Measurement ya terminó.
-- **Causa 2 (continuation token)**: tokens procesados fuera de orden → Postgres rechaza token viejo.
+### 2) EditVersion mismatch → `ABORTED` + retry (solo commit3)
+**Responsable:** control de concurrencia optimista en updates de computación.
 
-Ambas causas son carreras de timing y aparecen intermitentemente, lo cual genera variación en coverage.
+- Comparación de versiones y throw:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/writers/ComputationMutations.kt`
+  - `src/main/kotlin/org/wfanet/measurement/duchy/deploy/gcloud/spanner/computation/GcpSpannerComputationsDatabaseTransactor.kt`
+- Excepción específica:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/DuchyInternalException.kt`
+- Traducción a `ABORTED`:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computations/ComputationsService.kt`
+- Retry:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/service/internal/computationcontrol/AsyncComputationControlService.kt`
+
+**Por qué varía:**
+Dos workers pueden actualizar la misma computation con el mismo `editVersion`. Si uno actualiza primero, el otro queda con versión vieja y falla. Esto ocurre solo cuando el timing coincide.
+
+### 3) Continuation token fuera de orden → `FAILED_PRECONDITION` (solo commit3)
+**Responsable:** tokens procesados fuera de orden temporal.
+
+- Escritura del token (rechaza tokens viejos):
+  - `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/writers/SetContinutationToken.kt`
+- RPC que traduce el error:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/deploy/common/postgres/PostgresContinuationTokensService.kt`
+- Warning al setear:
+  - `src/main/kotlin/org/wfanet/measurement/duchy/herald/ContinuationTokenManager.kt`
+
+**Por qué varía:**
+`ContinuationTokenManager` asume orden temporal, pero el procesamiento puede completarse en distinto orden por concurrencia, generando tokens “viejos”.
+
+## Relación con variación de Codecov
+Los archivos que varían en Codecov para este test son consistentes con lo que aparece en `commit3` pero no en `commit2`:
+
+- `ComputationMutations.kt`, `GcpSpannerComputationsDatabaseTransactor.kt` → explican el `editVersion mismatch`.
+- `DuchyInternalException.kt`, `ComputationsService.kt`, `AsyncComputationControlService.kt` → explican `ABORTED` y retry.
+- `SetContinutationToken.kt`, `PostgresContinuationTokensService.kt`, `ContinuationTokenManager.kt` → explican el `FAILED_PRECONDITION` de tokens.
+- `PostgresComputationsService.kt` → log tardío de estado.
+
+Esto explica la variación de coverage entre commits.
+
+## Cómo arreglar el no determinismo (opciones)
+
+### Opción A: Reducir concurrencia en tests
+- Bajar `DUCHY_MILL_PARALLELISM` a 1 en tests para evitar colisiones de `editVersion` y orden de tokens.
+
+### Opción B: Hacer tolerante el log tardío de estado
+- Evitar que `CreateDuchyMeasurementLogEntry` falle cuando el Measurement está terminal, o mover el log a un punto sincronizado.
+
+### Opción C: Hacer el control de versiones más robusto
+- Usar una versión monotónica independiente del clock, o serializar updates críticos para evitar mismatch.
+
+### Opción D: Ordenar/ignorar tokens viejos
+- En `ContinuationTokenManager`, evitar enviar tokens más viejos (buffer y ordenar) o tratar ese `FAILED_PRECONDITION` como no‑op.
+
+Cada opción reduce rutas de error intermitentes y estabiliza coverage.
