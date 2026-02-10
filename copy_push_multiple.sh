@@ -113,8 +113,8 @@ TARGET_3="EventGroupMetadataDescriptorsServiceTest"
 ACTIVE_BRANCH="coverage_fix"
 
 REMOTE_NAME="origin"
-POLL_SECONDS=15
-REFRESH_SECONDS=15
+POLL_SECONDS=25
+REFRESH_SECONDS=25
 TOTAL_RUNS=10
 
 VICTIM_FILE_1="src/main/kotlin/org/wfanet/measurement/edpaggregator/service/internal/Errors.kt"
