@@ -179,7 +179,7 @@ jobs:
 #//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudPostgresInProcessLifeOfAMeasurementIntegrationTest NVS
 #//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessLifeOfAReportV2IntegrationTest VS
 #//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessLifeOfAMeasurementIntegrationTest NVS
-#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest
+#//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessModelRepositoryCliIntegrationTest VS
 #//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessReachMeasurementAccuracyTest
 #//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudSpannerInProcessMeasurementSystemProberIntegrationTest NVS
 #//src/test/kotlin/org/wfanet/measurement/integration/deploy/gcloud:GCloudInProcessReportingEventGroupsTest NVS
