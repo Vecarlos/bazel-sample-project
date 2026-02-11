@@ -85,7 +85,6 @@ class ComputationsService(
   private val clock: Clock = Clock.systemUTC(),
   private val defaultLockDuration: Duration = Duration.ofMinutes(5),
 ) : ComputationsCoroutineImplBase(coroutineContext) {
-  private val computationLocks = ComputationLocks()
 
   override suspend fun claimWork(request: ClaimWorkRequest): ClaimWorkResponse {
     grpcRequire(request.owner.isNotEmpty()) { "owner is not specified" }
@@ -211,36 +210,34 @@ class ComputationsService(
   override suspend fun finishComputation(
     request: FinishComputationRequest
   ): FinishComputationResponse {
-    return computationLocks.withLock(request.token.globalComputationId) {
-      try {
-        computationsDatabase.endComputation(
-          request.token.toDatabaseEditToken(),
-          request.endingComputationStage,
-          when (val it = request.reason) {
-            ComputationDetails.CompletedReason.SUCCEEDED -> EndComputationReason.SUCCEEDED
-            ComputationDetails.CompletedReason.FAILED -> EndComputationReason.FAILED
-            ComputationDetails.CompletedReason.CANCELED -> EndComputationReason.CANCELED
-            else -> error("Unknown CompletedReason $it")
-          },
-          request.token.computationDetails,
-        )
-      } catch (e: ComputationNotFoundException) {
-        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-      } catch (e: ComputationTokenVersionMismatchException) {
-        throw e.asStatusRuntimeException(Status.Code.ABORTED)
-      }
-
-      sendStatusUpdateToKingdom(
-        newCreateComputationLogEntryRequest(
-          request.token.globalComputationId,
-          request.endingComputationStage,
-        )
+    try {
+      computationsDatabase.endComputation(
+        request.token.toDatabaseEditToken(),
+        request.endingComputationStage,
+        when (val it = request.reason) {
+          ComputationDetails.CompletedReason.SUCCEEDED -> EndComputationReason.SUCCEEDED
+          ComputationDetails.CompletedReason.FAILED -> EndComputationReason.FAILED
+          ComputationDetails.CompletedReason.CANCELED -> EndComputationReason.CANCELED
+          else -> error("Unknown CompletedReason $it")
+        },
+        request.token.computationDetails,
       )
-
-      computationsDatabase
-        .readComputationToken(request.token.globalComputationId)!!
-        .toFinishComputationResponse()
+    } catch (e: ComputationNotFoundException) {
+      throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+    } catch (e: ComputationTokenVersionMismatchException) {
+      throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
+
+    sendStatusUpdateToKingdom(
+      newCreateComputationLogEntryRequest(
+        request.token.globalComputationId,
+        request.endingComputationStage,
+      )
+    )
+
+    return computationsDatabase
+      .readComputationToken(request.token.globalComputationId)!!
+      .toFinishComputationResponse()
   }
 
   override suspend fun getComputationToken(
@@ -265,42 +262,38 @@ class ComputationsService(
     require(request.token.computationDetails.protocolCase == request.details.protocolCase) {
       "The protocol type cannot change."
     }
-    return computationLocks.withLock(request.token.globalComputationId) {
-      try {
-        computationsDatabase.updateComputationDetails(
-          request.token.toDatabaseEditToken(),
-          request.details,
-          request.requisitionsList,
-        )
-      } catch (e: ComputationNotFoundException) {
-        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-      } catch (e: ComputationTokenVersionMismatchException) {
-        throw e.asStatusRuntimeException(Status.Code.ABORTED)
-      }
-      computationsDatabase
-        .readComputationToken(request.token.globalComputationId)!!
-        .toUpdateComputationDetailsResponse()
+    try {
+      computationsDatabase.updateComputationDetails(
+        request.token.toDatabaseEditToken(),
+        request.details,
+        request.requisitionsList,
+      )
+    } catch (e: ComputationNotFoundException) {
+      throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+    } catch (e: ComputationTokenVersionMismatchException) {
+      throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
+    return computationsDatabase
+      .readComputationToken(request.token.globalComputationId)!!
+      .toUpdateComputationDetailsResponse()
   }
 
   override suspend fun recordOutputBlobPath(
     request: RecordOutputBlobPathRequest
   ): RecordOutputBlobPathResponse {
-    return computationLocks.withLock(request.token.globalComputationId) {
-      try {
-        computationsDatabase.writeOutputBlobReference(
-          request.token.toDatabaseEditToken(),
-          BlobRef(request.outputBlobId, request.blobPath),
-        )
-      } catch (e: ComputationNotFoundException) {
-        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-      } catch (e: ComputationTokenVersionMismatchException) {
-        throw e.asStatusRuntimeException(Status.Code.ABORTED)
-      }
-      computationsDatabase
-        .readComputationToken(request.token.globalComputationId)!!
-        .toRecordOutputBlobPathResponse()
+    try {
+      computationsDatabase.writeOutputBlobReference(
+        request.token.toDatabaseEditToken(),
+        BlobRef(request.outputBlobId, request.blobPath),
+      )
+    } catch (e: ComputationNotFoundException) {
+      throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+    } catch (e: ComputationTokenVersionMismatchException) {
+      throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
+    return computationsDatabase
+      .readComputationToken(request.token.globalComputationId)!!
+      .toRecordOutputBlobPathResponse()
   }
 
   override suspend fun advanceComputationStage(
@@ -308,42 +301,40 @@ class ComputationsService(
   ): AdvanceComputationStageResponse {
     val lockExtension: Duration =
       if (request.hasLockExtension()) request.lockExtension.toDuration() else defaultLockDuration
-    return computationLocks.withLock(request.token.globalComputationId) {
-      try {
-        computationsDatabase.updateComputationStage(
-          request.token.toDatabaseEditToken(),
-          request.nextComputationStage,
-          request.inputBlobsList,
-          request.passThroughBlobsList,
-          request.outputBlobs,
-          when (val it = request.afterTransition) {
-            AdvanceComputationStageRequest.AfterTransition.ADD_UNCLAIMED_TO_QUEUE ->
-              AfterTransition.ADD_UNCLAIMED_TO_QUEUE
-            AdvanceComputationStageRequest.AfterTransition.DO_NOT_ADD_TO_QUEUE ->
-              AfterTransition.DO_NOT_ADD_TO_QUEUE
-            AdvanceComputationStageRequest.AfterTransition.RETAIN_AND_EXTEND_LOCK ->
-              AfterTransition.CONTINUE_WORKING
-            else -> error("Unsupported AdvanceComputationStageRequest.AfterTransition '$it'. ")
-          },
-          request.stageDetails,
-          lockExtension,
-        )
-      } catch (e: ComputationNotFoundException) {
-        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-      } catch (e: ComputationTokenVersionMismatchException) {
-        throw e.asStatusRuntimeException(Status.Code.ABORTED)
-      }
-
-      sendStatusUpdateToKingdom(
-        newCreateComputationLogEntryRequest(
-          request.token.globalComputationId,
-          request.nextComputationStage,
-        )
+    try {
+      computationsDatabase.updateComputationStage(
+        request.token.toDatabaseEditToken(),
+        request.nextComputationStage,
+        request.inputBlobsList,
+        request.passThroughBlobsList,
+        request.outputBlobs,
+        when (val it = request.afterTransition) {
+          AdvanceComputationStageRequest.AfterTransition.ADD_UNCLAIMED_TO_QUEUE ->
+            AfterTransition.ADD_UNCLAIMED_TO_QUEUE
+          AdvanceComputationStageRequest.AfterTransition.DO_NOT_ADD_TO_QUEUE ->
+            AfterTransition.DO_NOT_ADD_TO_QUEUE
+          AdvanceComputationStageRequest.AfterTransition.RETAIN_AND_EXTEND_LOCK ->
+            AfterTransition.CONTINUE_WORKING
+          else -> error("Unsupported AdvanceComputationStageRequest.AfterTransition '$it'. ")
+        },
+        request.stageDetails,
+        lockExtension,
       )
-      computationsDatabase
-        .readComputationToken(request.token.globalComputationId)!!
-        .toAdvanceComputationStageResponse()
+    } catch (e: ComputationNotFoundException) {
+      throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+    } catch (e: ComputationTokenVersionMismatchException) {
+      throw e.asStatusRuntimeException(Status.Code.ABORTED)
     }
+
+    sendStatusUpdateToKingdom(
+      newCreateComputationLogEntryRequest(
+        request.token.globalComputationId,
+        request.nextComputationStage,
+      )
+    )
+    return computationsDatabase
+      .readComputationToken(request.token.globalComputationId)!!
+      .toAdvanceComputationStageResponse()
   }
 
   override suspend fun getComputationIds(

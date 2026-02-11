@@ -56,7 +56,6 @@ import org.wfanet.measurement.duchy.service.internal.ComputationDetailsNotFoundE
 import org.wfanet.measurement.duchy.service.internal.ComputationInitialStageInvalidException
 import org.wfanet.measurement.duchy.service.internal.ComputationNotFoundException
 import org.wfanet.measurement.duchy.service.internal.ComputationTokenVersionMismatchException
-import org.wfanet.measurement.duchy.service.internal.computations.ComputationLocks
 import org.wfanet.measurement.duchy.service.internal.computations.toAdvanceComputationStageResponse
 import org.wfanet.measurement.duchy.service.internal.computations.toClaimWorkResponse
 import org.wfanet.measurement.duchy.service.internal.computations.toCreateComputationResponse
@@ -132,7 +131,6 @@ class PostgresComputationsService(
   private val computationReader = ComputationReader(protocolStagesEnumHelper)
   private val computationBlobReferenceReader = ComputationBlobReferenceReader()
   private val requisitionReader = RequisitionReader()
-  private val computationLocks = ComputationLocks()
 
   override suspend fun createComputation(
     request: CreateComputationRequest
@@ -272,42 +270,40 @@ class PostgresComputationsService(
   override suspend fun finishComputation(
     request: FinishComputationRequest
   ): FinishComputationResponse {
-    return computationLocks.withLock(request.token.globalComputationId) {
-      val writer =
-        FinishComputation(
-          request.token.toDatabaseEditToken(),
-          endingStage = request.endingComputationStage,
-          endComputationReason =
-            when (request.reason) {
-              ComputationDetails.CompletedReason.SUCCEEDED -> EndComputationReason.SUCCEEDED
-              ComputationDetails.CompletedReason.FAILED -> EndComputationReason.FAILED
-              ComputationDetails.CompletedReason.CANCELED -> EndComputationReason.CANCELED
-              else -> error("Unknown CompletedReason ${request.reason}")
-            },
-          computationDetails = request.token.computationDetails,
-          clock = clock,
-          protocolStagesEnumHelper = protocolStagesEnumHelper,
-          protocolStageDetailsHelper = computationProtocolStageDetailsHelper,
-          computationReader = computationReader,
-        )
-      val token: ComputationToken =
-        try {
-          writer.execute(client, idGenerator)
-        } catch (e: ComputationNotFoundException) {
-          throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-        } catch (e: ComputationTokenVersionMismatchException) {
-          throw e.asStatusRuntimeException(Status.Code.ABORTED)
-        }
-
-      sendStatusUpdateToKingdom(
-        newCreateComputationLogEntryRequest(
-          request.token.globalComputationId,
-          request.endingComputationStage,
-        )
+    val writer =
+      FinishComputation(
+        request.token.toDatabaseEditToken(),
+        endingStage = request.endingComputationStage,
+        endComputationReason =
+          when (request.reason) {
+            ComputationDetails.CompletedReason.SUCCEEDED -> EndComputationReason.SUCCEEDED
+            ComputationDetails.CompletedReason.FAILED -> EndComputationReason.FAILED
+            ComputationDetails.CompletedReason.CANCELED -> EndComputationReason.CANCELED
+            else -> error("Unknown CompletedReason ${request.reason}")
+          },
+        computationDetails = request.token.computationDetails,
+        clock = clock,
+        protocolStagesEnumHelper = protocolStagesEnumHelper,
+        protocolStageDetailsHelper = computationProtocolStageDetailsHelper,
+        computationReader = computationReader,
       )
+    val token: ComputationToken =
+      try {
+        writer.execute(client, idGenerator)
+      } catch (e: ComputationNotFoundException) {
+        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+      } catch (e: ComputationTokenVersionMismatchException) {
+        throw e.asStatusRuntimeException(Status.Code.ABORTED)
+      }
 
-      token.toFinishComputationResponse()
-    }
+    sendStatusUpdateToKingdom(
+      newCreateComputationLogEntryRequest(
+        request.token.globalComputationId,
+        request.endingComputationStage,
+      )
+    )
+
+    return token.toFinishComputationResponse()
   }
 
   override suspend fun updateComputationDetails(
@@ -316,51 +312,48 @@ class PostgresComputationsService(
     require(request.token.computationDetails.protocolCase == request.details.protocolCase) {
       "The protocol type cannot change."
     }
-    return computationLocks.withLock(request.token.globalComputationId) {
-      val writer =
-        UpdateComputationDetails(
-          token = request.token.toDatabaseEditToken(),
-          clock = clock,
-          computationDetails = request.details,
-          requisitionEntries = request.requisitionsList,
-          computationReader = computationReader,
-        )
-      val token: ComputationToken =
-        try {
-          writer.execute(client, idGenerator)
-        } catch (e: ComputationNotFoundException) {
-          throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-        } catch (e: ComputationTokenVersionMismatchException) {
-          throw e.asStatusRuntimeException(Status.Code.ABORTED)
-        }
 
-      token.toUpdateComputationDetailsResponse()
-    }
+    val writer =
+      UpdateComputationDetails(
+        token = request.token.toDatabaseEditToken(),
+        clock = clock,
+        computationDetails = request.details,
+        requisitionEntries = request.requisitionsList,
+        computationReader = computationReader,
+      )
+    val token: ComputationToken =
+      try {
+        writer.execute(client, idGenerator)
+      } catch (e: ComputationNotFoundException) {
+        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+      } catch (e: ComputationTokenVersionMismatchException) {
+        throw e.asStatusRuntimeException(Status.Code.ABORTED)
+      }
+
+    return token.toUpdateComputationDetailsResponse()
   }
 
   override suspend fun recordOutputBlobPath(
     request: RecordOutputBlobPathRequest
   ): RecordOutputBlobPathResponse {
-    return computationLocks.withLock(request.token.globalComputationId) {
-      val writer =
-        RecordOutputBlobPath(
-          token = request.token.toDatabaseEditToken(),
-          clock = clock,
-          blobRef = BlobRef(request.outputBlobId, request.blobPath),
-          protocolStagesEnumHelper = protocolStagesEnumHelper,
-          computationReader = computationReader,
-        )
-      val token: ComputationToken =
-        try {
-          writer.execute(client, idGenerator)
-        } catch (e: ComputationNotFoundException) {
-          throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-        } catch (e: ComputationTokenVersionMismatchException) {
-          throw e.asStatusRuntimeException(Status.Code.ABORTED)
-        }
+    val writer =
+      RecordOutputBlobPath(
+        token = request.token.toDatabaseEditToken(),
+        clock = clock,
+        blobRef = BlobRef(request.outputBlobId, request.blobPath),
+        protocolStagesEnumHelper = protocolStagesEnumHelper,
+        computationReader = computationReader,
+      )
+    val token: ComputationToken =
+      try {
+        writer.execute(client, idGenerator)
+      } catch (e: ComputationNotFoundException) {
+        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+      } catch (e: ComputationTokenVersionMismatchException) {
+        throw e.asStatusRuntimeException(Status.Code.ABORTED)
+      }
 
-      token.toRecordOutputBlobPathResponse()
-    }
+    return token.toRecordOutputBlobPathResponse()
   }
 
   override suspend fun advanceComputationStage(
@@ -382,39 +375,37 @@ class PostgresComputationsService(
           )
       }
 
-    return computationLocks.withLock(request.token.globalComputationId) {
-      val writer =
-        AdvanceComputationStage(
-          request.token.toDatabaseEditToken(),
-          nextStage = request.nextComputationStage,
-          nextStageDetails = request.stageDetails,
-          inputBlobPaths = request.inputBlobsList,
-          passThroughBlobPaths = request.passThroughBlobsList,
-          outputBlobs = request.outputBlobs,
-          afterTransition = afterTransition,
-          lockExtension = lockExtension,
-          clock = clock,
-          protocolStagesEnumHelper = protocolStagesEnumHelper,
-          computationReader = computationReader,
-        )
-      val token: ComputationToken =
-        try {
-          writer.execute(client, idGenerator)
-        } catch (e: ComputationNotFoundException) {
-          throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
-        } catch (e: ComputationTokenVersionMismatchException) {
-          throw e.asStatusRuntimeException(Status.Code.ABORTED)
-        }
-
-      sendStatusUpdateToKingdom(
-        newCreateComputationLogEntryRequest(
-          request.token.globalComputationId,
-          request.nextComputationStage,
-        )
+    val writer =
+      AdvanceComputationStage(
+        request.token.toDatabaseEditToken(),
+        nextStage = request.nextComputationStage,
+        nextStageDetails = request.stageDetails,
+        inputBlobPaths = request.inputBlobsList,
+        passThroughBlobPaths = request.passThroughBlobsList,
+        outputBlobs = request.outputBlobs,
+        afterTransition = afterTransition,
+        lockExtension = lockExtension,
+        clock = clock,
+        protocolStagesEnumHelper = protocolStagesEnumHelper,
+        computationReader = computationReader,
       )
+    val token: ComputationToken =
+      try {
+        writer.execute(client, idGenerator)
+      } catch (e: ComputationNotFoundException) {
+        throw e.asStatusRuntimeException(Status.Code.NOT_FOUND)
+      } catch (e: ComputationTokenVersionMismatchException) {
+        throw e.asStatusRuntimeException(Status.Code.ABORTED)
+      }
 
-      token.toAdvanceComputationStageResponse()
-    }
+    sendStatusUpdateToKingdom(
+      newCreateComputationLogEntryRequest(
+        request.token.globalComputationId,
+        request.nextComputationStage,
+      )
+    )
+
+    return token.toAdvanceComputationStageResponse()
   }
 
   override suspend fun getComputationIds(
