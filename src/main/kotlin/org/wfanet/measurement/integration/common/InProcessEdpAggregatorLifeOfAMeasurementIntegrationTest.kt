@@ -193,6 +193,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
       mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
+      mcSimulator.testImpression("1234")
+      mcSimulator.testReachOnly(
+         "1234",
+         ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+     mcSimulator.testReachAndFrequency(
+         "1234",
+         ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+       )
 
     }
 
