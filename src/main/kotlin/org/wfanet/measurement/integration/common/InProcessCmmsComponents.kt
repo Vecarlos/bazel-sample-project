@@ -85,6 +85,7 @@ class InProcessCmmsComponents(
   private val syntheticEventGroupSpecs: List<SyntheticEventGroupSpec> =
     SyntheticGenerationSpecs.SYNTHETIC_DATA_SPECS_SMALL,
   private val useEdpSimulators: Boolean,
+  private val duchyMillParallelism: Int = DUCHY_MILL_PARALLELISM,
 ) : TestRule {
   private val kingdomDataServices: DataServices
     get() = kingdomDataServicesRule.value
@@ -113,6 +114,7 @@ class InProcessCmmsComponents(
         duchyDependenciesRule = duchyDependenciesRule,
         trustedCertificates = TRUSTED_CERTIFICATES,
         verboseGrpcLogging = false,
+        millParallelism = duchyMillParallelism,
       )
     }
   }

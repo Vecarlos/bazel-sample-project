@@ -78,6 +78,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       kingdomDataServicesRule,
       duchyDependenciesRule,
       useEdpSimulators = false,
+      duchyMillParallelism = 1,
     )
 
   @JvmField

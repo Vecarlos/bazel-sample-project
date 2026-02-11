@@ -97,6 +97,7 @@ class InProcessDuchy(
     ProviderRule<(String, SystemComputationLogEntriesCoroutineStub) -> DuchyDependencies>,
   private val trustedCertificates: Map<ByteString, X509Certificate>,
   val verboseGrpcLogging: Boolean = true,
+  private val millParallelism: Int = DUCHY_MILL_PARALLELISM,
   daemonContext: CoroutineContext = Dispatchers.Default,
 ) : TestRule {
   data class DuchyDependencies(
@@ -280,8 +281,8 @@ class InProcessDuchy(
             computationStatsClient = computationStatsClient,
             workerStubs = workerStubs,
             cryptoWorker = JniLiquidLegionsV2Encryption(),
-            workLockDuration = Duration.ofSeconds(30),
-            parallelism = DUCHY_MILL_PARALLELISM,
+            workLockDuration = Duration.ofSeconds(1),
+            parallelism = millParallelism,
           )
         val reachOnlyLiquidLegionsV2Mill =
           ReachOnlyLiquidLegionsV2Mill(
@@ -298,7 +299,7 @@ class InProcessDuchy(
             workerStubs = workerStubs,
             cryptoWorker = JniReachOnlyLiquidLegionsV2Encryption(),
             workLockDuration = Duration.ofSeconds(1),
-            parallelism = DUCHY_MILL_PARALLELISM,
+            parallelism = millParallelism,
           )
         val honestMajorityShareShuffleMill =
           HonestMajorityShareShuffleMill(
