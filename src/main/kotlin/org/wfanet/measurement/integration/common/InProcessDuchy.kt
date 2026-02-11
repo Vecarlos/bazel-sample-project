@@ -33,6 +33,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -52,7 +54,6 @@ import org.wfanet.measurement.common.identity.withDuchyId
 import org.wfanet.measurement.common.identity.withPrincipalName
 import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.common.testing.chainRulesSequentially
-import org.wfanet.measurement.common.throttler.MinimumIntervalThrottler
 import org.wfanet.measurement.duchy.db.computation.ComputationDataClients
 import org.wfanet.measurement.duchy.deploy.common.service.DuchyDataServices
 import org.wfanet.measurement.duchy.herald.ContinuationTokenManager
@@ -108,6 +109,8 @@ class InProcessDuchy(
   private val daemonScope = CoroutineScope(daemonContext)
   private lateinit var heraldJob: Job
   private lateinit var millJob: Job
+  @Volatile private var stopMillRequested = false
+  private val millPollingInterval = Duration.ofSeconds(1)
 
   private val duchyDependencies by lazy {
     duchyDependenciesRule.value(externalDuchyId, systemComputationLogEntriesClient)
@@ -245,6 +248,7 @@ class InProcessDuchy(
   }
 
   fun startMill(duchyCertMap: Map<String, String>) {
+    stopMillRequested = false
     val consentSignal509Cert =
       readCertificate(loadTestCertDerFile("${externalDuchyId}_cs_cert.der"))
     val signingPrivateKey =
@@ -320,18 +324,18 @@ class InProcessDuchy(
             workLockDuration = Duration.ofSeconds(1),
             privateKeyStore = privateKeyStore,
           )
-        val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1))
-        throttler.loopOnReady {
+        while (isActive && !stopMillRequested) {
           reachFrequencyLiquidLegionsV2Mill.claimAndProcessWork()
           reachOnlyLiquidLegionsV2Mill.claimAndProcessWork()
           honestMajorityShareShuffleMill.claimAndProcessWork()
+          delay(millPollingInterval.toMillis())
         }
       }
   }
 
   suspend fun stopMill() {
     if (this::millJob.isInitialized) {
-      millJob.cancel("Stopping Mill")
+      stopMillRequested = true
       millJob.join()
     }
   }
