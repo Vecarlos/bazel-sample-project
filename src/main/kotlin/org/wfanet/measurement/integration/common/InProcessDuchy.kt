@@ -280,7 +280,7 @@ class InProcessDuchy(
             computationStatsClient = computationStatsClient,
             workerStubs = workerStubs,
             cryptoWorker = JniLiquidLegionsV2Encryption(),
-            workLockDuration = Duration.ofSeconds(1),
+            workLockDuration = Duration.ofSeconds(30),
             parallelism = DUCHY_MILL_PARALLELISM,
           )
         val reachOnlyLiquidLegionsV2Mill =
