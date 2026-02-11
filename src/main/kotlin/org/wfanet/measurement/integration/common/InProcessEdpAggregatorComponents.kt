@@ -44,6 +44,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -234,6 +235,10 @@ class InProcessEdpAggregatorComponents(
     )
 
   private val throttler = MinimumIntervalThrottler(Clock.systemUTC(), Duration.ofSeconds(1L))
+  private val requisitionFetcherJobs = mutableListOf<Job>()
+  private var resultsFulfillerJob: Job? = null
+  @Volatile private var stopRequisitionFetcherRequested = false
+  @Volatile private var resultFulfillerStarted = false
 
   fun startDaemons(
     kingdomChannel: Channel,
@@ -242,6 +247,10 @@ class InProcessEdpAggregatorComponents(
     edpAggregatorShortNames: List<String>,
     duchyMap: Map<String, Channel>,
   ) = runBlocking {
+    stopRequisitionFetcherRequested = false
+    requisitionFetcherJobs.clear()
+    resultsFulfillerJob = null
+    resultFulfillerStarted = false
     publicApiChannel = kingdomChannel
     duchyChannelMap = duchyMap
     edpResourceNameMap =
@@ -322,12 +331,13 @@ class InProcessEdpAggregatorComponents(
           "$REQUISITION_STORAGE_PREFIX-$edpAggregatorShortName",
           requisitionGrouper,
         )
-      backgroundScope.launch {
-        while (true) {
+      val fetcherJob = backgroundScope.launch {
+        while (isActive && !stopRequisitionFetcherRequested) {
           delay(1000)
           requisitionFetcher.fetchAndStoreRequisitions()
         }
       }
+      requisitionFetcherJobs.add(fetcherJob)
       val eventGroups = buildEventGroups(measurementConsumerData)
       eventGroupSync =
         EventGroupSync(edpResourceName, eventGroupsClient, eventGroups.asFlow(), throttler, 500)
@@ -366,7 +376,8 @@ class InProcessEdpAggregatorComponents(
         saveImpressionMetadata(impressionsMetadata, edpResourceName)
       }
     }
-    backgroundScope.launch { resultFulfillerApp.run() }
+    resultsFulfillerJob = backgroundScope.launch { resultFulfillerApp.run() }
+    resultFulfillerStarted = true
   }
 
   private suspend fun refuseRequisition(
@@ -526,6 +537,14 @@ class InProcessEdpAggregatorComponents(
   }
 
   fun stopDaemons() {
+    stopRequisitionFetcherRequested = true
+    runBlocking {
+      requisitionFetcherJobs.forEach { it.join() }
+      if (resultFulfillerStarted) {
+        resultFulfillerApp.close()
+        resultsFulfillerJob?.join()
+      }
+    }
     backgroundJob.cancel()
   }
 
