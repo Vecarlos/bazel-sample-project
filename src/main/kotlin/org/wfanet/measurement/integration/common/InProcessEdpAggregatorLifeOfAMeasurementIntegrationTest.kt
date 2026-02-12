@@ -14,7 +14,6 @@
 
 package org.wfanet.measurement.integration.common
 
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
@@ -23,9 +22,7 @@ import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.ClassRule
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
@@ -41,17 +38,13 @@ import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.Synthetic
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.parseTextProto
-import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
 import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMemoryVidIndexMap
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
-import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
-import org.wfanet.measurement.kingdom.deploy.common.service.DataServices
 import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurementConsumerSimulator
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
-import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
 
 /**
  * Test that everything is wired up properly.
@@ -60,53 +53,14 @@ import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.Computa
  * easily.
  */
 abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
-  kingdomDataServicesRule: ProviderRule<DataServices>,
-  duchyDependenciesRule:
-    ProviderRule<(String, ComputationLogEntriesCoroutineStub) -> InProcessDuchy.DuchyDependencies>,
-  secureComputationDatabaseAdmin: SpannerDatabaseAdmin,
+  private val inProcessCmmsComponents: InProcessCmmsComponents,
+  private val inProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents,
+  private val pubSubClient: GooglePubSubEmulatorClient,
 ) {
-
-  private val pubSubClient: GooglePubSubEmulatorClient by lazy {
-    GooglePubSubEmulatorClient(
-      host = pubSubEmulatorProvider.host,
-      port = pubSubEmulatorProvider.port,
-    )
-  }
-
-  private val activeCmmsComponents: InProcessCmmsComponents
-    get() = if (started) sharedCmmsComponents else inProcessCmmsComponents
-
-  @get:Rule
-  val inProcessCmmsComponents =
-    InProcessCmmsComponents(
-      kingdomDataServicesRule,
-      duchyDependenciesRule,
-      useEdpSimulators = false,
-    )
-
-  @JvmField
-  @get:Rule
-  val tempPath: Path = run {
-    val tempDirectory = TemporaryFolder()
-    tempDirectory.create()
-    tempDirectory.root.toPath()
-  }
-
   private val syntheticEventGroupMap =
     mapOf(
       "edpa-eg-reference-id-1" to syntheticEventGroupSpec,
       "edpa-eg-reference-id-2" to syntheticEventGroupSpec,
-    )
-
-  @get:Rule
-  val inProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents =
-    InProcessEdpAggregatorComponents(
-      secureComputationDatabaseAdmin = secureComputationDatabaseAdmin,
-      storagePath = tempPath,
-      pubSubClient = pubSubClient,
-      syntheticEventGroupMap = syntheticEventGroupMap,
-      syntheticPopulationSpec = syntheticPopulationSpec,
-      modelLineInfoMap = modelLineInfoMap,
     )
 
   @Before
@@ -146,23 +100,23 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
 
   private val publicMeasurementsClient by lazy {
-    MeasurementsCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
+    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicMeasurementConsumersClient by lazy {
-    MeasurementConsumersCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
+    MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicCertificatesClient by lazy {
-    CertificatesCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
+    CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicEventGroupsClient by lazy {
-    EventGroupsCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
+    EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicDataProvidersClient by lazy {
-    DataProvidersCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
+    DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
   }
 
   private fun initMcSimulator() {
-    val measurementConsumerData = activeCmmsComponents.getMeasurementConsumerData()
+    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
     mcSimulator =
       EdpAggregatorMeasurementConsumerSimulator(
         MeasurementConsumerData(

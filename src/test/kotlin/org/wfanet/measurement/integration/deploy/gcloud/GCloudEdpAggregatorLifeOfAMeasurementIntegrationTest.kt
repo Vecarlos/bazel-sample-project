@@ -14,11 +14,15 @@
 
 package org.wfanet.measurement.integration.deploy.gcloud
 
+import java.nio.file.Files
 import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.rules.Timeout
+import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.spanner.testing.SpannerEmulatorRule
 import org.wfanet.measurement.integration.common.ALL_DUCHY_NAMES
+import org.wfanet.measurement.integration.common.InProcessCmmsComponents
+import org.wfanet.measurement.integration.common.InProcessEdpAggregatorComponents
 import org.wfanet.measurement.integration.common.InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest
 
 /**
@@ -27,9 +31,9 @@ import org.wfanet.measurement.integration.common.InProcessEdpAggregatorLifeOfAMe
  */
 class GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest :
   InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
-    kingdomDataServicesRule = KingdomDataServicesProviderRule(spannerEmulator),
-    duchyDependenciesRule = SpannerDuchyDependencyProviderRule(spannerEmulator, ALL_DUCHY_NAMES),
-    secureComputationDatabaseAdmin = spannerEmulator,
+    inProcessCmmsComponents = cmmsComponents,
+    inProcessEdpAggregatorComponents = edpAggregatorComponents,
+    pubSubClient = pubSubClient,
   ) {
 
   /**
@@ -41,5 +45,44 @@ class GCloudEdpAggregatorLifeOfAMeasurementIntegrationTest :
 
   companion object {
     @get:ClassRule @JvmStatic val spannerEmulator = SpannerEmulatorRule()
+    @JvmStatic
+    private val pubSubClient =
+      GooglePubSubEmulatorClient(
+        host = InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.pubSubEmulatorProvider.host,
+        port = InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.pubSubEmulatorProvider.port,
+      )
+
+    @JvmStatic private val storagePath = Files.createTempDirectory("edp-agg-")
+
+    @JvmStatic
+    private val syntheticEventGroupMap =
+      mapOf(
+        "edpa-eg-reference-id-1" to
+          InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.syntheticEventGroupSpec,
+        "edpa-eg-reference-id-2" to
+          InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.syntheticEventGroupSpec,
+      )
+
+    @get:ClassRule
+    @JvmStatic
+    val cmmsComponents =
+      InProcessCmmsComponents(
+        kingdomDataServicesRule = KingdomDataServicesProviderRule(spannerEmulator),
+        duchyDependenciesRule = SpannerDuchyDependencyProviderRule(spannerEmulator, ALL_DUCHY_NAMES),
+        useEdpSimulators = false,
+      )
+
+    @get:ClassRule
+    @JvmStatic
+    val edpAggregatorComponents =
+      InProcessEdpAggregatorComponents(
+        secureComputationDatabaseAdmin = spannerEmulator,
+        storagePath = storagePath,
+        pubSubClient = pubSubClient,
+        syntheticEventGroupMap = syntheticEventGroupMap,
+        syntheticPopulationSpec =
+          InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.syntheticPopulationSpec,
+        modelLineInfoMap = InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest.modelLineInfoMap,
+      )
   }
 }
