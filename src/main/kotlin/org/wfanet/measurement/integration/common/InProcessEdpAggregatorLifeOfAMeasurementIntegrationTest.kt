@@ -107,7 +107,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Before
   fun setup() {
-    runBlocking {
+    if (!started) {
+      runBlocking {
+        pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
+      }
+    }
+      runBlocking {
       pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
     }
@@ -126,9 +132,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     )
     initMcSimulator()
   }
-
-  
-
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
 
