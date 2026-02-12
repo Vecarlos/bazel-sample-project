@@ -105,7 +105,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       modelLineInfoMap = modelLineInfoMap,
     )
 
-  @ClassRule
+  @Before
   fun setup() {
     runBlocking {
       pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
@@ -126,6 +126,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     )
     initMcSimulator()
   }
+
+  
+
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
 
