@@ -105,7 +105,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       modelLineInfoMap = modelLineInfoMap,
     )
 
-//  @Before
+  @ClassRule
   fun setup() {
     runBlocking {
       pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
@@ -310,7 +310,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @JvmStatic
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
-      setup()
     }
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
