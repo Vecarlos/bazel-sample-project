@@ -14,15 +14,17 @@
 
 package org.wfanet.measurement.integration.common
 
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.ClassRule
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.wfanet.measurement.api.v2alpha.CertificatesGrpcKt.CertificatesCoroutineStub
 import org.wfanet.measurement.api.v2alpha.DataProvidersGrpcKt.DataProvidersCoroutineStub
 import org.wfanet.measurement.api.v2alpha.EventGroupsGrpcKt.EventGroupsCoroutineStub
@@ -38,13 +40,17 @@ import org.wfanet.measurement.api.v2alpha.event_group_metadata.testing.Synthetic
 import org.wfanet.measurement.api.v2alpha.event_templates.testing.TestEvent
 import org.wfanet.measurement.common.getRuntimePath
 import org.wfanet.measurement.common.parseTextProto
+import org.wfanet.measurement.common.testing.ProviderRule
 import org.wfanet.measurement.edpaggregator.resultsfulfiller.ModelLineInfo
 import org.wfanet.measurement.eventdataprovider.requisition.v2alpha.common.InMemoryVidIndexMap
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorClient
 import org.wfanet.measurement.gcloud.pubsub.testing.GooglePubSubEmulatorProvider
+import org.wfanet.measurement.gcloud.spanner.testing.SpannerDatabaseAdmin
+import org.wfanet.measurement.kingdom.deploy.common.service.DataServices
 import org.wfanet.measurement.loadtest.measurementconsumer.EdpAggregatorMeasurementConsumerSimulator
 import org.wfanet.measurement.loadtest.measurementconsumer.MeasurementConsumerData
 import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
+import org.wfanet.measurement.system.v1alpha.ComputationLogEntriesGrpcKt.ComputationLogEntriesCoroutineStub
 
 /**
  * Test that everything is wired up properly.
@@ -53,48 +59,72 @@ import org.wfanet.measurement.reporting.service.api.v2alpha.ReportKey
  * easily.
  */
 abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
-  private val inProcessCmmsComponents: InProcessCmmsComponents,
-  private val inProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents,
-  private val pubSubClient: GooglePubSubEmulatorClient,
+  kingdomDataServicesRule: ProviderRule<DataServices>,
+  duchyDependenciesRule:
+    ProviderRule<(String, ComputationLogEntriesCoroutineStub) -> InProcessDuchy.DuchyDependencies>,
+  secureComputationDatabaseAdmin: SpannerDatabaseAdmin,
 ) {
+
+  private val pubSubClient: GooglePubSubEmulatorClient by lazy {
+    GooglePubSubEmulatorClient(
+      host = pubSubEmulatorProvider.host,
+      port = pubSubEmulatorProvider.port,
+    )
+  }
+
+  @get:Rule
+  val inProcessCmmsComponents =
+    InProcessCmmsComponents(
+      kingdomDataServicesRule,
+      duchyDependenciesRule,
+      useEdpSimulators = false,
+    )
+
+  @JvmField
+  @get:Rule
+  val tempPath: Path = run {
+    val tempDirectory = TemporaryFolder()
+    tempDirectory.create()
+    tempDirectory.root.toPath()
+  }
+
   private val syntheticEventGroupMap =
     mapOf(
       "edpa-eg-reference-id-1" to syntheticEventGroupSpec,
       "edpa-eg-reference-id-2" to syntheticEventGroupSpec,
     )
 
+  @get:Rule
+  val inProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents =
+    InProcessEdpAggregatorComponents(
+      secureComputationDatabaseAdmin = secureComputationDatabaseAdmin,
+      storagePath = tempPath,
+      pubSubClient = pubSubClient,
+      syntheticEventGroupMap = syntheticEventGroupMap,
+      syntheticPopulationSpec = syntheticPopulationSpec,
+      modelLineInfoMap = modelLineInfoMap,
+    )
+
   @Before
   fun setup() {
-    ensureStarted()
-    initMcSimulator()
-  }
-
-  private fun ensureStarted() {
-    if (started) return
-    synchronized(startLock) {
-      if (started) return
-      sharedPubSubClient = pubSubClient
-      sharedCmmsComponents = inProcessCmmsComponents
-      sharedEdpAggregatorComponents = inProcessEdpAggregatorComponents
-      runBlocking {
-        sharedPubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-        sharedPubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
-      }
-      sharedCmmsComponents.startDaemons()
-      val measurementConsumerData = sharedCmmsComponents.getMeasurementConsumerData()
-      val edpDisplayNameToResourceMap = sharedCmmsComponents.edpDisplayNameToResourceMap
-      val kingdomChannel = sharedCmmsComponents.kingdom.publicApiChannel
-      val duchyMap =
-        sharedCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-      sharedEdpAggregatorComponents.startDaemons(
-        kingdomChannel,
-        measurementConsumerData,
-        edpDisplayNameToResourceMap,
-        listOf("edp1", "edp2"),
-        duchyMap,
-      )
-      started = true
+    runBlocking {
+      pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+      pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
     }
+    inProcessCmmsComponents.startDaemons()
+    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+    val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
+    val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
+    val duchyMap =
+      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+    inProcessEdpAggregatorComponents.startDaemons(
+      kingdomChannel,
+      measurementConsumerData,
+      edpDisplayNameToResourceMap,
+      listOf("edp1", "edp2"),
+      duchyMap,
+    )
+    initMcSimulator()
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -147,7 +177,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    // No-op. Global teardown is in afterAll().
+    inProcessCmmsComponents.stopDuchyDaemons()
+    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    inProcessEdpAggregatorComponents.stopDaemons()
+    runBlocking {
+      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+    }
   }
 
   @Test
@@ -155,7 +191,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
-      mcSimulator.testDirectReachOnly(runId = newRunId(), numMeasurements = 1)
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
     }
 
   @Test
@@ -163,7 +199,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
-      mcSimulator.testDirectReachAndFrequency(runId = newRunId(), numMeasurements = 1)
+      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
     }
 
   // @Test
@@ -201,14 +237,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   //     )
   //   }
 
-  private fun newRunId(): String = "run-" + System.nanoTime()
-
   companion object {
-    @Volatile private var started = false
-    private val startLock = Any()
-    private lateinit var sharedCmmsComponents: InProcessCmmsComponents
-    private lateinit var sharedEdpAggregatorComponents: InProcessEdpAggregatorComponents
-    private lateinit var sharedPubSubClient: GooglePubSubEmulatorClient
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
@@ -281,20 +310,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @JvmStatic
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
-    }
-
-    @AfterClass
-    @JvmStatic
-    fun afterAll() {
-      if (!started) return
-      sharedCmmsComponents.stopDuchyDaemons()
-      sharedCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
-      sharedEdpAggregatorComponents.stopDaemons()
-      runBlocking {
-        sharedPubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-        sharedPubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
-      }
-      started = false
     }
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
