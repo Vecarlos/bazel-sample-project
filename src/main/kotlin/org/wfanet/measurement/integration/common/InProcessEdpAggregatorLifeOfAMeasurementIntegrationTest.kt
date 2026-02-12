@@ -19,6 +19,7 @@ import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.ClassRule
@@ -72,6 +73,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     )
   }
 
+  private val activeCmmsComponents: InProcessCmmsComponents
+    get() = if (started) sharedCmmsComponents else inProcessCmmsComponents
+
   @get:Rule
   val inProcessCmmsComponents =
     InProcessCmmsComponents(
@@ -107,46 +111,58 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Before
   fun setup() {
-    runBlocking {
-      pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
-    }
-    inProcessCmmsComponents.startDaemons()
-    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
-    val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
-    val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-    val duchyMap =
-      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-    inProcessEdpAggregatorComponents.startDaemons(
-      kingdomChannel,
-      measurementConsumerData,
-      edpDisplayNameToResourceMap,
-      listOf("edp1", "edp2"),
-      duchyMap,
-    )
+    ensureStarted()
     initMcSimulator()
+  }
+
+  private fun ensureStarted() {
+    if (started) return
+    synchronized(startLock) {
+      if (started) return
+      sharedPubSubClient = pubSubClient
+      sharedCmmsComponents = inProcessCmmsComponents
+      sharedEdpAggregatorComponents = inProcessEdpAggregatorComponents
+      runBlocking {
+        sharedPubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        sharedPubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
+      }
+      sharedCmmsComponents.startDaemons()
+      val measurementConsumerData = sharedCmmsComponents.getMeasurementConsumerData()
+      val edpDisplayNameToResourceMap = sharedCmmsComponents.edpDisplayNameToResourceMap
+      val kingdomChannel = sharedCmmsComponents.kingdom.publicApiChannel
+      val duchyMap =
+        sharedCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+      sharedEdpAggregatorComponents.startDaemons(
+        kingdomChannel,
+        measurementConsumerData,
+        edpDisplayNameToResourceMap,
+        listOf("edp1", "edp2"),
+        duchyMap,
+      )
+      started = true
+    }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
 
   private val publicMeasurementsClient by lazy {
-    MeasurementsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    MeasurementsCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicMeasurementConsumersClient by lazy {
-    MeasurementConsumersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    MeasurementConsumersCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicCertificatesClient by lazy {
-    CertificatesCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    CertificatesCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicEventGroupsClient by lazy {
-    EventGroupsCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    EventGroupsCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
   }
   private val publicDataProvidersClient by lazy {
-    DataProvidersCoroutineStub(inProcessCmmsComponents.kingdom.publicApiChannel)
+    DataProvidersCoroutineStub(activeCmmsComponents.kingdom.publicApiChannel)
   }
 
   private fun initMcSimulator() {
-    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+    val measurementConsumerData = activeCmmsComponents.getMeasurementConsumerData()
     mcSimulator =
       EdpAggregatorMeasurementConsumerSimulator(
         MeasurementConsumerData(
@@ -177,13 +193,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    inProcessCmmsComponents.stopDuchyDaemons()
-    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
-    inProcessEdpAggregatorComponents.stopDaemons()
-    runBlocking {
-      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
-    }
+    // No-op. Global teardown is in afterAll().
   }
 
   @Test
@@ -191,7 +201,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
-      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
+      mcSimulator.testDirectReachOnly(runId = newRunId(), numMeasurements = 1)
     }
 
   @Test
@@ -199,7 +209,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     runBlocking {
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
-      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
+      mcSimulator.testDirectReachAndFrequency(runId = newRunId(), numMeasurements = 1)
     }
 
   // @Test
@@ -237,7 +247,14 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   //     )
   //   }
 
+  private fun newRunId(): String = "run-" + System.nanoTime()
+
   companion object {
+    @Volatile private var started = false
+    private val startLock = Any()
+    private lateinit var sharedCmmsComponents: InProcessCmmsComponents
+    private lateinit var sharedEdpAggregatorComponents: InProcessEdpAggregatorComponents
+    private lateinit var sharedPubSubClient: GooglePubSubEmulatorClient
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
@@ -310,6 +327,20 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @JvmStatic
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
+    }
+
+    @AfterClass
+    @JvmStatic
+    fun afterAll() {
+      if (!started) return
+      sharedCmmsComponents.stopDuchyDaemons()
+      sharedCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+      sharedEdpAggregatorComponents.stopDaemons()
+      runBlocking {
+        sharedPubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        sharedPubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+      }
+      started = false
     }
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
