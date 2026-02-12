@@ -108,29 +108,26 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
   @Before
   fun setup() {
     if (!started) {
+
       runBlocking {
         pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
         pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
       }
+      inProcessCmmsComponents.startDaemons()
+      val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+      val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
+      val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
+      val duchyMap =
+        inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+      inProcessEdpAggregatorComponents.startDaemons(
+        kingdomChannel,
+        measurementConsumerData,
+        edpDisplayNameToResourceMap,
+        listOf("edp1", "edp2"),
+        duchyMap,
+      )
+      initMcSimulator()
     }
-      runBlocking {
-      pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
-    }
-    inProcessCmmsComponents.startDaemons()
-    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
-    val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
-    val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-    val duchyMap =
-      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-    inProcessEdpAggregatorComponents.startDaemons(
-      kingdomChannel,
-      measurementConsumerData,
-      edpDisplayNameToResourceMap,
-      listOf("edp1", "edp2"),
-      duchyMap,
-    )
-    initMcSimulator()
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -181,16 +178,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
   }
 
-  @After
-  fun tearDown() {
-    inProcessCmmsComponents.stopDuchyDaemons()
-    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
-    inProcessEdpAggregatorComponents.stopDaemons()
-    runBlocking {
-      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
-    }
-  }
+//  @After
+//  fun tearDown() {
+//    inProcessCmmsComponents.stopDuchyDaemons()
+//    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+//    inProcessEdpAggregatorComponents.stopDaemons()
+//    runBlocking {
+//      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+//      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+//    }
+//  }
 
   @Test
   fun `create a direct RF measurement and check the result is equal to the expected result`() =
@@ -244,6 +241,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //    }
 
   companion object {
+    @Volatile private var started = false
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
