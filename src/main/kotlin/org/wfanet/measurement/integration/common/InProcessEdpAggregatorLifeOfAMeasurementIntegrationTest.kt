@@ -192,6 +192,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // Use frontend simulator to create a direct reach and frequency measurement and verify its
       // result.
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
+
     }
 
   @Test
@@ -215,7 +216,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //     runBlocking {
 //       // Use frontend simulator to create an impression measurement and verify its result.
 //       mcSimulator.testImpression("1234")
-     }
+//     }
 
   // @Test
   // fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
