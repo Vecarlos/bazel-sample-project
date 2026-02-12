@@ -195,13 +195,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
     }
 
-  @Test
-  fun `create a direct RF measurement and check the result is equal to the expected result`() =
-    runBlocking {
-      // Use frontend simulator to create a direct reach and frequency measurement and verify its
-      // result.
-      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
-    }
+//  @Test
+//  fun `create a direct RF measurement and check the result is equal to the expected result`() =
+//    runBlocking {
+//      // Use frontend simulator to create a direct reach and frequency measurement and verify its
+//      // result.
+//      mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
+//    }
 
 //   @Test
 //   fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
@@ -218,16 +218,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //       mcSimulator.testImpression("1234")
 //     }
 
-  // @Test
-  // fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-  //   runBlocking {
-  //     // Use frontend simulator to create a reach and frequency measurement and verify its result.
-  //     mcSimulator.testReachOnly(
-  //       "1234",
-  //       ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-  //     )
-  //   }
-  //
+   @Test
+   fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
+     runBlocking {
+       // Use frontend simulator to create a reach and frequency measurement and verify its result.
+       mcSimulator.testReachOnly(
+         "1234",
+         ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+       )
+     }
+
   // @Test
   // fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
   //   runBlocking {
