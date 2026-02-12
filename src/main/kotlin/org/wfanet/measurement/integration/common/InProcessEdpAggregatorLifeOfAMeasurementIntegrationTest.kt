@@ -125,19 +125,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     initMcSimulator()
-    Thread.sleep(HOOK_DELAY_MILLIS)
-  }
-
-  @After
-  fun tearDown() {
-    inProcessCmmsComponents.stopDuchyDaemons()
-    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
-    inProcessEdpAggregatorComponents.stopDaemons()
-    runBlocking {
-      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
-    }
-    Thread.sleep(HOOK_DELAY_MILLIS)
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -188,7 +175,16 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       )
   }
 
-
+  @After
+  fun tearDown() {
+    inProcessCmmsComponents.stopDuchyDaemons()
+    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    inProcessEdpAggregatorComponents.stopDaemons()
+    runBlocking {
+      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+    }
+  }
 
   @Test
   fun `create a direct RF measurement and check the result is equal to the expected result`() =
@@ -220,29 +216,28 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // Use frontend simulator to create an impression measurement and verify its result.
       mcSimulator.testImpression("1234")
     }
-//
-//  @Test
-//  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachOnly(
-//        "1234",
-//        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-//      )
-//    }
-//
-//  @Test
-//  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachAndFrequency(
-//        "1234",
-//        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-//      )
-//    }
+
+  @Test
+  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachOnly(
+        "1234",
+        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+    }
+
+  @Test
+  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachAndFrequency(
+        "1234",
+        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+    }
 
   companion object {
-    private const val HOOK_DELAY_MILLIS = 10000L
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
