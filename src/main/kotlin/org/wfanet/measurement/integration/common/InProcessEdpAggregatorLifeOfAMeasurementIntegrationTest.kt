@@ -127,6 +127,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
         duchyMap,
       )
       initMcSimulator()
+      started = true
     }
   }
 
