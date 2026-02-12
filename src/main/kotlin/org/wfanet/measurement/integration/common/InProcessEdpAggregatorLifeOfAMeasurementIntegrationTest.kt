@@ -19,7 +19,6 @@ import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.ClassRule
@@ -108,14 +107,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Before
   fun setup() {
-    if (started) {
-      initMcSimulator()
-      return
-    }
-    started = true
-    sharedInProcessCmmsComponents = inProcessCmmsComponents
-    sharedInProcessEdpAggregatorComponents = inProcessEdpAggregatorComponents
-    sharedPubSubClient = pubSubClient
     runBlocking {
       pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
@@ -186,7 +177,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    // No-op. Global teardown in tearDownAll().
+    inProcessCmmsComponents.stopDuchyDaemons()
+    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    inProcessEdpAggregatorComponents.stopDaemons()
+    runBlocking {
+      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+    }
   }
 
   @Test
@@ -196,56 +193,51 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       // result.
       mcSimulator.testDirectReachAndFrequency(runId = "1234", numMeasurements = 1)
     }
-//
-//  @Test
-//  fun `create a direct reach only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a direct reach and frequency measurement and verify its
-//      // result.
-//      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
-//    }
-//
-//  @Test
-//  fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create N incremental direct reach and frequency measurements and
-//      // verify its result.
-//      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
-//    }
-//
-//  @Test
-//  fun `create an impression measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create an impression measurement and verify its result.
-//      mcSimulator.testImpression("1234")
-//    }
-//
-//  @Test
-//  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachOnly(
-//        "1234",
-//        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-//      )
-//    }
 
-//  @Test
-//  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachAndFrequency(
-//        "1234",
-//        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-//      )
-//    }
+  @Test
+  fun `create a direct reach only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a direct reach and frequency measurement and verify its
+      // result.
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
+    }
+
+  @Test
+  fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create N incremental direct reach and frequency measurements and
+      // verify its result.
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
+    }
+
+  @Test
+  fun `create an impression measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create an impression measurement and verify its result.
+      mcSimulator.testImpression("1234")
+    }
+
+  @Test
+  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachOnly(
+        "1234",
+        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+    }
+
+  @Test
+  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachAndFrequency(
+        "1234",
+        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+    }
 
   companion object {
-    @Volatile private var started = false
-    private lateinit var sharedInProcessCmmsComponents: InProcessCmmsComponents
-    private lateinit var sharedInProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents
-    private lateinit var sharedPubSubClient: GooglePubSubEmulatorClient
-
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
@@ -318,20 +310,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @JvmStatic
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
-    }
-
-    @AfterClass
-    @JvmStatic
-    fun tearDownAll() {
-      if (!started) return
-      sharedInProcessCmmsComponents.stopDuchyDaemons()
-      sharedInProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
-      sharedInProcessEdpAggregatorComponents.stopDaemons()
-      runBlocking {
-        sharedPubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-        sharedPubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
-      }
-      started = false
     }
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
