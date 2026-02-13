@@ -220,6 +220,15 @@ maven.artifact(
     ],
     group = "org.apache.beam",
 )
+
+
+maven.artifact(group = "org.testcontainers", artifact = "testcontainers", version = "1.21.4")
+maven.artifact(group = "org.testcontainers", artifact = "gcloud", version = "1.21.4")
+maven.artifact(group = "org.testcontainers", artifact = "postgresql", version = "1.21.4")
+maven.artifact(group = "org.testcontainers", artifact = "jdbc", version = "1.21.4")
+maven.artifact(group = "org.testcontainers", artifact = "database-commons", version = "1.21.4")
+
+
 maven.install(
     artifacts = [
         "com.google.crypto.tink:tink-awskms:1.11.0",
