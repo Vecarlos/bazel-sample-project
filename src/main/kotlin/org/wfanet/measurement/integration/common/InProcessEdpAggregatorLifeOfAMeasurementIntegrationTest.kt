@@ -18,6 +18,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
 import kotlinx.coroutines.runBlocking
+import org.junit.AfterClass
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -107,24 +108,42 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Before
   fun setup() {
-    runBlocking {
-      pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
+    if (started) {
+      mcSimulator = sharedMcSimulator
+      return
     }
-    inProcessCmmsComponents.startDaemons()
-    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
-    val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
-    val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-    val duchyMap =
-      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-    inProcessEdpAggregatorComponents.startDaemons(
-      kingdomChannel,
-      measurementConsumerData,
-      edpDisplayNameToResourceMap,
-      listOf("edp1", "edp2"),
-      duchyMap,
-    )
-    initMcSimulator()
+
+    synchronized(Companion) {
+      if (started) {
+        mcSimulator = sharedMcSimulator
+        return
+      }
+
+      runBlocking {
+        pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
+      }
+      inProcessCmmsComponents.startDaemons()
+      val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+      val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
+      val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
+      val duchyMap =
+        inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+      inProcessEdpAggregatorComponents.startDaemons(
+        kingdomChannel,
+        measurementConsumerData,
+        edpDisplayNameToResourceMap,
+        listOf("edp1", "edp2"),
+        duchyMap,
+      )
+      initMcSimulator()
+
+      sharedMcSimulator = mcSimulator
+      sharedPubSubClient = pubSubClient
+      sharedInProcessCmmsComponents = inProcessCmmsComponents
+      sharedInProcessEdpAggregatorComponents = inProcessEdpAggregatorComponents
+      started = true
+    }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -177,13 +196,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    inProcessCmmsComponents.stopDuchyDaemons()
-    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
-    inProcessEdpAggregatorComponents.stopDaemons()
-    runBlocking {
-      pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-      pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
-    }
+    // No-op. Cleanup is done once in tearDownAll().
   }
 
   @Test
@@ -202,13 +215,13 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 1)
 //    }
 
-//  @Test
-//  fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create N incremental direct reach and frequency measurements and
-//      // verify its result.
-//      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
-//    }
+  @Test
+  fun `create incremental direct reach only measurements in same report and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create N incremental direct reach and frequency measurements and
+      // verify its result.
+      mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
+    }
 
 //  @Test
 //  fun `create an impression measurement and check the result is equal to the expected result`() =
@@ -238,6 +251,12 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //    }
 
   companion object {
+    @Volatile private var started = false
+    private lateinit var sharedMcSimulator: EdpAggregatorMeasurementConsumerSimulator
+    private var sharedPubSubClient: GooglePubSubEmulatorClient? = null
+    private var sharedInProcessCmmsComponents: InProcessCmmsComponents? = null
+    private var sharedInProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents? = null
+
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
@@ -310,6 +329,25 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @JvmStatic
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
+    }
+
+    @AfterClass
+    @JvmStatic
+    fun tearDownAll() {
+      if (!started) {
+        return
+      }
+      sharedInProcessCmmsComponents?.stopDuchyDaemons()
+      sharedInProcessCmmsComponents?.stopPopulationRequisitionFulfillerDaemon()
+      sharedInProcessEdpAggregatorComponents?.stopDaemons()
+      runBlocking {
+        sharedPubSubClient?.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        sharedPubSubClient?.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+      }
+      sharedPubSubClient = null
+      sharedInProcessCmmsComponents = null
+      sharedInProcessEdpAggregatorComponents = null
+      started = false
     }
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
