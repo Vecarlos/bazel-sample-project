@@ -108,42 +108,20 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @Before
   fun setup() {
-    if (started) {
-      mcSimulator = sharedMcSimulator
-      return
-    }
-
-    synchronized(Companion) {
-      if (started) {
-        mcSimulator = sharedMcSimulator
-        return
-      }
-
-      runBlocking {
-        pubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-        pubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
-      }
-      inProcessCmmsComponents.startDaemons()
-      val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
-      val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
-      val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
-      val duchyMap =
-        inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
-      inProcessEdpAggregatorComponents.startDaemons(
-        kingdomChannel,
-        measurementConsumerData,
-        edpDisplayNameToResourceMap,
-        listOf("edp1", "edp2"),
-        duchyMap,
-      )
-      initMcSimulator()
-
-      sharedMcSimulator = mcSimulator
-      sharedPubSubClient = pubSubClient
-      sharedInProcessCmmsComponents = inProcessCmmsComponents
-      sharedInProcessEdpAggregatorComponents = inProcessEdpAggregatorComponents
-      started = true
-    }
+    inProcessCmmsComponents.startDaemons()
+    val measurementConsumerData = inProcessCmmsComponents.getMeasurementConsumerData()
+    val edpDisplayNameToResourceMap = inProcessCmmsComponents.edpDisplayNameToResourceMap
+    val kingdomChannel = inProcessCmmsComponents.kingdom.publicApiChannel
+    val duchyMap =
+      inProcessCmmsComponents.duchies.map { it.externalDuchyId to it.publicApiChannel }.toMap()
+    inProcessEdpAggregatorComponents.startDaemons(
+      kingdomChannel,
+      measurementConsumerData,
+      edpDisplayNameToResourceMap,
+      listOf("edp1", "edp2"),
+      duchyMap,
+    )
+    initMcSimulator()
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -196,7 +174,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
-    // No-op. Cleanup is done once in tearDownAll().
+    inProcessCmmsComponents.stopDuchyDaemons()
+    inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+    inProcessEdpAggregatorComponents.stopDaemons()
   }
 
   @Test
@@ -251,11 +231,8 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //    }
 
   companion object {
-    @Volatile private var started = false
-    private lateinit var sharedMcSimulator: EdpAggregatorMeasurementConsumerSimulator
-    private var sharedPubSubClient: GooglePubSubEmulatorClient? = null
-    private var sharedInProcessCmmsComponents: InProcessCmmsComponents? = null
-    private var sharedInProcessEdpAggregatorComponents: InProcessEdpAggregatorComponents? = null
+    private lateinit var sharedPubSubClient: GooglePubSubEmulatorClient
+    private var pubSubResourcesCreated = false
 
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
@@ -329,25 +306,29 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     @JvmStatic
     fun initConfig() {
       InProcessCmmsComponents.initConfig()
+      sharedPubSubClient =
+        GooglePubSubEmulatorClient(
+          host = pubSubEmulatorProvider.host,
+          port = pubSubEmulatorProvider.port,
+        )
+      runBlocking {
+        sharedPubSubClient.createTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        sharedPubSubClient.createSubscription(PROJECT_ID, SUBSCRIPTION_ID, FULFILLER_TOPIC_ID)
+      }
+      pubSubResourcesCreated = true
     }
 
     @AfterClass
     @JvmStatic
     fun tearDownAll() {
-      if (!started) {
+      if (!pubSubResourcesCreated) {
         return
       }
-      sharedInProcessCmmsComponents?.stopDuchyDaemons()
-      sharedInProcessCmmsComponents?.stopPopulationRequisitionFulfillerDaemon()
-      sharedInProcessEdpAggregatorComponents?.stopDaemons()
       runBlocking {
-        sharedPubSubClient?.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
-        sharedPubSubClient?.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
+        sharedPubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
+        sharedPubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
       }
-      sharedPubSubClient = null
-      sharedInProcessCmmsComponents = null
-      sharedInProcessEdpAggregatorComponents = null
-      started = false
+      pubSubResourcesCreated = false
     }
 
     @get:ClassRule @JvmStatic val pubSubEmulatorProvider = GooglePubSubEmulatorProvider()
