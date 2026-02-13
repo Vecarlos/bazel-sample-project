@@ -17,6 +17,7 @@ package org.wfanet.measurement.integration.common
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -125,6 +126,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     initMcSimulator()
+    runBlocking { delay(HOOK_DELAY_MILLIS) }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -184,6 +186,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
     }
+    runBlocking { delay(HOOK_DELAY_MILLIS) }
   }
 
   @Test
@@ -238,6 +241,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //    }
 
   companion object {
+    private const val HOOK_DELAY_MILLIS = 2000L
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
