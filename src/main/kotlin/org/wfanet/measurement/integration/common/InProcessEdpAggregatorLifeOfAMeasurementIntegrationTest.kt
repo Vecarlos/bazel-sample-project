@@ -241,7 +241,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 //    }
 
   companion object {
-    private const val HOOK_DELAY_MILLIS = 2000L
+    private const val HOOK_DELAY_MILLIS = 10000L
     private val logger: Logger = Logger.getLogger(this::class.java.name)
     private val modelLineName =
       "modelProviders/AAAAAAAAAHs/modelSuites/AAAAAAAAAHs/modelLines/AAAAAAAAAHs"
