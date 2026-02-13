@@ -39,6 +39,9 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       CLUSTER_LOGS_PATH: cluster-logs
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_API_VERSION: "1.44"
+      TESTCONTAINERS_RYUK_DISABLED: "true"
     steps:
       - name: Check out revision
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -135,7 +138,15 @@ jobs:
           build --define pdp_cert_name=dataProviders/foodp1/certificates/bar1
           build --define google_cloud_project=example-project
           build --define basic_reports_enabled=true
+          test --test_env=DOCKER_HOST
+          test --test_env=DOCKER_API_VERSION
+          test --test_env=TESTCONTAINERS_RYUK_DISABLED
           EOF
+
+      - name: Verify Docker
+        run: |
+          docker version
+          docker info
 
       # Reduce chance of disconnection from the Build Event Service.
       - name: Set TCP keepalive
