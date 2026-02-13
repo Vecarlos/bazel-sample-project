@@ -179,7 +179,9 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
+    inProcessCmmsComponents.stopDuchyDaemons()
     inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
+
     inProcessEdpAggregatorComponents.stopDaemons()
 
     runBlocking {
@@ -188,11 +190,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     }
 
     runBlocking { delay(HOOK_DELAY_MILLIS) }
-
-    inProcessCmmsComponents.stopDuchyDaemons()
-
-
-
 
   }
 
