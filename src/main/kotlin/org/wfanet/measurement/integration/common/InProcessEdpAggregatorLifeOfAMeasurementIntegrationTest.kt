@@ -126,7 +126,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     initMcSimulator()
-//    runBlocking { delay(HOOK_DELAY_MILLIS) }
+    runBlocking { delay(HOOK_DELAY_MILLIS) }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
@@ -186,7 +186,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
       pubSubClient.deleteSubscription(PROJECT_ID, SUBSCRIPTION_ID)
     }
-    runBlocking { delay(HOOK_DELAY_MILLIS) }
+//    runBlocking { delay(HOOK_DELAY_MILLIS) }
   }
 
   @Test
