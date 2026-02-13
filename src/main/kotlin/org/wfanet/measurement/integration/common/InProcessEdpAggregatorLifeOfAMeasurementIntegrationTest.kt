@@ -126,7 +126,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       duchyMap,
     )
     initMcSimulator()
-    runBlocking { delay(HOOK_DELAY_MILLIS) }
+//    runBlocking { delay(HOOK_DELAY_MILLIS) }
   }
 
   private lateinit var mcSimulator: EdpAggregatorMeasurementConsumerSimulator
