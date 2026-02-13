@@ -312,6 +312,10 @@ maven.install(
         "virtual-people-common",
     ],
     lock_file = "//:maven_install.json",
+    repositories = [
+        "https://repo.maven.apache.org/maven2",
+        "https://maven-central.storage-download.googleapis.com/maven2",
+    ],
     resolver = "maven",
     strict_visibility = True,
 )
