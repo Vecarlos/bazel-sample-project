@@ -179,6 +179,7 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
 
   @After
   fun tearDown() {
+    inProcessEdpAggregatorComponents.stopDaemons()
 
     runBlocking {
       pubSubClient.deleteTopic(PROJECT_ID, FULFILLER_TOPIC_ID)
@@ -190,7 +191,6 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
     inProcessCmmsComponents.stopDuchyDaemons()
     inProcessCmmsComponents.stopPopulationRequisitionFulfillerDaemon()
 
-    inProcessEdpAggregatorComponents.stopDaemons()
 
 
 
