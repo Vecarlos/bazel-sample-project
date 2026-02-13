@@ -213,32 +213,32 @@ abstract class InProcessEdpAggregatorLifeOfAMeasurementIntegrationTest(
       mcSimulator.testDirectReachOnly(runId = "1234", numMeasurements = 3)
     }
 
-//  @Test
-//  fun `create an impression measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create an impression measurement and verify its result.
-//      mcSimulator.testImpression("1234")
-//    }
-//
-//  @Test
-//  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachOnly(
-//        "1234",
-//        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-//      )
-//    }
-//
-//  @Test
-//  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
-//    runBlocking {
-//      // Use frontend simulator to create a reach and frequency measurement and verify its result.
-//      mcSimulator.testReachAndFrequency(
-//        "1234",
-//        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
-//      )
-//    }
+  @Test
+  fun `create an impression measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create an impression measurement and verify its result.
+      mcSimulator.testImpression("1234")
+    }
+
+  @Test
+  fun `create a Hmss reach-only measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachOnly(
+        "1234",
+        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+    }
+
+  @Test
+  fun `create a Hmss RF measurement and check the result is equal to the expected result`() =
+    runBlocking {
+      // Use frontend simulator to create a reach and frequency measurement and verify its result.
+      mcSimulator.testReachAndFrequency(
+        "1234",
+        ProtocolConfig.Protocol.ProtocolCase.HONEST_MAJORITY_SHARE_SHUFFLE,
+      )
+    }
 
   companion object {
     private const val HOOK_DELAY_MILLIS = 2000L
